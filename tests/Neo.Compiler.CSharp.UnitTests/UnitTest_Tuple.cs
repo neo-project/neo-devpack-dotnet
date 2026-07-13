@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Assign()
         {
             var tuple = Contract.T1()! as Struct;
-            AssertGasConsumed(2310540);
+            AssertGasConsumed(2310420);
             Assert.AreEqual(5, tuple!.Count);
             Assert.AreEqual(1, tuple[2].GetInteger());
             Assert.AreEqual(4, tuple[3].GetInteger());

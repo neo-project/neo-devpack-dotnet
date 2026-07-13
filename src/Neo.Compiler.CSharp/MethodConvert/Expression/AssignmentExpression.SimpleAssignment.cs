@@ -66,6 +66,16 @@ internal partial class MethodConvert
             return;
         }
 
+        switch (expression.Left)
+        {
+            case ElementAccessExpressionSyntax left:
+                ConvertElementAccessAssignment(model, left, expression.Right, leaveResultOnStack);
+                return;
+            case MemberAccessExpressionSyntax left:
+                ConvertMemberAccessAssignment(model, left, expression.Right, leaveResultOnStack);
+                return;
+        }
+
         ConvertExpression(model, expression.Right);
         if (leaveResultOnStack)
             AddInstruction(OpCode.DUP);
@@ -74,17 +84,11 @@ internal partial class MethodConvert
             case DeclarationExpressionSyntax left:
                 ConvertDeclarationAssignment(model, left);
                 break;
-            case ElementAccessExpressionSyntax left:
-                ConvertElementAccessAssignment(model, left);
-                break;
             case IdentifierNameSyntax left:
                 ConvertIdentifierNameAssignment(model, left);
                 break;
             case FieldExpressionSyntax left:
                 ConvertFieldAssignment(model, left);
-                break;
-            case MemberAccessExpressionSyntax left:
-                ConvertMemberAccessAssignment(model, left);
                 break;
             case TupleExpressionSyntax left:
                 ConvertTupleAssignment(model, left);
@@ -141,7 +145,7 @@ internal partial class MethodConvert
         }
     }
 
-    private void ConvertElementAccessAssignment(SemanticModel model, ElementAccessExpressionSyntax left)
+    private void ConvertElementAccessAssignment(SemanticModel model, ElementAccessExpressionSyntax left, ExpressionSyntax right, bool leaveResultOnStack)
     {
         if (model.GetSymbolInfo(left).Symbol is IPropertySymbol property)
         {
@@ -149,8 +153,18 @@ internal partial class MethodConvert
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             if (property.SetMethod is null)
                 throw CompilationException.UnsupportedSyntax(left, $"Element assignment through indexer '{property.Name}' is not supported because the indexer does not expose a setter.");
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             ConvertExpression(model, left.Expression);
+            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+            ConvertExpression(model, right);
+            if (leaveResultOnStack)
+            {
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+            }
+            else
+            {
+                AddInstruction(OpCode.REVERSE3);
+            }
             CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
         }
         else
@@ -162,8 +176,6 @@ internal partial class MethodConvert
                 ConvertExpression(model, left.Expression);
                 EmitArrayDimensionNavigation(model, left.ArgumentList.Arguments, arrayType.Rank - 1);
                 ConvertExpression(model, left.ArgumentList.Arguments[left.ArgumentList.Arguments.Count - 1].Expression);
-                AddInstruction(OpCode.ROT);
-                AddInstruction(OpCode.SETITEM);
             }
             else
             {
@@ -171,9 +183,16 @@ internal partial class MethodConvert
                     throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
                 ConvertExpression(model, left.Expression);
                 ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-                AddInstruction(OpCode.ROT);
-                AddInstruction(OpCode.SETITEM);
             }
+
+            ConvertExpression(model, right);
+            if (leaveResultOnStack)
+            {
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+            }
+            AddInstruction(OpCode.SETITEM);
         }
     }
 
@@ -237,7 +256,64 @@ internal partial class MethodConvert
         }
     }
 
-    private void ConvertMemberAccessAssignment(SemanticModel model, MemberAccessExpressionSyntax left)
+    private void ConvertMemberAccessAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, bool leaveResultOnStack)
+    {
+        ISymbol symbol = model.GetSymbolInfo(left.Name).Symbol!;
+        switch (symbol)
+        {
+            case IFieldSymbol field:
+                if (field.IsStatic)
+                {
+                    byte index = _context.AddStaticField(field);
+                    ConvertExpression(model, right);
+                    if (leaveResultOnStack)
+                        AddInstruction(OpCode.DUP);
+                    AccessSlot(OpCode.STSFLD, index);
+                }
+                else
+                {
+                    int index = GetInstanceFieldIndex(field);
+                    ConvertExpression(model, left.Expression);
+                    Push(index);
+                    ConvertExpression(model, right);
+                    if (leaveResultOnStack)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.REVERSE4);
+                        AddInstruction(OpCode.REVERSE3);
+                    }
+                    AddInstruction(OpCode.SETITEM);
+                }
+                break;
+            case IPropertySymbol property:
+                if (property.IsStatic)
+                {
+                    ConvertExpression(model, right);
+                    if (leaveResultOnStack)
+                        AddInstruction(OpCode.DUP);
+                }
+                else
+                {
+                    ConvertExpression(model, left.Expression);
+                    ConvertExpression(model, right);
+                    if (leaveResultOnStack)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        AddInstruction(OpCode.REVERSE3);
+                    }
+                    else
+                    {
+                        AddInstruction(OpCode.SWAP);
+                    }
+                }
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+                break;
+            default:
+                throw CompilationException.UnsupportedSyntax(left, $"Cannot assign to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, properties, and discard symbols are supported.");
+        }
+    }
+
+    private void ConvertTupleMemberAccessAssignment(SemanticModel model, MemberAccessExpressionSyntax left)
     {
         ISymbol symbol = model.GetSymbolInfo(left.Name).Symbol!;
         switch (symbol)
@@ -293,7 +369,7 @@ internal partial class MethodConvert
                     ConvertIdentifierNameAssignment(model, identifier);
                     break;
                 case MemberAccessExpressionSyntax memberAccess:
-                    ConvertMemberAccessAssignment(model, memberAccess);
+                    ConvertTupleMemberAccessAssignment(model, memberAccess);
                     break;
                 default:
                     throw CompilationException.UnsupportedSyntax(argument, $"Tuple assignment element type '{argument.Expression.GetType().Name}' is not supported. Only declarations, identifiers, and member access expressions are allowed.");

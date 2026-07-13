@@ -183,7 +183,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Class_Test()
         {
             var item = Contract.CheckClass();
-            AssertGasConsumed(1293720);
+            AssertGasConsumed(1293660);
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString)?.GetString());
@@ -193,7 +193,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Struct_Test()
         {
             var item = Contract.CheckStruct();
-            AssertGasConsumed(1293720);
+            AssertGasConsumed(1293660);
             Assert.IsInstanceOfType(item, typeof(Struct));
             Assert.AreEqual(1, ((Struct)item).Count);
             Assert.AreEqual("neo", (((Struct)item)[0] as ByteString)?.GetString());

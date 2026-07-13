@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestCount()
         {
             Assert.AreEqual(4, Contract.TestCount(4));
-            AssertGasConsumed(2036220);
+            AssertGasConsumed(2036460);
         }
 
         [TestMethod]
@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var key = System.Text.Encoding.ASCII.GetBytes("a");
             // Except: {"a":"teststring2"}
             Assert.AreEqual("7b2261223a2274657374737472696e6732227d", (Contract.TestByteArray(key) as ByteString)!.GetSpan().ToHexString());
-            AssertGasConsumed(2645430);
+            AssertGasConsumed(2645490);
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             var key = System.Text.Encoding.ASCII.GetBytes("a");
             // Except: {}
             Assert.AreEqual("7b7d", (Contract.TestClear(key) as ByteString)!.GetSpan().ToHexString());
-            AssertGasConsumed(2645970);
+            AssertGasConsumed(2646030);
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Except: {"\u0001\u0001":"\u0022\u0022"}
             Assert.AreEqual("{\"\\u0001\\u0001\":\"\\u0022\\u0022\"}", Contract.TestByteArray2());
-            AssertGasConsumed(3936210);
+            AssertGasConsumed(3936270);
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Except: {"\u4E2D":"129840test10022939"}
             Assert.AreEqual("{\"\\u4E2D\":\"129840test10022939\"}", Contract.TestUnicode("中"));
-            AssertGasConsumed(2399670);
+            AssertGasConsumed(2399730);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Except: {"ab":"\u6587"}
             Assert.AreEqual("{\"ab\":\"\\u6587\"}", Contract.TestUnicodeValue("文"));
-            AssertGasConsumed(2399670);
+            AssertGasConsumed(2399730);
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Except: {"\u4E2D":"\u6587"}
             Assert.AreEqual("{\"\\u4E2D\":\"\\u6587\"}", Contract.TestUnicodeKeyValue("中", "文"));
-            AssertGasConsumed(2399730);
+            AssertGasConsumed(2399790);
         }
 
         [TestMethod]
@@ -83,7 +83,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Int cannot be used as the key for serializing Map
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestInt(1));
-            AssertGasConsumed(2399460);
+            AssertGasConsumed(2399520);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Bool cannot be used as the key for serializing Map
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestBool(true));
-            AssertGasConsumed(2399460);
+            AssertGasConsumed(2399520);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
@@ -100,7 +100,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestDeserialize()
         {
             var item = Contract.TestDeserialize("a");
-            AssertGasConsumed(3874380);
+            AssertGasConsumed(3874440);
 
             Assert.IsInstanceOfType(item, typeof(Map));
             var map = item as Map;
@@ -113,7 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestUInt160KeyDeserialize()
         {
             var item = Contract.Testuint160Key();
-            AssertGasConsumed(3813240);
+            AssertGasConsumed(3813300);
 
             Assert.IsInstanceOfType(item, typeof(Map));
             var map = item as Map;
