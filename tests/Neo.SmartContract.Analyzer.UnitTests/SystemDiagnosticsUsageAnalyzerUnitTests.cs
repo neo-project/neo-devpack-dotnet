@@ -113,6 +113,96 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
+        public async Task UsingCodeAnalysisAttribute_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       using System.Diagnostics.CodeAnalysis;
+
+                       class TestClass
+                       {
+                           [DoesNotReturn]
+                           public void Throw() => throw new System.Exception();
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UsingFullyQualifiedCodeAnalysisAttribute_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       class TestClass
+                       {
+                           [System.Diagnostics.CodeAnalysis.DoesNotReturn]
+                           public void Throw() => throw new System.Exception();
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UsingAliasedCodeAnalysisAttribute_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       using DoesNotReturn = System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+
+                       class TestClass
+                       {
+                           [DoesNotReturn]
+                           public void Throw() => throw new System.Exception();
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UsingCodeAnalysisTypeAsRuntimeValue_ShouldReportDiagnostic()
+        {
+            var test = """
+                       using System.Diagnostics.CodeAnalysis;
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               {|#0:DoesNotReturnAttribute|} value = new();
+                           }
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(SystemDiagnosticsUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.Diagnostics.CodeAnalysis");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task UsingAliasedCodeAnalysisTypeAsRuntimeValue_ShouldReportDiagnostic()
+        {
+            var test = """
+                       using DoesNotReturn = System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               {|#0:DoesNotReturn|} value = new();
+                           }
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(SystemDiagnosticsUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.Diagnostics.CodeAnalysis");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task UsingConditionalAttribute_ShouldReportDiagnostic()
         {
             var test = """

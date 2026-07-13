@@ -21,6 +21,8 @@ namespace Neo.SmartContract.Analyzer
     public class SystemDiagnosticsUsageAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NC4028";
+        private const string DiagnosticsNamespace = "System.Diagnostics";
+        private const string CodeAnalysisNamespace = "System.Diagnostics.CodeAnalysis";
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
@@ -56,7 +58,7 @@ namespace Neo.SmartContract.Analyzer
         private void AnalyzeUsingDirective(SyntaxNodeAnalysisContext context, UsingDirectiveSyntax usingDirective)
         {
             var name = usingDirective.Name?.ToString();
-            if (name == "System.Diagnostics" || name?.StartsWith("System.Diagnostics.") == true)
+            if (IsDiagnosticsNamespace(name) && !IsCodeAnalysisUsingDirective(context, usingDirective))
             {
                 var diagnostic = Diagnostic.Create(Rule, usingDirective.GetLocation(), name);
                 context.ReportDiagnostic(diagnostic);
@@ -65,18 +67,66 @@ namespace Neo.SmartContract.Analyzer
 
         private void AnalyzeIdentifierName(SyntaxNodeAnalysisContext context, IdentifierNameSyntax identifierName)
         {
-            var symbolInfo = context.SemanticModel.GetSymbolInfo(identifierName);
+            if (identifierName.FirstAncestorOrSelf<UsingDirectiveSyntax>() is { } usingDirective &&
+                IsCodeAnalysisUsingDirective(context, usingDirective))
+            {
+                return;
+            }
+
+            if (IsCodeAnalysisAttribute(context, identifierName))
+            {
+                return;
+            }
+
+            var symbolInfo = context.SemanticModel.GetSymbolInfo(identifierName, context.CancellationToken);
             var symbol = symbolInfo.Symbol;
 
             if (symbol != null && symbol.ContainingNamespace != null)
             {
                 var namespaceName = symbol.ContainingNamespace.ToDisplayString();
-                if (namespaceName == "System.Diagnostics" || namespaceName.StartsWith("System.Diagnostics."))
+                if (IsDiagnosticsNamespace(namespaceName))
                 {
                     var diagnostic = Diagnostic.Create(Rule, identifierName.GetLocation(), namespaceName);
                     context.ReportDiagnostic(diagnostic);
                 }
             }
         }
+
+        private static bool IsCodeAnalysisAttribute(SyntaxNodeAnalysisContext context, IdentifierNameSyntax identifierName)
+        {
+            if (identifierName.FirstAncestorOrSelf<AttributeSyntax>() is not { } attribute)
+            {
+                return false;
+            }
+
+            var symbol = context.SemanticModel.GetSymbolInfo(attribute, context.CancellationToken).Symbol;
+            var attributeType = symbol switch
+            {
+                IMethodSymbol constructor => constructor.ContainingType,
+                INamedTypeSymbol type => type,
+                _ => null
+            };
+
+            return attributeType?.ContainingNamespace.ToDisplayString() == CodeAnalysisNamespace;
+        }
+
+        private static bool IsCodeAnalysisUsingDirective(SyntaxNodeAnalysisContext context, UsingDirectiveSyntax usingDirective)
+        {
+            if (usingDirective.Name is null)
+            {
+                return false;
+            }
+
+            var symbol = context.SemanticModel.GetSymbolInfo(usingDirective.Name, context.CancellationToken).Symbol;
+            return symbol switch
+            {
+                INamespaceSymbol namespaceSymbol => namespaceSymbol.ToDisplayString() == CodeAnalysisNamespace,
+                INamedTypeSymbol typeSymbol => typeSymbol.ContainingNamespace.ToDisplayString() == CodeAnalysisNamespace,
+                _ => false
+            };
+        }
+
+        private static bool IsDiagnosticsNamespace(string? namespaceName) =>
+            namespaceName == DiagnosticsNamespace || namespaceName?.StartsWith(DiagnosticsNamespace + ".") == true;
     }
 }
