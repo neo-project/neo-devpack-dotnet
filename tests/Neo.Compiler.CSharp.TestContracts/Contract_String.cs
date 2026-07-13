@@ -239,6 +239,8 @@ namespace Neo.Compiler.CSharp.TestContracts
             return s.Length;
         }
 
+        public static string TestStringCharCount(char c, int length) => new string(c, length);
+
         public static string TestStringBuilderBasic()
         {
             var builder = new StringBuilder();
