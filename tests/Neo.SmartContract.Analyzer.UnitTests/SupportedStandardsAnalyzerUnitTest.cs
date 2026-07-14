@@ -10,6 +10,8 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<
     Neo.SmartContract.Analyzer.SupportedStandardsAnalyzer,
@@ -58,7 +60,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                                         """;
 
             var expectedDiagnostic = Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
-                .WithSpan(22, 2, 22, 28).WithArguments("NEP5");
+                .WithSpan(22, 21, 22, 27).WithArguments("NEP5");
 
             await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
@@ -78,7 +80,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                                         """;
 
             var expectedDiagnostic = Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
-                .WithSpan(22, 2, 22, 29).WithArguments("Consider using [SupportedStandards(NepStandard.Nep11)]");
+                .WithSpan(22, 21, 22, 28).WithArguments("Consider using [SupportedStandards(NepStandard.Nep11)]");
 
             await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
@@ -98,7 +100,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                                         """;
 
             var expectedDiagnostic = Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
-                .WithSpan(22, 2, 22, 29).WithArguments("Consider using [SupportedStandards(NepStandard.Nep17)]");
+                .WithSpan(22, 21, 22, 28).WithArguments("Consider using [SupportedStandards(NepStandard.Nep17)]");
 
             await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
@@ -129,7 +131,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                                      """;
 
             var expectedDiagnostic = Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
-                .WithSpan(22, 2, 22, 29).WithArguments("Consider using [SupportedStandards(NepStandard.Nep11)]");
+                .WithSpan(22, 21, 22, 28).WithArguments("Consider using [SupportedStandards(NepStandard.Nep11)]");
 
             await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
         }
@@ -160,7 +162,106 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                                      """;
 
             var expectedDiagnostic = Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
-                .WithSpan(22, 2, 22, 29).WithArguments("Consider using [SupportedStandards(NepStandard.Nep17)]");
+                .WithSpan(22, 21, 22, 28).WithArguments("Consider using [SupportedStandards(NepStandard.Nep17)]");
+
+            await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public async Task SupportedStandardsAnalyzer_UpdateMultipleStandards_ShouldPreserveEveryArgument()
+        {
+            const string originalCode = TestNamespace + """
+
+                                                        [SupportedStandards({|#0:"NEP11"|}, {|#1:"NEP17"|})]
+                                                        public class TestContract
+                                                        {
+                                                            public static void Main()
+                                                            {
+                                                            }
+                                                        }
+                                                        """;
+
+            const string fixedCode = TestNamespace + """
+
+                                                     [SupportedStandards(NepStandard.Nep11, NepStandard.Nep17)]
+                                                     public class TestContract
+                                                     {
+                                                         public static void Main()
+                                                         {
+                                                         }
+                                                     }
+                                                     """;
+
+            var expectedDiagnostics = new[]
+            {
+                Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
+                    .WithLocation(0)
+                    .WithArguments("Consider using [SupportedStandards(NepStandard.Nep11)]"),
+                Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
+                    .WithLocation(1)
+                    .WithArguments("Consider using [SupportedStandards(NepStandard.Nep17)]")
+            };
+
+            var test = new CSharpCodeFixTest<SupportedStandardsAnalyzer, SupportedStandardsCodeFixProvider, DefaultVerifier>
+            {
+                TestCode = originalCode,
+                FixedCode = fixedCode,
+                BatchFixedCode = fixedCode
+            };
+            test.ExpectedDiagnostics.AddRange(expectedDiagnostics);
+
+            await test.RunAsync().ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public async Task SupportedStandardsAnalyzer_UnsupportedLaterArgument_ShouldReportDiagnostic()
+        {
+            const string originalCode = TestNamespace + """
+
+                                                        [SupportedStandards("NEP24", {|#0:"NEP5"|})]
+                                                        public class TestContract
+                                                        {
+                                                            public static void Main()
+                                                            {
+                                                            }
+                                                        }
+                                                        """;
+
+            var expectedDiagnostic = Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("NEP5");
+
+            await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public async Task SupportedStandardsAnalyzer_UpdateHyphenatedLowercaseStandard_ShouldFixCode()
+        {
+            const string originalCode = TestNamespace + """
+
+                                                        [SupportedStandards({|#0:"nep-11"|})]
+                                                        public class TestContract
+                                                        {
+                                                            public static void Main()
+                                                            {
+                                                            }
+                                                        }
+                                                        """;
+
+            const string fixedCode = TestNamespace + """
+
+                                                     [SupportedStandards(NepStandard.Nep11)]
+                                                     public class TestContract
+                                                     {
+                                                         public static void Main()
+                                                         {
+                                                         }
+                                                     }
+                                                     """;
+
+            var expectedDiagnostic = Verifier.Diagnostic(SupportedStandardsAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("Consider using [SupportedStandards(NepStandard.Nep11)]");
 
             await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
         }

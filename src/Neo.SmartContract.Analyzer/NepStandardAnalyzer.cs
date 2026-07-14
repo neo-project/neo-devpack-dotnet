@@ -28,6 +28,7 @@ namespace Neo.SmartContract.Analyzer
     public class SupportedStandardsAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NC4021";
+        internal const string StandardPropertyName = "Standard";
         private static readonly string Title = "Supported Standards";
         private static readonly string MessageFormat = "Standard format suggestion: '{0}'";
         private static readonly string Description = "Checks for the usage of supported NEP standards.";
@@ -59,31 +60,33 @@ namespace Neo.SmartContract.Analyzer
                 if (attributeName == "SupportedStandards")
                 {
                     var argumentList = attributeSyntax.ArgumentList;
-                    if (argumentList != null && argumentList.Arguments.Count > 0)
+                    if (argumentList != null)
                     {
-                        var argument = argumentList.Arguments[0].Expression;
-                        if (argument is LiteralExpressionSyntax literalExpression)
+                        foreach (var attributeArgument in argumentList.Arguments)
                         {
-                            var standardValue = literalExpression.Token.ValueText.ToUpper();
+                            if (attributeArgument.Expression is not LiteralExpressionSyntax literalExpression ||
+                                !literalExpression.IsKind(SyntaxKind.StringLiteralExpression))
+                            {
+                                continue;
+                            }
+
+                            var standardValue = literalExpression.Token.ValueText.ToUpperInvariant();
                             if (standardValue is "NEP11" or "NEP-11" or "NEP17" or "NEP-17")
                             {
                                 var standard = standardValue is "NEP11" or "NEP-11" ? NepStandard.Nep11 : NepStandard.Nep17;
-                                var expectedSyntax = SyntaxFactory.AttributeArgument(
-                                    SyntaxFactory.MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        SyntaxFactory.IdentifierName("NepStandard"),
-                                        SyntaxFactory.IdentifierName(standard.ToString())));
-
-                                if (!argumentList.Arguments[0].Expression.IsEquivalentTo(expectedSyntax.Expression))
-                                {
-                                    var suggestionMessage = $"Consider using [SupportedStandards(NepStandard.{standard})]";
-                                    var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), suggestionMessage);
-                                    context.ReportDiagnostic(diagnostic);
-                                }
+                                var suggestionMessage = $"Consider using [SupportedStandards(NepStandard.{standard})]";
+                                var properties = ImmutableDictionary<string, string?>.Empty
+                                    .Add(StandardPropertyName, standard.ToString());
+                                var diagnostic = Diagnostic.Create(
+                                    Rule,
+                                    attributeArgument.Expression.GetLocation(),
+                                    properties,
+                                    suggestionMessage);
+                                context.ReportDiagnostic(diagnostic);
                             }
                             else if (!IsSupportedStandard(standardValue))
                             {
-                                var diagnostic = Diagnostic.Create(Rule, attributeSyntax.GetLocation(), standardValue);
+                                var diagnostic = Diagnostic.Create(Rule, attributeArgument.Expression.GetLocation(), standardValue);
                                 context.ReportDiagnostic(diagnostic);
                             }
                         }
@@ -95,11 +98,6 @@ namespace Neo.SmartContract.Analyzer
         private static bool IsSupportedStandard(string value)
         {
             return Enum.TryParse<NepStandard>(value, ignoreCase: true, out _);
-        }
-
-        private string GetSuggestionMessage(NepStandard standard)
-        {
-            return $"Consider using [SupportedStandards(NepStandard.{standard})]";
         }
     }
 
@@ -117,42 +115,38 @@ namespace Neo.SmartContract.Analyzer
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var attributeSyntax = root?.FindNode(diagnosticSpan)?.AncestorsAndSelf()?.OfType<AttributeSyntax>()?.FirstOrDefault();
+            var attributeArgument = root?.FindNode(diagnosticSpan, getInnermostNodeForTie: true)
+                .AncestorsAndSelf()
+                .OfType<AttributeArgumentSyntax>()
+                .FirstOrDefault();
 
-            if (attributeSyntax != null)
-            {
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: Title,
-                        createChangedDocument: c => UpdateSupportedStandards(context.Document, attributeSyntax, c),
-                        equivalenceKey: Title),
-                    diagnostic);
-            }
+            if (attributeArgument is null ||
+                !diagnostic.Properties.TryGetValue(SupportedStandardsAnalyzer.StandardPropertyName, out var standardName) ||
+                !Enum.TryParse(standardName, out NepStandard standard))
+                return;
+
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    title: Title,
+                    createChangedDocument: c => UpdateSupportedStandards(context.Document, attributeArgument, standard, c),
+                    equivalenceKey: Title),
+                diagnostic);
         }
 
-        private async Task<Document> UpdateSupportedStandards(Document document, AttributeSyntax attributeSyntax, CancellationToken cancellationToken)
+        private static async Task<Document> UpdateSupportedStandards(
+            Document document,
+            AttributeArgumentSyntax attributeArgument,
+            NepStandard standard,
+            CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken);
-            var newAttributeSyntax = attributeSyntax;
-            var argumentList = attributeSyntax.ArgumentList;
-            if (argumentList != null && argumentList.Arguments.Count > 0)
-            {
-                var argument = argumentList.Arguments[0].Expression;
-                if (argument is LiteralExpressionSyntax literalExpression)
-                {
-                    var standardValue = literalExpression.Token.ValueText;
-                    if (standardValue == "NEP11")
-                    {
-                        newAttributeSyntax = attributeSyntax.WithArgumentList(SyntaxFactory.AttributeArgumentList().AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName("NepStandard"), SyntaxFactory.IdentifierName("Nep11")))));
-                    }
-                    else if (standardValue == "NEP17")
-                    {
-                        newAttributeSyntax = attributeSyntax.WithArgumentList(SyntaxFactory.AttributeArgumentList().AddArguments(SyntaxFactory.AttributeArgument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName("NepStandard"), SyntaxFactory.IdentifierName("Nep17")))));
-                    }
-                }
-            }
-
-            var newRoot = root!.ReplaceNode(attributeSyntax, newAttributeSyntax);
+            var replacementExpression = SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName("NepStandard"),
+                    SyntaxFactory.IdentifierName(standard.ToString()))
+                .WithTriviaFrom(attributeArgument.Expression);
+            var newArgument = attributeArgument.WithExpression(replacementExpression);
+            var newRoot = root!.ReplaceNode(attributeArgument, newArgument);
             return document.WithSyntaxRoot(newRoot);
         }
     }
