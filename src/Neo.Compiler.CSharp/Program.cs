@@ -174,7 +174,8 @@ namespace Neo.Compiler
                     NoInline = parseResult.GetValue(noInlineOption),
                     AddressVersion = parseResult.GetValue(addressVersionOption),
                     PrintAbi = parseResult.GetValue(printAbiOption),
-                    Debug = parseResult.GetValue(debugOption)
+                    Debug = parseResult.GetValue(debugOption),
+                    RunAnalyzers = true
                 };
                 return Handle(rootCommand, options, parseResult.GetValue(pathsArgument));
             });
