@@ -10,6 +10,9 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Testing;
+using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<
     Neo.SmartContract.Analyzer.SystemDiagnosticsUsageAnalyzer>;
@@ -156,6 +159,47 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        """;
 
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UsingCodeAnalysisAttributeOnLambda_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       using System;
+                       using System.Diagnostics.CodeAnalysis;
+
+                       class TestClass
+                       {
+                           public int Run()
+                           {
+                               Func<int> value = [ExcludeFromCodeCoverage] () => 1;
+                               return value();
+                           }
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UsingExperimentalAttribute_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       using System.Diagnostics.CodeAnalysis;
+
+                       [Experimental("NEO1000")]
+                       class TestClass
+                       {
+                       }
+                       """;
+
+            var analyzerTest = new CSharpAnalyzerTest<SystemDiagnosticsUsageAnalyzer, DefaultVerifier>
+            {
+                TestCode = test,
+                ReferenceAssemblies = ReferenceAssemblies.Net.Net80
+            };
+
+            await analyzerTest.RunAsync();
         }
 
         [TestMethod]
