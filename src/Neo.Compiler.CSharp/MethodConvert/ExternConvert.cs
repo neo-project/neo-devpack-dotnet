@@ -115,13 +115,31 @@ internal partial class MethodConvert
         }
     }
 
-    private static bool IsSafeContractMethod(IMethodSymbol symbol)
+    private bool IsSafeContractMethod(IMethodSymbol symbol)
     {
-        if (symbol.GetAttributes().Any(p => p.AttributeClass?.Name == nameof(SafeAttribute)))
+        INamedTypeSymbol? safeAttribute = ResolveFrameworkSafeAttribute();
+        if (symbol.GetAttributes().Any(p => SymbolEqualityComparer.Default.Equals(p.AttributeClass, safeAttribute)))
             return true;
 
         return symbol.MethodKind == MethodKind.PropertyGet &&
             symbol.AssociatedSymbol is IPropertySymbol property &&
-            property.GetAttributes().Any(p => p.AttributeClass?.Name == nameof(SafeAttribute));
+            property.GetAttributes().Any(p => SymbolEqualityComparer.Default.Equals(p.AttributeClass, safeAttribute));
+    }
+
+    private INamedTypeSymbol? ResolveFrameworkSafeAttribute()
+    {
+        const string safeAttributeMetadataName = "Neo.SmartContract.Framework.Attributes.SafeAttribute";
+        INamedTypeSymbol smartContract = GetFrameworkSmartContractBase(_context.TargetContract);
+        return smartContract.ContainingAssembly.GetTypeByMetadataName(safeAttributeMetadataName);
+    }
+
+    private static INamedTypeSymbol GetFrameworkSmartContractBase(INamedTypeSymbol type)
+    {
+        const string smartContractMetadataName = "Neo.SmartContract.Framework.SmartContract";
+        INamedTypeSymbol baseType = type.BaseType!;
+        INamedTypeSymbol? smartContract = baseType.ContainingAssembly.GetTypeByMetadataName(smartContractMetadataName);
+        return SymbolEqualityComparer.Default.Equals(baseType, smartContract)
+            ? baseType
+            : GetFrameworkSmartContractBase(baseType);
     }
 }
