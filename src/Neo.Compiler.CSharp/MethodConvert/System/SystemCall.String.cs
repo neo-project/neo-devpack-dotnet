@@ -119,6 +119,7 @@ internal partial class MethodConvert
         AccessSlot(OpCode.LDLOC, countSlot);
         Push(0);
         Jump(OpCode.JMPGE_L, validCountTarget);
+        Push("Negative count");
         AddInstruction(OpCode.THROW);
 
         validCountTarget.Instruction = Push("");

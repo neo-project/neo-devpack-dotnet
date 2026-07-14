@@ -103,7 +103,7 @@ internal partial class MethodConvert
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
-            CheckShiftOverflow(model.GetTypeInfo(expression.Left).Type, true);
+            CheckLeftShiftOverflow(model, model.GetTypeInfo(expression.Left).Type, expression.Right, true);
         }
         AddInstruction(opcode);
 
@@ -149,6 +149,11 @@ internal partial class MethodConvert
             type = ((INamedTypeSymbol)type).TypeArguments.First();
         }
 
+        if (TryGetIntegerConstant(model, rightExpr, out var rightValue))
+        {
+            if (rightValue != -1) return; // Just return if right value is not -1.
+        }
+
         // Determine the minimum value based on the type
         // NOTE: short / short -> int, ushort / ushort -> int, char / char -> int,
         // sbyte / sbyte -> int, byte / byte -> int, so overflow check is not needed for small types.
@@ -164,35 +169,32 @@ internal partial class MethodConvert
         // Skip if type doesn't need overflow check
         if (minValue is null) return;
 
-        // If the divisor is a constant other than -1, overflow is impossible: skip the check.
-        if (TryGetIntegerConstant(model, rightExpr, out var divisor) && divisor != -1)
-            return;
-
         // If the dividend is a constant other than minValue, overflow is impossible: skip the check.
         if (leftExpr is not null && TryGetIntegerConstant(model, leftExpr, out var dividend) && dividend != minValue.Value)
             return;
 
         var endTarget = new JumpTarget();
-
-        AddInstruction(OpCode.DUP);
+        Dup();
         Push(-1);
-        Jump(OpCode.JMPNE_L, endTarget);
+        JumpIfNotEqual(endTarget);
 
-        AddInstruction(OpCode.OVER);
+        Over();
         Push(minValue.Value);
-        Jump(OpCode.JMPNE_L, endTarget);
+        JumpIfNotEqual(endTarget);
 
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        Throw();
+        endTarget.Instruction = Nop();
     }
 
     /// <summary>
     /// Checks for left shift overflow in checked context.
     /// Validates that the shift amount is non-negative and within the bit width of the left operand type.
     /// </summary>
+    /// <param name="model">The semantic model of the compilation.</param>
+    /// <param name="rightExpr">The right expression of the shift operation.</param>
     /// <param name="leftType">The left type of the shift operation.</param>
     /// <param name="promotedIfSmall">Whether to promote the left type to int if it is a small integer type(less than 32-bits).</param>
-    private void CheckShiftOverflow(ITypeSymbol? leftType, bool promotedIfSmall)
+    private void CheckLeftShiftOverflow(SemanticModel model, ITypeSymbol? leftType, ExpressionSyntax rightExpr, bool promotedIfSmall)
     {
         // Only check overflow in checked context
         if (!_checkedStack.Peek()) return;
@@ -217,22 +219,28 @@ internal partial class MethodConvert
             _ => 32 // Default to 32 for unknown types
         };
 
+        if (TryGetIntegerConstant(model, rightExpr, out var shiftAmount))
+        {
+            // If shift amount is in range [0, maxShift), no need to check overflow
+            if (shiftAmount >= 0 && shiftAmount < maxShift) return;
+        }
+
         var endTarget = new JumpTarget();
         var checkUpperTarget = new JumpTarget();
 
         // Check if shift amount is negative (top of stack is shift amount)
-        AddInstruction(OpCode.DUP);
+        Dup();
         Push(0);
-        Jump(OpCode.JMPGE_L, checkUpperTarget);
-        AddInstruction(OpCode.THROW);
+        JumpIfGreaterOrEqual(checkUpperTarget);
+        Throw();
 
         // Check if shift amount exceeds type bit width
-        checkUpperTarget.Instruction = AddInstruction(OpCode.DUP);
+        checkUpperTarget.Instruction = Dup();
         Push(maxShift);
-        Jump(OpCode.JMPLT_L, endTarget);
-        AddInstruction(OpCode.THROW);
+        JumpIfLess(endTarget);
+        Throw();
 
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = Nop();
     }
 
     private void ConvertLogicalOrExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)

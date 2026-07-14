@@ -344,7 +344,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual((byte)5, Contract.ClampByte(5, 0, 10));
             AssertGasConsumed(1047930);
             Assert.ThrowsException<TestException>(() => Contract.ClampByte(5, 10, 0));
-            AssertGasConsumed(1062750);
+            AssertGasConsumed(1063170);
             Assert.AreEqual((byte)5, Contract.ClampByte(0, 5, 10));
             AssertGasConsumed(1047930);
             Assert.AreEqual((byte)5, Contract.ClampByte(10, 0, 5));
@@ -471,9 +471,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047930);
             Assert.AreEqual(BigInteger.One, Contract.ClampBigInteger(BigInteger.One, BigInteger.MinusOne, BigInteger.One));
             Assert.ThrowsException<TestException>(() => Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.One, BigInteger.MinusOne));
-            AssertGasConsumed(1062750);
+            AssertGasConsumed(1063170);
             Assert.ThrowsException<TestException>(() => Contract.ClampBigInteger(BigInteger.One, BigInteger.One, BigInteger.MinusOne));
-            AssertGasConsumed(1062750);
+            AssertGasConsumed(1063170);
         }
 
         [TestMethod]
@@ -615,15 +615,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
-            AssertGasConsumed(1048170);
+            AssertGasConsumed(1047630);
             Assert.AreEqual(int.CreateSaturating(0), Contract.CreateSaturatingInt(0));
-            AssertGasConsumed(1048170);
+            AssertGasConsumed(1047630);
             Assert.AreEqual(int.CreateSaturating(-5), Contract.CreateSaturatingInt(-5));
-            AssertGasConsumed(1048170);
+            AssertGasConsumed(1047630);
 
             // Test with max values
             Assert.AreEqual(int.MaxValue, Contract.CreateSaturatingInt(int.MaxValue));
-            AssertGasConsumed(1048170);
+            AssertGasConsumed(1047630);
+
+            // Test with overflow values
+            Assert.AreEqual(int.CreateSaturating(uint.MaxValue), Contract.CreateSaturatingInt(uint.MaxValue));
+            AssertGasConsumed(1047630);
+            Assert.AreEqual(int.CreateSaturating(ulong.MaxValue), Contract.CreateSaturatingInt(ulong.MaxValue));
+            AssertGasConsumed(1047720);
+            Assert.AreEqual(int.CreateSaturating(long.MinValue), Contract.CreateSaturatingInt(long.MinValue));
+            AssertGasConsumed(1047630);
         }
 
 
@@ -707,7 +715,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
             AssertGasConsumed(1047450);
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
-            AssertGasConsumed(1048170);
+            AssertGasConsumed(1047630);
             Assert.AreEqual(int.IsEvenInteger(5), Contract.IsEvenIntegerInt(5));
             AssertGasConsumed(1047420);
             Assert.AreEqual(int.IsOddInteger(5), Contract.IsOddIntegerInt(5));

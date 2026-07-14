@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.Json;
+using Neo.Compiler.ControlFlow;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -22,8 +23,8 @@ using System.Linq;
 namespace Neo.Compiler.SecurityAnalyzer
 {
     /// <summary>
-    /// Detects public methods that perform state changes without any CheckWitness call in the
-    /// method or its static helper calls. Two classes of privileged sink are tracked:
+    /// Detects public methods that perform state changes on a path not dominated by a CheckWitness
+    /// call in the method or its static helper calls. Two classes of privileged sink are tracked:
     /// <list type="bullet">
     /// <item>Persistent storage writes (<c>Storage.Put</c> / <c>Storage.Delete</c>).</item>
     /// <item>Contract-lifecycle calls (<c>ContractManagement.Update</c> / <c>Destroy</c>), which
@@ -98,6 +99,81 @@ namespace Neo.Compiler.SecurityAnalyzer
             }
             int[] sortedOffsets = methodStartOffsets.OrderBy(o => o).ToArray();
 
+            HashSet<int> storageWriteAddresses = new();
+            HashSet<int> lifecycleCallAddresses = new();
+            HashSet<int> checkWitnessAddresses = new();
+            for (int i = 0; i < instructions.Length; i++)
+            {
+                (int addr, VM.Instruction instruction) = instructions[i];
+                if (instruction.OpCode == OpCode.SYSCALL)
+                {
+                    if (instruction.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
+                        || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                        || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                        || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash)
+                        storageWriteAddresses.Add(addr);
+
+                    if (instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)
+                        checkWitnessAddresses.Add(addr);
+
+                    if (instruction.TokenU32 == ApplicationEngine.System_Contract_Call.Hash
+                        && IsContractManagementLifecycleSyscall(instructions, i))
+                        lifecycleCallAddresses.Add(addr);
+
+                    continue;
+                }
+
+                if (instruction.OpCode == OpCode.CALLT
+                    && IsContractManagementLifecycleToken(nef, instruction.TokenU16))
+                    lifecycleCallAddresses.Add(addr);
+
+                // Dynamic calls cannot be resolved through the static call graph here.
+                // Treat them as potentially reaching storage writes unless guarded.
+                if (instruction.OpCode == OpCode.CALLA)
+                    storageWriteAddresses.Add(addr);
+            }
+
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            HashSet<int> normallyReturningMethods = methodStartOffsets
+                .Where(offset => contractInBasicBlocks.basicBlocksByStartAddr.TryGetValue(offset, out BasicBlock? block)
+                    && block.branchType == BranchType.OK)
+                .ToHashSet();
+            HashSet<int> witnessGuaranteedMethods = FindWitnessGuaranteedMethods(
+                sortedOffsets,
+                contractInBasicBlocks,
+                normallyReturningMethods,
+                checkWitnessAddresses);
+            Dictionary<int, MethodAnalysisResult> methodResults =
+                methodStartOffsets.ToDictionary(offset => offset, _ => default(MethodAnalysisResult));
+
+            // Method summaries are monotonic. Iterating to a fixed point carries unguarded sinks
+            // through nested and recursive static helper calls.
+            bool changed;
+            do
+            {
+                changed = false;
+                foreach (int methodStart in sortedOffsets)
+                {
+                    MethodAnalysisResult result = AnalyzeMethod(
+                        methodStart,
+                        GetMethodEnd(methodStart, sortedOffsets),
+                        contractInBasicBlocks,
+                        methodResults,
+                        witnessGuaranteedMethods,
+                        storageWriteAddresses,
+                        lifecycleCallAddresses,
+                        checkWitnessAddresses);
+                    MethodAnalysisResult previous = methodResults[methodStart];
+                    MethodAnalysisResult combined = previous.Union(result);
+                    if (!combined.Equals(previous))
+                    {
+                        methodResults[methodStart] = combined;
+                        changed = true;
+                    }
+                }
+            }
+            while (changed);
+
             List<string> vulnerableMethods = new();
             List<string> unauthenticatedLifecycleMethods = new();
 
@@ -106,98 +182,167 @@ namespace Neo.Compiler.SecurityAnalyzer
                 if (method.Name is "_deploy" or "_initialize")
                     continue;
 
-                (bool hasStorageWrite, bool hasLifecycleCall, bool hasCheckWitness) = AnalyzeMethodAndStaticHelpers(
-                    method.Offset,
-                    nef,
-                    instructions,
-                    sortedOffsets,
-                    methodStartOffsets);
-
-                if (hasCheckWitness)
-                    continue;
-
-                if (hasStorageWrite)
+                MethodAnalysisResult result = methodResults[method.Offset];
+                if (result.HasUnguardedStorageWrite)
                     vulnerableMethods.Add(method.Name);
-                if (hasLifecycleCall)
+                if (result.HasUnguardedLifecycleCall)
                     unauthenticatedLifecycleMethods.Add(method.Name);
             }
 
             return new MissingCheckWitnessVulnerability(vulnerableMethods, unauthenticatedLifecycleMethods, debugInfo);
         }
 
-        private static (bool hasStorageWrite, bool hasLifecycleCall, bool hasCheckWitness) AnalyzeMethodAndStaticHelpers(
-            int methodStart,
-            NefFile nef,
-            (int addr, VM.Instruction instruction)[] instructions,
+        private static HashSet<int> FindWitnessGuaranteedMethods(
             int[] sortedOffsets,
-            HashSet<int> methodStartOffsets)
+            ContractInBasicBlocks contractInBasicBlocks,
+            HashSet<int> normallyReturningMethods,
+            HashSet<int> checkWitnessAddresses)
         {
-            bool hasStorageWrite = false;
-            bool hasLifecycleCall = false;
-            bool hasCheckWitness = false;
+            HashSet<int> witnessGuaranteedMethods = new();
+            Dictionary<int, MethodAnalysisResult> noMethodResults = new();
+            HashSet<int> noSinkAddresses = new();
 
-            Stack<int> pendingMethodStarts = new();
-            HashSet<int> visitedMethodStarts = new();
-            pendingMethodStarts.Push(methodStart);
-
-            while (pendingMethodStarts.Count > 0)
+            // Start with no trusted helpers. A method becomes trusted only after every normal
+            // return path is proven to cross a direct or already-proven witness check.
+            bool changed;
+            do
             {
-                int currentStart = pendingMethodStarts.Pop();
-                if (!visitedMethodStarts.Add(currentStart))
-                    continue;
-
-                int currentEnd = GetMethodEnd(currentStart, sortedOffsets);
-                for (int i = 0; i < instructions.Length; i++)
+                changed = false;
+                foreach (int methodStart in sortedOffsets)
                 {
-                    (int addr, VM.Instruction instruction) = instructions[i];
-                    if (addr < currentStart)
+                    if (!normallyReturningMethods.Contains(methodStart)
+                        || witnessGuaranteedMethods.Contains(methodStart))
                         continue;
-                    if (addr >= currentEnd)
-                        break;
 
-                    if (instruction.OpCode == OpCode.SYSCALL)
+                    MethodAnalysisResult result = AnalyzeMethod(
+                        methodStart,
+                        GetMethodEnd(methodStart, sortedOffsets),
+                        contractInBasicBlocks,
+                        noMethodResults,
+                        witnessGuaranteedMethods,
+                        noSinkAddresses,
+                        noSinkAddresses,
+                        checkWitnessAddresses);
+                    if (!result.ReturnsWithoutWitness)
                     {
-                        if (instruction.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
-                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
-                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash)
-                            hasStorageWrite = true;
-
-                        if (instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)
-                            hasCheckWitness = true;
-
-                        // ContractManagement.Update/Destroy invoked via the dynamic System.Contract.Call
-                        // syscall, preceded by PUSHDATA1 "<method>" / PUSHDATA1 <ContractManagement hash>.
-                        if (instruction.TokenU32 == ApplicationEngine.System_Contract_Call.Hash
-                            && IsContractManagementLifecycleSyscall(instructions, i))
-                            hasLifecycleCall = true;
-
-                        continue;
+                        witnessGuaranteedMethods.Add(methodStart);
+                        changed = true;
                     }
+                }
+            }
+            while (changed);
 
-                    // ContractManagement.Update/Destroy invoked through a method token (CALLT).
-                    if (instruction.OpCode == OpCode.CALLT
-                        && IsContractManagementLifecycleToken(nef, instruction.TokenU16))
-                        hasLifecycleCall = true;
+            return witnessGuaranteedMethods;
+        }
 
-                    if (instruction.OpCode == OpCode.CALLA)
+        private static MethodAnalysisResult AnalyzeMethod(
+            int methodStart,
+            int methodEnd,
+            ContractInBasicBlocks contractInBasicBlocks,
+            IReadOnlyDictionary<int, MethodAnalysisResult> methodResults,
+            HashSet<int> witnessGuaranteedMethods,
+            HashSet<int> storageWriteAddresses,
+            HashSet<int> lifecycleCallAddresses,
+            HashSet<int> checkWitnessAddresses)
+        {
+            if (!contractInBasicBlocks.basicBlocksByStartAddr.TryGetValue(methodStart, out BasicBlock? entryBlock))
+                return default;
+
+            bool hasUnguardedStorageWrite = false;
+            bool hasUnguardedLifecycleCall = false;
+            bool returnsWithoutWitness = false;
+            HashSet<BasicBlock> reachableWithoutWitness = new() { entryBlock };
+            Queue<BasicBlock> pendingBlocks = new(reachableWithoutWitness);
+
+            while (pendingBlocks.Count > 0)
+            {
+                BasicBlock block = pendingBlocks.Dequeue();
+                bool remainsUnguarded = true;
+                int addr = block.startAddr;
+                foreach (VM.Instruction instruction in block.instructions)
+                {
+                    if (storageWriteAddresses.Contains(addr))
+                        hasUnguardedStorageWrite = true;
+                    if (lifecycleCallAddresses.Contains(addr))
+                        hasUnguardedLifecycleCall = true;
+
+                    if (checkWitnessAddresses.Contains(addr))
                     {
-                        // Dynamic calls cannot be resolved through the static call graph here.
-                        // Treat them as potentially reaching storage writes unless guarded.
-                        hasStorageWrite = true;
-                        continue;
+                        remainsUnguarded = false;
+                        break;
                     }
 
                     if (instruction.OpCode == OpCode.CALL || instruction.OpCode == OpCode.CALL_L)
                     {
                         int target = Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(addr, instruction);
-                        if (methodStartOffsets.Contains(target))
-                            pendingMethodStarts.Push(target);
+                        if (methodResults.TryGetValue(target, out MethodAnalysisResult calledMethodResult))
+                        {
+                            hasUnguardedStorageWrite |= calledMethodResult.HasUnguardedStorageWrite;
+                            hasUnguardedLifecycleCall |= calledMethodResult.HasUnguardedLifecycleCall;
+                        }
+
+                        if (witnessGuaranteedMethods.Contains(target))
+                        {
+                            remainsUnguarded = false;
+                            break;
+                        }
                     }
+
+                    if (instruction.OpCode == OpCode.RET)
+                        returnsWithoutWitness = true;
+
+                    addr += instruction.Size;
                 }
+
+                if (!remainsUnguarded)
+                    continue;
+
+                if (block.nextBlock != null
+                    && IsInMethod(block.nextBlock, methodStart, methodEnd)
+                    && reachableWithoutWitness.Add(block.nextBlock))
+                    pendingBlocks.Enqueue(block.nextBlock);
+
+                foreach (BasicBlock targetBlock in block.jumpTargetBlocks)
+                    if (IsInMethod(targetBlock, methodStart, methodEnd)
+                        && reachableWithoutWitness.Add(targetBlock))
+                        pendingBlocks.Enqueue(targetBlock);
             }
 
-            return (hasStorageWrite, hasLifecycleCall, hasCheckWitness);
+            return new MethodAnalysisResult(
+                hasUnguardedStorageWrite,
+                hasUnguardedLifecycleCall,
+                returnsWithoutWitness);
+        }
+
+        private static bool IsInMethod(BasicBlock block, int methodStart, int methodEnd)
+            => block.startAddr >= methodStart && block.startAddr < methodEnd;
+
+        private readonly struct MethodAnalysisResult : IEquatable<MethodAnalysisResult>
+        {
+            public bool HasUnguardedStorageWrite { get; }
+            public bool HasUnguardedLifecycleCall { get; }
+            public bool ReturnsWithoutWitness { get; }
+
+            public MethodAnalysisResult(
+                bool hasUnguardedStorageWrite,
+                bool hasUnguardedLifecycleCall,
+                bool returnsWithoutWitness)
+            {
+                HasUnguardedStorageWrite = hasUnguardedStorageWrite;
+                HasUnguardedLifecycleCall = hasUnguardedLifecycleCall;
+                ReturnsWithoutWitness = returnsWithoutWitness;
+            }
+
+            public MethodAnalysisResult Union(MethodAnalysisResult other)
+                => new(
+                    HasUnguardedStorageWrite || other.HasUnguardedStorageWrite,
+                    HasUnguardedLifecycleCall || other.HasUnguardedLifecycleCall,
+                    ReturnsWithoutWitness || other.ReturnsWithoutWitness);
+
+            public bool Equals(MethodAnalysisResult other)
+                => HasUnguardedStorageWrite == other.HasUnguardedStorageWrite
+                    && HasUnguardedLifecycleCall == other.HasUnguardedLifecycleCall
+                    && ReturnsWithoutWitness == other.ReturnsWithoutWitness;
         }
 
         private static readonly byte[] s_updateMethodBytes = System.Text.Encoding.UTF8.GetBytes("update");

@@ -16,8 +16,11 @@ using Neo.Compiler.ABI;
 using Neo.Cryptography;
 using Neo.Extensions;
 using Neo.SmartContract;
+using Neo.SmartContract.Native;
 using Neo.VM;
 using scfx::Neo.SmartContract.Framework.Attributes;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -26,6 +29,13 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private static readonly Lazy<HashSet<(UInt160 Hash, string Method, int ParameterCount)>> s_safeNativeMethods = new(() =>
+        NativeContract.Contracts
+            .SelectMany(contract => contract.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest.Abi.Methods
+                .Where(method => method.Safe)
+                .Select(method => (contract.Hash, method.Name, method.Parameters.Length)))
+            .ToHashSet());
+
     private void ConvertExtern()
     {
         _inline = true;
@@ -97,7 +107,21 @@ internal partial class MethodConvert
             string method = Symbol.GetDisplayName(true);
             ushort parametersCount = (ushort)Symbol.Parameters.Length;
             bool hasReturnValue = !Symbol.ReturnsVoid || Symbol.MethodKind == MethodKind.Constructor;
-            CallContractMethod(hash, method, parametersCount, hasReturnValue);
+            CallFlags callFlags = IsSafeContractMethod(Symbol) ||
+                s_safeNativeMethods.Value.Contains((hash, method, parametersCount))
+                ? CallFlags.ReadOnly
+                : CallFlags.All;
+            CallContractMethod(hash, method, parametersCount, hasReturnValue, callFlags);
         }
+    }
+
+    private static bool IsSafeContractMethod(IMethodSymbol symbol)
+    {
+        if (symbol.GetAttributes().Any(p => p.AttributeClass?.Name == nameof(SafeAttribute)))
+            return true;
+
+        return symbol.MethodKind == MethodKind.PropertyGet &&
+            symbol.AssociatedSymbol is IPropertySymbol property &&
+            property.GetAttributes().Any(p => p.AttributeClass?.Name == nameof(SafeAttribute));
     }
 }

@@ -1,7 +1,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo;
 using Neo.Compiler;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
+using Neo.SmartContract;
 using Neo.VM;
 using System;
 using System.IO;
@@ -49,6 +51,32 @@ public class UnitTest_SlotLimits
         var context = TestHelper.CompileSingleContract(BuildStaticSlotSource(256));
         Assert.IsFalse(context.Success, "Compilation should fail cleanly when the static slot count exceeds the VM limit.");
         StringAssert.Contains(string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())), "255 static slots");
+    }
+
+    [TestMethod]
+    public void MethodTokens_Accept128UniqueTokensAndReject129th()
+    {
+        var context = TestHelper.CompileSingleContract("""
+            using Neo.SmartContract.Framework;
+
+            public class Contract : SmartContract
+            {
+                public static void Main() { }
+            }
+            """);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        for (var i = 0; i < 128; i++)
+        {
+            Assert.AreEqual((ushort)i, context.AddMethodToken(UInt160.Zero, $"method{i}", 0, false, CallFlags.All));
+        }
+
+        Assert.AreEqual((ushort)0, context.AddMethodToken(UInt160.Zero, "method0", 0, false, CallFlags.All));
+        Assert.AreEqual(128, context.CreateExecutable().Tokens.Length);
+
+        var exception = Assert.ThrowsException<CompilationException>(
+            () => context.AddMethodToken(UInt160.Zero, "method128", 0, false, CallFlags.All));
+        StringAssert.Contains(exception.Message, "limit(128) exceeded");
     }
 
     private static string BuildParameterOverflowSource(int parameterCount)

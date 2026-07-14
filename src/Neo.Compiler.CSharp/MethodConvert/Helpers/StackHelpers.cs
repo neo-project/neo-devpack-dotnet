@@ -25,6 +25,8 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private const string FloatingPointNotSupportedMessage = "Floating-point numbers are not supported.";
+
     #region Instructions
 
     private Instruction AddInstruction(Instruction instruction)
@@ -237,7 +239,7 @@ internal partial class MethodConvert
                 AddInstruction(OpCode.PUSHNULL);
                 break;
             case float or double or decimal:
-                throw new CompilationException(DiagnosticId.FloatingPointNumber, "Floating-point numbers are not supported.");
+                throw new CompilationException(DiagnosticId.FloatingPointNumber, FloatingPointNotSupportedMessage);
             default:
                 throw new NotSupportedException($"Unsupported constant value: {obj}");
         }

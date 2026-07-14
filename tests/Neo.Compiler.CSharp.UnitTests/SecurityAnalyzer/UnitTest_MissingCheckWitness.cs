@@ -112,6 +112,170 @@ public class Contract : SmartContract
         }
 
         [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_DominatingWitness()
+        {
+            const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+
+public class Contract : SmartContract
+{
+    public static void GuardedUpdate(UInt160 owner)
+    {
+        ExecutionEngine.Assert(Runtime.CheckWitness(owner));
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+    }
+}";
+
+            var result = AnalyzeSource(source);
+
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("guardedUpdate"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_Flags_WhenBranchBypassesWitness()
+        {
+            const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+
+public class Contract : SmartContract
+{
+    public static void BranchBypass(UInt160 owner, bool checkWitness)
+    {
+        if (checkWitness)
+            ExecutionEngine.Assert(Runtime.CheckWitness(owner));
+
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+    }
+
+    public static void LifecycleBranchBypass(UInt160 owner, bool checkWitness)
+    {
+        if (checkWitness)
+            ExecutionEngine.Assert(Runtime.CheckWitness(owner));
+
+        ContractManagement.Destroy();
+    }
+}";
+
+            var result = AnalyzeSource(source);
+
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("branchBypass"));
+            Assert.IsTrue(result.unauthenticatedLifecycleMethodNames.Contains("lifecycleBranchBypass"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_RequiresHelperWitnessToDominateWrite()
+        {
+            const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+
+public class Contract : SmartContract
+{
+    public static void GuardedViaHelper(UInt160 owner)
+    {
+        EnsureWitness(owner);
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+    }
+
+    public static void HelperBranchBypass(UInt160 owner, bool verifyOnly)
+    {
+        if (verifyOnly)
+        {
+            EnsureWitness(owner);
+            return;
+        }
+
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x02 }, 1);
+    }
+
+    private static void EnsureWitness(UInt160 owner)
+    {
+        ExecutionEngine.Assert(Runtime.CheckWitness(owner));
+    }
+}";
+
+            var result = AnalyzeSource(source);
+
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("guardedViaHelper"));
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("helperBranchBypass"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DistinguishesRecursiveAndGuaranteedHelpers()
+        {
+            const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+
+public class Contract : SmartContract
+{
+    public static void RecursiveHelperUpdate(UInt160 owner, bool recurse, bool checkWitness)
+    {
+        MaybeCheckWitness(owner, recurse, checkWitness);
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+    }
+
+    public static void GuaranteedHelperUpdate(UInt160 owner)
+    {
+        EnsureWitness(owner);
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x02 }, 1);
+    }
+
+    private static void MaybeCheckWitness(UInt160 owner, bool recurse, bool checkWitness)
+    {
+        if (recurse)
+            MaybeCheckWitness(owner, false, checkWitness);
+
+        if (!checkWitness)
+            return;
+
+        EnsureWitness(owner);
+    }
+
+    private static void EnsureWitness(UInt160 owner)
+    {
+        ExecutionEngine.Assert(Runtime.CheckWitness(owner));
+    }
+}";
+
+            var result = AnalyzeSource(source);
+
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("recursiveHelperUpdate"));
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("guaranteedHelperUpdate"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotTreatNonReturningHelperAsWitness()
+        {
+            const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+using System;
+
+public class Contract : SmartContract
+{
+    public static void CatchWrite()
+    {
+        try
+        {
+            AlwaysThrow();
+        }
+        catch
+        {
+            Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+        }
+    }
+
+    private static void AlwaysThrow()
+    {
+        throw new Exception();
+    }
+}";
+
+            var result = AnalyzeSource(source);
+
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("catchWrite"));
+        }
+
+        [TestMethod]
         public void Test_MissingCheckWitness_Flags_DynamicCall_WithoutWitness()
         {
             const int helperOffset = 8;
@@ -445,6 +609,17 @@ public class Contract : SmartContract
                 ReturnType = ContractParameterType.Void,
                 Safe = false
             };
+        }
+
+        private static MissingCheckWitnessAnalyzer.MissingCheckWitnessVulnerability AnalyzeSource(string source)
+        {
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            return MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                context.CreateExecutable(),
+                context.CreateManifest(),
+                null);
         }
     }
 }
