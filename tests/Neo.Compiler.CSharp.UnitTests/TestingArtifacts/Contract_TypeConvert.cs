@@ -18,7 +18,7 @@ public abstract class Contract_TypeConvert(Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFpXCQAQcGjbMHEScmrbMHMMAQPbMHRs2yF1EIh2btshdwcYxAB3CGhvCBBR0GlvCBFR0GpvCBJR0GtvCBNR0GxvCBRR0G1vCBVR0G5vCBZR0G8HbwgXUdBvCEDBD5ME").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFJXCQAQcGjbMHEScmrbMHMMAQPbMHRs2yF1EIh2btshdwcYxAB3CG8IEGjQbwgRadBvCBJq0G8IE2vQbwgUbNBvCBVt0G8IFm7QbwgXbwfQbwhAp9uR9g==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class Contract_TypeConvert(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwkAEHBo2zBxEnJq2zBzDAED2zB0bNshdRCIdm7bIXcHGMQAdwhobwgQUdBpbwgRUdBqbwgSUdBrbwgTUdBsbwgUUdBtbwgVUdBubwgWUdBvB28IF1HQbwhA
+    /// Script: VwkAEHBo2zBxEnJq2zBzDAED2zB0bNshdRCIdm7bIXcHGMQAdwhvCBBo0G8IEWnQbwgSatBvCBNr0G8IFGzQbwgVbdBvCBZu0G8IF28H0G8IQA==
     /// INITSLOT 0900 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
@@ -55,45 +55,37 @@ public abstract class Contract_TypeConvert(Neo.SmartContract.Testing.SmartContra
     /// PUSH8 [1 datoshi]
     /// NEWARRAY_T 00 'Any' [512 datoshi]
     /// STLOC 08 [2 datoshi]
-    /// LDLOC0 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH0 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC0 [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// LDLOC1 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH1 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC1 [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// LDLOC2 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH2 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC2 [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// LDLOC3 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH3 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC3 [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// LDLOC4 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH4 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC4 [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// LDLOC5 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH5 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC5 [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// LDLOC6 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH6 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC6 [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// LDLOC 07 [2 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// PUSH7 [1 datoshi]
-    /// ROT [2 datoshi]
+    /// LDLOC 07 [2 datoshi]
     /// SETITEM [8192 datoshi]
     /// LDLOC 08 [2 datoshi]
     /// RET [0 datoshi]
