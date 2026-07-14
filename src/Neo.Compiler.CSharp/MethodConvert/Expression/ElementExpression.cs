@@ -150,25 +150,27 @@ internal partial class MethodConvert
     {
         if (indexOrRange is RangeExpressionSyntax range)
         {
+            if (range.LeftOperand is null)
+                Push(0);
+            else
+                ConvertRangeEndpointValue(model, range.LeftOperand);
+
             if (range.RightOperand is null)
             {
-                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.SIZE);
             }
             else
             {
-                ConvertExpression(model, range.RightOperand);
+                ConvertRangeEndpointValue(model, range.RightOperand);
             }
+
+            // Decode from-end values only after both endpoint expressions have run.
+            ResolveRangeEndpointOffset();
             AddInstruction(OpCode.SWAP);
-            if (range.LeftOperand is null)
-            {
-                Push(0);
-            }
-            else
-            {
-                ConvertExpression(model, range.LeftOperand);
-            }
-            AddInstruction(OpCode.ROT);
+            ResolveRangeEndpointOffset();
+            AddInstruction(OpCode.SWAP);
+
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.SUB);
             switch (type.ToString())
@@ -189,6 +191,150 @@ internal partial class MethodConvert
             ConvertExpression(model, indexOrRange);
             AddInstruction(OpCode.PICKITEM);
         }
+    }
+
+    private void ConvertRangeEndpointValue(SemanticModel model, ExpressionSyntax endpoint)
+    {
+        ExpressionSyntax value = endpoint;
+        while (value is ParenthesizedExpressionSyntax parenthesized)
+            value = parenthesized.Expression;
+
+        if (value is ThrowExpressionSyntax)
+        {
+            ConvertExpression(model, value);
+            return;
+        }
+
+        TypeInfo typeInfo = model.GetTypeInfo(value);
+        if (IsSystemIndexType(typeInfo.ConvertedType) &&
+            !IsSystemIndexType(typeInfo.Type) &&
+            !IsSupportedRangeIndexConversion(model.GetConversion(value)))
+            ThrowUnsupportedRangeIndexExpression(value);
+
+        switch (value)
+        {
+            case PrefixUnaryExpressionSyntax prefix when prefix.OperatorToken.IsKind(SyntaxKind.CaretToken):
+                ConvertExpression(model, prefix.Operand);
+                ValidateRangeEndpointValue();
+                // Encode ^n as -(n + 1), reserving nonnegative values for from-start indices.
+                AddInstruction(OpCode.INC);
+                AddInstruction(OpCode.NEGATE);
+                return;
+            case CastExpressionSyntax cast when
+                IsSystemIndexType(model.GetTypeInfo(cast.Type).Type) &&
+                IsSystemIndexType(model.GetTypeInfo(cast.Expression).Type):
+                ConvertRangeEndpointValue(model, cast.Expression);
+                return;
+            case PostfixUnaryExpressionSyntax postfix when
+                postfix.OperatorToken.IsKind(SyntaxKind.ExclamationToken):
+                ConvertRangeEndpointValue(model, postfix.Operand);
+                return;
+            case ConditionalExpressionSyntax conditional:
+                ConvertRangeConditionalEndpoint(model, conditional);
+                return;
+            case CheckedExpressionSyntax checkedExpression:
+                _checkedStack.Push(checkedExpression.Keyword.IsKind(SyntaxKind.CheckedKeyword));
+                try
+                {
+                    ConvertRangeEndpointValue(model, checkedExpression.Expression);
+                }
+                finally
+                {
+                    _checkedStack.Pop();
+                }
+                return;
+            case SwitchExpressionSyntax switchExpression:
+                ConvertRangeSwitchEndpoint(model, switchExpression);
+                return;
+        }
+
+        if (IsSystemIndexType(typeInfo.Type))
+            ThrowUnsupportedRangeIndexExpression(value);
+
+        ConvertExpression(model, value);
+        ValidateRangeEndpointValue();
+    }
+
+    private static bool IsSystemIndexType(ITypeSymbol? type)
+        => type is INamedTypeSymbol { Name: "Index" } && type.ContainingNamespace.ToDisplayString() == "System";
+
+    private static bool IsSupportedRangeIndexConversion(Conversion conversion)
+    {
+        IMethodSymbol? method = conversion.MethodSymbol;
+        return conversion.IsImplicit && conversion.IsUserDefined &&
+            method is not null && method.Name == "op_Implicit" &&
+            method.Parameters.Length == 1 &&
+            method.Parameters[0].Type.SpecialType == SpecialType.System_Int32 &&
+            IsSystemIndexType(method.ContainingType) &&
+            IsSystemIndexType(method.ReturnType);
+    }
+
+    private static void ThrowUnsupportedRangeIndexExpression(ExpressionSyntax expression)
+        => throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported,
+            "This System.Index expression cannot be lowered safely. Use an int endpoint or inline the ^ expression in the range.");
+
+    private void ConvertRangeConditionalEndpoint(SemanticModel model, ConditionalExpressionSyntax expression)
+    {
+        JumpTarget falseTarget = new();
+        JumpTarget endTarget = new();
+        ConvertExpression(model, expression.Condition);
+        Jump(OpCode.JMPIFNOT_L, falseTarget);
+        ConvertRangeEndpointValue(model, expression.WhenTrue);
+        Jump(OpCode.JMP_L, endTarget);
+        falseTarget.Instruction = AddInstruction(OpCode.NOP);
+        ConvertRangeEndpointValue(model, expression.WhenFalse);
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
+    }
+
+    private void ConvertRangeSwitchEndpoint(SemanticModel model, SwitchExpressionSyntax expression)
+    {
+        var arms = expression.Arms.Select(p => (p, new JumpTarget())).ToArray();
+        JumpTarget breakTarget = new();
+        byte anonymousIndex = AddAnonymousVariable();
+        ConvertExpression(model, expression.GoverningExpression);
+        AccessSlot(OpCode.STLOC, anonymousIndex);
+        foreach (var (arm, nextTarget) in arms)
+        {
+            ConvertPattern(model, arm.Pattern, anonymousIndex);
+            Jump(OpCode.JMPIFNOT_L, nextTarget);
+            if (arm.WhenClause is not null)
+            {
+                ConvertExpression(model, arm.WhenClause.Condition);
+                Jump(OpCode.JMPIFNOT_L, nextTarget);
+            }
+            ConvertRangeEndpointValue(model, arm.Expression);
+            Jump(OpCode.JMP_L, breakTarget);
+            nextTarget.Instruction = AddInstruction(OpCode.NOP);
+        }
+        Push("No switch arm matched.");
+        AddInstruction(OpCode.THROW);
+        breakTarget.Instruction = AddInstruction(OpCode.NOP);
+        RemoveAnonymousVariable(anonymousIndex);
+    }
+
+    private void ValidateRangeEndpointValue()
+    {
+        JumpTarget nonNegativeTarget = new();
+        AddInstruction(OpCode.DUP);
+        Push(0);
+        JumpIfGreaterOrEqual(nonNegativeTarget);
+        Throw();
+        nonNegativeTarget.Instruction = Nop();
+    }
+
+    private void ResolveRangeEndpointOffset()
+    {
+        JumpTarget absoluteTarget = new();
+        AddInstruction(OpCode.DUP);
+        Push(0);
+        JumpIfGreaterOrEqual(absoluteTarget);
+        Push(2);
+        AddInstruction(OpCode.PICK);
+        AddInstruction(OpCode.SIZE);
+        AddInstruction(OpCode.SWAP);
+        AddInstruction(OpCode.ADD);
+        AddInstruction(OpCode.INC);
+        absoluteTarget.Instruction = Nop();
     }
 
     private void EnsureMultiDimensionalArguments(SeparatedSyntaxList<ArgumentSyntax> arguments, int expectedRank, SyntaxNode errorNode)
