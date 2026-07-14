@@ -27,6 +27,12 @@ internal partial class MethodConvert
     private void ConvertObjectCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+        INamedTypeSymbol? systemIndex = model.Compilation
+            .GetSpecialType(SpecialType.System_Object)
+            .ContainingAssembly
+            .GetTypeByMetadataName("System.Index");
+        if (SymbolEqualityComparer.Default.Equals(type, systemIndex))
+            throw CompilationException.UnsupportedSyntax(expression, "System.Index construction is not supported. Use an int index, or inline '^' in an element or range access.");
         if (type.TypeKind == TypeKind.Delegate)
         {
             ConvertDelegateCreationExpression(model, expression);
