@@ -102,9 +102,8 @@ internal partial class MethodConvert
                 },
                 thenEmitter: () =>
                 {
-                    methodConvert.Push(t.ConstantValue);           // Stack: [type, inputString, enumValue]
-                    methodConvert.Reverse3();
-                    methodConvert.Drop(2);
+                    methodConvert.Drop(2);                       // Stack: [type, inputString]
+                    methodConvert.Push(t.ConstantValue);         // Stack: [enumValue]
                     methodConvert.Ret();
                 });
         }
