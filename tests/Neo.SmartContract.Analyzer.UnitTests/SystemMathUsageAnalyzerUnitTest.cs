@@ -35,7 +35,7 @@ class TestClass
 
             var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
                 .WithSpan(8, 22, 8, 36)
-                .WithArguments("Sqrt");
+                .WithArguments("Math.Sqrt(double)");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -55,7 +55,7 @@ class TestClass
 
             var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
                 .WithSpan(8, 22, 8, 43)
-                .WithArguments("Sqrt");
+                .WithArguments("Math.Sqrt(double)");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -76,7 +76,7 @@ class TestClass
 
             var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
                 .WithSpan(9, 22, 9, 33)
-                .WithArguments("Sqrt");
+                .WithArguments("Math.Sqrt(double)");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -96,7 +96,7 @@ class TestClass
 
             var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
                 .WithSpan(8, 22, 8, 31)
-                .WithArguments("Sqrt");
+                .WithArguments("Math.Sqrt(double)");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -136,7 +136,7 @@ class TestClass
 
             var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
                 .WithSpan(8, 22, 8, 35)
-                .WithArguments("Cos");
+                .WithArguments("Math.Cos(double)");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -156,7 +156,30 @@ class TestClass
 
             var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
                 .WithSpan(8, 22, 8, 36)
-                .WithArguments("Log");
+                .WithArguments("Math.Log(double)");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task UnsupportedMathDivRemOverload_ShouldReportDiagnostic()
+        {
+            var test = """
+                using System;
+
+                class TestClass
+                {
+                    void TestMethod()
+                    {
+                        int remainder;
+                        var result = {|#0:Math.DivRem(7, 3, out remainder)|};
+                    }
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("Math.DivRem(int, int, out int)");
+
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -174,6 +197,8 @@ class TestClass
         var result2 = Math.Min(1, 2);
         var result3 = Math.Abs(-1);
         var result4 = Math.Sign(-5);
+        var result5 = Math.Clamp(5, 0, 10);
+        var result6 = Math.BigMul(3, 4);
     }
 }";
 

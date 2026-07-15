@@ -172,7 +172,17 @@ namespace Neo.SmartContract.Analyzer
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false)!;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var declaration = root!.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().First();
+            var diagnosticNode = root!.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
+            var declaration = diagnosticNode.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().FirstOrDefault();
+            if (declaration is null)
+                return;
+
+            var variable = diagnosticNode.AncestorsAndSelf().OfType<VariableDeclaratorSyntax>().FirstOrDefault();
+            if (diagnostic.Id == InitialValueAnalyzer.ParseDiagnosticId && variable is null)
+                return;
+
+            if (diagnostic.Id == InitialValueAnalyzer.DiagnosticId && declaration.Declaration.Variables.Count != 1)
+                return;
 
             var title = diagnostic.Id == InitialValueAnalyzer.ParseDiagnosticId
                 ? "Wrap initializer with Parse"
@@ -182,7 +192,7 @@ namespace Neo.SmartContract.Analyzer
                 CodeAction.Create(
                     title: title,
                     createChangedDocument: c => diagnostic.Id == InitialValueAnalyzer.ParseDiagnosticId
-                        ? WrapInitializerWithParseAsync(context.Document, declaration, c)
+                        ? WrapInitializerWithParseAsync(context.Document, variable!, c)
                         : ConvertToParseInitializationAsync(context.Document, declaration, c),
                     equivalenceKey: nameof(InitialValueCodeFixProvider)),
                 diagnostic);
@@ -219,10 +229,9 @@ namespace Neo.SmartContract.Analyzer
             return editor.GetChangedDocument();
         }
 
-        private async Task<Document> WrapInitializerWithParseAsync(Document document, FieldDeclarationSyntax fieldDeclaration, CancellationToken cancellationToken)
+        private async Task<Document> WrapInitializerWithParseAsync(Document document, VariableDeclaratorSyntax variable, CancellationToken cancellationToken)
         {
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-            var variable = fieldDeclaration.Declaration.Variables[0];
             var fieldSymbol = semanticModel?.GetDeclaredSymbol(variable, cancellationToken) as IFieldSymbol;
             var initializerExpression = variable.Initializer?.Value;
             if (initializerExpression is null)
@@ -233,12 +242,8 @@ namespace Neo.SmartContract.Analyzer
                 return document;
 
             var newVariable = variable.WithInitializer(SyntaxFactory.EqualsValueClause(wrapped));
-            var updatedDeclaration = fieldDeclaration.WithDeclaration(fieldDeclaration.Declaration.WithVariables(
-                SyntaxFactory.SingletonSeparatedList(newVariable)));
-
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            editor.ReplaceNode(fieldDeclaration, updatedDeclaration);
-            return editor.GetChangedDocument();
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            return root is null ? document : document.WithSyntaxRoot(root.ReplaceNode(variable, newVariable));
         }
 
         private static FieldDeclarationSyntax RemoveInitialValueAttributes(FieldDeclarationSyntax fieldDeclaration)
