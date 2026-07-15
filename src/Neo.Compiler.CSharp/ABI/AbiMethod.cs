@@ -24,23 +24,26 @@ namespace Neo.Compiler.ABI
 
         public override IMethodSymbol Symbol { get; }
 
-        public AbiMethod(IMethodSymbol symbol)
+        public AbiMethod(IMethodSymbol symbol, INamedTypeSymbol? frameworkSafeAttribute)
             : base(symbol, symbol.GetDisplayName(true), symbol.Parameters.Select(p => p.ToAbiParameter()).ToArray())
         {
             Symbol = symbol;
-            Safe = GetSafeAttribute(symbol) != null;
+            Safe = GetSafeAttribute(symbol, frameworkSafeAttribute) != null;
             if (Safe && symbol.MethodKind == MethodKind.PropertySet)
                 throw new CompilationException(symbol, DiagnosticId.SafeSetter, "Safe setters are not allowed.");
             ReturnType = symbol.ReturnType.GetContractParameterType();
         }
 
-        private static AttributeData? GetSafeAttribute(IMethodSymbol symbol)
+        private static AttributeData? GetSafeAttribute(IMethodSymbol symbol, INamedTypeSymbol? frameworkSafeAttribute)
         {
-            AttributeData? attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute));
+            AttributeData? attribute = symbol.GetAttributes().FirstOrDefault(p => IsFrameworkSafeAttribute(p, frameworkSafeAttribute));
             if (attribute != null) return attribute;
             if (symbol.AssociatedSymbol is IPropertySymbol property)
-                return property.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute));
+                return property.GetAttributes().FirstOrDefault(p => IsFrameworkSafeAttribute(p, frameworkSafeAttribute));
             return null;
         }
+
+        private static bool IsFrameworkSafeAttribute(AttributeData attribute, INamedTypeSymbol? frameworkSafeAttribute)
+            => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, frameworkSafeAttribute);
     }
 }
