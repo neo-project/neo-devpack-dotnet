@@ -9,7 +9,14 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<
     Neo.SmartContract.Analyzer.LinqUsageAnalyzer,
@@ -54,6 +61,66 @@ namespace Neo.SmartContract.Framework.Linq
                 .WithArguments("System.Linq");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
+        }
+
+        [TestMethod]
+        public async Task QueryExpression_DoesNotSuggestFrameworkUsing()
+        {
+            var test = """
+                       using System.Linq;
+
+                       class TestClass
+                       {
+                           public object Filter(int[] values)
+                           {
+                               return from value in values
+                                      where value > 0
+                                      select value;
+                           }
+                       }
+                       """;
+
+            var expectedDiagnostic = VerifyCS.Diagnostic(LinqUsageAnalyzer.DiagnosticId)
+                .WithLocation(1, 1)
+                .WithArguments("System.Linq");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
+        }
+
+        [TestMethod]
+        public async Task QueryExpression_ReportsOnlySystemLinqAndUnsupportedSyntaxDiagnostics()
+        {
+            const string source = """
+                                  using System.Linq;
+
+                                  class TestClass
+                                  {
+                                      public object Filter(int[] values)
+                                      {
+                                          return from value in values
+                                                 where value > 0
+                                                 select value;
+                                      }
+                                  }
+                                  """;
+            var trustedPlatformAssemblies = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
+            var references = trustedPlatformAssemblies
+                .Split(Path.PathSeparator)
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create(
+                "QueryExpressionDiagnostics",
+                new[] { CSharpSyntaxTree.ParseText(source) },
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(
+                new LinqUsageAnalyzer(),
+                new UnsupportedSyntaxAnalyzer());
+
+            var diagnostics = await compilation.WithAnalyzers(analyzers).GetAnalyzerDiagnosticsAsync();
+
+            CollectionAssert.AreEquivalent(
+                new[] { LinqUsageAnalyzer.DiagnosticId, UnsupportedSyntaxAnalyzer.QueryExpressionRuleId },
+                diagnostics.Select(diagnostic => diagnostic.Id).ToArray());
         }
 
         [TestMethod]
