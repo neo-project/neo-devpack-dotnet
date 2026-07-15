@@ -145,10 +145,6 @@ partial class MethodConvert
         return AddInstruction(OpCode.THROW);
     }
 
-    // private Instruction Ret()
-    // {
-    //     return AddInstruction(OpCode.RET);
-    // }
     #endregion
 
     #region Stack
