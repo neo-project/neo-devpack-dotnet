@@ -105,7 +105,7 @@ internal partial class MethodConvert
                 {
                     methodConvert.Drop(2);                       // Stack: [type, inputString]
                     methodConvert.Push(t.ConstantValue);         // Stack: [enumValue]
-                    methodConvert.Jump(endTarget);
+                    methodConvert.JumpAlwaysLong(endTarget);
                 });
         }
 
@@ -166,24 +166,25 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         var ignoreCase = new JumpTarget();
-        var ignoreCase2 = new JumpTarget();
         byte ignoreCaseSlot = methodConvert.AddAnonymousVariable();
         methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
         methodConvert.JumpIfNot(ignoreCase);
-        ConvertToUpper(methodConvert, preserveInput: true);        // Convert inputString to upper case
+        ConvertToUpper(methodConvert);                             // Convert inputString to upper case
         ignoreCase.Instruction = methodConvert.Nop();
+        var endTarget = new JumpTarget();
         foreach (var t in enumMembers)
         {
             // Duplicate inputString
             methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
             methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
-            methodConvert.JumpIfNot(ignoreCase2);
+            JumpTarget lowerCaseName = new();
+            methodConvert.JumpIfNot(lowerCaseName);
             JumpTarget endCase = new JumpTarget();
             // Push enum name
             methodConvert.Push(t.Name.ToUpper());                  // Stack: [..., inputString, inputString, enumName]
             methodConvert.Jump(endCase);
-            ignoreCase2.Instruction = methodConvert.Nop();
+            lowerCaseName.Instruction = methodConvert.Nop();
             methodConvert.Push(t.Name);
             endCase.Instruction = methodConvert.Nop();
 
@@ -196,10 +197,10 @@ internal partial class MethodConvert
 
             // If equal:
             // Remove the duplicated inputString from the stack
-            methodConvert.Drop(3);
+            methodConvert.Drop(2);
             // Push enum value
             methodConvert.Push(t.ConstantValue);
-            methodConvert.Ret();
+            methodConvert.JumpAlwaysLong(endTarget);
 
             nextCheck.Instruction = methodConvert.Nop();
         }
@@ -209,6 +210,7 @@ internal partial class MethodConvert
         methodConvert.Drop(2);
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     /// <summary>
@@ -872,7 +874,7 @@ internal partial class MethodConvert
             methodConvert.Drop();
             methodConvert.Push(member.ConstantValue);
             methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
-            methodConvert.JumpAlways(success);
+            methodConvert.JumpAlwaysLong(success);
             next.Instruction = methodConvert.Nop();
         }
 
@@ -882,7 +884,6 @@ internal partial class MethodConvert
 
         success.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        methodConvert.Ret();
     }
 
     private static void HandleEnumParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -904,7 +905,7 @@ internal partial class MethodConvert
         JumpTarget skipUpper = new();
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
         methodConvert.JumpIfFalse(skipUpper);
-        ConvertToUpper(methodConvert, preserveInput: true);
+        ConvertToUpper(methodConvert);
         skipUpper.Instruction = methodConvert.Nop();
 
         foreach (var member in members)
@@ -926,7 +927,7 @@ internal partial class MethodConvert
             methodConvert.Drop();
             methodConvert.Push(member.ConstantValue);
             methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
-            methodConvert.JumpAlways(success);
+            methodConvert.JumpAlwaysLong(success);
             next.Instruction = methodConvert.Nop();
         }
 
@@ -936,7 +937,6 @@ internal partial class MethodConvert
 
         success.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        methodConvert.Ret();
     }
 
     private static void HandleEnumTryParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,

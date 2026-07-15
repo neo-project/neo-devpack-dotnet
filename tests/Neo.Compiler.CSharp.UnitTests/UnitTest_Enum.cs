@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
+using System;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -31,9 +32,66 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1050810);
             Assert.AreEqual(new Integer(3), Contract.TestEnumParse("Value3"));
             AssertGasConsumed(1052130);
-            Assert.AreEqual(new Integer(11), Contract.TestEnumParseWithContinuation("Value1"));
+            Assert.AreEqual(new Integer(21), Contract.TestEnumParseWithContinuation());
             Assert.ThrowsException<TestException>(() => Contract.TestEnumParse("InvalidValue"));
             AssertGasConsumed(1067580);
+        }
+
+        [TestMethod]
+        public void TestEnumParseWithLargeEnum()
+        {
+            var context = TestHelper.CompileSingleContract("""
+                using Neo.SmartContract.Framework;
+                using System;
+
+                public class Contract : SmartContract
+                {
+                    private enum LargeEnum
+                    {
+                        Value00,
+                        Value01,
+                        Value02,
+                        Value03,
+                        Value04,
+                        Value05,
+                        Value06,
+                        Value07,
+                        Value08,
+                        Value09,
+                        Value10,
+                        Value11,
+                        Value12,
+                        Value13,
+                        Value14,
+                        Value15,
+                        Value16,
+                        Value17,
+                        Value18,
+                        Value19,
+                        Value20,
+                        Value21,
+                        Value22,
+                        Value23,
+                        Value24,
+                        Value25,
+                        Value26,
+                        Value27,
+                        Value28,
+                        Value29,
+                        Value30,
+                        Value31
+                    }
+
+                    public static int Parse(string value)
+                    {
+                        var parsed = (LargeEnum)Enum.Parse(typeof(LargeEnum), value);
+                        return (int)parsed + 10;
+                    }
+                }
+                """);
+
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+            _ = context.CreateExecutable();
         }
 
         [TestMethod]
