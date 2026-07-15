@@ -9,7 +9,10 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
@@ -28,19 +31,7 @@ class Program
     static void Main()
     {
         try { }
-        catch (ArgumentException ex) { }
-    }
-}";
-
-        string fixedCode = @"
-using System;
-
-class Program
-{
-    static void Main()
-    {
-        try { }
-        catch (System.Exception ex) { }
+        catch (ArgumentException ex) { Console.WriteLine(ex.ParamName); }
     }
 }";
 
@@ -99,16 +90,17 @@ class Program
         }
 
         [TestMethod]
-        public async Task TestCodeFix()
+        public void NC4027_ShouldNotHaveCodeFixProvider()
         {
-            var test = new CSharpCodeFixTest<CatchOnlySystemExceptionAnalyzer, CatchOnlySystemExceptionCodeFixProvider, DefaultVerifier>
-            {
-                TestCode = testCode,
-                FixedCode = fixedCode
-            };
+            var providerNames = typeof(CatchOnlySystemExceptionAnalyzer).Assembly.GetTypes()
+                .Where(type => !type.IsAbstract && typeof(CodeFixProvider).IsAssignableFrom(type))
+                .Select(type => (CodeFixProvider)Activator.CreateInstance(type)!)
+                .Where(provider => provider.FixableDiagnosticIds.Contains(CatchOnlySystemExceptionAnalyzer.DiagnosticId))
+                .Select(provider => provider.GetType().Name)
+                .ToArray();
 
-            test.ExpectedDiagnostics.AddRange([expectedDiagnostic]);
-            await test.RunAsync();
+            Assert.AreEqual(0, providerNames.Length,
+                $"NC4027 must not have an automatic code fix: {string.Join(", ", providerNames)}");
         }
     }
 }
