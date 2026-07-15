@@ -19,5 +19,37 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             string first = args.Length >= 1 ? args[0] : throw new ArgumentException("Please supply at least one argument.");
         }
+
+        public static void StoreAndThrowException()
+        {
+            Exception exception = new Exception("boom");
+            throw exception;
+        }
+
+        public static string StoreThrowAndCatchException()
+        {
+            try
+            {
+                Exception exception = new Exception("boom");
+                throw exception;
+            }
+            catch (Exception exception)
+            {
+                return "caught:" + exception;
+            }
+        }
+
+        public static string StoreParameterlessExceptionAndCatch()
+        {
+            try
+            {
+                Exception exception = new Exception();
+                throw exception;
+            }
+            catch (Exception exception)
+            {
+                return "caught:" + exception;
+            }
+        }
     }
 }
