@@ -33,8 +33,11 @@ namespace Neo.Compiler
     public class CompilationEngine(CompilationOptions options)
     {
         internal Compilation? Compilation;
+        internal MetadataReference? FrameworkReference;
         internal CompilationOptions Options { get; private set; } = options;
         private static readonly MetadataReference[] CommonReferences;
+        private static readonly Guid FrameworkModuleVersionId = typeof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute).Assembly.ManifestModule.ModuleVersionId;
+        private const string FrameworkAssemblyName = "Neo.SmartContract.Framework";
         private static readonly StringComparison ProjectPathComparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         private readonly Dictionary<string, MetadataReference> MetaReferences = new();
         private string? PreparedProjectPath;
@@ -140,7 +143,9 @@ namespace Neo.Compiler
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
-            Compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
+            MetadataReference[] referenceArray = references.ToArray();
+            FrameworkReference = referenceArray.FirstOrDefault(IsTrustedFrameworkReference);
+            Compilation = CSharpCompilation.Create(null, syntaxTrees, referenceArray, compilationOptions);
             return CompileProjectContracts(Compilation);
         }
 
@@ -210,6 +215,7 @@ namespace Neo.Compiler
 
             ResetProjectState();
             Compilation = GetCompilation(projectPath);
+            FrameworkReference = ResolveProjectFrameworkReference(Compilation);
             ProjectPath = projectPath;
             return Compilation;
         }
@@ -217,6 +223,7 @@ namespace Neo.Compiler
         private void ResetProjectState()
         {
             Compilation = null;
+            FrameworkReference = null;
             MetaReferences.Clear();
             PreparedProjectPath = null;
             ProjectPath = null;
@@ -224,6 +231,37 @@ namespace Neo.Compiler
             ProjectVersionPrefix = null;
             ProjectVersionSuffix = null;
             Contexts.Clear();
+        }
+
+        private MetadataReference? ResolveProjectFrameworkReference(Compilation compilation)
+        {
+            return MetaReferences
+                .Where(pair => IsFrameworkLibrary(pair.Key))
+                .Select(pair => pair.Value)
+                .FirstOrDefault(reference => compilation.References.Contains(reference));
+        }
+
+        private static bool IsFrameworkLibrary(string libraryName)
+        {
+            int separator = libraryName.IndexOf('/');
+            ReadOnlySpan<char> packageName = separator < 0 ? libraryName.AsSpan() : libraryName.AsSpan(0, separator);
+            return packageName.Equals(FrameworkAssemblyName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal static bool IsTrustedFrameworkReference(MetadataReference reference)
+        {
+            if (reference is not PortableExecutableReference portableReference)
+                return false;
+
+            try
+            {
+                return portableReference.GetMetadata() is AssemblyMetadata assemblyMetadata &&
+                    assemblyMetadata.GetModules().Any(module => module.GetModuleVersionId() == FrameworkModuleVersionId);
+            }
+            catch (Exception exception) when (exception is BadImageFormatException or IOException)
+            {
+                return false;
+            }
         }
 
         public List<CompilationContext> CompileProject(string csproj, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string? targetContractName = null)
