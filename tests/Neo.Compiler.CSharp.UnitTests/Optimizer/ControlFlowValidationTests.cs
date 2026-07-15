@@ -82,6 +82,65 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             Assert.AreEqual(BranchType.OK, coverage.coveredMap[4]);
         }
 
+        [TestMethod]
+        public void InstructionCoverage_AbortRemainsTerminalInsideTry()
+        {
+            AssertAbortRemainsTerminalInsideTry(OpCode.ABORT);
+        }
+
+        [TestMethod]
+        public void InstructionCoverage_AbortMsgRemainsTerminalInsideTry()
+        {
+            AssertAbortRemainsTerminalInsideTry(OpCode.ABORTMSG);
+        }
+
+        [TestMethod]
+        public void InstructionCoverage_ThrowEntersExceptionHandlers()
+        {
+            var coverage = CreateTryCatchFinallyCoverage(OpCode.THROW);
+
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[0]);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[6]);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[9]);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[11]);
+        }
+
+        private static void AssertAbortRemainsTerminalInsideTry(OpCode abortOpCode)
+        {
+            var coverage = CreateTryCatchFinallyCoverage(abortOpCode);
+
+            Assert.AreEqual(BranchType.ABORT, coverage.coveredMap[0]);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[6]);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[9]);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[11]);
+
+            var (optimizedNef, optimizedManifest, _) = Reachability.RemoveUncoveredInstructions(
+                CreateNefFile(CreateTryCatchFinallyScript(abortOpCode)), CreateManifest());
+            var optimizedCoverage = new InstructionCoverage(optimizedNef, optimizedManifest);
+
+            Assert.AreEqual(BranchType.ABORT, optimizedCoverage.coveredMap[0]);
+        }
+
+        private static InstructionCoverage CreateTryCatchFinallyCoverage(OpCode terminatingOpCode)
+            => new(CreateNefFile(CreateTryCatchFinallyScript(terminatingOpCode)), CreateManifest());
+
+        private static byte[] CreateTryCatchFinallyScript(OpCode terminatingOpCode)
+        {
+            byte[] script =
+            [
+                (byte)OpCode.TRY, 0x06, 0x09,
+                (byte)terminatingOpCode,
+                (byte)OpCode.ENDTRY, 0x07,
+                (byte)OpCode.NOP,
+                (byte)OpCode.ENDTRY, 0x04,
+                (byte)OpCode.NOP,
+                (byte)OpCode.ENDFINALLY,
+                (byte)OpCode.RET
+            ];
+
+            return script;
+        }
+
         private static NefFile CreateNefFile(byte[] script)
         {
             return new NefFile
