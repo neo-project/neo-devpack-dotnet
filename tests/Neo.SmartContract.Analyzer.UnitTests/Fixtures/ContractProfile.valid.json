@@ -1,0 +1,146 @@
+{
+  "$schema": "../../../profiles/neo-csharp-profile.schema.json",
+  "schemaVersion": 1,
+  "profileVersion": "3.10.0",
+  "devpackVersion": "3.10.0",
+  "capabilities": {
+    "syntax.expression-bodied-member": {
+      "kind": "syntax",
+      "state": "supported",
+      "summary": "Expression-bodied members preserve their documented C# behavior.",
+      "match": {
+        "syntaxKinds": [
+          "ArrowExpressionClause"
+        ]
+      },
+      "implementation": [
+        "src/Neo.Compiler.CSharp/MethodConvert"
+      ],
+      "since": "3.10.0",
+      "evidence": [
+        {
+          "kind": "analyzer-positive",
+          "reference": "docs/csharp-syntax/csharp-6.md#expression_bodied_members"
+        },
+        {
+          "kind": "compiler",
+          "reference": "Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests"
+        },
+        {
+          "kind": "runtime",
+          "reference": "Neo.Compiler.CSharp.UnitTests"
+        }
+      ]
+    },
+    "type.system-single": {
+      "kind": "type",
+      "state": "unsupported",
+      "summary": "Neo contracts do not support System.Single values.",
+      "match": {
+        "metadataNames": [
+          "System.Single"
+        ]
+      },
+      "diagnostic": {
+        "id": "NC4002",
+        "severity": "Error",
+        "guidance": "Use integer or BigInteger fixed-point arithmetic with an explicit scale.",
+        "helpLink": "docs/diagnostics/NC4002.md"
+      },
+      "since": "3.9.1",
+      "evidence": [
+        {
+          "kind": "analyzer-negative",
+          "reference": "FloatUsageAnalyzerUnitTest"
+        },
+        {
+          "kind": "compiler",
+          "reference": "DiagnosticId.FloatingPointNumber"
+        }
+      ]
+    },
+    "syntax.range-byte-string": {
+      "kind": "syntax",
+      "state": "partially-supported",
+      "summary": "Range expressions are supported only for documented byte-string receivers.",
+      "match": {
+        "syntaxKinds": [
+          "RangeExpression"
+        ]
+      },
+      "contexts": {
+        "allowed": [
+          "receiver is byte[] or string"
+        ],
+        "excluded": [
+          "all other receiver types"
+        ]
+      },
+      "implementation": [
+        "MethodConvert.Expression.RangeExpression"
+      ],
+      "diagnostic": {
+        "id": "NC2010",
+        "severity": "Error",
+        "guidance": "Use ranges only with a supported byte-string receiver.",
+        "helpLink": "docs/diagnostics/NC2010.md"
+      },
+      "since": "3.10.0",
+      "evidence": [
+        {
+          "kind": "analyzer-positive",
+          "reference": "range_receiver_positive"
+        },
+        {
+          "kind": "analyzer-negative",
+          "reference": "range_receiver_negative"
+        },
+        {
+          "kind": "compiler",
+          "reference": "DiagnosticId.ArrayRange"
+        },
+        {
+          "kind": "runtime",
+          "reference": "UnitTest_Range"
+        }
+      ]
+    },
+    "semantic.bool-try-parse": {
+      "kind": "semantic-difference",
+      "state": "supported-with-different-semantics",
+      "summary": "bool.TryParse accepts additional Neo contract literals.",
+      "match": {
+        "memberSignatures": [
+          "System.Boolean.TryParse(System.String,System.Boolean@)"
+        ]
+      },
+      "implementation": [
+        "MethodConvert.System.SystemCall.Boolean"
+      ],
+      "semanticDifference": {
+        "summary": "Neo accepts additional true and false literals.",
+        "rationale": "The behavior is retained for contract compatibility.",
+        "documentation": "docs/csharp-syntax/SemanticDifferences.md#booltryparse"
+      },
+      "since": "3.10.0",
+      "evidence": [
+        {
+          "kind": "analyzer-positive",
+          "reference": "bool_try_parse_analyzer"
+        },
+        {
+          "kind": "compiler",
+          "reference": "SystemCall.Boolean"
+        },
+        {
+          "kind": "runtime",
+          "reference": "UnitTest_Boolean.TryParse"
+        },
+        {
+          "kind": "differential",
+          "reference": "UnitTest_Boolean.TryParseSemanticDifference"
+        }
+      ]
+    }
+  }
+}

@@ -208,9 +208,9 @@ int length = builder.Length;
 
 Status: supported
 Scope: method
-Notes: `System.Numerics.BigInteger` provides arithmetic and conversion helpers that compile successfully.
+Notes: `System.Numerics.BigInteger` provides arithmetic and conversion helpers that compile successfully. Initialize integer values through implicit conversion because `new BigInteger(int)` is rejected by `NC4008`.
 ```csharp
-var balance = new System.Numerics.BigInteger(1_000);
+System.Numerics.BigInteger balance = 1_000;
 balance += System.Numerics.BigInteger.Pow(2, 5);
 byte[] serialized = balance.ToByteArray();
 bool fits = balance < System.Numerics.BigInteger.Pow(2, 16);
