@@ -79,9 +79,22 @@ When the analyzer lives in the same repo, reference it directly so you can debug
 dotnet build /warnaserror
 ```
 
-```
-dotnet_analyzer_diagnostic.category-Nsc = error
-dotnet_diagnostic.NSC001.severity = warning
+Add the following to `.editorconfig` to promote all seven shipped analyzer
+categories (`Usage`, `Syntax`, `Security`, `Naming`, `Type`, `Method`, and
+`Namespace`) to errors while keeping selected rules at a different severity:
+
+```ini
+[*.cs]
+dotnet_analyzer_diagnostic.category-Usage.severity = error
+dotnet_analyzer_diagnostic.category-Syntax.severity = error
+dotnet_analyzer_diagnostic.category-Security.severity = error
+dotnet_analyzer_diagnostic.category-Naming.severity = error
+dotnet_analyzer_diagnostic.category-Type.severity = error
+dotnet_analyzer_diagnostic.category-Method.severity = error
+dotnet_analyzer_diagnostic.category-Namespace.severity = error
+
+# Override individual rules after setting category defaults when needed.
+dotnet_diagnostic.NC4014.severity = warning
 ```
 
 3. Only suppress warnings with `#pragma warning disable` when you fully understand the trade-off.
