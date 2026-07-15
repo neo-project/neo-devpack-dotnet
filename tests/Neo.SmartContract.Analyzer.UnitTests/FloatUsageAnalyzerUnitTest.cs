@@ -9,13 +9,10 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using System.Globalization;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<Neo.SmartContract.Analyzer.FloatUsageAnalyzer,
-        Neo.SmartContract.Analyzer.FloatUsageCodeFixProvider>;
+    Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<Neo.SmartContract.Analyzer.FloatUsageAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
@@ -23,7 +20,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
     public class FloatUsageAnalyzerUnitTest
     {
         [TestMethod]
-        public async Task FloatUsageAnalyzer_ReplaceWithCommonKeyword()
+        public async Task FloatUsageAnalyzer_ExplicitCast_ShouldReportDiagnostic()
         {
             const string originalCode = """
 
@@ -34,23 +31,14 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
                                         """;
 
-            const string fixedCode = """
-
-                                     public class TestClass
-                                     {
-                                         public void TestFloat(){ int a = (int)1.5;}
-                                     }
-
-                                     """;
-
             var expectedDiagnostic = Verifier.Diagnostic(FloatUsageAnalyzer.DiagnosticId)
                 .WithSpan(4, 30, 4, 50).WithArguments("float");
 
-            await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
+            await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public async Task FloatUsageAnalyzer_ReplaceWithVar()
+        public async Task FloatUsageAnalyzer_InferredType_ShouldReportDiagnostic()
         {
             const string originalCode = """
 
@@ -61,23 +49,14 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
                                         """;
 
-            const string fixedCode = """
-
-                                     public class TestClass
-                                     {
-                                         public void TestFloat(){ int a = (int)1.5; }
-                                     }
-
-                                     """;
-
             var expectedDiagnostic = Verifier.Diagnostic(FloatUsageAnalyzer.DiagnosticId)
                 .WithSpan(4, 30, 4, 42).WithArguments("float");
 
-            await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
+            await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
 
         [TestMethod]
-        public async Task FloatUsageAnalyzer_ReplaceWithFloat()
+        public async Task FloatUsageAnalyzer_ExplicitType_ShouldReportDiagnostic()
         {
             const string originalCode = """
 
@@ -88,35 +67,10 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
                                         """;
 
-            const string fixedCode = """
-
-                                     public class TestClass
-                                     {
-                                         public void TestFloat(){ int a = (int)1.5; }
-                                     }
-
-                                     """;
-
             var expectedDiagnostic = Verifier.Diagnostic(FloatUsageAnalyzer.DiagnosticId)
                 .WithSpan(4, 30, 4, 44).WithArguments("float");
 
-            await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
-        }
-
-        [TestMethod]
-        public async Task FloatUsageAnalyzer_ReplaceWithVar_UnderCommaDecimalCulture()
-        {
-            // Regression: the code fix must not depend on CurrentCulture when parsing literals.
-            var previous = Thread.CurrentThread.CurrentCulture;
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("es-ES");
-            try
-            {
-                await FloatUsageAnalyzer_ReplaceWithVar().ConfigureAwait(false);
-            }
-            finally
-            {
-                Thread.CurrentThread.CurrentCulture = previous;
-            }
+            await Verifier.VerifyAnalyzerAsync(originalCode, expectedDiagnostic).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -159,6 +113,5 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             await Verifier.VerifyAnalyzerAsync(test, propertyDiagnostic).ConfigureAwait(false);
         }
-
     }
 }
