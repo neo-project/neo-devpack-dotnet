@@ -14,7 +14,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -22,15 +21,6 @@ namespace Neo.SmartContract.Analyzer
     public class CharMethodsUsageAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NC4012";
-
-        private readonly string[] _unsupportedCharMethods = {
-            "CompareTo", "Equals", "GetHashCode",
-            "GetType", "GetTypeCode",
-            "IsNumber", "IsSeparator",
-            "ConvertFromUtf32", "ConvertToUtf32",
-            "GetUnicodeCategory",
-            "IsSurrogatePair"
-        };
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
@@ -54,17 +44,80 @@ namespace Neo.SmartContract.Analyzer
         {
             if (context.Node is not InvocationExpressionSyntax invocationExpression) return;
 
-            // Get the invoked method symbol
-            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
+            if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol methodSymbol)
+                return;
 
-            // Check if the method symbol belongs to the 'char' type and is in the list of unsupported methods
-            if (methodSymbol is not { ContainingType.SpecialType: SpecialType.System_Char } ||
-                !_unsupportedCharMethods.Contains(methodSymbol.Name)) return;
+            if (methodSymbol.ContainingType.SpecialType != SpecialType.System_Char ||
+                IsSupportedCharMethod(methodSymbol))
+                return;
+
             var diagnostic = Diagnostic.Create(Rule,
                 invocationExpression.GetLocation(),
                 methodSymbol.Name);
 
             context.ReportDiagnostic(diagnostic);
+        }
+
+        private static bool IsSupportedCharMethod(IMethodSymbol method)
+        {
+            if (!method.IsStatic)
+                return method.Name == "ToString" && HasParameters(method);
+
+            return method.Name switch
+            {
+                "IsDigit" or
+                "IsLetter" or
+                "IsWhiteSpace" or
+                "IsLower" or
+                "ToLower" or
+                "IsUpper" or
+                "ToUpper" or
+                "IsPunctuation" or
+                "IsSymbol" or
+                "IsControl" or
+                "IsSurrogate" or
+                "IsHighSurrogate" or
+                "IsLowSurrogate" or
+                "GetNumericValue" or
+                "IsLetterOrDigit" or
+                "ToLowerInvariant" or
+                "ToUpperInvariant" or
+                "IsAscii" or
+                "IsAsciiDigit" or
+                "IsAsciiLetter" => HasParameters(method, SpecialType.System_Char),
+                "IsBetween" => HasParameters(
+                    method,
+                    SpecialType.System_Char,
+                    SpecialType.System_Char,
+                    SpecialType.System_Char),
+                "Parse" => HasParameters(method, SpecialType.System_String),
+                "TryParse" => HasTryParseParameters(method),
+                _ => false
+            };
+        }
+
+        private static bool HasParameters(IMethodSymbol method, params SpecialType[] parameterTypes)
+        {
+            if (method.Parameters.Length != parameterTypes.Length)
+                return false;
+
+            for (var i = 0; i < parameterTypes.Length; i++)
+            {
+                if (method.Parameters[i].RefKind != RefKind.None ||
+                    method.Parameters[i].Type.SpecialType != parameterTypes[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool HasTryParseParameters(IMethodSymbol method)
+        {
+            return method.Parameters.Length == 2 &&
+                   method.Parameters[0].RefKind == RefKind.None &&
+                   method.Parameters[0].Type.SpecialType == SpecialType.System_String &&
+                   method.Parameters[1].RefKind == RefKind.Out &&
+                   method.Parameters[1].Type.SpecialType == SpecialType.System_Char;
         }
     }
 }
