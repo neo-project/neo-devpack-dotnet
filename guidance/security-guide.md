@@ -858,28 +858,47 @@ public class AutomatedSecurityTests : TestBase<MyContract>
 
 ### Security Scanning Tools
 
-#### 1. NEO Security Analyzer
+#### 1. Build-Time Analyzer Checks
+
 ```bash
-# Install NEO Security Analyzer
-dotnet tool install -g Neo.Security.Analyzer
+# Add the Roslyn analyzer package to the contract project
+dotnet add package Neo.SmartContract.Analyzer
 
-# Run security scan
-neo-security-scan --project MyContract.csproj --output security-report.json
-
-# Run with specific rules
-neo-security-scan --project MyContract.csproj --rules high-severity --fix
+# Run all analyzer checks and fail the build on warnings
+dotnet build MyContract.csproj /warnaserror
 ```
 
-#### 2. Static Analysis Configuration
-```xml
-<!-- .editorconfig for security rules -->
+#### 2. Compiler Security Analysis
+
+`nccs` is the command provided by the `Neo.Compiler.CSharp` .NET tool package.
+For a project with a local `.config/dotnet-tools.json` manifest, restore and run
+the manifest-backed tool from the project or solution root:
+
+```bash
+dotnet tool restore
+dotnet tool run nccs MyContract.csproj --security-analysis
+```
+
+Not every official template includes this manifest. For example,
+`neocontractnep11` currently invokes bare `nccs` without providing a local
+manifest. For a project without a manifest, install the compiler globally once
+so that command is available, then run the analysis directly:
+
+```bash
+# Omit this installation step if nccs is already available
+dotnet tool install --global Neo.Compiler.CSharp
+nccs MyContract.csproj --security-analysis
+```
+
+#### 3. Security Diagnostic Configuration
+
+Use the package's shipped `Security` category when security diagnostics must
+fail the build. NC4056 currently reports storage-key collisions.
+
+```ini
 [*.cs]
-# Security rules
-dotnet_diagnostic.NEO001.severity = error  # No hardcoded keys
-dotnet_diagnostic.NEO002.severity = error  # Check witness before state changes
-dotnet_diagnostic.NEO003.severity = error  # Validate external inputs
-dotnet_diagnostic.NEO004.severity = warning # Prefer safe math operations
-dotnet_diagnostic.NEO005.severity = error  # No unchecked external calls
+dotnet_analyzer_diagnostic.category-Security.severity = error
+dotnet_diagnostic.NC4056.severity = error
 ```
 
 ### Security Incident Response Templates
