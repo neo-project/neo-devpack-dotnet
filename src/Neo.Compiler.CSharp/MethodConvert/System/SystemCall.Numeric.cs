@@ -165,8 +165,10 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         PushMinValue(methodConvert, descriptor);
-        PushMaxValue(methodConvert, descriptor);
-        EmitClampToRangeLegacy(methodConvert);
+        PushMaxValue(methodConvert, descriptor);                   // value min max
+        methodConvert.Reverse3();                                  // max min value
+        methodConvert.Max();                                       // max tartget1
+        methodConvert.Min();                                       // target2
     }
 
     private static void HandleNumericCreateTruncating(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -252,50 +254,6 @@ internal partial class MethodConvert
         methodConvert.Push(bitSize);
         methodConvert.Swap();
         methodConvert.Sub();
-    }
-
-    private static void EmitClampToRangeLegacy(MethodConvert methodConvert)
-    {
-        var endTarget = new JumpTarget();
-        var exceptionTarget = new JumpTarget();
-        var minTarget = new JumpTarget();
-        var maxTarget = new JumpTarget();
-
-        methodConvert.Dup();
-        methodConvert.Rot();
-        methodConvert.Dup();
-        methodConvert.Rot();
-        methodConvert.JumpIfLess(exceptionTarget);
-        methodConvert.Throw();
-        exceptionTarget.Instruction = methodConvert.Nop();
-
-        methodConvert.Rot();
-        methodConvert.Dup();
-        methodConvert.Rot();
-        methodConvert.Dup();
-        methodConvert.Rot();
-        methodConvert.JumpIfGreater(minTarget);
-        methodConvert.Drop();
-        methodConvert.Dup();
-        methodConvert.Rot();
-        methodConvert.Dup();
-        methodConvert.Rot();
-        methodConvert.JumpIfLess(maxTarget);
-        methodConvert.Drop();
-        methodConvert.JumpAlways(endTarget);
-
-        minTarget.Instruction = methodConvert.Nop();
-        methodConvert.Reverse3();
-        methodConvert.Drop();
-        methodConvert.Drop();
-        methodConvert.JumpAlways(endTarget);
-
-        maxTarget.Instruction = methodConvert.Nop();
-        methodConvert.Swap();
-        methodConvert.Drop();
-        methodConvert.JumpAlways(endTarget);
-
-        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void RegisterNumericHandlers(NumericTypeDescriptor descriptor)
