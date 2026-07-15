@@ -57,17 +57,26 @@ namespace Neo.SmartContract.Analyzer
             if (context.Node is not InvocationExpressionSyntax invocationExpression) return;
 
             // Check if the method belongs to String class or is an Object method called on string
-            if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol memberSymbol ||
-                !_unsupportedStringMethods.Contains(memberSymbol.Name))
+            if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol memberSymbol)
                 return;
 
+            var isUnsupportedMethod = _unsupportedStringMethods.Contains(memberSymbol.Name);
             var containingType = memberSymbol.ContainingType?.SpecialType;
             if (containingType == SpecialType.System_String)
             {
-                // Direct string method
+                if (!isUnsupportedMethod &&
+                    !HasUnsupportedTrimArrayArgument(
+                        memberSymbol,
+                        invocationExpression,
+                        context.SemanticModel,
+                        context.CancellationToken))
+                    return;
             }
             else if (containingType == SpecialType.System_Object)
             {
+                if (!isUnsupportedMethod)
+                    return;
+
                 // Object method - only report if called on a string instance
                 var receiverType = GetReceiverType(context, invocationExpression);
                 if (receiverType?.SpecialType != SpecialType.System_String)
@@ -80,6 +89,37 @@ namespace Neo.SmartContract.Analyzer
 
             var diagnostic = Diagnostic.Create(Rule, invocationExpression.GetLocation(), memberSymbol.Name);
             context.ReportDiagnostic(diagnostic);
+        }
+
+        private static bool HasUnsupportedTrimArrayArgument(
+            IMethodSymbol method,
+            InvocationExpressionSyntax invocation,
+            SemanticModel semanticModel,
+            System.Threading.CancellationToken cancellationToken)
+        {
+            if (method.Name is not ("Trim" or "TrimStart" or "TrimEnd") ||
+                method.Parameters.Length != 1 ||
+                method.Parameters[0].Type is not IArrayTypeSymbol { Rank: 1 } arrayType ||
+                arrayType.ElementType.SpecialType != SpecialType.System_Char)
+                return false;
+
+            var arguments = invocation.ArgumentList.Arguments;
+            if (arguments.Count != 1)
+                return true;
+
+            var initializer = arguments[0].Expression switch
+            {
+                ArrayCreationExpressionSyntax { Initializer: { } value } => value,
+                ImplicitArrayCreationExpressionSyntax { Initializer: { } value } => value,
+                InitializerExpressionSyntax value => value,
+                _ => null
+            };
+
+            if (initializer?.Expressions.Count != 1)
+                return true;
+
+            var constant = semanticModel.GetConstantValue(initializer.Expressions[0], cancellationToken);
+            return !constant.HasValue || constant.Value is not char and not (string { Length: 1 });
         }
 
         private static ITypeSymbol? GetReceiverType(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocationExpression)
