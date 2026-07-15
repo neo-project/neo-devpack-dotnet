@@ -10,14 +10,10 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Composition;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Editing;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -63,40 +59,4 @@ namespace Neo.SmartContract.Analyzer
         }
     }
 
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CatchOnlySystemExceptionCodeFixProvider)), Shared]
-    public class CatchOnlySystemExceptionCodeFixProvider : CodeFixProvider
-    {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds =>
-            ImmutableArray.Create(CatchOnlySystemExceptionAnalyzer.DiagnosticId);
-
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken);
-            var diagnostic = context.Diagnostics[0];
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-
-            var declaration = root?.FindNode(diagnosticSpan) as TypeSyntax;
-            if (declaration == null) return;
-
-            context.RegisterCodeFix(
-                Microsoft.CodeAnalysis.CodeActions.CodeAction.Create(
-                    title: "Change to System.Exception",
-                    createChangedDocument: c => FixCatchTypeAsync(context.Document, declaration, c),
-                    equivalenceKey: "ChangeToSystemException"),
-                diagnostic);
-        }
-
-        private async Task<Document> FixCatchTypeAsync(Document document, TypeSyntax type, System.Threading.CancellationToken cancellationToken)
-        {
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken);
-            var newType = SyntaxFactory.ParseTypeName("System.Exception")
-                .WithLeadingTrivia(type.GetLeadingTrivia())
-                .WithTrailingTrivia(type.GetTrailingTrivia());
-
-            editor.ReplaceNode(type, newType);
-            return editor.GetChangedDocument();
-        }
-    }
 }

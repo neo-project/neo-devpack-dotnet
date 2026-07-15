@@ -78,23 +78,65 @@ class TestClass
         [TestMethod]
         public async Task SupportedCharMethods_ShouldNotReportDiagnostic()
         {
-            var test = @"
-class TestClass
-{
-    void TestMethod()
-    {
-        char c = 'a';
-        var result = char.IsLetter(c);
-        var result2 = char.IsDigit(c);
-        var result3 = char.IsWhiteSpace(c);
-        var result4 = char.ToLower(c);
-        var result5 = char.ToUpper(c);
-        var result6 = char.ToLowerInvariant(c);
-        var result7 = char.ToUpperInvariant(c);
-    }
-}";
+            var test = """
+                       class TestClass
+                       {
+                           void TestMethod()
+                           {
+                               char value = 'a';
+                               _ = value.ToString();
+                               _ = char.IsDigit(value);
+                               _ = char.IsLetter(value);
+                               _ = char.IsWhiteSpace(value);
+                               _ = char.IsLower(value);
+                               _ = char.ToLower(value);
+                               _ = char.IsUpper(value);
+                               _ = char.ToUpper(value);
+                               _ = char.IsPunctuation(value);
+                               _ = char.IsSymbol(value);
+                               _ = char.IsControl(value);
+                               _ = char.IsSurrogate(value);
+                               _ = char.IsHighSurrogate(value);
+                               _ = char.IsLowSurrogate(value);
+                               _ = char.GetNumericValue(value);
+                               _ = char.IsLetterOrDigit(value);
+                               _ = char.ToLowerInvariant(value);
+                               _ = char.ToUpperInvariant(value);
+                               _ = char.Parse("a");
+                               _ = char.TryParse("a", out var parsed);
+                           }
+                       }
+                       """;
 
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UnsupportedCharOverloads_ShouldReportDiagnostics()
+        {
+            var test = """
+                       using System.Globalization;
+
+                       class TestClass
+                       {
+                           void TestMethod()
+                           {
+                               char value = 'a';
+                               _ = {|#0:char.IsDigit("5", 0)|};
+                               _ = {|#1:char.ToLower(value, CultureInfo.InvariantCulture)|};
+                               _ = {|#2:value.ToString(CultureInfo.InvariantCulture)|};
+                           }
+                       }
+                       """;
+
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(CharMethodsUsageAnalyzer.DiagnosticId).WithLocation(0).WithArguments("IsDigit"),
+                VerifyCS.Diagnostic(CharMethodsUsageAnalyzer.DiagnosticId).WithLocation(1).WithArguments("ToLower"),
+                VerifyCS.Diagnostic(CharMethodsUsageAnalyzer.DiagnosticId).WithLocation(2).WithArguments("ToString")
+            };
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }
