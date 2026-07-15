@@ -123,6 +123,25 @@ public class UnsupportedSyntaxAnalyzerUnitTests
     }
 
     [TestMethod]
+    public async Task DynamicIdentifiers_AreAllowed()
+    {
+        var test = """
+                   class Test
+                   {
+                       private int @dynamic = 1;
+
+                       int GetValue()
+                       {
+                           int dynamic = this.@dynamic;
+                           return dynamic;
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
     public async Task IteratorBlock_IsFlagged()
     {
         var test = """
