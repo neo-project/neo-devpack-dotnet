@@ -1,0 +1,511 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/master-n3/profiles/neo-csharp-profile.schema.json",
+  "title": "Neo C# Contract Compatibility Profile",
+  "description": "Machine-readable compatibility contract shared by the Neo C# compiler, analyzers, documentation, and tests.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "profileVersion",
+    "devpackVersion",
+    "capabilities"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "profileVersion": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "devpackVersion": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "capabilities": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9][a-z0-9-]*)*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/capability"
+      }
+    }
+  },
+  "$defs": {
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "nonEmptyUniqueStrings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "match": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "syntaxKinds": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "operationKinds": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "metadataNames": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "memberSignatures": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "abiElements": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "compilerInvariants": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        }
+      }
+    },
+    "contexts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "excluded"
+      ],
+      "properties": {
+        "allowed": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "excluded": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "severity",
+        "guidance",
+        "helpLink"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^NC[0-9]{4}$"
+        },
+        "severity": {
+          "enum": [
+            "Error",
+            "Warning",
+            "Info"
+          ]
+        },
+        "guidance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "helpLink": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "semanticDifference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "rationale",
+        "documentation"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "documentation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "reference"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "analyzer-positive",
+            "analyzer-negative",
+            "compiler",
+            "runtime",
+            "differential",
+            "boundary",
+            "fuzz",
+            "package-consumer",
+            "documentation"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "state",
+        "summary",
+        "match",
+        "since",
+        "evidence"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "syntax",
+            "type",
+            "api",
+            "abi",
+            "semantic-difference",
+            "security",
+            "resource-usage",
+            "compiler-invariant"
+          ]
+        },
+        "state": {
+          "enum": [
+            "supported",
+            "unsupported",
+            "partially-supported",
+            "supported-with-different-semantics"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "match": {
+          "$ref": "#/$defs/match"
+        },
+        "contexts": {
+          "$ref": "#/$defs/contexts"
+        },
+        "implementation": {
+          "$ref": "#/$defs/nonEmptyUniqueStrings"
+        },
+        "diagnostic": {
+          "$ref": "#/$defs/diagnostic"
+        },
+        "semanticDifference": {
+          "$ref": "#/$defs/semanticDifference"
+        },
+        "since": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "until": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "supported"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "required": [
+              "implementation"
+            ],
+            "properties": {
+              "evidence": {
+                "allOf": [
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "analyzer-positive"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "compiler"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "runtime"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "unsupported"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "required": [
+              "diagnostic"
+            ],
+            "properties": {
+              "diagnostic": {
+                "properties": {
+                  "severity": {
+                    "const": "Error"
+                  }
+                }
+              },
+              "evidence": {
+                "allOf": [
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "analyzer-negative"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "compiler"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "partially-supported"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "required": [
+              "contexts",
+              "implementation",
+              "diagnostic"
+            ],
+            "properties": {
+              "diagnostic": {
+                "properties": {
+                  "severity": {
+                    "const": "Error"
+                  }
+                }
+              },
+              "evidence": {
+                "allOf": [
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "analyzer-positive"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "analyzer-negative"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "compiler"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "runtime"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "supported-with-different-semantics"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "required": [
+              "implementation",
+              "semanticDifference"
+            ],
+            "properties": {
+              "evidence": {
+                "allOf": [
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "analyzer-positive"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "compiler"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "runtime"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "kind": {
+                          "const": "differential"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
