@@ -235,6 +235,23 @@ internal partial class MethodConvert
     /// <returns>True if system constructors are successfully processed; otherwise, false.</returns>
     private bool TryProcessSystemConstructors(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
     {
+        if (symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty &&
+            symbol.ContainingType.IsSubclassOf(nameof(Exception), includeThisClass: true))
+        {
+            switch (arguments.Count)
+            {
+                case 0:
+                    Push("exception");
+                    break;
+                case 1:
+                    ConvertExpression(model, arguments[0].Expression);
+                    break;
+                default:
+                    throw new CompilationException(arguments[1], DiagnosticId.MultiplyThrows, "Only a single parameter is supported for exceptions.");
+            }
+            return true;
+        }
+
         if (TryProcessStringConstructor(model, symbol, arguments))
             return true;
 

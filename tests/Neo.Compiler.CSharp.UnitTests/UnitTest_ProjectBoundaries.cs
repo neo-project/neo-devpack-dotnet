@@ -11,7 +11,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -23,10 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void CompilerProject_DoesNotReference_TestingProject()
         {
-            string csprojPath = Path.GetFullPath(Path.Combine(
-                AppContext.BaseDirectory,
-                "..", "..", "..", "..", "..",
-                "src", "Neo.Compiler.CSharp", "Neo.Compiler.CSharp.csproj"));
+            string csprojPath = GetCompilerProjectPath();
 
             var project = XDocument.Load(csprojPath);
             var references = project.Descendants("ProjectReference");
@@ -35,6 +34,71 @@ namespace Neo.Compiler.CSharp.UnitTests
                 references.Any(reference => (string?)reference.Attribute("Include") is string include
                     && include.Contains("Neo.SmartContract.Testing.csproj")),
                 "Neo.Compiler.CSharp.csproj should not reference Neo.SmartContract.Testing.csproj");
+        }
+
+        [TestMethod]
+        public void CompilerToolPackage_Includes_ArtifactLibraryDependency()
+        {
+            string outputPath = Path.Combine(Path.GetTempPath(), $"NeoCompilerPackageTest_{Guid.NewGuid()}");
+            Directory.CreateDirectory(outputPath);
+
+            try
+            {
+                string configuration = new DirectoryInfo(AppContext.BaseDirectory).Parent!.Name;
+                var startInfo = new ProcessStartInfo("dotnet")
+                {
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false
+                };
+                startInfo.ArgumentList.Add("pack");
+                startInfo.ArgumentList.Add(GetCompilerProjectPath());
+                startInfo.ArgumentList.Add("--configuration");
+                startInfo.ArgumentList.Add(configuration);
+                startInfo.ArgumentList.Add("--no-build");
+                startInfo.ArgumentList.Add("--no-restore");
+                startInfo.ArgumentList.Add("--output");
+                startInfo.ArgumentList.Add(outputPath);
+                startInfo.ArgumentList.Add("/p:PackageVersion=0.0.0-package-test");
+
+                using var process = Process.Start(startInfo)!;
+                var stdoutTask = process.StandardOutput.ReadToEndAsync();
+                var stderrTask = process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+                string stdout = stdoutTask.GetAwaiter().GetResult();
+                string stderr = stderrTask.GetAwaiter().GetResult();
+
+                Assert.AreEqual(0, process.ExitCode, $"Package creation failed. Output: {stdout}{stderr}");
+
+                string packagePath = Directory.GetFiles(outputPath, "*.nupkg")
+                    .Single(path => !path.EndsWith(".snupkg", StringComparison.OrdinalIgnoreCase));
+                using var package = ZipFile.OpenRead(packagePath);
+                string[] artifactMetadataAssemblies =
+                [
+                    "Neo.dll",
+                    "Neo.IO.dll",
+                    "Neo.SmartContract.Testing.dll"
+                ];
+
+                foreach (string assembly in artifactMetadataAssemblies)
+                {
+                    Assert.IsTrue(
+                        package.Entries.Any(entry => entry.FullName == $"tools/net10.0/any/{assembly}"),
+                        $"The compiler tool package should contain {assembly}.");
+                }
+            }
+            finally
+            {
+                Directory.Delete(outputPath, true);
+            }
+        }
+
+        private static string GetCompilerProjectPath()
+        {
+            return Path.GetFullPath(Path.Combine(
+                AppContext.BaseDirectory,
+                "..", "..", "..", "..", "..",
+                "src", "Neo.Compiler.CSharp", "Neo.Compiler.CSharp.csproj"));
         }
     }
 }
