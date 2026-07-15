@@ -36,6 +36,7 @@ public sealed class UnsupportedPlatformApiAnalyzer : DiagnosticAnalyzer
         "System.IO",
         "System.Net",
         "System.Reflection",
+        "System.Runtime.InteropServices",
         "System.Threading"
     ];
 
