@@ -9,11 +9,13 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<
-    Neo.SmartContract.Analyzer.CollectionTypesUsageAnalyzer,
-    Neo.SmartContract.Analyzer.CollectionTypesUsageCodeFixProvider>;
+using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<
+    Neo.SmartContract.Analyzer.CollectionTypesUsageAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.Test
 {
@@ -36,7 +38,7 @@ namespace Neo.SmartContract.Analyzer.Test
 
                                              """;
         [TestMethod]
-        public async Task UnsupportedDictionaryType_ShouldReportDiagnostic_AndFixToMap()
+        public async Task UnsupportedDictionaryType_ShouldReportDiagnostic()
         {
             var test = TestNamespace + """
 
@@ -49,26 +51,15 @@ namespace Neo.SmartContract.Analyzer.Test
                                        }
                                        """;
 
-            const string fixTest = TestNamespace + """
-
-                                                   class TestClass
-                                                   {
-                                                       public void TestMethod()
-                                                       {
-                                                           Map<int, string> dict = new Map<int, string>();
-                                                       }
-                                                   }
-                                                   """;
-
             var expectedDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
                 .WithLocation(18, 9)
                 .WithArguments("System.Collections.Generic.Dictionary<TKey, TValue>", "Map<TKey, TValue>");
 
-            await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixTest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
 
         [TestMethod]
-        public async Task UnsupportedListType_ShouldReportDiagnostic_AndFixToList()
+        public async Task UnsupportedStackType_ShouldReportDiagnostic()
         {
             var test = TestNamespace + """
 
@@ -81,26 +72,15 @@ namespace Neo.SmartContract.Analyzer.Test
                                        }
                                        """;
 
-            var fixtest = TestNamespace + """
-
-                                          class TestClass
-                                          {
-                                              public void TestMethod()
-                                              {
-                                                  List<int> stack = new List<int>();
-                                              }
-                                          }
-                                          """;
-
             var expectedDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
                 .WithLocation(18, 9)
                 .WithArguments("System.Collections.Generic.Stack<T>", "List<T>");
 
-            await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixtest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
 
         [TestMethod]
-        public async Task UnsupportedSystemListType_ShouldReportDiagnostic_AndFixToList()
+        public async Task UnsupportedSystemListType_ShouldReportDiagnostic()
         {
             var test = TestNamespace + """
 
@@ -113,22 +93,11 @@ namespace Neo.SmartContract.Analyzer.Test
                                        }
                                        """;
 
-            const string fixTest = TestNamespace + """
-
-                                                   class TestClass
-                                                   {
-                                                       public void TestMethod()
-                                                       {
-                                                           List<int> list = new List<int>();
-                                                       }
-                                                   }
-                                                   """;
-
             var expectedDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
                 .WithLocation(18, 9)
                 .WithArguments("System.Collections.Generic.List<T>", "List<T>");
 
-            await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixTest);
+            await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
 
         [TestMethod]
@@ -172,6 +141,20 @@ namespace Neo.SmartContract.Analyzer.Test
                 .WithArguments("System.Collections.Generic.List<T>", "List<T>");
 
             await VerifyCS.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic, propertyDiagnostic);
+        }
+
+        [TestMethod]
+        public void CollectionDiagnostic_ShouldNotOfferAutomaticCodeFixes()
+        {
+            var fixes = typeof(CollectionTypesUsageAnalyzer).Assembly.GetTypes()
+                .Where(type => !type.IsAbstract && typeof(CodeFixProvider).IsAssignableFrom(type))
+                .Select(type => (CodeFixProvider)Activator.CreateInstance(type)!)
+                .Where(provider => provider.FixableDiagnosticIds.Contains(CollectionTypesUsageAnalyzer.DiagnosticId))
+                .Select(provider => provider.GetType().Name)
+                .OrderBy(name => name, StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.AreEqual(0, fixes.Length, string.Join(Environment.NewLine, fixes));
         }
     }
 }
