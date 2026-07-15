@@ -24,10 +24,6 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4023";
         private const string Category = "Usage";
-        private const string FrameworkAssemblyName = "Neo.SmartContract.Framework";
-        private const string UInt160MetadataName = FrameworkAssemblyName + ".UInt160";
-        private const string UInt256MetadataName = FrameworkAssemblyName + ".UInt256";
-        private const string ECPointMetadataName = FrameworkAssemblyName + ".ECPoint";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,
@@ -45,26 +41,19 @@ namespace Neo.SmartContract.Analyzer
             context.EnableConcurrentExecution();
             context.RegisterCompilationStartAction(compilationContext =>
             {
-                var frameworkAssembly = compilationContext.Compilation.SourceModule.ReferencedAssemblySymbols
-                    .FirstOrDefault(static assembly => assembly.Identity.Name == FrameworkAssemblyName);
-                if (frameworkAssembly is null)
+                var knownTypes = KnownFrameworkTypes.Create(compilationContext.Compilation);
+                if (knownTypes is null)
                     return;
 
-                var uint160Type = frameworkAssembly.GetTypeByMetadataName(UInt160MetadataName);
-                var uint256Type = frameworkAssembly.GetTypeByMetadataName(UInt256MetadataName);
-                var ecPointType = frameworkAssembly.GetTypeByMetadataName(ECPointMetadataName);
-
                 compilationContext.RegisterSyntaxNodeAction(
-                    nodeContext => AnalyzeNode(nodeContext, uint160Type, uint256Type, ecPointType),
+                    nodeContext => AnalyzeNode(nodeContext, knownTypes),
                     SyntaxKind.FieldDeclaration);
             });
         }
 
         private void AnalyzeNode(
             SyntaxNodeAnalysisContext context,
-            INamedTypeSymbol? uint160Type,
-            INamedTypeSymbol? uint256Type,
-            INamedTypeSymbol? ecPointType)
+            KnownFrameworkTypes knownTypes)
         {
             var fieldDeclaration = (FieldDeclarationSyntax)context.Node;
 
@@ -79,9 +68,9 @@ namespace Neo.SmartContract.Analyzer
                 return;
             }
 
-            var isUInt160 = SymbolEqualityComparer.Default.Equals(variableType, uint160Type);
-            var isUInt256 = SymbolEqualityComparer.Default.Equals(variableType, uint256Type);
-            var isECPoint = SymbolEqualityComparer.Default.Equals(variableType, ecPointType);
+            var isUInt160 = SymbolEqualityComparer.Default.Equals(variableType, knownTypes.UInt160);
+            var isUInt256 = SymbolEqualityComparer.Default.Equals(variableType, knownTypes.UInt256);
+            var isECPoint = SymbolEqualityComparer.Default.Equals(variableType, knownTypes.ECPoint);
             if (!isUInt160 && !isUInt256 && !isECPoint)
                 return;
 
