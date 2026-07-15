@@ -27,6 +27,7 @@ public class UnsupportedPlatformApiAnalyzerUnitTests
                    {|#1:using System.Net;|}
                    {|#2:using System.Reflection;|}
                    {|#3:using System.Threading;|}
+                   {|#4:using System.Runtime.InteropServices;|}
 
                    class Test
                    {
@@ -39,6 +40,7 @@ public class UnsupportedPlatformApiAnalyzerUnitTests
             VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(1).WithArguments("System.Net"),
             VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(2).WithArguments("System.Reflection"),
             VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(3).WithArguments("System.Threading"),
+            VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(4).WithArguments("System.Runtime.InteropServices"),
         };
 
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -69,6 +71,24 @@ public class UnsupportedPlatformApiAnalyzerUnitTests
             VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(3).WithArguments("System.Guid"),
             VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(4).WithArguments("System.Random"),
         };
+
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task RuntimeInteropAttribute_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       [{|#0:System.Runtime.InteropServices.DllImport|}("native")]
+                       private static extern int Call();
+                   }
+                   """;
+
+        var expected = VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId)
+            .WithLocation(0)
+            .WithArguments("System.Runtime.InteropServices.DllImportAttribute");
 
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
