@@ -91,6 +91,7 @@ internal partial class MethodConvert
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
+        var endTarget = new JumpTarget();
         foreach (var t in enumMembers)
         {
             methodConvert.EmitIf(
@@ -104,7 +105,7 @@ internal partial class MethodConvert
                 {
                     methodConvert.Drop(2);                       // Stack: [type, inputString]
                     methodConvert.Push(t.ConstantValue);         // Stack: [enumValue]
-                    methodConvert.Ret();
+                    methodConvert.Jump(endTarget);
                 });
         }
 
@@ -113,6 +114,7 @@ internal partial class MethodConvert
         methodConvert.Drop();
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     /// <summary>
