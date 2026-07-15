@@ -39,19 +39,43 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.FieldDeclaration);
+            context.RegisterCompilationStartAction(compilationContext =>
+            {
+                var knownTypes = KnownFrameworkTypes.Create(compilationContext.Compilation);
+                if (knownTypes is null)
+                    return;
+
+                compilationContext.RegisterSyntaxNodeAction(
+                    nodeContext => AnalyzeNode(nodeContext, knownTypes),
+                    SyntaxKind.FieldDeclaration);
+            });
         }
 
-        private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        private void AnalyzeNode(
+            SyntaxNodeAnalysisContext context,
+            KnownFrameworkTypes knownTypes)
         {
             var fieldDeclaration = (FieldDeclarationSyntax)context.Node;
 
             if (!fieldDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword))
                 return;
 
+            var variableType = context.SemanticModel.GetTypeInfo(
+                fieldDeclaration.Declaration.Type,
+                context.CancellationToken).Type as INamedTypeSymbol;
+            if (variableType is null)
+            {
+                return;
+            }
+
+            var isUInt160 = SymbolEqualityComparer.Default.Equals(variableType, knownTypes.UInt160);
+            var isUInt256 = SymbolEqualityComparer.Default.Equals(variableType, knownTypes.UInt256);
+            var isECPoint = SymbolEqualityComparer.Default.Equals(variableType, knownTypes.ECPoint);
+            if (!isUInt160 && !isUInt256 && !isECPoint)
+                return;
+
             foreach (var variable in fieldDeclaration.Declaration.Variables)
             {
-                var variableTypeName = fieldDeclaration.Declaration.Type.ToString();
                 var initializer = variable.Initializer;
 
                 if (initializer == null)
@@ -63,7 +87,7 @@ namespace Neo.SmartContract.Analyzer
 
                 var literalValue = literalExpression.Token.ValueText;
 
-                if (variableTypeName == "UInt256")
+                if (isUInt256)
                 {
                     if (!IsValidUInt256(literalValue))
                     {
@@ -71,7 +95,7 @@ namespace Neo.SmartContract.Analyzer
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
-                else if (variableTypeName == "UInt160")
+                else if (isUInt160)
                 {
                     if (!IsValidUInt160(literalValue))
                     {
@@ -79,7 +103,7 @@ namespace Neo.SmartContract.Analyzer
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
-                else if (variableTypeName == "ECPoint")
+                else if (isECPoint)
                 {
                     if (!IsValidECPoint(literalValue))
                     {

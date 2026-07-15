@@ -403,7 +403,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 new BigInteger(5)
             };
             var result = (Map)Contract.ToMap(array)!;
-            AssertGasConsumed(10076490);
+            AssertGasConsumed(10076730);
             Assert.AreEqual(4, result.Count);
             Assert.AreEqual(array[0], ((Struct)result[array[0]!.ToString()!])[1].GetInteger());
             Assert.AreEqual(array[1], ((Struct)result[array[1]!.ToString()!])[1].GetInteger());
