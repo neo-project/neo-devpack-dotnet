@@ -10,19 +10,11 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
-using System;
 using System.Collections.Immutable;
-using System.Composition;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -37,7 +29,8 @@ namespace Neo.SmartContract.Analyzer
             "Neo contract does not support the {0} data type: {1}",
             "Type",
             DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "Use an integer or BigInteger with an explicit application-defined scale for fixed-point arithmetic.");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -82,63 +75,4 @@ namespace Neo.SmartContract.Analyzer
         }
     }
 
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DecimalUsageCodeFixProvider)), Shared]
-    public class DecimalUsageCodeFixProvider : CodeFixProvider
-    {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DecimalUsageAnalyzer.DiagnosticId);
-
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-
-            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<VariableDeclarationSyntax>().FirstOrDefault();
-            if (declaration is null) return;
-
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: "Change to long",
-                    createChangedDocument: c => ChangeToLong(context.Document, declaration, c),
-                    equivalenceKey: "Change to long"),
-                diagnostic);
-        }
-
-        private static async Task<Document> ChangeToLong(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
-        {
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
-
-            // Change the type to long
-            var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))
-                .WithTriviaFrom(declaration.Type);
-
-            var newDeclaration = declaration.WithType(newType);
-
-            // Cast the initializer value to long if it's a decimal or double literal
-            foreach (var variable in declaration.Variables)
-            {
-                if (variable.Initializer?.Value is LiteralExpressionSyntax literalExpression)
-                {
-                    var newInitializer = SyntaxFactory.CastExpression(
-                        SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
-                        literalExpression
-                    ).WithTriviaFrom(literalExpression);
-
-                    var newVariable = variable.WithInitializer(
-                        variable.Initializer.WithValue(newInitializer)
-                    );
-
-                    newDeclaration = newDeclaration.ReplaceNode(
-                        newDeclaration.Variables[declaration.Variables.IndexOf(variable)],
-                        newVariable
-                    );
-                }
-            }
-
-            var newRoot = root!.ReplaceNode(declaration, newDeclaration);
-            return document.WithSyntaxRoot(newRoot);
-        }
-    }
 }

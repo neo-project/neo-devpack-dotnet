@@ -9,17 +9,12 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using System;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -62,46 +57,6 @@ namespace Neo.SmartContract.Analyzer
             {
                 context.ReportDiagnostic(Diagnostic.Create(Rule, methodDecl.Identifier.GetLocation()));
             }
-        }
-    }
-
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SmartContractMethodNamingCodeFixProvider))]
-    public class SmartContractMethodNamingCodeFixProviderUnderline : CodeFixProvider
-    {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(SmartContractMethodNamingAnalyzerUnderline.DiagnosticId);
-
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-
-            var methodDecl = root?.FindToken(diagnosticSpan.Start).Parent as MethodDeclarationSyntax;
-            if (methodDecl == null) return;
-
-            var methodName = methodDecl.Identifier.ValueText;
-            if (methodName.Length < 2) return;
-            var newMethodName = Char.ToUpperInvariant(methodName[1]) + methodName.Substring(2);
-
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: $"Rename to '{newMethodName}'",
-                    createChangedDocument: c => RenameMethodAsync(context.Document, methodDecl, newMethodName, c),
-                    equivalenceKey: "RenameMethod"),
-                diagnostic);
-        }
-
-        private static async Task<Document> RenameMethodAsync(Document document, MethodDeclarationSyntax methodDecl, string newMethodName, CancellationToken cancellationToken)
-        {
-            var identifierToken = methodDecl.Identifier;
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
-#pragma warning disable CS8631 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match constraint type.
-            var newRoot = root.ReplaceToken(identifierToken, SyntaxFactory.Identifier(newMethodName));
-#pragma warning restore CS8631 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match constraint type.
-
-            return document.WithSyntaxRoot(newRoot!);
         }
     }
 }

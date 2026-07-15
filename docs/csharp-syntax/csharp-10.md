@@ -83,9 +83,10 @@ int result = add(4, 2);
 
 Status: supported
 Scope: method
-Notes: Attributes applied to lambda expressions are accepted. Roslyn attaches lambda attributes to the generated method prior to Neo compilation.
+Notes: Attributes that are valid on generated methods can be applied to lambda expressions. They are metadata for analysis and reflection; they do not change invocation through the underlying delegate type.
 ```csharp
-System.Action action = [System.Diagnostics.CodeAnalysis.DoesNotReturn] () => throw new System.Exception();
+System.Func<int> valueFactory = [System.Obsolete] () => 42;
+int value = valueFactory();
 ```
 
 ### caller_argument_expression - CallerArgumentExpression attribute
