@@ -31,6 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1050810);
             Assert.AreEqual(new Integer(3), Contract.TestEnumParse("Value3"));
             AssertGasConsumed(1052130);
+            Assert.AreEqual(new Integer(11), Contract.TestEnumParseWithContinuation("Value1"));
             Assert.ThrowsException<TestException>(() => Contract.TestEnumParse("InvalidValue"));
             AssertGasConsumed(1067580);
         }

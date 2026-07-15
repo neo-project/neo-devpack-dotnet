@@ -30,6 +30,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return System.Enum.Parse(typeof(TestEnum), value);
         }
 
+        public static int TestEnumParseWithContinuation(string value)
+        {
+            var parsed = (TestEnum)System.Enum.Parse(typeof(TestEnum), value);
+            return (int)parsed + 10;
+        }
+
         public static object TestEnumParseIgnoreCase(string value, bool ignoreCase)
         {
             return System.Enum.Parse(typeof(TestEnum), value, ignoreCase);
