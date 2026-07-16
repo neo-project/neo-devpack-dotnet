@@ -38,6 +38,7 @@ namespace Neo.Compiler
     {
         private readonly CompilationEngine _engine;
         private readonly INamedTypeSymbol _targetContract;
+        private readonly INamedTypeSymbol? _frameworkSafeAttribute;
         private readonly System.Collections.Generic.List<INamedTypeSymbol>? _nonDependencies;
         internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
@@ -97,8 +98,18 @@ namespace Neo.Compiler
         {
             _engine = engine;
             _targetContract = targetContract;
+            _frameworkSafeAttribute = ResolveFrameworkSafeAttribute(engine);
             _nonDependencies = nonDependencies;
             _allowBaseName = allowBaseName;
+        }
+
+        private static INamedTypeSymbol? ResolveFrameworkSafeAttribute(CompilationEngine engine)
+        {
+            if (engine.Compilation is null || engine.FrameworkReference is null)
+                return null;
+
+            return (engine.Compilation.GetAssemblyOrModuleSymbol(engine.FrameworkReference) as IAssemblySymbol)?
+                .GetTypeByMetadataName(typeof(SafeAttribute).FullName!);
         }
 
         private void RemoveEmptyInitialize()
@@ -639,7 +650,7 @@ namespace Neo.Compiler
             }
             if (export)
             {
-                AbiMethod method = new(symbol);
+                AbiMethod method = new(symbol, _frameworkSafeAttribute);
                 ValidateExportedMethodName(method);
                 if (_methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
