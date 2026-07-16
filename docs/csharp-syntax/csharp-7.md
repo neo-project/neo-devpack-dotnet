@@ -113,7 +113,7 @@ public static void Update(int[] values)
 
 Status: unsupported
 Scope: class
-Notes: The compiler also forbids forwarding `Span<T>` indexers as ref/out arguments. The element must flow through a ref local first to compile successfully.
+Notes: `Span<T>` is supported in other contexts, but the compiler forbids forwarding a `Span<T>` indexer directly as a ref/out argument. The element must flow through a ref local first to compile successfully.
 ```csharp
 static void Increment(ref int value) => value++;
 
