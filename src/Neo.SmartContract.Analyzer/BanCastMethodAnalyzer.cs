@@ -47,12 +47,23 @@ namespace Neo.SmartContract.Analyzer
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
             var invocationExpr = (InvocationExpressionSyntax)context.Node;
-            if (invocationExpr.Expression is MemberAccessExpressionSyntax memberAccessExpr &&
-                memberAccessExpr.Name.Identifier.ValueText == "Cast" &&
-                memberAccessExpr.Expression != null)
+            if (invocationExpr.Expression is not MemberAccessExpressionSyntax memberAccessExpr)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Rule, memberAccessExpr.Name.GetLocation()));
+                return;
             }
+
+            var method = context.SemanticModel.GetSymbolInfo(invocationExpr, context.CancellationToken).Symbol as IMethodSymbol;
+            method = method?.ReducedFrom ?? method;
+
+            var enumerableType = context.Compilation.GetTypeByMetadataName("System.Linq.Enumerable");
+            if (method?.Name != "Cast" ||
+                enumerableType is null ||
+                !SymbolEqualityComparer.Default.Equals(method.ContainingType, enumerableType))
+            {
+                return;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule, memberAccessExpr.Name.GetLocation()));
         }
     }
 }
