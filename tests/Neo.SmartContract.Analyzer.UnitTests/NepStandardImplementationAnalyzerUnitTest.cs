@@ -48,7 +48,7 @@ public class NepStandardImplementationAnalyzerUnitTest
 
                                          namespace Neo.SmartContract.Framework.Attributes
                                          {
-                                             [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+                                             [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
                                              public sealed class SupportedStandardsAttribute : Attribute
                                              {
                                                  public SupportedStandardsAttribute(params string[] supportedStandards) { }
@@ -386,6 +386,145 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                      public void OnNEP11Payment(Neo.SmartContract.Framework.UInt160 from, System.Numerics.BigInteger amount, Neo.SmartContract.Framework.ByteString tokenId, object data = null)
                                                      {
                                                      }
+                                                 }
+                                             }
+                                             """;
+
+        await Verifier.VerifyAnalyzerAsync(source).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public async Task MultipleSupportedStandardsAttributes_ShouldAnalyzeEveryStandard()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [{|#0:Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)|}]
+                                                 [{|#1:Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep24)|}]
+                                                 public class MultiStandardContract
+                                                 {
+                                                 }
+                                             }
+                                             """;
+
+        var expectedDiagnostics = new[]
+        {
+            Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer"),
+            Verifier.Diagnostic(NepStandardImplementationAnalyzer.InterfaceDiagnosticId)
+                .WithLocation(1)
+                .WithArguments("NEP-24", "Neo.SmartContract.Framework.Interfaces.INep24")
+        };
+
+        await Verifier.VerifyAnalyzerAsync(source, expectedDiagnostics).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public async Task InheritedSupportedStandard_ShouldAnalyzeConcreteContract()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public abstract class TokenBase
+                                                 {
+                                                 }
+
+                                                 public class {|#0:InheritedToken|} : TokenBase
+                                                 {
+                                                 }
+                                             }
+                                             """;
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithLocation(0)
+            .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
+
+        await Verifier.VerifyAnalyzerAsync(source, expectedDiagnostic).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public async Task InterfaceSupportedStandard_ShouldAnalyzeImplementingContract()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public interface ITokenStandard
+                                                 {
+                                                 }
+
+                                                 public class {|#0:InterfaceToken|} : ITokenStandard
+                                                 {
+                                                 }
+                                             }
+                                             """;
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithLocation(0)
+            .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
+
+        await Verifier.VerifyAnalyzerAsync(source, expectedDiagnostic).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public async Task DuplicateEffectiveStandard_ShouldReportOnceAtDirectAttribute()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public abstract class TokenBase
+                                                 {
+                                                 }
+
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public interface ITokenStandard
+                                                 {
+                                                 }
+
+                                                 [{|#0:Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)|}]
+                                                 public class CombinedToken : TokenBase, ITokenStandard
+                                                 {
+                                                 }
+                                             }
+                                             """;
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithLocation(0)
+            .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
+
+        await Verifier.VerifyAnalyzerAsync(source, expectedDiagnostic).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public async Task InheritedSupportedStandard_WithBaseMembers_ShouldNotReportDiagnostic()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public abstract class TokenBase
+                                                 {
+                                                     public string Symbol { get; }
+
+                                                     public byte Decimals { get; }
+
+                                                     public static System.Numerics.BigInteger TotalSupply() => 0;
+
+                                                     public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner) => 0;
+
+                                                     public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data) => true;
+                                                 }
+
+                                                 public class CompleteToken : TokenBase
+                                                 {
                                                  }
                                              }
                                              """;

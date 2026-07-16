@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
     public class RefKeywordUsageAnalyzerUnitTest
     {
         [TestMethod]
-        public async Task InParameterInMethod_ShouldReportDiagnostic()
+        public async Task InParameterInMethod_ShouldNotReportDuplicateDiagnostic()
         {
             var test = @"
 class TestClass
@@ -34,14 +34,11 @@ class TestClass
     }
 }";
 
-            var expected = VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
-                .WithLocation(4, 28)
-                .WithArguments("method declaration ('in' parameter)");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task RefReadonlyParameterInMethod_ShouldReportDiagnostic()
+        public async Task RefReadonlyParameterInMethod_ShouldNotReportDuplicateDiagnostic()
         {
             var test = @"
 class TestClass
@@ -51,10 +48,7 @@ class TestClass
     }
 }";
 
-            var expected = VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
-                .WithLocation(4, 28)
-                .WithArguments("method declaration ('ref readonly' parameter)");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -71,15 +65,9 @@ class TestClass
     }
 }";
 
-            var expected = new[]
-            {
-                VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
-                    .WithLocation(4, 24)
-                    .WithArguments("method declaration ('in' parameter)"),
-                VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
-                    .WithLocation(8, 16)
-                    .WithArguments("method invocation ('in' argument)")
-            };
+            var expected = VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
+                .WithLocation(8, 16)
+                .WithArguments("method invocation ('in' argument)");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 

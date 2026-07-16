@@ -30,6 +30,7 @@ public class StringBuilderUsageAnalyzerUnitTests
                        void Test()
                        {
                            var sb = new StringBuilder();
+                           var initialized = new StringBuilder("neo");
                            var other = new StringBuilder();
                            var result = sb.Append("neo")
                                            .Append(' ')
@@ -53,6 +54,47 @@ public class StringBuilderUsageAnalyzerUnitTests
                    """;
 
         await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task UnsupportedConstructors_ShouldReportDiagnostics()
+    {
+        var test = """
+                   using System.Text;
+
+                   class TestClass
+                   {
+                       void Test()
+                       {
+                           var capacityOnly = {|#0:new StringBuilder(16)|};
+                           var valueAndCapacity = {|#1:new StringBuilder("neo", 16)|};
+                           var bounded = {|#2:new StringBuilder(16, 32)|};
+                           var slice = {|#3:new StringBuilder("abcd", 1, 2, 16)|};
+                           StringBuilder targetTyped = {|#4:new(16)|};
+                       }
+                   }
+                   """;
+
+        var expected = new[]
+        {
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("StringBuilder.StringBuilder(int)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("StringBuilder.StringBuilder(string?, int)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
+                .WithLocation(2)
+                .WithArguments("StringBuilder.StringBuilder(int, int)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
+                .WithLocation(3)
+                .WithArguments("StringBuilder.StringBuilder(string?, int, int, int)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
+                .WithLocation(4)
+                .WithArguments("StringBuilder.StringBuilder(int)")
+        };
+
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 
     [TestMethod]

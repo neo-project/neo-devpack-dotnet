@@ -40,7 +40,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        public async Task TestUnsafeStatement()
+        public async Task UnsafeStatement_ShouldNotReportDuplicateDiagnostic()
         {
             var test = """
                        class MyClass
@@ -54,9 +54,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                            }
                        }
                        """;
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(5, 9, 5, 15).WithArguments("unsafe");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
@@ -77,7 +75,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        public async Task TestAwaitExpression()
+        public async Task AwaitExpression_ShouldNotReportDuplicateDiagnostic()
         {
             var test = """
                        using System.Threading.Tasks;
@@ -89,13 +87,11 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                            }
                        }
                        """;
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(6, 9, 6, 14).WithArguments("await");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task TestDynamicType()
+        public async Task DynamicType_ShouldNotReportDuplicateDiagnostic()
         {
             var test = """
                        class MyClass
@@ -107,13 +103,11 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
 
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(5, 9, 5, 16).WithArguments("dynamic");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
-        public async Task TestUnmanagedModifier()
+        public async Task UnsafePointerBlock_ShouldNotReportDuplicateDiagnostic()
         {
             var test = """
                        class MyClass
@@ -127,9 +121,25 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                            }
                        }
                        """;
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(5, 9, 5, 15).WithArguments("unsafe");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task YieldStatement_ShouldNotReportDuplicateDiagnostic()
+        {
+            var test = """
+                       using System.Collections.Generic;
+
+                       class MyClass
+                       {
+                           public IEnumerable<int> Values()
+                           {
+                               yield return 1;
+                           }
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
