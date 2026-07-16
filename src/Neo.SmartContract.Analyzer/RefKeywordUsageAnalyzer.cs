@@ -41,38 +41,20 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.MethodDeclaration, SyntaxKind.InvocationExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         }
 
-        private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
         {
-            if (context.Node is MethodDeclarationSyntax methodDeclaration)
+            var invocationExpression = (InvocationExpressionSyntax)context.Node;
+            foreach (var argument in invocationExpression.ArgumentList.Arguments)
             {
-                foreach (var parameter in methodDeclaration.ParameterList.Parameters)
+                // Report only on unsupported 'in' arguments (regular ref/out are supported)
+                if (argument.RefOrOutKeyword.IsKind(SyntaxKind.InKeyword) &&
+                    !IsDelegateInvocation(context, invocationExpression))
                 {
-                    // Report only on unsupported ref readonly / in parameters (regular ref/out are allowed)
-                    if (parameter.Modifiers.Any(SyntaxKind.InKeyword))
-                    {
-                        var diagnostic = Diagnostic.Create(Rule, parameter.GetLocation(), "method declaration ('in' parameter)");
-                        context.ReportDiagnostic(diagnostic);
-                    }
-                    else if (parameter.Modifiers.Any(SyntaxKind.RefKeyword) && parameter.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
-                    {
-                        var diagnostic = Diagnostic.Create(Rule, parameter.GetLocation(), "method declaration ('ref readonly' parameter)");
-                        context.ReportDiagnostic(diagnostic);
-                    }
-                }
-            }
-            else if (context.Node is InvocationExpressionSyntax invocationExpression)
-            {
-                foreach (var argument in invocationExpression.ArgumentList.Arguments)
-                {
-                    // Report only on unsupported 'in' arguments (regular ref/out are supported)
-                    if (argument.RefOrOutKeyword.IsKind(SyntaxKind.InKeyword) && !IsDelegateInvocation(context, invocationExpression))
-                    {
-                        var diagnostic = Diagnostic.Create(Rule, argument.GetLocation(), "method invocation ('in' argument)");
-                        context.ReportDiagnostic(diagnostic);
-                    }
+                    var diagnostic = Diagnostic.Create(Rule, argument.GetLocation(), "method invocation ('in' argument)");
+                    context.ReportDiagnostic(diagnostic);
                 }
             }
         }
