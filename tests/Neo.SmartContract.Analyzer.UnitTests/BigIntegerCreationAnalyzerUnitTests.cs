@@ -61,7 +61,7 @@ class TestClass
         }
 
         [TestMethod]
-        public async Task BigIntegerCreationWithInt_ShouldReplaceWithDirectAssignment()
+        public async Task BigIntegerCreationWithInt_ShouldReplaceWithExplicitConversion()
         {
             var test = """
 
@@ -84,7 +84,7 @@ class TestClass
                           {
                               public void TestMethod()
                               {
-                                  BigInteger x = 42;
+                                  BigInteger x = (BigInteger)(42);
                               }
                           }
                           """;
@@ -94,6 +94,109 @@ class TestClass
                 .WithMessage("Use of new BigInteger(int) is not allowed, please use BigInteger x = 0;");
 
             await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixtest);
+        }
+
+        [TestMethod]
+        public async Task BigIntegerCreationFix_ShouldPreserveOverloadSelection()
+        {
+            var test = """
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           private static string Pick(int value) => "int";
+                           private static string Pick(BigInteger value) => "big-integer";
+
+                           public string TestMethod() => Pick({|#0:new BigInteger(42)|});
+                       }
+                       """;
+
+            var fixedSource = """
+                              using System.Numerics;
+
+                              class TestClass
+                              {
+                                  private static string Pick(int value) => "int";
+                                  private static string Pick(BigInteger value) => "big-integer";
+
+                                  public string TestMethod() => Pick((BigInteger)(42));
+                              }
+                              """;
+
+            var expected = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
+                .WithLocation(0);
+
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
+
+        [TestMethod]
+        public async Task BigIntegerCreationFix_ShouldPreserveVarType()
+        {
+            var test = """
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           private static int GetValue() => 41;
+
+                           public void TestMethod()
+                           {
+                               var value = {|#0:new BigInteger(GetValue() + 1)|};
+                           }
+                       }
+                       """;
+
+            var fixedSource = """
+                              using System.Numerics;
+
+                              class TestClass
+                              {
+                                  private static int GetValue() => 41;
+
+                                  public void TestMethod()
+                                  {
+                                      var value = (BigInteger)(GetValue() + 1);
+                                  }
+                              }
+                              """;
+
+            var expected = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
+                .WithLocation(0);
+
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
+
+        [TestMethod]
+        public async Task BigIntegerCreationFix_ShouldPreserveArgumentComments()
+        {
+            var test = """
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           public BigInteger TestMethod(int value)
+                           {
+                               return {|#0:new BigInteger(/* keep */ value /* keep */)|};
+                           }
+                       }
+                       """;
+
+            var fixedSource = """
+                              using System.Numerics;
+
+                              class TestClass
+                              {
+                                  public BigInteger TestMethod(int value)
+                                  {
+                                      return (BigInteger)(/* keep */ value /* keep */);
+                                  }
+                              }
+                              """;
+
+            var expected = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
+                .WithLocation(0);
+
+            await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
         }
     }
 }
