@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Neo.SmartContract.Analyzer;
 
@@ -42,6 +43,27 @@ public sealed class StringBuilderUsageAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         context.RegisterSyntaxNodeAction(AnalyzeAssignment, SyntaxKind.SimpleAssignmentExpression);
+        context.RegisterOperationAction(AnalyzeObjectCreation, OperationKind.ObjectCreation);
+    }
+
+    private static void AnalyzeObjectCreation(OperationAnalysisContext context)
+    {
+        if (context.Operation is not IObjectCreationOperation objectCreation)
+            return;
+
+        var constructor = objectCreation.Constructor;
+        if (constructor is null || !IsStringBuilder(constructor.ContainingType))
+            return;
+
+        if (IsSupportedConstructor(constructor))
+            return;
+
+        var diagnostic = Diagnostic.Create(
+            Rule,
+            objectCreation.Syntax.GetLocation(),
+            constructor.ToDisplayString(DiagnosticDisplayFormat));
+
+        context.ReportDiagnostic(diagnostic);
     }
 
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -97,6 +119,12 @@ public sealed class StringBuilderUsageAnalyzer : DiagnosticAnalyzer
             "Clear" => methodSymbol.Parameters.Length == 0,
             _ => false
         };
+    }
+
+    private static bool IsSupportedConstructor(IMethodSymbol constructor)
+    {
+        return constructor.Parameters.Length == 0 ||
+               (constructor.Parameters.Length == 1 && IsString(constructor.Parameters[0].Type));
     }
 
     private static bool IsSupportedAppendParameter(ITypeSymbol parameterType)
