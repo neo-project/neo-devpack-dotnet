@@ -22,21 +22,35 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4005";
 
-        private static readonly ImmutableHashSet<string> UnsupportedMathMethods = ImmutableHashSet.Create(
-            "Acos", "Asin", "Atan", "Atan2", "Ceiling", "Cos", "Cosh",
-            "Exp", "Floor", "IEEERemainder", "Log", "Log10", "Pow", "Round",
-            "Sin", "Sinh", "Sqrt", "Tan", "Tanh",
-            "Truncate");
+        private static readonly ImmutableHashSet<SpecialType> SignedIntegralTypes = ImmutableHashSet.Create(
+            SpecialType.System_SByte,
+            SpecialType.System_Int16,
+            SpecialType.System_Int32,
+            SpecialType.System_Int64);
+
+        private static readonly ImmutableHashSet<SpecialType> IntegralTypes = SignedIntegralTypes
+            .Add(SpecialType.System_Byte)
+            .Add(SpecialType.System_UInt16)
+            .Add(SpecialType.System_UInt32)
+            .Add(SpecialType.System_UInt64);
+
+        private static readonly ImmutableHashSet<SpecialType> Int32Type =
+            ImmutableHashSet.Create(SpecialType.System_Int32);
 
         private static readonly SymbolDisplayFormat FullyQualifiedFormat =
             SymbolDisplayFormat.FullyQualifiedFormat;
+
+        private static readonly SymbolDisplayFormat DiagnosticDisplayFormat =
+            SymbolDisplayFormat.CSharpShortErrorMessageFormat
+                .WithParameterOptions(SymbolDisplayParameterOptions.IncludeType |
+                                      SymbolDisplayParameterOptions.IncludeParamsRefOut);
 
         private const string SystemMathTypeName = "global::System.Math";
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
-            "Unsupported Math method is used",
-            "Unsupported Math method: {0}",
+            "Unsupported Math method or overload is used",
+            "Unsupported Math method or overload: {0}",
             "Method",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
@@ -57,14 +71,48 @@ namespace Neo.SmartContract.Analyzer
 
             if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol methodSymbol ||
                 methodSymbol.ContainingType?.ToDisplayString(FullyQualifiedFormat) != SystemMathTypeName ||
-                !UnsupportedMathMethods.Contains(methodSymbol.Name))
+                IsSupportedMathMethod(methodSymbol))
                 return;
 
             var diagnostic = Diagnostic.Create(Rule,
                 invocationExpression.GetLocation(),
-                methodSymbol.Name);
+                methodSymbol.ToDisplayString(DiagnosticDisplayFormat));
 
             context.ReportDiagnostic(diagnostic);
+        }
+
+        private static bool IsSupportedMathMethod(IMethodSymbol method)
+        {
+            return method.Name switch
+            {
+                "Abs" or "Sign" => HasUniformParameterType(method, 1, SignedIntegralTypes),
+                "Max" or "Min" or "DivRem" => HasUniformParameterType(method, 2, IntegralTypes),
+                "Clamp" => HasUniformParameterType(method, 3, IntegralTypes),
+                "BigMul" => HasUniformParameterType(method, 2, Int32Type),
+                _ => false
+            };
+        }
+
+        private static bool HasUniformParameterType(
+            IMethodSymbol method,
+            int parameterCount,
+            ImmutableHashSet<SpecialType> supportedTypes)
+        {
+            if (method.Parameters.Length != parameterCount)
+                return false;
+
+            var parameterType = method.Parameters[0].Type.SpecialType;
+            if (!supportedTypes.Contains(parameterType))
+                return false;
+
+            for (var i = 0; i < method.Parameters.Length; i++)
+            {
+                if (method.Parameters[i].Type.SpecialType != parameterType ||
+                    method.Parameters[i].RefKind != RefKind.None)
+                    return false;
+            }
+
+            return true;
         }
     }
 }
