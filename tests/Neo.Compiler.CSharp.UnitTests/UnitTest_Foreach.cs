@@ -64,7 +64,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void StructForeachTest()
         {
             var map = Contract.StructForeach()!;
-            AssertGasConsumed(2660910);
+            AssertGasConsumed(2660790);
 
             Assert.AreEqual(map[(ByteString)"test1"], new BigInteger(1));
             Assert.AreEqual(map[(ByteString)"test2"], new BigInteger(2));
