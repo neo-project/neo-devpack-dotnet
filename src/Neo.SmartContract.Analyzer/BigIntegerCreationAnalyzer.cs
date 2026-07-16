@@ -80,20 +80,26 @@ namespace Neo.SmartContract.Analyzer
 
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    title: "Replace with direct assignment",
-                    createChangedDocument: c => ReplaceWithDirectAssignment(context.Document, declaration, c),
-                    equivalenceKey: "Replace with direct assignment"),
+                    title: "Replace with explicit BigInteger conversion",
+                    createChangedDocument: c => ReplaceWithExplicitConversion(context.Document, declaration, c),
+                    equivalenceKey: "Replace with explicit BigInteger conversion"),
                 diagnostic);
         }
 
-        private static async Task<Document> ReplaceWithDirectAssignment(Document document, ObjectCreationExpressionSyntax objectCreation, CancellationToken cancellationToken)
+        private static async Task<Document> ReplaceWithExplicitConversion(Document document, ObjectCreationExpressionSyntax objectCreation, CancellationToken cancellationToken)
         {
-            var argument = objectCreation.ArgumentList?.Arguments.First().Expression;
-            if (argument is null) return document;
+            var argumentList = objectCreation.ArgumentList;
+            if (argumentList is null || argumentList.Arguments.Count != 1) return document;
 
-            var newExpression = SyntaxFactory.ParseExpression(argument.ToString())
-                                             .WithLeadingTrivia(objectCreation.GetLeadingTrivia())
-                                             .WithTrailingTrivia(objectCreation.GetTrailingTrivia());
+            var argument = argumentList.Arguments[0];
+            var parenthesizedArgument = SyntaxFactory.ParenthesizedExpression(
+                argumentList.OpenParenToken,
+                argument.Expression,
+                argumentList.CloseParenToken);
+            var newExpression = SyntaxFactory.CastExpression(
+                    objectCreation.Type.WithoutTrivia(),
+                    parenthesizedArgument)
+                .WithTriviaFrom(objectCreation);
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             var newRoot = root!.ReplaceNode(objectCreation, newExpression);

@@ -10,13 +10,8 @@
 // modifications are permitted.
 
 using System.Collections.Immutable;
-using System.Composition;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -84,57 +79,6 @@ namespace Neo.SmartContract.Analyzer
                 symbol = symbol.BaseType;
             }
             return false;
-        }
-    }
-
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SmartContractMethodNamingCodeFixProvider)), Shared]
-    public class SmartContractMethodNamingCodeFixProvider : CodeFixProvider
-    {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(SmartContractMethodNamingAnalyzer.DiagnosticId);
-
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-
-            var methodDeclaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<MethodDeclarationSyntax>().First();
-            if (methodDeclaration is null) return;
-
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: "Rename to avoid conflict",
-                    createChangedDocument: c => RenameConflictingMethod(context.Document, methodDeclaration, c),
-                    equivalenceKey: "Rename to avoid conflict"),
-                diagnostic);
-        }
-
-        private static async Task<Document> RenameConflictingMethod(Document document, MethodDeclarationSyntax methodDeclaration, CancellationToken cancellationToken)
-        {
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-            var symbol = semanticModel.GetDeclaredSymbol(methodDeclaration, cancellationToken);
-            if (symbol is null) return document;
-
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
-            if (root is null) return document;
-
-            var newName = GenerateNewMethodName(symbol);
-            var newMethod = methodDeclaration.WithIdentifier(SyntaxFactory.Identifier(newName))
-                                             .WithTriviaFrom(methodDeclaration);
-            var newRoot = root.ReplaceNode(methodDeclaration, newMethod);
-            return document.WithSyntaxRoot(newRoot);
-        }
-
-        private static string GenerateNewMethodName(IMethodSymbol methodSymbol)
-        {
-            var baseName = methodSymbol.Name.TrimEnd('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
-            var counter = 1;
-            while (methodSymbol.ContainingType.GetMembers(baseName + counter).Any())
-                counter++;
-
-            return baseName + counter;
         }
     }
 }

@@ -201,8 +201,11 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        // 'dynamic' used as an identifier is only valid in type positions; flag it eagerly.
-        context.ReportDiagnostic(Diagnostic.Create(DynamicBindingRule, identifier.GetLocation()));
+        var type = context.SemanticModel.GetTypeInfo(identifier, context.CancellationToken).Type;
+        if (type?.TypeKind == TypeKind.Dynamic)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(DynamicBindingRule, identifier.GetLocation()));
+        }
     }
 
     private static void AnalyzeMethodDeclaration(SyntaxNodeAnalysisContext context)
