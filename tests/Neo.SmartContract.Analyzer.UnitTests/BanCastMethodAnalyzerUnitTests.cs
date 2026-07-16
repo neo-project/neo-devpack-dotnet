@@ -45,5 +45,26 @@ namespace Neo.SmartContract.Analyzer.Test
 
             await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
+
+        [TestMethod]
+        public async Task UserDefinedCastMethod_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       namespace TestNamespace
+                       {
+                           public static class Converter
+                           {
+                               public static int Cast(int value) => value;
+                           }
+
+                           public class TestClass
+                           {
+                               public int TestMethod() => Converter.Cast(42);
+                           }
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
