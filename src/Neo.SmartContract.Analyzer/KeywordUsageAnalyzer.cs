@@ -42,32 +42,20 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterSyntaxNodeAction(AnalyzeNode,
-                SyntaxKind.UnsafeStatement,
                 SyntaxKind.LockStatement,
                 SyntaxKind.FixedStatement,
                 SyntaxKind.StackAllocArrayCreationExpression,
-                SyntaxKind.AwaitExpression,
-                SyntaxKind.QueryExpression,
-                SyntaxKind.YieldReturnStatement,
-                SyntaxKind.YieldBreakStatement,
-                SyntaxKind.ConversionOperatorDeclaration,
-                SyntaxKind.IdentifierName);
+                SyntaxKind.ConversionOperatorDeclaration);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
             SyntaxToken keywordToken = context.Node.Kind() switch
             {
-                SyntaxKind.UnsafeStatement => ((UnsafeStatementSyntax)context.Node).UnsafeKeyword,
                 SyntaxKind.LockStatement => ((LockStatementSyntax)context.Node).LockKeyword,
                 SyntaxKind.FixedStatement => ((FixedStatementSyntax)context.Node).FixedKeyword,
                 SyntaxKind.StackAllocArrayCreationExpression => ((StackAllocArrayCreationExpressionSyntax)context.Node).StackAllocKeyword,
-                SyntaxKind.AwaitExpression => ((AwaitExpressionSyntax)context.Node).AwaitKeyword,
-                SyntaxKind.QueryExpression => ((QueryExpressionSyntax)context.Node).FromClause.FromKeyword,
-                SyntaxKind.YieldReturnStatement => ((YieldStatementSyntax)context.Node).YieldKeyword,
-                SyntaxKind.YieldBreakStatement => ((YieldStatementSyntax)context.Node).YieldKeyword,
                 SyntaxKind.ConversionOperatorDeclaration => ((ConversionOperatorDeclarationSyntax)context.Node).ImplicitOrExplicitKeyword,
-                SyntaxKind.IdentifierName => ((IdentifierNameSyntax)context.Node).Identifier,
                 _ => default
             };
 
@@ -82,8 +70,7 @@ namespace Neo.SmartContract.Analyzer
         {
             return keyword switch
             {
-                "unsafe" or "lock" or "fixed" or "stackalloc" or "await" or
-                "yield" or "explicit" or "implicit" or "dynamic" => true,
+                "lock" or "fixed" or "stackalloc" or "explicit" or "implicit" => true,
                 _ => false
             };
         }
