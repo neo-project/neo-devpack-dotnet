@@ -18,8 +18,13 @@ namespace Neo.SmartContract.Analyzer;
 
 internal static class UnsupportedTypeUsageAnalyzerHelpers
 {
-    internal static bool IsUnsupportedType(ITypeSymbol? type, SpecialType unsupportedType) =>
-        type?.SpecialType == unsupportedType;
+    internal static ITypeSymbol? FindUnsupportedType(ITypeSymbol? type, SpecialType unsupportedType)
+    {
+        while (type is IArrayTypeSymbol arrayType)
+            type = arrayType.ElementType;
+
+        return type?.SpecialType == unsupportedType ? type : null;
+    }
 
     internal static void AnalyzeMethodDeclaration(
         SyntaxNodeAnalysisContext context,
@@ -65,9 +70,10 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
         DiagnosticDescriptor rule,
         Func<ITypeSymbol, object?[]> getMessageArgs)
     {
-        if (!IsUnsupportedType(type, unsupportedType)) return;
+        var matchedType = FindUnsupportedType(type, unsupportedType);
+        if (matchedType is null) return;
 
-        var diagnostic = Diagnostic.Create(rule, location, getMessageArgs(type!));
+        var diagnostic = Diagnostic.Create(rule, location, getMessageArgs(matchedType));
         context.ReportDiagnostic(diagnostic);
     }
 }

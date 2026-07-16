@@ -28,6 +28,8 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
     private const string StandardPropertyName = "Standard";
     private const string MissingMembersPropertyName = "MissingMembers";
     private const string InterfacePropertyName = "Interface";
+    private const string SupportedStandardsAttributeName =
+        "Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute";
 
     private static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId,
@@ -95,37 +97,96 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var supportedAttribute = namedType.GetAttributes()
-            .FirstOrDefault(attr =>
-                attr.AttributeClass?.ToDisplayString() ==
-                "Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute");
-
-        if (supportedAttribute is null)
-            return;
-
-        var supportedStandards = ResolveStandards(supportedAttribute);
-        if (supportedStandards.Count == 0)
-            return;
-
-        foreach (var standard in supportedStandards)
+        var seenStandards = new HashSet<NepStandardKind>();
+        foreach (var (supportedAttribute, isDirect) in EnumerateSupportedStandardAttributes(namedType))
         {
-            if (RequiredInterfaceByStandard.TryGetValue(standard, out var interfaceName))
+            foreach (var standard in ResolveStandards(supportedAttribute).OrderBy(static standard => standard))
             {
-                if (!ImplementsInterface(namedType, interfaceName))
+                if (!seenStandards.Add(standard))
+                    continue;
+
+                var location = GetDiagnosticLocation(context, supportedAttribute, namedType, isDirect);
+                if (location is null)
+                    continue;
+
+                if (RequiredInterfaceByStandard.TryGetValue(standard, out var interfaceName) &&
+                    !ImplementsInterface(namedType, interfaceName))
                 {
-                    ReportInterfaceDiagnostic(context, supportedAttribute, namedType, standard, interfaceName);
+                    ReportInterfaceDiagnostic(context, location, standard, interfaceName);
                 }
+
+                if (!RequiredMembersByStandard.TryGetValue(standard, out var requiredMembers) || requiredMembers.IsDefaultOrEmpty)
+                    continue;
+
+                var missingMembers = FindMissingMembers(namedType, requiredMembers, standard);
+                if (missingMembers.Count == 0)
+                    continue;
+
+                ReportMemberDiagnostic(context, location, standard, missingMembers);
             }
-
-            if (!RequiredMembersByStandard.TryGetValue(standard, out var requiredMembers) || requiredMembers.IsDefaultOrEmpty)
-                continue;
-
-            var missingMembers = FindMissingMembers(namedType, requiredMembers, standard);
-            if (missingMembers.Count == 0)
-                continue;
-
-            ReportMemberDiagnostic(context, supportedAttribute, namedType, standard, missingMembers);
         }
+    }
+
+    private static IEnumerable<(AttributeData Attribute, bool IsDirect)> EnumerateSupportedStandardAttributes(
+        INamedTypeSymbol namedType)
+    {
+        foreach (var attribute in namedType.GetAttributes().Where(IsSupportedStandardsAttribute))
+            yield return (attribute, true);
+
+        for (var baseType = namedType.BaseType; baseType is not null; baseType = baseType.BaseType)
+        {
+            foreach (var attribute in baseType.GetAttributes()
+                         .Where(IsSupportedStandardsAttribute)
+                         .Where(IsInheritedAttribute))
+            {
+                yield return (attribute, false);
+            }
+        }
+
+        foreach (var interfaceType in namedType.AllInterfaces)
+        {
+            foreach (var attribute in interfaceType.GetAttributes().Where(IsSupportedStandardsAttribute))
+                yield return (attribute, false);
+        }
+    }
+
+    private static bool IsSupportedStandardsAttribute(AttributeData attribute) =>
+        attribute.AttributeClass?.ToDisplayString() == SupportedStandardsAttributeName;
+
+    private static bool IsInheritedAttribute(AttributeData attribute)
+    {
+        var attributeUsage = attribute.AttributeClass?.GetAttributes()
+            .FirstOrDefault(candidate =>
+                candidate.AttributeClass?.ToDisplayString() == "System.AttributeUsageAttribute");
+        if (attributeUsage is null)
+            return false;
+
+        foreach (var argument in attributeUsage.NamedArguments)
+        {
+            if (argument.Key == nameof(AttributeUsageAttribute.Inherited) &&
+                argument.Value.Value is bool inherited)
+            {
+                return inherited;
+            }
+        }
+
+        return true;
+    }
+
+    private static Location? GetDiagnosticLocation(
+        SymbolAnalysisContext context,
+        AttributeData supportedAttribute,
+        INamedTypeSymbol namedType,
+        bool isDirect)
+    {
+        if (isDirect &&
+            supportedAttribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken) is AttributeSyntax syntax)
+        {
+            return syntax.GetLocation();
+        }
+
+        return namedType.Locations.FirstOrDefault(location => location.IsInSource) ??
+               namedType.Locations.FirstOrDefault();
     }
 
     private static List<string> FindMissingMembers(INamedTypeSymbol typeSymbol, ImmutableArray<string> requiredMembers, NepStandardKind standard)
@@ -181,20 +242,15 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    private static void ReportMemberDiagnostic(SymbolAnalysisContext context, AttributeData supportedAttribute, INamedTypeSymbol namedType, NepStandardKind standard, List<string> missingMembers)
+    private static void ReportMemberDiagnostic(
+        SymbolAnalysisContext context,
+        Location location,
+        NepStandardKind standard,
+        List<string> missingMembers)
     {
         var properties = ImmutableDictionary<string, string?>.Empty
             .Add(StandardPropertyName, FormatStandardName(standard))
             .Add(MissingMembersPropertyName, string.Join(",", missingMembers));
-
-        var location = supportedAttribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken) switch
-        {
-            AttributeSyntax syntax => syntax.GetLocation(),
-            _ => namedType.Locations.FirstOrDefault()
-        } ?? namedType.Locations.FirstOrDefault();
-
-        if (location is null)
-            return;
 
         var diagnostic = Diagnostic.Create(
             Rule,
@@ -206,17 +262,12 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
         context.ReportDiagnostic(diagnostic);
     }
 
-    private static void ReportInterfaceDiagnostic(SymbolAnalysisContext context, AttributeData supportedAttribute, INamedTypeSymbol namedType, NepStandardKind standard, string interfaceName)
+    private static void ReportInterfaceDiagnostic(
+        SymbolAnalysisContext context,
+        Location location,
+        NepStandardKind standard,
+        string interfaceName)
     {
-        var location = supportedAttribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken) switch
-        {
-            AttributeSyntax syntax => syntax.GetLocation(),
-            _ => namedType.Locations.FirstOrDefault()
-        } ?? namedType.Locations.FirstOrDefault();
-
-        if (location is null)
-            return;
-
         var diagnostic = Diagnostic.Create(
             InterfaceRule,
             location,
