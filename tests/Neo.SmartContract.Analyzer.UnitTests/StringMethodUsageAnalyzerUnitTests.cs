@@ -60,6 +60,54 @@ namespace Neo.SmartContract.Analyzer.Test
         }
 
         [TestMethod]
+        public async Task SupportedTrimArguments_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       class TestClass
+                       {
+                           public void TestMethod(string value)
+                           {
+                               const char trimChar = '*';
+                               _ = value.Trim();
+                               _ = value.Trim(' ');
+                               _ = value.Trim(new[] { trimChar });
+                               _ = value.TrimStart(new[] { ' ' });
+                               _ = value.TrimEnd(new char[] { ' ' });
+                           }
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UnsupportedTrimArrayArguments_ShouldReportDiagnostics()
+        {
+            var test = """
+                       class TestClass
+                       {
+                           public void TestMethod(string value, char[] trimChars, char trimChar)
+                           {
+                               _ = {|#0:value.Trim(' ', ',')|};
+                               _ = {|#1:value.TrimStart(trimChars)|};
+                               _ = {|#2:value.TrimEnd(new[] { trimChar })|};
+                               _ = {|#3:value.Trim(new char[1])|};
+                           }
+                       }
+                       """;
+
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(StringMethodUsageAnalyzer.DiagnosticId).WithLocation(0).WithArguments("Trim"),
+                VerifyCS.Diagnostic(StringMethodUsageAnalyzer.DiagnosticId).WithLocation(1).WithArguments("TrimStart"),
+                VerifyCS.Diagnostic(StringMethodUsageAnalyzer.DiagnosticId).WithLocation(2).WithArguments("TrimEnd"),
+                VerifyCS.Diagnostic(StringMethodUsageAnalyzer.DiagnosticId).WithLocation(3).WithArguments("Trim")
+            };
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task UnsupportedStringMethod_ShouldReportDiagnostic()
         {
             var test = """

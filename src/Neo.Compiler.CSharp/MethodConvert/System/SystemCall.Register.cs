@@ -419,9 +419,12 @@ internal partial class MethodConvert
         SystemCallHandlers["string.Split(char[]?, int, System.StringSplitOptions)"] = HandleStringSplit;
         SystemCallHandlers["string.Split(char[]?)"] = HandleStringSplit;
         SystemCallHandlers["string.Split(char[]?, int)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(params char[])"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(params char[]?)"] = HandleStringSplit;
         RegisterHandler<string, string?, string[]>((s, separator) => s.Split(separator, StringSplitOptions.None), HandleStringSplit);
         RegisterHandler<string, string?, StringSplitOptions, string[]>((s, separator, options) => s.Split(separator, options), HandleStringSplit);
-        SystemCallHandlers["string.Split(string?, int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string, int, System.StringSplitOptions)"] = HandleStringSplit;
         SystemCallHandlers["string.Split(string?[], System.StringSplitOptions)"] = HandleStringSplit;
         SystemCallHandlers["string.Split(string?[], int, System.StringSplitOptions)"] = HandleStringSplit;
         SystemCallHandlers["string.Split(string?[])"] = HandleStringSplit;

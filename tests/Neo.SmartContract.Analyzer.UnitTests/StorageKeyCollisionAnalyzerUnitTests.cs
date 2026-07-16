@@ -10,6 +10,8 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<
     Neo.SmartContract.Analyzer.StorageKeyCollisionAnalyzer>;
@@ -435,6 +437,194 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                 """;
 
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task DuplicatePrefixesAcrossPartialDeclarations_ReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                public partial class ContractI
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x2A);
+                }
+
+                public partial class ContractI
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Admins|} =
+                        new((byte)0x2A);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("2A", "Admins", "Owners");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task DuplicatePrefixesAcrossDifferentTypes_DoNotReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                public class ContractJ
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x2A);
+                }
+
+                public class ContractK
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins =
+                        new((byte)0x2A);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task DuplicatePrefixesAcrossPartialFiles_ReportDiagnostic()
+        {
+            var test = new CSharpAnalyzerTest<StorageKeyCollisionAnalyzer, DefaultVerifier>();
+            test.TestState.Sources.Add(("StorageStubs.cs", StorageStubs));
+            test.TestState.Sources.Add(("Contract.Part1.cs", """
+                public partial class ContractL
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x3B);
+                }
+                """));
+            test.TestState.Sources.Add(("Contract.Part2.cs", """
+                public partial class ContractL
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Admins|} =
+                        new((byte)0x3B);
+                }
+                """));
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0)
+                    .WithArguments("3B", "Admins", "Owners"));
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task DuplicateReadonlyByteArrayPrefixesAcrossPartialFiles_ReportDiagnostic()
+        {
+            var test = new CSharpAnalyzerTest<StorageKeyCollisionAnalyzer, DefaultVerifier>();
+            test.TestState.Sources.Add(("StorageStubs.cs", StorageStubs));
+            test.TestState.Sources.Add(("Contract.Prefixes.cs", """
+                public partial class ContractM
+                {
+                    private static readonly byte[] SharedPrefix = new byte[] { 0x4C, 0x01 };
+                }
+                """));
+            test.TestState.Sources.Add(("Contract.Storage.cs", """
+                public partial class ContractM
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, SharedPrefix);
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Admins|} =
+                        new(SharedPrefix);
+                }
+                """));
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0)
+                    .WithArguments("4C01", "Admins", "Owners"));
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task DifferentReadonlyByteArrayPrefixesAcrossPartialFiles_DoNotReportDiagnostic()
+        {
+            var test = new CSharpAnalyzerTest<StorageKeyCollisionAnalyzer, DefaultVerifier>();
+            test.TestState.Sources.Add(("StorageStubs.cs", StorageStubs));
+            test.TestState.Sources.Add(("Contract.Prefixes.cs", """
+                public partial class ContractN
+                {
+                    private static readonly byte[] OwnersPrefix = new byte[] { 0x4D, 0x01 };
+                    private static readonly byte[] AdminsPrefix = new byte[] { 0x4D, 0x02 };
+                }
+                """));
+            test.TestState.Sources.Add(("Contract.Storage.cs", """
+                public partial class ContractN
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, OwnersPrefix);
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins =
+                        new(AdminsPrefix);
+                }
+                """));
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task DuplicateFactoryCreatedPrefixesAcrossPartialFiles_ReportDiagnostic()
+        {
+            var test = new CSharpAnalyzerTest<StorageKeyCollisionAnalyzer, DefaultVerifier>();
+            test.TestState.Sources.Add(("StorageStubs.cs", StorageStubs));
+            test.TestState.Sources.Add(("Contract.Factories.cs", """
+                public partial class ContractO
+                {
+                    private static Neo.SmartContract.Framework.Services.StorageMap CreateOwners() =>
+                        new Neo.SmartContract.Framework.Services.StorageMap(
+                            Neo.SmartContract.Framework.Services.Storage.CurrentContext,
+                            (byte)0x5E);
+
+                    private static Neo.SmartContract.Framework.Services.LocalStorageMap CreateAdmins()
+                    {
+                        return new Neo.SmartContract.Framework.Services.LocalStorageMap((byte)0x5E);
+                    }
+                }
+                """));
+            test.TestState.Sources.Add(("Contract.Storage.cs", """
+                public partial class ContractO
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners = CreateOwners();
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Admins|} = CreateAdmins();
+                }
+                """));
+            test.ExpectedDiagnostics.Add(
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0)
+                    .WithArguments("5E", "Admins", "Owners"));
+
+            await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task DifferentFactoryCreatedPrefixesAcrossPartialFiles_DoNotReportDiagnostic()
+        {
+            var test = new CSharpAnalyzerTest<StorageKeyCollisionAnalyzer, DefaultVerifier>();
+            test.TestState.Sources.Add(("StorageStubs.cs", StorageStubs));
+            test.TestState.Sources.Add(("Contract.Factories.cs", """
+                public partial class ContractP
+                {
+                    private static Neo.SmartContract.Framework.Services.StorageMap CreateOwners() =>
+                        new Neo.SmartContract.Framework.Services.StorageMap(
+                            Neo.SmartContract.Framework.Services.Storage.CurrentContext,
+                            (byte)0x5F);
+
+                    private static Neo.SmartContract.Framework.Services.LocalStorageMap CreateAdmins()
+                    {
+                        return new Neo.SmartContract.Framework.Services.LocalStorageMap((byte)0x60);
+                    }
+                }
+                """));
+            test.TestState.Sources.Add(("Contract.Storage.cs", """
+                public partial class ContractP
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners = CreateOwners();
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins = CreateAdmins();
+                }
+                """));
+
+            await test.RunAsync();
         }
     }
 }
