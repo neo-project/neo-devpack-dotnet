@@ -113,6 +113,11 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         internal static CompilationContext EnsureArtifactUpToDateInternal(string singleContractName)
         {
+            return EnsureArtifactUpToDateInternal(singleContractName, null);
+        }
+
+        internal static CompilationContext EnsureArtifactUpToDateInternal(string singleContractName, string? artifactPath)
+        {
             var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault()
                 ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
 
@@ -129,7 +134,8 @@ namespace Neo.Compiler.CSharp.UnitTests
                                      t.Name.Equals(result.ContractName, StringComparison.OrdinalIgnoreCase))
                 ?? throw new InvalidOperationException($"Could not find type for contract {result.ContractName}");
 
-            var debug = CreateArtifactAsync(result.ContractName!, result, RootPath, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs")).GetAwaiter().GetResult();
+            artifactPath ??= Path.Combine(ArtifactsPath, $"{result.ContractName}.cs");
+            var debug = CreateArtifactAsync(result.ContractName!, result, RootPath, artifactPath).GetAwaiter().GetResult();
             CachedContracts[type] = (result!, debug);
 
             return result;
