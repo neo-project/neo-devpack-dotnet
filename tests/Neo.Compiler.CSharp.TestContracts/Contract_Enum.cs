@@ -30,6 +30,19 @@ namespace Neo.Compiler.CSharp.TestContracts
             return System.Enum.Parse(typeof(TestEnum), value);
         }
 
+        public static int TestEnumParseWithContinuation()
+        {
+            var direct = (TestEnum)System.Enum.Parse(typeof(TestEnum), "Value1");
+            var ignoreCase = (TestEnum)System.Enum.Parse(typeof(TestEnum), "value2", true);
+            var caseSensitive = (TestEnum)System.Enum.Parse(typeof(TestEnum), "Value2", false);
+            var generic = System.Enum.Parse<TestEnum>("Value1");
+            var genericIgnoreCase = System.Enum.Parse<TestEnum>("VALUE3", true);
+            var genericCaseSensitive = System.Enum.Parse<TestEnum>("Value2", false);
+
+            return (int)direct + (int)ignoreCase + (int)caseSensitive + (int)generic
+                + (int)genericIgnoreCase + (int)genericCaseSensitive + 10;
+        }
+
         public static object TestEnumParseIgnoreCase(string value, bool ignoreCase)
         {
             return System.Enum.Parse(typeof(TestEnum), value, ignoreCase);

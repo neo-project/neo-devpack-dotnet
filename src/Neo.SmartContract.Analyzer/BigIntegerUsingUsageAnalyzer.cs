@@ -79,6 +79,7 @@ namespace Neo.SmartContract.Analyzer
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             var declaration = root!.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf().OfType<UsingDirectiveSyntax>().First();
+            if (declaration.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword)) return;
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -91,10 +92,11 @@ namespace Neo.SmartContract.Analyzer
         private async Task<Document> UseSystemNumericsBigInteger(Document document, UsingDirectiveSyntax usingDirective, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            if (usingDirective.Name is null) return document;
 
-            var newUsingDirective = SyntaxFactory.UsingDirective(
-                SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("BigInteger")),
-                SyntaxFactory.ParseName("System.Numerics.BigInteger"));
+            var newName = SyntaxFactory.ParseName("System.Numerics.BigInteger")
+                .WithTriviaFrom(usingDirective.Name);
+            var newUsingDirective = usingDirective.WithName(newName);
 
             var newRoot = root!.ReplaceNode(usingDirective, newUsingDirective);
 
