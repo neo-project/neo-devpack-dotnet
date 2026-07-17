@@ -493,6 +493,51 @@ public static class SameFullyQualifiedNameSafeExternalContract
         }
 
         [TestMethod]
+        public void ContractCallToken_SourceDefinedFrameworkBaseAndSafeAttributeRemainWriteCapable()
+        {
+            var context = TestHelper.CompileSingleContract("""
+                #pragma warning disable CS0436
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class SmartContract
+                    {
+                        public static void _initialize()
+                        {
+                        }
+                    }
+                }
+
+                namespace Neo.SmartContract.Framework.Attributes
+                {
+                    [System.AttributeUsage(System.AttributeTargets.Method)]
+                    public sealed class SafeAttribute : System.Attribute
+                    {
+                    }
+                }
+
+                [Neo.SmartContract.Framework.Attributes.Contract("0xe7a98ee2c70b3024d5091d72c0a52bb71df4e322")]
+                public static class ExternalContract
+                {
+                #pragma warning disable CS0626
+                    [Neo.SmartContract.Framework.Attributes.Safe]
+                    public static extern object Read();
+                #pragma warning restore CS0626
+                }
+
+                public class Contract : Neo.SmartContract.Framework.SmartContract
+                {
+                    public static object Get() => ExternalContract.Read();
+                }
+                #pragma warning restore CS0436
+                """);
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, context.CreateExecutable().Tokens.Single().CallFlags,
+                "Source-defined Framework types must not narrow external call flags.");
+        }
+
+        [TestMethod]
         public void ContractCallToken_ResolvesSafeAttributeThroughIntermediateBase()
         {
             var context = TestHelper.CompileSingleContract("""
