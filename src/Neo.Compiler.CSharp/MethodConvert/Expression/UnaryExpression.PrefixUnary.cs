@@ -63,6 +63,11 @@ internal partial class MethodConvert
                 ConvertPreIncrementOrDecrementExpression(model, expression);
                 break;
             case "^":
+                if (!HasActiveElementReceiver(model, expression))
+                {
+                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported,
+                        "Standalone from-end Index expressions are not supported. Store the distance as an int and inline '^' in an element or range access, for example values[^distance] or values[^distance..].");
+                }
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.SIZE);
                 ConvertExpression(model, expression.Operand);
@@ -71,6 +76,91 @@ internal partial class MethodConvert
             default:
                 throw CompilationException.UnsupportedSyntax(expression.OperatorToken, $"Prefix unary operator '{expression.OperatorToken.ValueText}' is not supported. Supported operators are: +, -, ~, !, ++, --, and ^.");
         }
+    }
+
+    private static bool HasActiveElementReceiver(SemanticModel model, PrefixUnaryExpressionSyntax expression)
+    {
+        SyntaxNode current = expression;
+        while (true)
+        {
+            switch (current.Parent)
+            {
+                case ParenthesizedExpressionSyntax parenthesized
+                    when ReferenceEquals(parenthesized.Expression, current):
+                    current = parenthesized;
+                    break;
+                case CheckedExpressionSyntax checkedExpression
+                    when ReferenceEquals(checkedExpression.Expression, current):
+                    current = checkedExpression;
+                    break;
+                case CastExpressionSyntax cast
+                    when ReferenceEquals(cast.Expression, current) && IsIdentityIndexCast(model, cast):
+                    current = cast;
+                    break;
+                case PostfixUnaryExpressionSyntax postfix
+                    when postfix.IsKind(SyntaxKind.SuppressNullableWarningExpression)
+                        && ReferenceEquals(postfix.Operand, current):
+                    current = postfix;
+                    break;
+                case ConditionalExpressionSyntax conditional
+                    when ReferenceEquals(conditional.WhenTrue, current)
+                        || ReferenceEquals(conditional.WhenFalse, current):
+                    current = conditional;
+                    break;
+                case SwitchExpressionArmSyntax arm
+                    when ReferenceEquals(arm.Expression, current)
+                        && arm.Parent is SwitchExpressionSyntax switchExpression:
+                    current = switchExpression;
+                    break;
+                case RangeExpressionSyntax range
+                    when ReferenceEquals(range.LeftOperand, current)
+                        || ReferenceEquals(range.RightOperand, current):
+                    current = range;
+                    break;
+                case ArgumentSyntax argument when ReferenceEquals(argument.Expression, current):
+                    return HasBuiltInElementReceiver(model, argument);
+                default:
+                    return false;
+            }
+        }
+    }
+
+    private static bool IsIdentityIndexCast(SemanticModel model, CastExpressionSyntax expression)
+    {
+        INamedTypeSymbol? indexType = model.Compilation.GetTypeByMetadataName("System.Index");
+        return indexType is not null
+            && SymbolEqualityComparer.Default.Equals(model.GetTypeInfo(expression.Type).Type, indexType)
+            && model.ClassifyConversion(expression.Expression, indexType).IsIdentity;
+    }
+
+    private static bool HasBuiltInElementReceiver(SemanticModel model, ArgumentSyntax argument)
+    {
+        SyntaxNode? elementAccess = argument.Parent?.Parent;
+        ITypeSymbol? receiverType = elementAccess switch
+        {
+            ElementAccessExpressionSyntax accessExpression => model.GetTypeInfo(accessExpression.Expression).Type,
+            ElementBindingExpressionSyntax binding
+                when binding.Parent is ConditionalAccessExpressionSyntax conditionalAccess
+                => model.GetTypeInfo(conditionalAccess.Expression).Type,
+            _ => null
+        };
+
+        if (receiverType is IArrayTypeSymbol || receiverType?.SpecialType == SpecialType.System_String)
+            return true;
+
+        if (elementAccess is not ExpressionSyntax boundExpression ||
+            model.GetSymbolInfo(boundExpression).Symbol is not IPropertySymbol property)
+            return false;
+
+        int argumentIndex = elementAccess switch
+        {
+            ElementAccessExpressionSyntax access => access.ArgumentList.Arguments.IndexOf(argument),
+            ElementBindingExpressionSyntax binding => binding.ArgumentList.Arguments.IndexOf(argument),
+            _ => -1
+        };
+
+        return argumentIndex >= 0 && argumentIndex < property.Parameters.Length &&
+            property.Parameters[argumentIndex].Type.SpecialType == SpecialType.System_Int32;
     }
 
     private void ConvertPreIncrementOrDecrementExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
