@@ -70,6 +70,33 @@ public class RpcStore : IStore
 
     #region Rpc calls
 
+    private JObject SendRpcRequest(string method, object requestBody)
+    {
+        using var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+        using var response = HttpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var reasonPhrase = string.IsNullOrWhiteSpace(response.ReasonPhrase)
+                ? string.Empty
+                : $" ({response.ReasonPhrase})";
+            throw new InvalidOperationException($"Unexpected {method} HTTP response: {(int)response.StatusCode}{reasonPhrase}.");
+        }
+
+        var responseBody = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        if (string.IsNullOrWhiteSpace(responseBody))
+            throw new InvalidOperationException($"Unexpected {method} RPC response: empty response body.");
+
+        try
+        {
+            return JObject.Parse(responseBody);
+        }
+        catch (JsonException exception)
+        {
+            throw new InvalidOperationException($"Unexpected {method} RPC response: invalid JSON.", exception);
+        }
+    }
+
     // Same logic as MemorySnapshot
     private static IEnumerable<(byte[] Key, byte[] Value)> Find(ConcurrentDictionary<byte[], byte[]> innerData, byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
     {
@@ -129,10 +156,7 @@ public class RpcStore : IStore
                 id = _id = Interlocked.Increment(ref _id),
             };
 
-            var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-            var response = HttpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
-
-            JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+            JObject jo = SendRpcRequest("findstorage", requestBody);
 
             if (jo["result"]?.Value<JObject>() is JObject result && result["results"]?.Value<JArray>() is JArray results)
             {
@@ -187,10 +211,7 @@ public class RpcStore : IStore
             id = _id = Interlocked.Increment(ref _id),
         };
 
-        var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-        var response = HttpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
-
-        JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+        JObject jo = SendRpcRequest("getstorage", requestBody);
 
         if (jo["result"]?.Value<string>() is string result)
         {
