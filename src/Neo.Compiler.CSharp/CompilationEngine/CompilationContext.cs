@@ -93,6 +93,7 @@ namespace Neo.Compiler
         /// <param name="nonDependencies">Classes that is not supposed to be compiled into current target contract.</param>
         private readonly bool _allowBaseName;
         internal INamedTypeSymbol TargetContract => _targetContract;
+        internal INamedTypeSymbol? FrameworkSafeAttribute => _frameworkSafeAttribute;
 
         internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null, bool allowBaseName = true)
         {

@@ -115,13 +115,14 @@ internal partial class MethodConvert
         }
     }
 
-    private static bool IsSafeContractMethod(IMethodSymbol symbol)
+    private bool IsSafeContractMethod(IMethodSymbol symbol)
     {
-        if (symbol.GetAttributes().Any(p => p.AttributeClass?.Name == nameof(SafeAttribute)))
+        INamedTypeSymbol? safeAttribute = _context.FrameworkSafeAttribute;
+        if (symbol.GetAttributes().Any(p => SymbolEqualityComparer.Default.Equals(p.AttributeClass, safeAttribute)))
             return true;
 
         return symbol.MethodKind == MethodKind.PropertyGet &&
             symbol.AssociatedSymbol is IPropertySymbol property &&
-            property.GetAttributes().Any(p => p.AttributeClass?.Name == nameof(SafeAttribute));
+            property.GetAttributes().Any(p => SymbolEqualityComparer.Default.Equals(p.AttributeClass, safeAttribute));
     }
 }

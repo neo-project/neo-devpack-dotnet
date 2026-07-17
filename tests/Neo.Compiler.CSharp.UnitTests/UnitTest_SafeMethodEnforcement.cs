@@ -43,8 +43,74 @@ public static class ExternalContract
 
     [Safe]
     public static extern object Value { get; set; }
+
+    public static extern object SafeSetter
+    {
+        get;
+        [Safe]
+        set;
+    }
 #pragma warning restore CS0626
 }";
+
+        private const string CustomSafeExternalContractDeclaration = @"
+
+namespace User
+{
+    [System.AttributeUsage(System.AttributeTargets.Method | System.AttributeTargets.Property)]
+    public sealed class SafeAttribute : System.Attribute
+    {
+    }
+}
+
+[Contract(""0xe7a98ee2c70b3024d5091d72c0a52bb71df4e322"")]
+public static class CustomSafeExternalContract
+{
+#pragma warning disable CS0626
+    [User.Safe]
+    public static extern object Method();
+
+    public static extern object Getter
+    {
+        [User.Safe]
+        get;
+    }
+
+    [User.Safe]
+    public static extern object Property { get; }
+
+    public static extern object Setter
+    {
+        get;
+        [User.Safe]
+        set;
+    }
+#pragma warning restore CS0626
+}";
+
+        private const string SameFullyQualifiedNameSafeExternalContractDeclaration = @"
+
+#pragma warning disable CS0436
+namespace Neo.SmartContract.Framework.Attributes
+{
+    [System.AttributeUsage(System.AttributeTargets.Method | System.AttributeTargets.Property)]
+    public sealed class SafeAttribute : System.Attribute
+    {
+    }
+}
+
+[Contract(""0xe7a98ee2c70b3024d5091d72c0a52bb71df4e322"")]
+public static class SameFullyQualifiedNameSafeExternalContract
+{
+#pragma warning disable CS0626
+    [Neo.SmartContract.Framework.Attributes.Safe]
+    public static extern object Method();
+
+    [Neo.SmartContract.Framework.Attributes.Safe]
+    public static extern object Property { get; }
+#pragma warning restore CS0626
+}
+#pragma warning restore CS0436";
 
         private static string Compile(string body, string declarations = "") => Header + body + "\n}" + declarations;
 
@@ -191,6 +257,19 @@ public static class ExternalContract
             Assert.IsTrue(
                 context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId && d.Severity == DiagnosticSeverity.Error),
                 "Expected an NC3012 error for a write-capable CALLT.");
+        }
+
+        [TestMethod]
+        public void SafeMethod_FakeSafeCallToken_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    [Safe]
+    public static object Get() => CustomSafeExternalContract.Method();", CustomSafeExternalContractDeclaration));
+
+            Assert.IsFalse(context.Success, "A fake [Safe] attribute must not suppress write-capable CALLT enforcement.");
+            Assert.IsTrue(
+                context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId && d.Severity == DiagnosticSeverity.Error),
+                "Expected an NC3012 error for a CALLT marked with a non-Framework SafeAttribute.");
         }
 
         [TestMethod]
@@ -357,6 +436,138 @@ public static class ExternalContract
                 "A [Safe] external property getter must use read-only flags.");
             Assert.AreEqual(Neo.SmartContract.CallFlags.All, tokens.Single(t => t.Method == "setValue").CallFlags,
                 "A setter must not inherit the getter's [Safe] flags.");
+        }
+
+        [TestMethod]
+        public void ContractCallToken_SafeSetterMethodIsReadOnly()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    public static void Set(object value) => ExternalContract.SafeSetter = value;", ExternalContractDeclaration));
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            Assert.AreEqual(Neo.SmartContract.CallFlags.ReadOnly, context.CreateExecutable().Tokens.Single().CallFlags,
+                "A setter method with the Framework [Safe] attribute must use read-only flags.");
+        }
+
+        [TestMethod]
+        public void ContractCallToken_DifferentNamespaceSafeAttributesRemainWriteCapable()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    public static object CallMethod() => CustomSafeExternalContract.Method();
+
+    public static object GetValue() => CustomSafeExternalContract.Getter;
+
+    public static object GetProperty() => CustomSafeExternalContract.Property;
+
+    public static void SetValue(object value) => CustomSafeExternalContract.Setter = value;", CustomSafeExternalContractDeclaration));
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            var tokens = context.CreateExecutable().Tokens;
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, tokens.Single(t => t.Method == "method").CallFlags,
+                "A custom SafeAttribute on an extern method must not narrow its call flags.");
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, tokens.Single(t => t.Method == "getter").CallFlags,
+                "A custom SafeAttribute on a getter must not narrow its call flags.");
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, tokens.Single(t => t.Method == "property").CallFlags,
+                "A custom SafeAttribute on a property must not narrow its getter's call flags.");
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, tokens.Single(t => t.Method == "setSetter").CallFlags,
+                "A custom SafeAttribute on a setter must not narrow its call flags.");
+        }
+
+        [TestMethod]
+        public void ContractCallToken_SourceDefinedFrameworkSafeAttributeRemainsWriteCapable()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    public static object CallMethod() => SameFullyQualifiedNameSafeExternalContract.Method();
+
+    public static object GetProperty() => SameFullyQualifiedNameSafeExternalContract.Property;", SameFullyQualifiedNameSafeExternalContractDeclaration));
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            var tokens = context.CreateExecutable().Tokens;
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, tokens.Single(t => t.Method == "method").CallFlags,
+                "A source-defined SafeAttribute with the Framework metadata name must not narrow call flags.");
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, tokens.Single(t => t.Method == "property").CallFlags,
+                "A source-defined SafeAttribute with the Framework metadata name must not narrow a property's getter flags.");
+        }
+
+        [TestMethod]
+        public void ContractCallToken_SourceDefinedFrameworkBaseAndSafeAttributeRemainWriteCapable()
+        {
+            var context = TestHelper.CompileSingleContract("""
+                #pragma warning disable CS0436
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class SmartContract
+                    {
+                        public static void _initialize()
+                        {
+                        }
+                    }
+                }
+
+                namespace Neo.SmartContract.Framework.Attributes
+                {
+                    [System.AttributeUsage(System.AttributeTargets.Method)]
+                    public sealed class SafeAttribute : System.Attribute
+                    {
+                    }
+                }
+
+                [Neo.SmartContract.Framework.Attributes.Contract("0xe7a98ee2c70b3024d5091d72c0a52bb71df4e322")]
+                public static class ExternalContract
+                {
+                #pragma warning disable CS0626
+                    [Neo.SmartContract.Framework.Attributes.Safe]
+                    public static extern object Read();
+                #pragma warning restore CS0626
+                }
+
+                public class Contract : Neo.SmartContract.Framework.SmartContract
+                {
+                    public static object Get() => ExternalContract.Read();
+                }
+                #pragma warning restore CS0436
+                """);
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            Assert.AreEqual(Neo.SmartContract.CallFlags.All, context.CreateExecutable().Tokens.Single().CallFlags,
+                "Source-defined Framework types must not narrow external call flags.");
+        }
+
+        [TestMethod]
+        public void ContractCallToken_ResolvesSafeAttributeThroughIntermediateBase()
+        {
+            var context = TestHelper.CompileSingleContract("""
+                using Neo;
+                using Neo.SmartContract.Framework;
+                using Neo.SmartContract.Framework.Attributes;
+
+                public abstract class BaseContract : SmartContract
+                {
+                }
+
+                [Contract("0xe7a98ee2c70b3024d5091d72c0a52bb71df4e322")]
+                public static class ExternalContract
+                {
+                #pragma warning disable CS0626
+                    [Safe]
+                    public static extern object Read();
+                #pragma warning restore CS0626
+                }
+
+                public class Contract : BaseContract
+                {
+                    public static object Get() => ExternalContract.Read();
+                }
+                """);
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            Assert.AreEqual(Neo.SmartContract.CallFlags.ReadOnly, context.CreateExecutable().Tokens.Single().CallFlags,
+                "An intermediate contract base must preserve Framework safety metadata.");
         }
 
         [TestMethod]
