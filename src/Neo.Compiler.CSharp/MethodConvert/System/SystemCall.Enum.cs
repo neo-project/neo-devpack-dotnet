@@ -265,59 +265,44 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         byte ignoreCaseSlot = methodConvert.AddAnonymousVariable();
-        var ignoreCase = new JumpTarget();
-        methodConvert.Drop();
-        methodConvert.Dup();
-        methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
-        methodConvert.JumpIfNot(ignoreCase);
-        methodConvert.Swap();
-        methodConvert.Drop();
-        ConvertToUpper(methodConvert, preserveInput: true);        // Convert inputString to upper case
-        ignoreCase.Instruction = methodConvert.Nop();
+        var endTarget = new JumpTarget();
+        var ignoreCase = new JumpTarget();                         // Stack: [..., EnumType, string, ignoreCase, out parameter]
+        methodConvert.Drop();                                      // Stack: [..., EnumType, string, ignoreCase]
+        methodConvert.Dup();                                       // Stack: [..., EnumType, string, ignoreCase, ignoreCase]
+        methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);    // Stack: [..., EnumType, string, ignoreCase]
+        methodConvert.JumpIfNot(ignoreCase);                       // Stack: [..., EnumType, string]
+        ConvertToUpper(methodConvert, preserveInput: false);       // Stack: [..., EnumType, string-upper]
+        ignoreCase.Instruction = methodConvert.Nip();              // Stack: [..., string or string-upper]
         foreach (var t in enumMembers)
         {
-            // Duplicate inputString
-            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
+            methodConvert.Dup();                                   // Stack: [..., string, string]
             JumpTarget lowerCaseName = new();
             JumpTarget endCase = new();
-            methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
-            methodConvert.JumpIfNot(lowerCaseName);
-            methodConvert.Push(t.Name.ToUpper());                  // Stack: [..., inputString, inputString, enumName]
+            methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot); // Stack: [..., string, string, ignoreCase]
+            methodConvert.JumpIfNot(lowerCaseName);                 // Stack: [..., string, string]
+            methodConvert.Push(t.Name.ToUpper());                   // Stack: [..., string, string, enumNameUpper]
             methodConvert.Jump(endCase);
             lowerCaseName.Instruction = methodConvert.Nop();
-            methodConvert.Push(t.Name);
+            methodConvert.Push(t.Name);                         // Stack: [..., string, string, enumName]
             endCase.Instruction = methodConvert.Nop();
 
-            // Equal comparison
-            methodConvert.Equal();                                 // Stack: [..., inputString, isEqual]
+            methodConvert.Equal();                             // Stack: [..., string, isEqual]
 
             var nextCheck = new JumpTarget();
-            // If not equal, discard duplicated inputString and proceed to next
-            methodConvert.JumpIfFalse(nextCheck);
-
-            // If equal:
-            // Remove the duplicated inputString from the stack
-            methodConvert.Drop(2);
-            // Push enum value
-            methodConvert.Push(t.ConstantValue);
-            // Store the result in the out parameter
-            methodConvert.AccessSlot(OpCode.STSFLD, index);
-            // Push true to indicate success
-            methodConvert.Push(true);
-            methodConvert.Ret();
-
+            methodConvert.JumpIfFalse(nextCheck);              // Stack: [..., string], If not equal, discard duplicated string and proceed to next
+            methodConvert.Drop();                              // Stack: [...]
+            methodConvert.Push(t.ConstantValue);               // Stack: [..., enumValue]
+            methodConvert.AccessSlot(OpCode.STSFLD, index);    // Stack: [...]
+            methodConvert.Push(true);                          // Stack: [..., true]
+            methodConvert.JumpAlways(endTarget);
             nextCheck.Instruction = methodConvert.Nop();
         }
 
-        // No match found
-        // Remove the inputString from the stack
-        methodConvert.Drop(2);
-        // Push default value (0) for the out parameter
-        methodConvert.Push(0);
-        methodConvert.AccessSlot(OpCode.STSFLD, index);
-        // Push false to indicate failure
-        methodConvert.Push(false);
-        methodConvert.Ret();
+        methodConvert.Drop();                            // Remove the string from the stack
+        methodConvert.Push(0);                           // Push default value (0) for the out parameter
+        methodConvert.AccessSlot(OpCode.STSFLD, index);  // Store the default value (0) in the out parameter
+        methodConvert.Push(false);                       // Push false to indicate failure
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     /// <summary>
