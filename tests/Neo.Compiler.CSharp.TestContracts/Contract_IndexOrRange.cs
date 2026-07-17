@@ -18,6 +18,9 @@ namespace Neo.Compiler.CSharp.TestContracts
     {
         public static void TestMain()
         {
+            var evaluationOrderSlice = GetRangeReceiver()[GetRangeStart()..GetRangeEnd()];
+            Runtime.Log(evaluationOrderSlice.Length.ToString());
+
             byte[] oneThroughTen = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             var a = oneThroughTen[..];
             var b = oneThroughTen[..3];
@@ -60,5 +63,74 @@ namespace Neo.Compiler.CSharp.TestContracts
             Runtime.Log(h1.ToString());
             Runtime.Log(i1.ToString());
         }
+
+        private static byte[] GetRangeReceiver()
+        {
+            Runtime.Log("receiver");
+            return new byte[] { 1, 2, 3, 4, 5 };
+        }
+
+        private static int GetRangeStart()
+        {
+            Runtime.Log("start");
+            return 1;
+        }
+
+        private static int GetRangeEnd()
+        {
+            Runtime.Log("end");
+            return 4;
+        }
+
+        private static string GetStringRangeReceiver()
+        {
+            Runtime.Log("string receiver");
+            return "12345";
+        }
+
+        private static int GetNegativeRangeEndpoint()
+        {
+            Runtime.Log("negative");
+            return -1;
+        }
+
+        public static int TestFromEndRangeEvaluationOrder()
+        {
+            return GetRangeReceiver()[^GetRangeStart()..GetRangeEnd()].Length;
+        }
+
+        public static string TestStringRangeEvaluationOrder()
+        {
+            return GetStringRangeReceiver()[GetRangeStart()..GetRangeEnd()];
+        }
+
+        public static void TestNullLeftFromEndRangeEvaluationOrder()
+        {
+            byte[]? receiver = null;
+            _ = receiver![^GetRangeStart()..GetRangeEnd()];
+        }
+
+        public static void TestNullRightFromEndRangeEvaluationOrder()
+        {
+            byte[]? receiver = null;
+            _ = receiver![GetRangeStart()..^GetRangeEnd()];
+        }
+
+        public static bool TestConditionalNullRangeSkipsEndpoints()
+        {
+            byte[]? receiver = null;
+            return receiver?[GetRangeStart()..GetRangeEnd()] is null;
+        }
+
+        public static void TestNegativeStartSkipsEndEvaluation()
+        {
+            _ = GetRangeReceiver()[GetNegativeRangeEndpoint()..GetRangeEnd()];
+        }
+
+        public static void TestNegativeFromEndStopsAfterEndEvaluation()
+        {
+            _ = GetRangeReceiver()[GetRangeStart()..^GetNegativeRangeEndpoint()];
+        }
+
     }
 }
