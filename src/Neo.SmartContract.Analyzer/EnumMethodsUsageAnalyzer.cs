@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 using System.Collections.Immutable;
 
 namespace Neo.SmartContract.Analyzer
@@ -62,8 +63,8 @@ namespace Neo.SmartContract.Analyzer
             {
                 return method.Name switch
                 {
-                    "ToString" => method.Parameters.Length == 0,
-                    "HasFlag" => IsSpecialParameter(method, 0, SpecialType.System_Enum) &&
+                    nameof(Enum.ToString) => method.Parameters.Length == 0,
+                    nameof(Enum.HasFlag) => IsSpecialParameter(method, 0, SpecialType.System_Enum) &&
                                  method.Parameters.Length == 1,
                     _ => false
                 };
@@ -74,14 +75,14 @@ namespace Neo.SmartContract.Analyzer
 
             return method.Name switch
             {
-                "Parse" => IsParseSignature(method),
-                "TryParse" => IsTryParseSignature(method),
-                "GetNames" or "GetValues" => method.Parameters.Length == 1 && IsSystemTypeParameter(method, 0),
-                "IsDefined" => method.Parameters.Length == 2 &&
+                nameof(Enum.Parse) => IsParseSignature(method),
+                nameof(Enum.TryParse) => IsTryParseSignature(method),
+                nameof(Enum.GetNames) or nameof(Enum.GetValues) => method.Parameters.Length == 1 && IsSystemTypeParameter(method, 0),
+                nameof(Enum.IsDefined) => method.Parameters.Length == 2 &&
                                IsSystemTypeParameter(method, 0) &&
                                (IsSpecialParameter(method, 1, SpecialType.System_Object) ||
                                 IsSpecialParameter(method, 1, SpecialType.System_String)),
-                "GetName" => method.Parameters.Length == 2 &&
+                nameof(Enum.GetName) => method.Parameters.Length == 2 &&
                              IsSystemTypeParameter(method, 0) &&
                              IsSpecialParameter(method, 1, SpecialType.System_Object),
                 _ => false
@@ -96,10 +97,10 @@ namespace Neo.SmartContract.Analyzer
             var enumType = method.TypeArguments[0];
             return method.Name switch
             {
-                "Parse" => IsGenericParseSignature(method),
-                "TryParse" => IsGenericTryParseSignature(method, enumType),
-                "GetNames" or "GetValues" => method.Parameters.Length == 0,
-                "GetName" => method.Parameters.Length == 1 &&
+                nameof(Enum.Parse) => IsGenericParseSignature(method),
+                nameof(Enum.TryParse) => IsGenericTryParseSignature(method, enumType),
+                nameof(Enum.GetNames) or nameof(Enum.GetValues) => method.Parameters.Length == 0,
+                nameof(Enum.GetName) => method.Parameters.Length == 1 &&
                              IsParameter(method, 0, enumType),
                 _ => false
             };
