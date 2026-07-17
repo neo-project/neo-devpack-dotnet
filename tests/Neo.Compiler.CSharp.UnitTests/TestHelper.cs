@@ -14,13 +14,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
 public static class TestHelper
 {
-    private static readonly ThreadLocal<CompilationEngine> DefaultEngine = new(() => new CompilationEngine(CreateDefaultOptions()));
+    private static readonly Lazy<(MetadataReference Framework, MetadataReference[] All)> CompilerReferences = new(CreateCompilerReferences);
 
     public static CompilationOptions CreateDefaultOptions()
     {
@@ -39,14 +38,9 @@ public static class TestHelper
 
         try
         {
-            var engine = options is null ? DefaultEngine.Value! : new CompilationEngine(options);
-            var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-            var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-
-            var contexts = engine.CompileSources(new CompilationSourceReferences
-            {
-                Projects = new[] { frameworkProject }
-            }, tempFile);
+            var engine = new CompilationEngine(options ?? CreateDefaultOptions());
+            var references = CompilerReferences.Value;
+            var contexts = engine.Compile([tempFile], references.All, references.Framework);
 
             Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
             return contexts[0];
@@ -56,5 +50,14 @@ public static class TestHelper
             if (File.Exists(tempFile))
                 File.Delete(tempFile);
         }
+    }
+
+    private static (MetadataReference Framework, MetadataReference[] All) CreateCompilerReferences()
+    {
+        var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
+        var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
+        var frameworkCompilation = new CompilationEngine(CreateDefaultOptions()).GetCompilation(frameworkProject);
+        var frameworkReference = frameworkCompilation.ToMetadataReference();
+        return (frameworkReference, [.. frameworkCompilation.References, frameworkReference]);
     }
 }
