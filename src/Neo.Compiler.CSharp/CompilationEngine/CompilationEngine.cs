@@ -141,10 +141,18 @@ namespace Neo.Compiler
 
         public List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references)
         {
+            return Compile(sourceFiles, references, frameworkReference: null);
+        }
+
+        internal List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, MetadataReference? frameworkReference)
+        {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
             MetadataReference[] referenceArray = references.ToArray();
-            FrameworkReference = referenceArray.FirstOrDefault(IsTrustedFrameworkReference);
+            if (frameworkReference is not null && !referenceArray.Contains(frameworkReference))
+                throw new ArgumentException("The framework reference must be included in references.", nameof(frameworkReference));
+
+            FrameworkReference = frameworkReference ?? referenceArray.FirstOrDefault(IsTrustedFrameworkReference);
             Compilation = CSharpCompilation.Create(null, syntaxTrees, referenceArray, compilationOptions);
             return CompileProjectContracts(Compilation);
         }
