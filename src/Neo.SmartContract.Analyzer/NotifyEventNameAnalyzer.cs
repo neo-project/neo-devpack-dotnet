@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -55,21 +56,17 @@ namespace Neo.SmartContract.Analyzer
             if (memberAccessExpr.Name.Identifier.ValueText != "Notify")
                 return;
 
-            if (!(invocationExpr.ArgumentList?.Arguments.Count > 0))
+            if (context.SemanticModel.GetOperation(invocationExpr, context.CancellationToken) is not IInvocationOperation operation ||
+                !IsRuntimeNotify(operation.TargetMethod))
                 return;
 
-            // Only a string literal event name can be checked statically.
-            if (invocationExpr.ArgumentList.Arguments[0].Expression is not LiteralExpressionSyntax firstArgument ||
+            var eventNameArgument = operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Ordinal == 0);
+            if (eventNameArgument?.Syntax is not ArgumentSyntax argumentSyntax ||
+                argumentSyntax.Expression is not LiteralExpressionSyntax firstArgument ||
                 !firstArgument.IsKind(SyntaxKind.StringLiteralExpression))
                 return;
 
             var passedName = firstArgument.Token.ValueText;
-
-            // Only analyze calls that actually bind to the framework's Runtime.Notify; a method
-            // merely named "Notify" on some unrelated type must not be flagged.
-            if (context.SemanticModel.GetSymbolInfo(invocationExpr).Symbol is not IMethodSymbol method ||
-                !IsRuntimeNotify(method))
-                return;
 
             // Resolve event names the way the compiler does: an event's [DisplayName] when present,
             // otherwise the event field name. Events inherited from base types count as well.

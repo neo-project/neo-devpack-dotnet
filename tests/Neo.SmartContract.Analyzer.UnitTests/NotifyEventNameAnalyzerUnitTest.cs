@@ -181,6 +181,49 @@ class Contract
         }
 
         [TestMethod]
+        public async Task Notify_WithReorderedNamedArguments_ShouldReportDiagnostic()
+        {
+            var test = @"
+using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
+
+class Contract
+{
+    [DisplayName(""Transfer"")]
+    public static event System.Action<int> OnTransfer;
+
+    public void Main() => Runtime.Notify(
+        state: new object[] { 1 },
+        eventName: {|#0:""Tranfser""|});
+}" + FrameworkStubs;
+
+            var expected = VerifyCS.Diagnostic(NotifyEventNameAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("Tranfser");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task Notify_WithMatchingReorderedNamedArguments_ShouldNotReportDiagnostic()
+        {
+            var test = @"
+using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
+
+class Contract
+{
+    [DisplayName(""Transfer"")]
+    public static event System.Action<int> OnTransfer;
+
+    public void Main() => Runtime.Notify(
+        state: new object[] { 1 },
+        eventName: ""Transfer"");
+}" + FrameworkStubs;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task Notify_WithCustomDisplayNameAttribute_ShouldReportDiagnostic()
         {
             var test = @"
