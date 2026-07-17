@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Numerics;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -94,8 +95,8 @@ namespace Neo.SmartContract.Analyzer
             {
                 return method.Name switch
                 {
-                    "ToByteArray" or "ToString" => method.Parameters.Length == 0,
-                    "Equals" => method.Parameters.Length == 1 &&
+                    nameof(BigInteger.ToByteArray) or nameof(BigInteger.ToString) => method.Parameters.Length == 0,
+                    nameof(BigInteger.Equals) => method.Parameters.Length == 1 &&
                                 (IsParameter(method, 0, bigIntegerType) ||
                                  IsSpecialParameter(method, 0, SpecialType.System_Int64) ||
                                  IsSpecialParameter(method, 0, SpecialType.System_UInt64) ||
@@ -107,18 +108,22 @@ namespace Neo.SmartContract.Analyzer
             if (method.IsGenericMethod)
                 return IsSupportedCreateMethod(method, bigIntegerType);
 
+            // Generic math members unavailable in netstandard2.0 remain string literals.
             return method.Name switch
             {
-                "Pow" => HasParameters(method, bigIntegerType, SpecialType.System_Int32),
-                "ModPow" or "Clamp" => HasParameters(method, bigIntegerType, bigIntegerType, bigIntegerType),
-                "Add" or "Subtract" or "Multiply" or "Divide" or "Remainder" or "Compare" or
-                    "GreatestCommonDivisor" or "DivRem" or "CopySign" or "Max" or "Min" =>
+                nameof(BigInteger.Pow) => HasParameters(method, bigIntegerType, SpecialType.System_Int32),
+                nameof(BigInteger.ModPow) or "Clamp" => HasParameters(method, bigIntegerType, bigIntegerType, bigIntegerType),
+                nameof(BigInteger.Add) or nameof(BigInteger.Subtract) or nameof(BigInteger.Multiply) or
+                    nameof(BigInteger.Divide) or nameof(BigInteger.Remainder) or nameof(BigInteger.Compare) or
+                    nameof(BigInteger.GreatestCommonDivisor) or nameof(BigInteger.DivRem) or "CopySign" or
+                    nameof(BigInteger.Max) or nameof(BigInteger.Min) =>
                     HasParameters(method, bigIntegerType, bigIntegerType),
-                "Negate" or "IsEvenInteger" or "IsOddInteger" or "IsNegative" or "IsPositive" or
-                    "IsPow2" or "LeadingZeroCount" or "Log2" or "PopCount" or "Abs" =>
+                nameof(BigInteger.Negate) or "IsEvenInteger" or "IsOddInteger" or "IsNegative" or
+                    "IsPositive" or "IsPow2" or "LeadingZeroCount" or "Log2" or "PopCount" or
+                    nameof(BigInteger.Abs) =>
                     HasParameters(method, bigIntegerType),
-                "Parse" => HasParameters(method, SpecialType.System_String),
-                "TryParse" => method.Parameters.Length == 2 &&
+                nameof(BigInteger.Parse) => HasParameters(method, SpecialType.System_String),
+                nameof(BigInteger.TryParse) => method.Parameters.Length == 2 &&
                               IsSpecialParameter(method, 0, SpecialType.System_String) &&
                               IsParameter(method, 1, bigIntegerType, RefKind.Out),
                 _ => false
