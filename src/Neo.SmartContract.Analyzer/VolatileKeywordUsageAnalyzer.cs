@@ -53,10 +53,12 @@ namespace Neo.SmartContract.Analyzer
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is not FieldDeclarationSyntax fieldDeclaration) return;
-            foreach (var diagnostic in from variable in fieldDeclaration.Declaration.Variables where fieldDeclaration.Modifiers.Any(SyntaxKind.VolatileKeyword) select Diagnostic.Create(Rule, variable.GetLocation(), "field declaration"))
-            {
-                context.ReportDiagnostic(diagnostic);
-            }
+
+            var volatileKeyword = fieldDeclaration.Modifiers.FirstOrDefault(
+                modifier => modifier.IsKind(SyntaxKind.VolatileKeyword));
+            if (volatileKeyword == default) return;
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule, volatileKeyword.GetLocation(), "field declaration"));
         }
     }
 
