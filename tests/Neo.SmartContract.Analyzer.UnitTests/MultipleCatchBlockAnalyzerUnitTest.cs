@@ -10,6 +10,8 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<Neo.SmartContract.Analyzer.MultipleCatchBlockAnalyzer>;
 
@@ -45,10 +47,98 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                       """;
 
             var expected = Verifier.Diagnostic(MultipleCatchBlockAnalyzer.DiagnosticId)
-                .WithSpan(7, 9, 18, 10)
+                .WithSpan(15, 9, 15, 14)
                 .WithArguments("2");
 
             await Verifier.VerifyAnalyzerAsync(sourceCode, expected);
+        }
+
+        [TestMethod]
+        public async Task MultipleCatchBlockAnalyzer_AllowsSingleCatchBlock()
+        {
+            const string sourceCode = """
+                                      using System;
+
+                                      public class TestClass
+                                      {
+                                          public void TestMethod()
+                                          {
+                                              try
+                                              {
+                                              }
+                                              catch (Exception)
+                                              {
+                                              }
+                                          }
+                                      }
+                                      """;
+
+            await Verifier.VerifyAnalyzerAsync(sourceCode);
+        }
+
+        [TestMethod]
+        public async Task MultipleCatchBlockAnalyzer_ReportsSecondOfThreeCatchBlocks()
+        {
+            const string sourceCode = """
+                                      using System;
+
+                                      public class TestClass
+                                      {
+                                          public void TestMethod()
+                                          {
+                                              try
+                                              {
+                                              }
+                                              catch (FormatException)
+                                              {
+                                              }
+                                              catch (InvalidOperationException)
+                                              {
+                                              }
+                                              catch (Exception)
+                                              {
+                                              }
+                                          }
+                                      }
+                                      """;
+
+            var expected = Verifier.Diagnostic(MultipleCatchBlockAnalyzer.DiagnosticId)
+                .WithSpan(13, 9, 13, 14)
+                .WithArguments("3");
+
+            await Verifier.VerifyAnalyzerAsync(sourceCode, expected);
+        }
+
+        [TestMethod]
+        public async Task MultipleCatchBlockAnalyzer_HandlesIncompleteSecondCatchBlock()
+        {
+            const string sourceCode = """
+                                      using System;
+
+                                      public class TestClass
+                                      {
+                                          public void TestMethod()
+                                          {
+                                              try
+                                              {
+                                              }
+                                              catch (FormatException)
+                                              {
+                                              }
+                                              catch (Exception)
+                                      """;
+
+            var test = new CSharpAnalyzerTest<MultipleCatchBlockAnalyzer, DefaultVerifier>
+            {
+                TestCode = sourceCode,
+                CompilerDiagnostics = CompilerDiagnostics.None
+            };
+            test.ExpectedDiagnostics.Add(
+                Verifier.Diagnostic(MultipleCatchBlockAnalyzer.DiagnosticId)
+                    .WithSpan(13, 9, 13, 14)
+                    .WithArguments("2"));
+
+            await test.RunAsync();
         }
     }
 }
