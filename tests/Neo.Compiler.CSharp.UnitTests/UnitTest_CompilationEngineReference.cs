@@ -14,6 +14,18 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_CompilationEngineReference
 {
     [TestMethod]
+    public void Compile_RejectsFrameworkReferenceOutsideReferenceSet()
+    {
+        var engine = new CompilationEngine(new CompilationOptions());
+        var frameworkReference = MetadataReference.CreateFromFile(typeof(CompilationEngine).Assembly.Location);
+
+        var exception = Assert.ThrowsException<ArgumentException>(() =>
+            engine.Compile([], [], frameworkReference));
+
+        Assert.AreEqual("frameworkReference", exception.ParamName);
+    }
+
+    [TestMethod]
     public void PrepareProjectContracts_RecordsForwardContractDependencies()
     {
         var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));

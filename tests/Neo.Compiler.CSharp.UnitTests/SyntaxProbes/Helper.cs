@@ -42,15 +42,6 @@ internal static class Helper
         Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable,
         SkipRestoreIfAssetsPresent = true
     }));
-    private static readonly Lazy<CompilationSourceReferences> SharedReferences = new(() =>
-    {
-        var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-        var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-        return new CompilationSourceReferences
-        {
-            Projects = new[] { frameworkProject }
-        };
-    });
     private static readonly Lazy<CSharpParseOptions> AnalyzerParseOptions = new(() => new CompilationOptions
     {
         Debug = CompilationOptions.DebugType.Extended,
@@ -242,7 +233,7 @@ internal static class Helper
         {
             lock (EngineLock)
             {
-                return SharedEngine.Value.CompileSources(SharedReferences.Value, tempPath).First();
+                return SharedEngine.Value.Compile([tempPath], AnalyzerReferences.Value).First();
             }
         }
         finally
