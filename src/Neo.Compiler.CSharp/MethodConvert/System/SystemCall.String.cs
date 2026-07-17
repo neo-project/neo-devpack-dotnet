@@ -173,11 +173,25 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (symbol.Parameters.Length == 1 && symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char)
+            NormalizeNulCharSearchArgument(methodConvert);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
         methodConvert.Push0();
         methodConvert.Ge();
+    }
+
+    private static void NormalizeNulCharSearchArgument(MethodConvert methodConvert)
+    {
+        JumpTarget endTarget = new();
+
+        methodConvert.Dup();
+        methodConvert.Push0();
+        methodConvert.JumpIfNotEqual(endTarget);
+        methodConvert.Drop();
+        methodConvert.Push(new byte[] { 0 });
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -1881,6 +1895,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        NormalizeNulCharSearchArgument(methodConvert);
 
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);

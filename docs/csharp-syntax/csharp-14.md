@@ -261,17 +261,23 @@ public partial class PartialMembers
 
 Status: unsupported
 Scope: class
-Notes: Roslyn still rejects explicit `operator op=` declarations in this compiler version, so Neo cannot compile contracts that attempt to define them.
+Notes: C# 14 compound assignment operators are instance operators that return `void`. The Roslyn version embedded in `nccs` does not yet recognize this declaration form, so it is rejected before Neo lowering.
 ```csharp
-public struct Counter
+public class Counter
 {
     public int Value;
 
-    public static Counter operator +=(Counter left, int amount)
+    public void operator +=(int amount)
     {
-        left.Value += amount;
-        return left;
+        Value += amount;
     }
+}
+
+public static int Add(int start)
+{
+    var counter = new Counter { Value = start };
+    counter += 2;
+    return counter.Value;
 }
 ```
 
