@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        """;
 
             var expected = Verifier.Diagnostic(VolatileKeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(3, 26, 3, 34)
+                .WithSpan(3, 13, 3, 21)
                 .WithArguments("field declaration");
             await Verifier.VerifyAnalyzerAsync(test, expected);
         }
@@ -54,7 +54,46 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                             """;
 
             var expected = Verifier.Diagnostic(VolatileKeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(3, 26, 3, 34)
+                .WithSpan(3, 13, 3, 21)
+                .WithArguments("field declaration");
+            await Verifier.VerifyCodeFixAsync(test, expected, fixedCode);
+        }
+
+        [TestMethod]
+        public async Task MultipleVariables_ShouldReportOneDiagnosticAtVolatileKeyword()
+        {
+            var test = """
+                       class TestClass
+                       {
+                           private volatile int first, second;
+                       }
+                       """;
+
+            var expected = Verifier.Diagnostic(VolatileKeywordUsageAnalyzer.DiagnosticId)
+                .WithSpan(3, 13, 3, 21)
+                .WithArguments("field declaration");
+            await Verifier.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task MultipleVariables_CodeFix_RemovesVolatileOnce()
+        {
+            var test = """
+                       class TestClass
+                       {
+                           private volatile int first, second;
+                       }
+                       """;
+
+            var fixedCode = """
+                            class TestClass
+                            {
+                                private int first, second;
+                            }
+                            """;
+
+            var expected = Verifier.Diagnostic(VolatileKeywordUsageAnalyzer.DiagnosticId)
+                .WithSpan(3, 13, 3, 21)
                 .WithArguments("field declaration");
             await Verifier.VerifyCodeFixAsync(test, expected, fixedCode);
         }
