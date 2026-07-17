@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Analyzer
 
             if (tryStatement.Catches.Count > 1)
             {
-                var diagnostic = Diagnostic.Create(Rule, tryStatement.GetLocation(), tryStatement.Catches.Count);
+                var diagnostic = Diagnostic.Create(Rule, tryStatement.Catches[1].CatchKeyword.GetLocation(), tryStatement.Catches.Count);
                 context.ReportDiagnostic(diagnostic);
             }
         }
