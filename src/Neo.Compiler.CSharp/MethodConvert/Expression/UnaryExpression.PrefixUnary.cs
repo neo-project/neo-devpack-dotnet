@@ -135,16 +135,32 @@ internal partial class MethodConvert
 
     private static bool HasBuiltInElementReceiver(SemanticModel model, ArgumentSyntax argument)
     {
-        ITypeSymbol? receiverType = argument.Parent?.Parent switch
+        SyntaxNode? elementAccess = argument.Parent?.Parent;
+        ITypeSymbol? receiverType = elementAccess switch
         {
-            ElementAccessExpressionSyntax elementAccess => model.GetTypeInfo(elementAccess.Expression).Type,
-            ElementBindingExpressionSyntax elementBinding
-                when elementBinding.Parent is ConditionalAccessExpressionSyntax conditionalAccess
+            ElementAccessExpressionSyntax accessExpression => model.GetTypeInfo(accessExpression.Expression).Type,
+            ElementBindingExpressionSyntax binding
+                when binding.Parent is ConditionalAccessExpressionSyntax conditionalAccess
                 => model.GetTypeInfo(conditionalAccess.Expression).Type,
             _ => null
         };
 
-        return receiverType is IArrayTypeSymbol || receiverType?.SpecialType == SpecialType.System_String;
+        if (receiverType is IArrayTypeSymbol || receiverType?.SpecialType == SpecialType.System_String)
+            return true;
+
+        if (elementAccess is not ExpressionSyntax boundExpression ||
+            model.GetSymbolInfo(boundExpression).Symbol is not IPropertySymbol property)
+            return false;
+
+        int argumentIndex = elementAccess switch
+        {
+            ElementAccessExpressionSyntax access => access.ArgumentList.Arguments.IndexOf(argument),
+            ElementBindingExpressionSyntax binding => binding.ArgumentList.Arguments.IndexOf(argument),
+            _ => -1
+        };
+
+        return argumentIndex >= 0 && argumentIndex < property.Parameters.Length &&
+            property.Parameters[argumentIndex].Type.SpecialType == SpecialType.System_Int32;
     }
 
     private void ConvertPreIncrementOrDecrementExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)

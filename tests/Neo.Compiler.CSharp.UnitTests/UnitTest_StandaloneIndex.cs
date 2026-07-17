@@ -173,6 +173,35 @@ public class Contract : SmartContract
         }
     }
 
+    [TestMethod]
+    public void FrameworkListImplicitIndexUseRemainsValid()
+    {
+        const string source = """
+using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public class Contract : SmartContract
+{
+    [DisplayName("test")]
+    public static int Test()
+    {
+        var values = new Neo.SmartContract.Framework.List<int>();
+        values.Add(10);
+        values.Add(20);
+        values.Add(30);
+        return values[^1];
+    }
+}
+""";
+
+        CompilationContext context = Compile(source, CompilationOptions.OptimizationType.All);
+        Assert.IsTrue(context.Success, FormatDiagnostics(context));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<ValidIndexContract>(context.CreateExecutable(), context.CreateManifest());
+        Assert.AreEqual(new BigInteger(30), contract.Test());
+    }
+
     private static string BuildContract(string members) => $$"""
 using Neo.SmartContract.Framework;
 using System;
