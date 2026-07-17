@@ -61,6 +61,8 @@ internal partial class MethodConvert
             if (value == null)
                 return false;
 
+            bool isByteStringConstant = value is string && IsByteStringConstant(model, syntax);
+
             typeSymbol = GetTypeSymbol(syntaxNode, model);
 
             if (typeSymbol != null)
@@ -68,7 +70,10 @@ internal partial class MethodConvert
                 value = ConvertComplexConstantTypes(typeSymbol, value, syntax);
             }
 
-            Push(value);
+            if (isByteStringConstant && value is string byteString)
+                PushByteString(byteString);
+            else
+                Push(value);
             return true;
         }
         catch (CompilationException)
@@ -83,6 +88,19 @@ internal partial class MethodConvert
         {
             throw CompilationException.Unexpected("evaluating constant expression during conversion", e);
         }
+    }
+
+    private static bool IsByteStringConstant(SemanticModel model, ExpressionSyntax syntax)
+    {
+        var byteStringType = model.Compilation.GetTypeByMetadataName("Neo.SmartContract.Framework.ByteString");
+        if (byteStringType is null)
+            return false;
+
+        if (SymbolEqualityComparer.Default.Equals(model.GetTypeInfo(syntax).ConvertedType, byteStringType))
+            return true;
+
+        return syntax.Parent is CastExpressionSyntax cast
+            && SymbolEqualityComparer.Default.Equals(model.GetTypeInfo(cast.Type).Type, byteStringType);
     }
 
     private static void ThrowIfFloatingPointDefault(SemanticModel model, ExpressionSyntax syntax)
