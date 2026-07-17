@@ -238,8 +238,12 @@ jobs:
     - name: Get version
       id: get_version
       run: |
-        sudo apt install xmlstarlet
-        find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('version=v',//i:VersionPrefix/text())" >> $GITHUB_OUTPUT
+        VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+        if [[ -z "$VERSION" ]]; then
+          echo "Unable to determine the release version"
+          exit 1
+        fi
+        echo "version=v${VERSION}" >> "$GITHUB_OUTPUT"
     - name: Check GitHub release tag
       id: check_tag
       run: |
@@ -291,11 +295,21 @@ jobs:
           nccs-osx-x64.tar.gz
           nccs-osx-arm64.tar.gz
           checksums.txt
+    - name: Check NuGet release packages
+      id: check_nuget
+      run: |
+        chmod +x ./scripts/release-ordered.sh
+        if ./scripts/release-ordered.sh --check-only; then
+          echo "complete=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "complete=false" >> "$GITHUB_OUTPUT"
+        fi
     - name: Setup .NET Core for NuGet release
+      if: steps.check_nuget.outputs.complete != 'true'
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Run ordered release script to NuGet
+      if: steps.check_nuget.outputs.complete != 'true'
       run: |
-        chmod +x ./scripts/release-ordered.sh
         ./scripts/release-ordered.sh --api-key "${{ secrets.NUGET_TOKEN }}"

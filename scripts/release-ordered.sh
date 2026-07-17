@@ -4,13 +4,14 @@
 # This script releases packages in the correct dependency order to avoid
 # "dependency not found" errors during the release process.
 #
-# Usage: ./scripts/release-ordered.sh [--dry-run] [--source <nuget-source>] [--api-key <key>]
+# Usage: ./scripts/release-ordered.sh [--dry-run] [--check-only] [--source <nuget-source>] [--api-key <key>]
 #
 
 set -e
 
 # Default values
 DRY_RUN=false
+CHECK_ONLY=false
 NUGET_SOURCE="https://api.nuget.org/v3/index.json"
 API_KEY=""
 CONFIG="Release"
@@ -21,6 +22,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --dry-run)
             DRY_RUN=true
+            shift
+            ;;
+        --check-only)
+            CHECK_ONLY=true
             shift
             ;;
         --source)
@@ -43,7 +48,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Check API key
-if [[ -z "$API_KEY" ]] && [[ "$DRY_RUN" == "false" ]]; then
+if [[ -z "$API_KEY" ]] && [[ "$DRY_RUN" == "false" ]] && [[ "$CHECK_ONLY" == "false" ]]; then
     if [[ -n "$NUGET_TOKEN" ]]; then
         API_KEY="$NUGET_TOKEN"
     else
@@ -59,15 +64,15 @@ echo "Configuration: $CONFIG"
 echo "Output Directory: $OUTPUT_DIR"
 echo "NuGet Source: $NUGET_SOURCE"
 echo "Dry Run: $DRY_RUN"
+echo "Check Only: $CHECK_ONLY"
 echo "================================================="
-
-# Create output directory
-mkdir -p "$OUTPUT_DIR"
 
 # Function to check if package version already exists on NuGet
 package_version_exists() {
     local package_name=$1
     local version=$2
+    local package_id
+    package_id=$(printf '%s' "$package_name" | tr '[:upper:]' '[:lower:]')
     
     if [[ "$DRY_RUN" == "true" ]]; then
         return 1  # In dry-run, pretend package doesn't exist so we show what we would do
@@ -75,10 +80,11 @@ package_version_exists() {
     
     # Query NuGet to check if package version exists
     # Using nuget.org API for checking (works for both nuget.org and other sources that support the API)
-    local nuget_api_url="https://api.nuget.org/v3-flatcontainer/${package_name,,}/${version}/${package_name,,}.${version}.nupkg"
+    local nuget_api_url="https://api.nuget.org/v3-flatcontainer/${package_id}/${version}/${package_id}.${version}.nupkg"
     
     # Try HEAD request to check if package exists (returns 200 if exists, 404 if not)
-    local http_code=$(curl -s -o /dev/null -w "%{http_code}" --head "$nuget_api_url" 2>/dev/null || echo "404")
+    local http_code
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" --head "$nuget_api_url" 2>/dev/null || echo "404")
     
     if [[ "$http_code" == "200" ]]; then
         return 0  # Package exists
@@ -90,7 +96,8 @@ package_version_exists() {
 # Function to pack and push a project
 pack_and_push() {
     local project_path=$1
-    local project_name=$(basename "$project_path" .csproj)
+    local project_name
+    project_name=$(basename "$project_path" .csproj)
     
     echo ""
     echo "Processing $project_name..."
@@ -161,6 +168,30 @@ if [[ -z "$VERSION" ]]; then
     exit 1
 fi
 echo "Version to release: $VERSION"
+
+if [[ "$CHECK_ONLY" == "true" ]]; then
+    packages=(
+        "Neo.SmartContract.Framework"
+        "Neo.SmartContract.Analyzer"
+        "Neo.Disassembler.CSharp"
+        "Neo.SmartContract.Testing"
+        "Neo.Compiler.CSharp"
+        "Neo.SmartContract.Template"
+    )
+
+    for package in "${packages[@]}"; do
+        if ! package_version_exists "$package" "$VERSION"; then
+            echo "Package $package version $VERSION is not available on NuGet."
+            exit 1
+        fi
+    done
+
+    echo "All release packages for version $VERSION are available on NuGet."
+    exit 0
+fi
+
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
 
 # Restore all packages first
 echo ""
