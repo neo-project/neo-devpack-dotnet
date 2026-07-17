@@ -14,11 +14,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
 using System;
 using System.IO;
+using System.Threading;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
 public static class TestHelper
 {
+    private static readonly ThreadLocal<CompilationEngine> DefaultEngine = new(() => new CompilationEngine(CreateDefaultOptions()));
+
     public static CompilationOptions CreateDefaultOptions()
     {
         return new CompilationOptions
@@ -36,7 +39,7 @@ public static class TestHelper
 
         try
         {
-            var engine = new CompilationEngine(options ?? CreateDefaultOptions());
+            var engine = options is null ? DefaultEngine.Value! : new CompilationEngine(options);
             var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
             var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
 
