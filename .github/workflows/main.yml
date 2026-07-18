@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: 10.0.x
+  DOTNET_VERSION: 10.0.1xx
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
@@ -25,26 +25,28 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7.0.0
       with:
         fetch-depth: 0
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6.0.0
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Cache NuGet packages
-      uses: actions/cache@v4
+      uses: actions/cache@v6.1.0
       with:
         path: ${{ env.NUGET_PACKAGES }}
         key: ${{ runner.os }}-dotnet-${{ env.DOTNET_VERSION }}-nuget-${{ hashFiles('NuGet.Config', 'src/Directory.Build.props', 'tests/Directory.Build.props', '**/*.csproj') }}
+    - name: Add package coverlet.msbuild
+      run: find tests -path '*UnitTests/*.csproj' | xargs -I % dotnet add % package coverlet.msbuild --source https://api.nuget.org/v3/index.json
+    - name: Build Solution
+      run: dotnet build ./neo-devpack-dotnet.sln
     - name: Check format
       run: |
-        dotnet format --no-restore --verify-no-changes --verbosity diagnostic
-    - name: Build Neo.Compiler.CSharp
-      run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+        dotnet format --no-restore --verify-no-changes --verbosity minimal
     - name: Build Neo.SmartContract.Template and test templates
       run: |
-        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug
+        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug --no-build --no-restore
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
         dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/nep17/ --force
         dotnet new neocontractnep11 -n Nep11Contract -o ./src/Neo.SmartContract.Template/bin/Debug/nep11/ --force
@@ -77,10 +79,6 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/solution/NeoContractSolution/NeoContractSolution.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractsolution/Artifacts/
-    - name: Build Solution
-      run: dotnet build ./neo-devpack-dotnet.sln
-    - name: Add package coverlet.msbuild
-      run: find tests -path '*UnitTests/*.csproj' | xargs -I % dotnet add % package coverlet.msbuild --source https://api.nuget.org/v3/index.json
     - name: Test Neo.Compiler.CSharp.UnitTests
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
@@ -128,7 +126,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7.0.0
       with:
         fetch-depth: 0
     
@@ -232,7 +230,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7.0.0
       with:
         fetch-depth: 0
     - name: Get version
