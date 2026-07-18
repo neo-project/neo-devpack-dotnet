@@ -72,15 +72,51 @@ class TestClass
     void TestMethod()
     {
         var parsed = Enum.Parse(typeof(DayOfWeek), ""Monday"");
+        var parsedIgnoreCase = Enum.Parse(typeof(DayOfWeek), ""monday"", true);
         var tryParsed = Enum.TryParse(typeof(DayOfWeek), ""Tuesday"", out var result);
+        var tryParsedIgnoreCase = Enum.TryParse(typeof(DayOfWeek), ""tuesday"", true, out var result2);
         var names = Enum.GetNames(typeof(DayOfWeek));
         var values = Enum.GetValues(typeof(DayOfWeek));
         var isDefined = Enum.IsDefined(typeof(DayOfWeek), ""Wednesday"");
+        var isDefinedValue = Enum.IsDefined(typeof(DayOfWeek), DayOfWeek.Wednesday);
         var name = Enum.GetName(typeof(DayOfWeek), DayOfWeek.Thursday);
+        var genericParsed = Enum.Parse<DayOfWeek>(""Friday"");
+        var genericParsedIgnoreCase = Enum.Parse<DayOfWeek>(""friday"", true);
+        var genericTryParsed = Enum.TryParse<DayOfWeek>(""Saturday"", out var genericResult);
+        var genericTryParsedIgnoreCase = Enum.TryParse<DayOfWeek>(""saturday"", true, out var genericResult2);
+        var text = DayOfWeek.Monday.ToString();
+        var hasFlag = DayOfWeek.Monday.HasFlag(DayOfWeek.Monday);
     }
 }";
 
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UnsupportedEnumOverloads_ReportDiagnostics()
+        {
+            var test = """
+                       using System;
+
+                       class TestClass
+                       {
+                           void TestMethod()
+                           {
+                               _ = {|#0:Enum.ToObject(typeof(DayOfWeek), 1)|};
+                               _ = {|#1:DayOfWeek.Monday.ToString("G")|};
+                               _ = {|#2:DayOfWeek.Monday.CompareTo(DayOfWeek.Tuesday)|};
+                           }
+                       }
+                       """;
+
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(DiagnosticId).WithLocation(0).WithArguments("ToObject"),
+                VerifyCS.Diagnostic(DiagnosticId).WithLocation(1).WithArguments("ToString"),
+                VerifyCS.Diagnostic(DiagnosticId).WithLocation(2).WithArguments("CompareTo")
+            };
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
 }
