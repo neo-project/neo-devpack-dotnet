@@ -298,12 +298,23 @@ internal partial class MethodConvert
         }
         else if (operatorToken.ValueText == "<<=")
         {
-            CheckLeftShiftOverflow(model, type, right, false);
+            if (!MaskFixedWidthShiftCount(type))
+                CheckLeftShiftOverflow(model, type, right, false);
+        }
+        else if (operatorToken.ValueText == ">>=")
+        {
+            MaskFixedWidthShiftCount(type);
         }
 
         AddInstruction(opcode);
         if (opcode == OpCode.XOR && isBoolean)
             ChangeType(VM.Types.StackItemType.Boolean);
-        if (checkResult) EnsureIntegerInRange(type);
+        if (checkResult)
+        {
+            if (operatorToken.ValueText == "<<=")
+                NormalizeShiftResult(type, preserveCheckedConversion: true);
+            else
+                EnsureIntegerInRange(type);
+        }
     }
 }
