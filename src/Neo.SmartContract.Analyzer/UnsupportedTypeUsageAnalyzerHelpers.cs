@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
+using System.Collections.Generic;
 
 namespace Neo.SmartContract.Analyzer;
 
@@ -20,10 +21,64 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
 {
     internal static ITypeSymbol? FindUnsupportedType(ITypeSymbol? type, SpecialType unsupportedType)
     {
-        while (type is IArrayTypeSymbol arrayType)
-            type = arrayType.ElementType;
+        return FindUnsupportedType(
+            type,
+            unsupportedType,
+            new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default));
+    }
 
-        return type?.SpecialType == unsupportedType ? type : null;
+    private static ITypeSymbol? FindUnsupportedType(
+        ITypeSymbol? type,
+        SpecialType unsupportedType,
+        HashSet<ITypeSymbol> visitedTypes)
+    {
+        if (type is null || !visitedTypes.Add(type)) return null;
+        if (type.SpecialType == unsupportedType) return type;
+
+        if (type is IArrayTypeSymbol arrayType)
+            return FindUnsupportedType(arrayType.ElementType, unsupportedType, visitedTypes);
+
+        if (type is IPointerTypeSymbol pointerType)
+            return FindUnsupportedType(pointerType.PointedAtType, unsupportedType, visitedTypes);
+
+        if (type is IFunctionPointerTypeSymbol functionPointerType)
+        {
+            var returnType = FindUnsupportedType(
+                functionPointerType.Signature.ReturnType,
+                unsupportedType,
+                visitedTypes);
+            if (returnType is not null) return returnType;
+
+            foreach (var parameter in functionPointerType.Signature.Parameters)
+            {
+                var parameterType = FindUnsupportedType(
+                    parameter.Type,
+                    unsupportedType,
+                    visitedTypes);
+                if (parameterType is not null) return parameterType;
+            }
+
+            return null;
+        }
+
+        if (type is not INamedTypeSymbol namedType) return null;
+
+        if (namedType.ContainingType is not null)
+        {
+            var containingType = FindUnsupportedType(
+                namedType.ContainingType,
+                unsupportedType,
+                visitedTypes);
+            if (containingType is not null) return containingType;
+        }
+
+        foreach (var typeArgument in namedType.TypeArguments)
+        {
+            var matchedType = FindUnsupportedType(typeArgument, unsupportedType, visitedTypes);
+            if (matchedType is not null) return matchedType;
+        }
+
+        return null;
     }
 
     internal static void AnalyzeMethodDeclaration(
