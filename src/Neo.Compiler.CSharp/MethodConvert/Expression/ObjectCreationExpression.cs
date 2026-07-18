@@ -42,6 +42,14 @@ internal partial class MethodConvert
         IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
         if (TryProcessSystemConstructors(model, constructor, arguments))
             return;
+        var bigIntegerType = model.Compilation.GetTypeByMetadataName("System.Numerics.BigInteger");
+        if (SymbolEqualityComparer.Default.Equals(type, bigIntegerType))
+        {
+            throw new CompilationException(
+                expression,
+                DiagnosticId.BigIntegerCreation,
+                $"BigInteger constructor '{constructor}' is not supported. Only BigInteger(byte[]) is supported; use BigInteger.Zero for zero or an implicit conversion for integral values.");
+        }
         bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
         if (needCreateObject)
         {
