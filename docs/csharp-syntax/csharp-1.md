@@ -233,7 +233,7 @@ int max = System.Math.Max(clamped, 100);
 
 Status: unsupported
 Scope: method
-Notes: `System.Numerics.BitOperations` helpers are trimmed from the runtime, so bit counting methods are rejected.
+Notes: `Log2`, `PopCount`, `LeadingZeroCount`, `RotateLeft`, and `RotateRight` support their registered `uint` and `ulong` overloads. Other bound members, including `TrailingZeroCount`, are rejected with `NC4060`; members unavailable in the contract target framework are rejected by the C# compiler. This probe intentionally includes unsupported members.
 ```csharp
 uint value = 0b_0011_0000u;
 int leadingZeros = System.Numerics.BitOperations.LeadingZeroCount(value);

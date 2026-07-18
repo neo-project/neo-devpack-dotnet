@@ -37,9 +37,7 @@ internal partial class MethodConvert
     /// <returns>The index of the newly added local variable.</returns>
     private byte AddLocalVariable(ILocalSymbol symbol)
     {
-        int indexValue = _localVariables.Count + _anonymousVariables.Count;
-        RequireByteSizedSlotCount(Symbol, indexValue + 1, "local slots");
-        var index = (byte)indexValue;
+        byte index = GetAvailableVariableSlot();
         _variableSymbols.Add((symbol, index));
         _localVariables.Add(symbol, index);
         if (_localsCount < index + 1)
@@ -50,13 +48,35 @@ internal partial class MethodConvert
 
     private byte AddAnonymousVariable()
     {
-        int indexValue = _localVariables.Count + _anonymousVariables.Count;
-        RequireByteSizedSlotCount(Symbol, indexValue + 1, "local slots");
-        var index = (byte)indexValue;
+        byte index = GetAvailableVariableSlot();
         _anonymousVariables.Add(index);
         if (_localsCount < index + 1)
             _localsCount = index + 1;
         return index;
+    }
+
+    private byte GetAvailableVariableSlot()
+    {
+        int preferredIndex = _localVariables.Count + _anonymousVariables.Count;
+        RequireByteSizedSlotCount(Symbol, preferredIndex + 1, "local slots");
+
+        Span<bool> occupied = stackalloc bool[byte.MaxValue + 1];
+        occupied.Clear();
+        foreach (byte index in _localVariables.Values)
+            occupied[index] = true;
+        foreach (byte index in _anonymousVariables)
+            occupied[index] = true;
+
+        if (!occupied[preferredIndex])
+            return (byte)preferredIndex;
+
+        for (int index = 0; index < byte.MaxValue; index++)
+        {
+            if (!occupied[index])
+                return (byte)index;
+        }
+
+        return RequireByteSizedSlotCount(Symbol, byte.MaxValue + 1, "local slots");
     }
 
     private void RemoveAnonymousVariable(byte index)
