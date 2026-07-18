@@ -132,11 +132,20 @@ internal partial class MethodConvert
     /// </summary>
     /// <remarks>
     /// C# masks the shift count to five bits for operands up to 32 bits and to
-    /// six bits for 64-bit operands. BigInteger shift counts are not masked.
+    /// six bits for 64-bit operands. Nullable wrappers use their underlying
+    /// integral type to select the mask. BigInteger shift counts are not masked.
     /// </remarks>
     private bool MaskFixedWidthShiftCount(ITypeSymbol? leftType)
     {
         if (leftType is null) return false;
+
+        if (leftType is INamedTypeSymbol
+            {
+                OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+            } nullableType)
+        {
+            leftType = nullableType.TypeArguments[0];
+        }
 
         int? mask = leftType.SpecialType switch
         {

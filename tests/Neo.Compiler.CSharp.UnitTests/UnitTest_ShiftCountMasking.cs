@@ -45,6 +45,12 @@ public class UnitTest_ShiftCountMasking
             [DisplayName("intLeftUnchecked")]
             public static int IntLeftUnchecked(int value, int count) => unchecked(value << count);
 
+            [DisplayName("nullableIntLeftChecked")]
+            public static int? NullableIntLeftChecked(int? value, int count) => checked(value << count);
+
+            [DisplayName("nullableLongRightChecked")]
+            public static long? NullableLongRightChecked(long? value, int count) => checked(value >> count);
+
             [DisplayName("compoundInt")]
             public static int CompoundInt(int value, int count)
             {
@@ -99,6 +105,8 @@ public class UnitTest_ShiftCountMasking
         Assert.AreEqual(new BigInteger(-4), contract.LongRightChecked(-8, 65), optimization.ToString());
         Assert.AreEqual(new BigInteger(long.MinValue), contract.LongLeftChecked(1, -1), optimization.ToString());
         Assert.AreEqual(new BigInteger(2), contract.IntLeftUnchecked(1, 33), optimization.ToString());
+        Assert.AreEqual(new BigInteger(2), contract.NullableIntLeftChecked(1, 33), optimization.ToString());
+        Assert.AreEqual(new BigInteger(-4), contract.NullableLongRightChecked(-8, 65), optimization.ToString());
         Assert.AreEqual(new BigInteger(2), contract.CompoundInt(1, 33), optimization.ToString());
         Assert.AreEqual(BigInteger.Zero, contract.CompoundByte(0, 8), optimization.ToString());
         Assert.AreEqual(new BigInteger(2), contract.CompoundByte(1, 33), optimization.ToString());
@@ -125,6 +133,12 @@ public class UnitTest_ShiftCountMasking
 
         [DisplayName("intLeftUnchecked")]
         public abstract BigInteger? IntLeftUnchecked(BigInteger? value, BigInteger? count);
+
+        [DisplayName("nullableIntLeftChecked")]
+        public abstract BigInteger? NullableIntLeftChecked(BigInteger? value, BigInteger? count);
+
+        [DisplayName("nullableLongRightChecked")]
+        public abstract BigInteger? NullableLongRightChecked(BigInteger? value, BigInteger? count);
 
         [DisplayName("compoundInt")]
         public abstract BigInteger? CompoundInt(BigInteger? value, BigInteger? count);
