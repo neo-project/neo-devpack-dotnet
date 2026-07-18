@@ -49,7 +49,40 @@ internal static class Helper
     }.GetParseOptions());
     private static readonly Lazy<ImmutableArray<MetadataReference>> AnalyzerReferences = new(CreateAnalyzerReferences);
     private static readonly Lazy<ImmutableArray<DiagnosticAnalyzer>> SyntaxAnalyzers = new(() =>
-        ImmutableArray.Create<DiagnosticAnalyzer>(new UnsupportedSyntaxAnalyzer()));
+    [
+        new BanCastMethodAnalyzer(),
+        new BigIntegerCreationAnalyzer(),
+        new BigIntegerUsageAnalyzer(),
+        new BigIntegerUsingUsageAnalyzer(),
+        new BitOperationsUsageAnalyzer(),
+        new CatchOnlySystemExceptionAnalyzer(),
+        new CharMethodsUsageAnalyzer(),
+        new CollectionTypesUsageAnalyzer(),
+        new DecimalUsageAnalyzer(),
+        new DoubleUsageAnalyzer(),
+        new EnumMethodsUsageAnalyzer(),
+        new FloatUsageAnalyzer(),
+        new InitialValueAnalyzer(),
+        new KeywordUsageAnalyzer(),
+        new LinqUsageAnalyzer(),
+        new MultipleCatchBlockAnalyzer(),
+        new NepStandardImplementationAnalyzer(),
+        new NotifyEventNameAnalyzer(),
+        new RefKeywordUsageAnalyzer(),
+        new SmartContractMethodNamingAnalyzer(),
+        new SmartContractMethodNamingAnalyzerUnderline(),
+        new StaticFieldInitializationAnalyzer(),
+        new StorageKeyCollisionAnalyzer(),
+        new StringBuilderUsageAnalyzer(),
+        new StringMethodUsageAnalyzer(),
+        new SupportedStandardsAnalyzer(),
+        new SystemDiagnosticsUsageAnalyzer(),
+        new SystemMathUsageAnalyzer(),
+        new TaskLikeTypeUsageAnalyzer(),
+        new UnsupportedPlatformApiAnalyzer(),
+        new UnsupportedSyntaxAnalyzer(),
+        new VolatileKeywordUsageAnalyzer()
+    ]);
 
     internal static void TestCodeBlock(string codeBlock)
     {
