@@ -38,6 +38,31 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
+    public void CompileProject_ReportsAnalyzerAndCSharpErrorsTogetherBeforeLowering()
+    {
+        using var project = TempContractProject.Create("""
+using Neo.SmartContract.Framework;
+using System.Diagnostics;
+
+public class Contract : SmartContract
+{
+    public static void Main()
+    {
+        Debug.WriteLine("unsupported");
+        MissingMethod();
+    }
+}
+""");
+
+        var result = CreateEngine().CompileProject(project.ProjectFile).Single();
+
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Diagnostics.Any(item => item.Id == "NC4028"));
+        Assert.IsTrue(result.Diagnostics.Any(item => item.Id == "CS0103"));
+        Assert.IsFalse(result.Diagnostics.Any(item => item.Id == "NC1002"));
+    }
+
+    [TestMethod]
     public void CompileProject_PreservesSupportedContracts()
     {
         using var project = TempContractProject.Create("""

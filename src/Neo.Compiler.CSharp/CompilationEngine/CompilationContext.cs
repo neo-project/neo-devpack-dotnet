@@ -166,7 +166,6 @@ namespace Neo.Compiler
         internal void Compile()
         {
             _diagnostics.AddRange(_engine.AnalyzerDiagnostics);
-            if (!Success) return;
 
             HashSet<INamedTypeSymbol> processed = new(SymbolEqualityComparer.Default);
             foreach (SyntaxTree tree in _engine.Compilation!.SyntaxTrees)
