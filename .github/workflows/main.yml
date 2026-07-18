@@ -32,7 +32,11 @@ jobs:
       uses: actions/setup-dotnet@v6.0.0
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-        cache: true
+    - name: Cache NuGet packages
+      uses: actions/cache@v6.1.0
+      with:
+        path: ${{ env.NUGET_PACKAGES }}
+        key: ${{ runner.os }}-dotnet-${{ env.DOTNET_VERSION }}-nuget-${{ hashFiles('NuGet.Config', 'src/Directory.Build.props', 'tests/Directory.Build.props', '**/*.csproj') }}
     - name: Add package coverlet.msbuild
       run: find tests -path '*UnitTests/*.csproj' | xargs -I % dotnet add % package coverlet.msbuild --source https://api.nuget.org/v3/index.json
     - name: Build Solution
