@@ -559,7 +559,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringBuilderLength()
         {
             Assert.AreEqual(14, Contract.TestStringBuilderLength());
-            AssertGasConsumed(3156150);
+            AssertGasConsumed(3156330);
         }
 
         [TestMethod]
@@ -573,7 +573,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringBuilderAppendBuilder()
         {
             Assert.AreEqual("neo compiler\npreview", Contract.TestStringBuilderAppendBuilder());
-            AssertGasConsumed(2418510);
+            AssertGasConsumed(2418870);
         }
         private static string[] ConvertToStrings(IList<object>? items)
         {
