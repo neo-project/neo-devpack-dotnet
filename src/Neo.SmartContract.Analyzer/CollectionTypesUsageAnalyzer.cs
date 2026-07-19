@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -132,10 +133,61 @@ namespace Neo.SmartContract.Analyzer
 
         private string? GetUnsupportedCollectionType(ITypeSymbol? type)
         {
+            return GetUnsupportedCollectionType(
+                type,
+                new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default));
+        }
+
+        private string? GetUnsupportedCollectionType(
+            ITypeSymbol? type,
+            HashSet<ITypeSymbol> visitedTypes)
+        {
+            if (type is null || !visitedTypes.Add(type)) return null;
+
+            if (type is IArrayTypeSymbol arrayType)
+                return GetUnsupportedCollectionType(arrayType.ElementType, visitedTypes);
+
+            if (type is IPointerTypeSymbol pointerType)
+                return GetUnsupportedCollectionType(pointerType.PointedAtType, visitedTypes);
+
+            if (type is IFunctionPointerTypeSymbol functionPointerType)
+            {
+                var returnType = GetUnsupportedCollectionType(
+                    functionPointerType.Signature.ReturnType,
+                    visitedTypes);
+                if (returnType is not null) return returnType;
+
+                foreach (var parameter in functionPointerType.Signature.Parameters)
+                {
+                    var parameterType = GetUnsupportedCollectionType(parameter.Type, visitedTypes);
+                    if (parameterType is not null) return parameterType;
+                }
+
+                return null;
+            }
+
             if (type is not INamedTypeSymbol namedType) return null;
 
-            var originalType = namedType.OriginalDefinition.ToString() ?? throw new ArgumentNullException("originalType is null");
-            return _unsupportedCollectionTypes.Contains(originalType) ? originalType : null;
+            var originalType = namedType.OriginalDefinition.ToString() ??
+                throw new ArgumentNullException(nameof(type));
+            if (_unsupportedCollectionTypes.Contains(originalType))
+                return originalType;
+
+            if (namedType.ContainingType is not null)
+            {
+                var containingType = GetUnsupportedCollectionType(
+                    namedType.ContainingType,
+                    visitedTypes);
+                if (containingType is not null) return containingType;
+            }
+
+            foreach (var typeArgument in namedType.TypeArguments)
+            {
+                var unsupportedType = GetUnsupportedCollectionType(typeArgument, visitedTypes);
+                if (unsupportedType is not null) return unsupportedType;
+            }
+
+            return null;
         }
 
         private static string GetSuggestedType(string originalType)
