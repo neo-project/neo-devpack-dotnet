@@ -144,6 +144,42 @@ namespace Neo.SmartContract.Analyzer.Test
         }
 
         [TestMethod]
+        public async Task NestedUnsupportedCollectionTypes_ShouldReportDiagnostics()
+        {
+            var test = TestNamespace + """
+
+                                       class TestClass
+                                       {
+                                           public {|#0:System.Tuple<int, System.Collections.Generic.List<string>>|} GetItems() => null;
+                                           public void SetItems({|#1:System.Collections.Generic.Stack<int>[]|} values) { }
+                                       }
+                                       """;
+
+            var returnDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.Collections.Generic.List<T>", "List<T>");
+            var parameterDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("System.Collections.Generic.Stack<T>", "List<T>");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic);
+        }
+
+        [TestMethod]
+        public async Task NestedSupportedCollectionTypes_ShouldNotReportDiagnostics()
+        {
+            var test = TestNamespace + """
+
+                                       class TestClass
+                                       {
+                                           public System.Tuple<int, List<string>> GetItems() => null;
+                                       }
+                                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public void CollectionDiagnostic_ShouldNotOfferAutomaticCodeFixes()
         {
             var fixes = typeof(CollectionTypesUsageAnalyzer).Assembly.GetTypes()

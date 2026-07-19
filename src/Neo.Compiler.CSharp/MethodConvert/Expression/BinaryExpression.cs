@@ -103,7 +103,13 @@ internal partial class MethodConvert
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
-            CheckLeftShiftOverflow(model, model.GetTypeInfo(expression.Left).Type, expression.Right, true);
+            ITypeSymbol? leftType = model.GetTypeInfo(expression.Left).Type;
+            if (!MaskFixedWidthShiftCount(leftType))
+                CheckLeftShiftOverflow(model, leftType, expression.Right, true);
+        }
+        else if (expression.OperatorToken.ValueText == ">>")
+        {
+            MaskFixedWidthShiftCount(model.GetTypeInfo(expression.Left).Type);
         }
         AddInstruction(opcode);
 
@@ -114,7 +120,75 @@ internal partial class MethodConvert
 
         if (checkResult)
         {
+            if (expression.OperatorToken.ValueText == "<<")
+                NormalizeShiftResult(type);
+            else
+                EnsureIntegerInRange(type);
+        }
+    }
+
+    /// <summary>
+    /// Applies the C# shift-count mask for fixed-width integral operands.
+    /// </summary>
+    /// <remarks>
+    /// C# masks the shift count to five bits for operands up to 32 bits and to
+    /// six bits for 64-bit operands. Nullable wrappers use their underlying
+    /// integral type to select the mask. BigInteger shift counts are not masked.
+    /// </remarks>
+    private bool MaskFixedWidthShiftCount(ITypeSymbol? leftType)
+    {
+        if (leftType is null) return false;
+
+        if (leftType is INamedTypeSymbol
+            {
+                OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+            } nullableType)
+        {
+            leftType = nullableType.TypeArguments[0];
+        }
+
+        int? mask = leftType.SpecialType switch
+        {
+            SpecialType.System_SByte or
+            SpecialType.System_Byte or
+            SpecialType.System_Int16 or
+            SpecialType.System_UInt16 or
+            SpecialType.System_Char or
+            SpecialType.System_Int32 or
+            SpecialType.System_UInt32 => 31,
+            SpecialType.System_Int64 or
+            SpecialType.System_UInt64 => 63,
+            _ => null
+        };
+
+        if (!mask.HasValue) return false;
+
+        Push(mask.Value);
+        AddInstruction(OpCode.AND);
+        return true;
+    }
+
+    private void NormalizeShiftResult(ITypeSymbol type, bool preserveCheckedConversion = false)
+    {
+        if (preserveCheckedConversion && type.SpecialType is
+            SpecialType.System_SByte or
+            SpecialType.System_Byte or
+            SpecialType.System_Int16 or
+            SpecialType.System_UInt16 or
+            SpecialType.System_Char)
+        {
             EnsureIntegerInRange(type);
+            return;
+        }
+
+        _checkedStack.Push(false);
+        try
+        {
+            EnsureIntegerInRange(type);
+        }
+        finally
+        {
+            _checkedStack.Pop();
         }
     }
 

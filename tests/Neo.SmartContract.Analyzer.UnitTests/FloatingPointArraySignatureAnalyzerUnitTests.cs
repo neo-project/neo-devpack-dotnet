@@ -106,5 +106,66 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await FloatVerifier.VerifyAnalyzerAsync(test);
             await DecimalVerifier.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task NestedFloatingPointSignatureTypes_ShouldReportDiagnostics()
+        {
+            const string doubleTest = """
+                                      public class TestClass
+                                      {
+                                          public {|#0:System.Tuple<int, double>|} Values() => null;
+                                      }
+                                      """;
+            const string floatTest = """
+                                     public class Wrapper<T> { }
+                                     public class TestClass
+                                     {
+                                         public void SetValues({|#0:Wrapper<float>|} values) { }
+                                     }
+                                     """;
+            const string decimalTest = """
+                                       public class TestClass
+                                       {
+                                           public {|#0:System.Tuple<decimal>|} Values { get; set; }
+                                       }
+                                       """;
+
+            await DoubleVerifier.VerifyAnalyzerAsync(
+                doubleTest,
+                DoubleVerifier.Diagnostic(DoubleUsageAnalyzer.DiagnosticId)
+                    .WithLocation(0)
+                    .WithArguments("double"));
+            await FloatVerifier.VerifyAnalyzerAsync(
+                floatTest,
+                FloatVerifier.Diagnostic(FloatUsageAnalyzer.DiagnosticId)
+                    .WithLocation(0)
+                    .WithArguments("float"));
+            await DecimalVerifier.VerifyAnalyzerAsync(
+                decimalTest,
+                DecimalVerifier.Diagnostic(DecimalUsageAnalyzer.DiagnosticId)
+                    .WithLocation(0)
+                    .WithArguments("System_Decimal", "decimal"));
+        }
+
+        [TestMethod]
+        public async Task NestedFloatingPointLocalTypes_ShouldReportDiagnostics()
+        {
+            const string test = """
+                                public class Wrapper<T> { }
+                                public class TestClass
+                                {
+                                    public void Test()
+                                    {
+                                        {|#0:Wrapper<double> value = null|};
+                                    }
+                                }
+                                """;
+
+            var expected = DoubleVerifier.Diagnostic(DoubleUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("double");
+
+            await DoubleVerifier.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
