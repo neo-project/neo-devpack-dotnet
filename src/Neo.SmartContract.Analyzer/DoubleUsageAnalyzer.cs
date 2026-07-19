@@ -15,7 +15,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -67,9 +66,12 @@ namespace Neo.SmartContract.Analyzer
         {
             if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
             var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            if (!variableDeclaration.GetDeclaredVariables().Any(p => p.Type.SpecialType == SpecialType.System_Double)) return;
+            var matchedType = UnsupportedTypeUsageAnalyzerHelpers.FindUnsupportedType(
+                variableType,
+                SpecialType.System_Double);
+            if (matchedType is null) return;
 
-            var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.ToString());
+            var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), matchedType.ToString());
             context.ReportDiagnostic(diagnostic);
         }
     }
