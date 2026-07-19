@@ -72,18 +72,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_LeftShiftAssign_Checked()
         {
-            Assert.ThrowsException<TestException>(Contract.UnitTest_Left_Shift_Assign_Checked);
-            AssertGasConsumed(1002120);
+            var values = Contract.UnitTest_Left_Shift_Assign_Checked()!;
+            AssertGasConsumed(1050330);
+            Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
+            Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.LeftShiftAssignChecked(1, 33));
-            AssertGasConsumed(1062780);
+            Assert.AreEqual(new BigInteger(2), Contract.LeftShiftAssignChecked(1, 33));
         }
 
         [TestMethod]
         public void Test_LeftShiftAssign_UnChecked()
         {
             var values = Contract.UnitTest_Left_Shift_Assign_UnChecked()!;
-            AssertGasConsumed(1049790);
+            AssertGasConsumed(1050330);
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
         }
@@ -92,7 +93,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_Checked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_Checked()!;
-            AssertGasConsumed(1048560);
+            AssertGasConsumed(1049100);
             Assert.AreEqual(new BigInteger(checked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(checked(int.MinValue >> 1)), values[1]);
         }
@@ -101,7 +102,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_UnChecked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_UnChecked()!;
-            AssertGasConsumed(1048560);
+            AssertGasConsumed(1049100);
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue >> 1)), values[1]);
         }
