@@ -66,10 +66,20 @@ namespace Neo.SmartContract.Analyzer
         {
             if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
             var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
+            var matchedType = UnsupportedTypeUsageAnalyzerHelpers.FindUnsupportedType(
+                variableType,
+                SpecialType.System_Decimal) ??
+                UnsupportedTypeUsageAnalyzerHelpers.FindUnsupportedType(
+                    variableType,
+                    SpecialType.System_Double);
 
-            if (variableType.SpecialType == SpecialType.System_Decimal || variableType.SpecialType == SpecialType.System_Double)
+            if (matchedType is not null)
             {
-                var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.SpecialType.ToString(), variableType.ToString());
+                var diagnostic = Diagnostic.Create(
+                    Rule,
+                    variableDeclaration.Syntax.GetLocation(),
+                    matchedType.SpecialType.ToString(),
+                    matchedType.ToString());
                 context.ReportDiagnostic(diagnostic);
             }
         }

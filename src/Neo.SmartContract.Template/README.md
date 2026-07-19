@@ -84,6 +84,7 @@ Project templates generate:
 
 ```
 MyContract/
+├── .config/dotnet-tools.json
 ├── MyContract.cs          # Main contract file
 ├── MyContract.csproj      # Project file with proper references
 └── README.md              # Template-specific documentation
