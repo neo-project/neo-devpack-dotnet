@@ -244,8 +244,19 @@ internal partial class MethodConvert
                     methodConvert.ConvertExpression(model, ExtractExpression(argument));
                     byte nestedSlot = methodConvert.AddAnonymousVariable();
                     methodConvert.AccessSlot(OpCode.STLOC, nestedSlot);
+
+                    JumpTarget nullBuilder = new();
+                    JumpTarget end = new();
+                    methodConvert.AccessSlot(OpCode.LDLOC, nestedSlot);
+                    methodConvert.IsNull();
+                    methodConvert.JumpIfTrue(nullBuilder);
                     LoadStringBuilderContent(methodConvert, nestedSlot);
                     EnsureStringValue(methodConvert);
+                    methodConvert.Jump(end);
+                    nullBuilder.Instruction = methodConvert.Nop();
+                    methodConvert.Push("");
+                    end.Instruction = methodConvert.Nop();
+
                     slot = methodConvert.AddAnonymousVariable();
                     methodConvert.AccessSlot(OpCode.STLOC, slot);
                     methodConvert.RemoveAnonymousVariable(nestedSlot);
