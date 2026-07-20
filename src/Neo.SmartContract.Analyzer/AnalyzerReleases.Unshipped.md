@@ -3,6 +3,7 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|------------------------------------------------
 NC4060  | Method   | Error    | BitOperationsUsageAnalyzer
+NC2010  | Syntax   | Error    | ArrayRangeUsageAnalyzer
 
 ### Removed Rules
 
