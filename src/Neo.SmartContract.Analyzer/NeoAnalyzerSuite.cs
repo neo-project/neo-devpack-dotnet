@@ -10,7 +10,11 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
 
 namespace Neo.SmartContract.Analyzer;
 
@@ -20,38 +24,21 @@ public static class NeoAnalyzerSuite
     /// Creates the complete set of Neo smart contract analyzers.
     /// </summary>
     public static ImmutableArray<DiagnosticAnalyzer> Create() =>
-    [
-        new BanCastMethodAnalyzer(),
-        new BigIntegerCreationAnalyzer(),
-        new BigIntegerUsageAnalyzer(),
-        new BigIntegerUsingUsageAnalyzer(),
-        new BitOperationsUsageAnalyzer(),
-        new CatchOnlySystemExceptionAnalyzer(),
-        new CharMethodsUsageAnalyzer(),
-        new CollectionTypesUsageAnalyzer(),
-        new DecimalUsageAnalyzer(),
-        new DoubleUsageAnalyzer(),
-        new EnumMethodsUsageAnalyzer(),
-        new FloatUsageAnalyzer(),
-        new InitialValueAnalyzer(),
-        new KeywordUsageAnalyzer(),
-        new LinqUsageAnalyzer(),
-        new MultipleCatchBlockAnalyzer(),
-        new NepStandardImplementationAnalyzer(),
-        new NotifyEventNameAnalyzer(),
-        new RefKeywordUsageAnalyzer(),
-        new SmartContractMethodNamingAnalyzer(),
-        new SmartContractMethodNamingAnalyzerUnderline(),
-        new StaticFieldInitializationAnalyzer(),
-        new StorageKeyCollisionAnalyzer(),
-        new StringBuilderUsageAnalyzer(),
-        new StringMethodUsageAnalyzer(),
-        new SupportedStandardsAnalyzer(),
-        new SystemDiagnosticsUsageAnalyzer(),
-        new SystemMathUsageAnalyzer(),
-        new TaskLikeTypeUsageAnalyzer(),
-        new UnsupportedPlatformApiAnalyzer(),
-        new UnsupportedSyntaxAnalyzer(),
-        new VolatileKeywordUsageAnalyzer()
-    ];
+        GetLoadableTypes()
+            .Where(type => !type.IsAbstract && typeof(DiagnosticAnalyzer).IsAssignableFrom(type))
+            .OrderBy(type => type.FullName, StringComparer.Ordinal)
+            .Select(type => (DiagnosticAnalyzer)Activator.CreateInstance(type)!)
+            .ToImmutableArray();
+
+    private static IEnumerable<Type> GetLoadableTypes()
+    {
+        try
+        {
+            return typeof(NeoAnalyzerSuite).Assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException exception)
+        {
+            return exception.Types.OfType<Type>();
+        }
+    }
 }
