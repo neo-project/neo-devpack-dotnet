@@ -5,6 +5,7 @@ The official C# compiler for Neo smart contracts. This compiler transforms C# co
 ## Features
 
 - **C# to NeoVM Compilation**: Compile standard C# code to NeoVM bytecode
+- **Contract Diagnostics**: Run the Neo contract analyzer suite before bytecode generation
 - **Smart Contract Support**: Full support for Neo smart contract development
 - **Optimization**: Multiple optimization levels for bytecode efficiency
 - **Debug Information**: Generate debug info for testing and debugging

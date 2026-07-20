@@ -51,6 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     RedirectStandardError = true,
                     UseShellExecute = false
                 };
+                startInfo.Environment["MSBUILDDISABLENODEREUSE"] = "1";
                 startInfo.ArgumentList.Add("pack");
                 startInfo.ArgumentList.Add(GetCompilerProjectPath());
                 startInfo.ArgumentList.Add("--configuration");
@@ -73,14 +74,15 @@ namespace Neo.Compiler.CSharp.UnitTests
                 string packagePath = Directory.GetFiles(outputPath, "*.nupkg")
                     .Single(path => !path.EndsWith(".snupkg", StringComparison.OrdinalIgnoreCase));
                 using var package = ZipFile.OpenRead(packagePath);
-                string[] artifactMetadataAssemblies =
+                string[] runtimeAssemblies =
                 [
                     "Neo.dll",
                     "Neo.IO.dll",
+                    "Neo.SmartContract.Analyzer.dll",
                     "Neo.SmartContract.Testing.dll"
                 ];
 
-                foreach (string assembly in artifactMetadataAssemblies)
+                foreach (string assembly in runtimeAssemblies)
                 {
                     Assert.IsTrue(
                         package.Entries.Any(entry => entry.FullName == $"tools/net10.0/any/{assembly}"),
