@@ -104,6 +104,87 @@ class TestClass
         }
 
         [TestMethod]
+        public async Task ArrayElementRefArgument_ShouldReportDiagnostic()
+        {
+            var test = @"
+class TestClass
+{
+    private static void Increment(ref int value) => value++;
+
+    public static void Caller(int[] values)
+    {
+        Increment({|#0:ref values[0]|});
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("array element argument; bind it to a ref local before forwarding");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task SpanElementRefArgument_ShouldReportDiagnostic()
+        {
+            var test = @"
+using System;
+
+class TestClass
+{
+    private static void Increment(ref int value) => value++;
+
+    public static void Caller()
+    {
+        Span<int> values = new int[] { 1, 2, 3 };
+        Increment({|#0:ref values[1]|});
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("Span element argument; bind it to a ref local before forwarding");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ArrayElementOutArgument_ShouldReportDiagnostic()
+        {
+            var test = @"
+class TestClass
+{
+    private static void Reset(out int value) => value = 0;
+
+    public static void Caller(int[] values)
+    {
+        Reset({|#0:out values[0]|});
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(RefKeywordUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("array element argument; bind it to a ref local before forwarding");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task RefLocalArgument_ShouldNotReportDiagnostic()
+        {
+            var test = @"
+class TestClass
+{
+    private static void Increment(ref int value) => value++;
+
+    public static void Caller(int[] values)
+    {
+        ref int value = ref values[0];
+        Increment(ref value);
+    }
+}";
+
+            await VerifyPreviewAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task OutParameter_ShouldNotReportDiagnostic()
         {
             var test = @"

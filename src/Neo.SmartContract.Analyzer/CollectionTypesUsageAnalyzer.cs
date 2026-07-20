@@ -60,7 +60,8 @@ namespace Neo.SmartContract.Analyzer
             "System.Collections.BitArray",
             "System.Collections.ObjectModel.Collection<T>",
             "System.Collections.ObjectModel.ReadOnlyCollection<T>",
-            "System.Collections.ObjectModel.ReadOnlyObservableCollection<T>"
+            "System.Collections.ObjectModel.ReadOnlyObservableCollection<T>",
+            "System.ArraySegment<T>"
         };
 
         private static readonly DiagnosticDescriptor Rule = new(
@@ -192,6 +193,9 @@ namespace Neo.SmartContract.Analyzer
 
         private static string GetSuggestedType(string originalType)
         {
+            if (originalType == "System.ArraySegment<T>")
+                return "an array or Span<T>";
+
             return originalType.Contains("Dictionary") ? "Map<TKey, TValue>" : "List<T>";
         }
     }
