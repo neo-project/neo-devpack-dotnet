@@ -92,4 +92,50 @@ public class UnsupportedPlatformApiAnalyzerUnitTests
 
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
+
+    [TestMethod]
+    public async Task SystemConvert_ShouldReportDiagnosticForQualifiedAliasAndImportedUses()
+    {
+        var test = """
+                   using System;
+                   using ConvertAlias = {|#2:System.Convert|};
+
+                   class Test
+                   {
+                       int Run(object value)
+                       {
+                           var first = {|#0:Convert|}.ToInt32(value);
+                           var second = {|#1:System.Convert|}.ToInt32(value);
+                           return ConvertAlias.ToInt32(first + second);
+                       }
+                   }
+                   """;
+
+        var expected = new[]
+        {
+            VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(0).WithArguments("System.Convert"),
+            VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(1).WithArguments("System.Convert"),
+            VerifyCS.Diagnostic(UnsupportedPlatformApiAnalyzer.DiagnosticId).WithLocation(2).WithArguments("System.Convert"),
+        };
+
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task UserDefinedConvert_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Convert
+                   {
+                       public static int ToInt32(object value) => 0;
+                   }
+
+                   class Test
+                   {
+                       int Run(object value) => Convert.ToInt32(value);
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
 }
