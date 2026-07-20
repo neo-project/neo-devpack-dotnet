@@ -30,6 +30,8 @@ public class UnitTest_ShiftCountMasking
 
         public class Contract : SmartContract
         {
+            private static int _evaluations;
+
             [DisplayName("intLeftChecked")]
             public static int IntLeftChecked(int value, int count) => checked(value << count);
 
@@ -50,6 +52,23 @@ public class UnitTest_ShiftCountMasking
 
             [DisplayName("nullableLongRightChecked")]
             public static long? NullableLongRightChecked(long? value, int count) => checked(value >> count);
+
+            [DisplayName("nullableBothLeft")]
+            public static int? NullableBothLeft(int? value, int? count) => value << count;
+
+            [DisplayName("nullableBothRight")]
+            public static int? NullableBothRight(int? value, int? count) => value >> count;
+
+            [DisplayName("nullLeftEvaluationCount")]
+            public static int NullLeftEvaluationCount()
+            {
+                _evaluations = 0;
+                int? value = null;
+                _ = value << Evaluate();
+                return _evaluations;
+            }
+
+            private static int Evaluate() => ++_evaluations;
 
             [DisplayName("compoundInt")]
             public static int CompoundInt(int value, int count)
@@ -107,6 +126,15 @@ public class UnitTest_ShiftCountMasking
         Assert.AreEqual(new BigInteger(2), contract.IntLeftUnchecked(1, 33), optimization.ToString());
         Assert.AreEqual(new BigInteger(2), contract.NullableIntLeftChecked(1, 33), optimization.ToString());
         Assert.AreEqual(new BigInteger(-4), contract.NullableLongRightChecked(-8, 65), optimization.ToString());
+        Assert.IsNull(contract.NullableIntLeftChecked(null, 33), optimization.ToString());
+        Assert.IsNull(contract.NullableLongRightChecked(null, 65), optimization.ToString());
+        Assert.AreEqual(new BigInteger(2), contract.NullableBothLeft(1, 33), optimization.ToString());
+        Assert.IsNull(contract.NullableBothLeft(1, null), optimization.ToString());
+        Assert.IsNull(contract.NullableBothLeft(null, null), optimization.ToString());
+        Assert.AreEqual(new BigInteger(-4), contract.NullableBothRight(-8, 33), optimization.ToString());
+        Assert.IsNull(contract.NullableBothRight(-8, null), optimization.ToString());
+        Assert.IsNull(contract.NullableBothRight(null, 33), optimization.ToString());
+        Assert.AreEqual(BigInteger.One, contract.NullLeftEvaluationCount(), optimization.ToString());
         Assert.AreEqual(new BigInteger(2), contract.CompoundInt(1, 33), optimization.ToString());
         Assert.AreEqual(BigInteger.Zero, contract.CompoundByte(0, 8), optimization.ToString());
         Assert.AreEqual(new BigInteger(2), contract.CompoundByte(1, 33), optimization.ToString());
@@ -139,6 +167,15 @@ public class UnitTest_ShiftCountMasking
 
         [DisplayName("nullableLongRightChecked")]
         public abstract BigInteger? NullableLongRightChecked(BigInteger? value, BigInteger? count);
+
+        [DisplayName("nullableBothLeft")]
+        public abstract BigInteger? NullableBothLeft(BigInteger? value, BigInteger? count);
+
+        [DisplayName("nullableBothRight")]
+        public abstract BigInteger? NullableBothRight(BigInteger? value, BigInteger? count);
+
+        [DisplayName("nullLeftEvaluationCount")]
+        public abstract BigInteger? NullLeftEvaluationCount();
 
         [DisplayName("compoundInt")]
         public abstract BigInteger? CompoundInt(BigInteger? value, BigInteger? count);

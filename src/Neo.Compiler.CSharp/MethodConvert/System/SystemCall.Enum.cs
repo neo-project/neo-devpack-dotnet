@@ -109,9 +109,8 @@ internal partial class MethodConvert
                 });
         }
 
-        // No match found
-        // Remove the inputString from the stack
-        methodConvert.Drop();
+        // No match found, Remove type and inputString from the stack
+        methodConvert.Drop(2);
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
         endTarget.Instruction = methodConvert.Nop();

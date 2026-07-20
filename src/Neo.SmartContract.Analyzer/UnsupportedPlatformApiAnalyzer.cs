@@ -44,6 +44,7 @@ public sealed class UnsupportedPlatformApiAnalyzer : DiagnosticAnalyzer
     [
         "Activator",
         "Console",
+        "Convert",
         "DateTime",
         "DateTimeOffset",
         "Environment",
@@ -96,12 +97,19 @@ public sealed class UnsupportedPlatformApiAnalyzer : DiagnosticAnalyzer
     {
         if (context.Node is not IdentifierNameSyntax identifier ||
             identifier.IsVar ||
-            identifier.Parent is QualifiedNameSyntax or MemberAccessExpressionSyntax or UsingDirectiveSyntax)
+            identifier.Parent is QualifiedNameSyntax or UsingDirectiveSyntax ||
+            identifier.Parent is MemberAccessExpressionSyntax memberAccess &&
+            !ReferenceEquals(memberAccess.Expression, identifier))
         {
             return;
         }
 
-        var type = context.SemanticModel.GetTypeInfo(identifier, context.CancellationToken).Type;
+        if (context.SemanticModel.GetAliasInfo(identifier, context.CancellationToken) is not null)
+        {
+            return;
+        }
+
+        var type = context.SemanticModel.GetSymbolInfo(identifier, context.CancellationToken).Symbol as INamedTypeSymbol;
         ReportIfForbiddenType(context, identifier.GetLocation(), type);
     }
 

@@ -71,6 +71,15 @@ internal partial class MethodConvert
         IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
         if (symbol is not null && TryProcessSystemOperators(model, symbol, expression.Left, expression.Right))
             return;
+
+        if ((expression.IsKind(SyntaxKind.LeftShiftExpression) ||
+             expression.IsKind(SyntaxKind.RightShiftExpression)) &&
+            HasNullableOperand(model, expression))
+        {
+            ConvertLiftedShiftExpression(model, expression);
+            return;
+        }
+
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
 
@@ -125,6 +134,77 @@ internal partial class MethodConvert
             else
                 EnsureIntegerInRange(type);
         }
+    }
+
+    private static bool HasNullableOperand(SemanticModel model, BinaryExpressionSyntax expression) =>
+        IsNullableValueType(model.GetTypeInfo(expression.Left).Type) ||
+        IsNullableValueType(model.GetTypeInfo(expression.Right).Type);
+
+    private static bool IsNullableValueType(ITypeSymbol? type) =>
+        type is INamedTypeSymbol
+        {
+            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+        };
+
+    /// <summary>
+    /// Emits a lifted shift while preserving C# null propagation and operand evaluation order.
+    /// </summary>
+    private void ConvertLiftedShiftExpression(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        ITypeSymbol? leftType = model.GetTypeInfo(expression.Left).Type;
+        ITypeSymbol? rightType = model.GetTypeInfo(expression.Right).Type;
+        ITypeSymbol resultType = model.GetTypeInfo(expression).Type!;
+        bool leftNullable = IsNullableValueType(leftType);
+        bool rightNullable = IsNullableValueType(rightType);
+
+        JumpTarget? leftNullTarget = leftNullable ? new JumpTarget() : null;
+        JumpTarget? rightNullTarget = rightNullable ? new JumpTarget() : null;
+        var endTarget = new JumpTarget();
+
+        ConvertExpression(model, expression.Left);
+        if (leftNullTarget is not null)
+        {
+            Dup();
+            IsNull();
+            JumpIfTrue(leftNullTarget);
+        }
+
+        ConvertExpression(model, expression.Right);
+        if (rightNullTarget is not null)
+        {
+            Dup();
+            IsNull();
+            JumpIfTrue(rightNullTarget);
+        }
+
+        if (expression.IsKind(SyntaxKind.LeftShiftExpression))
+        {
+            if (!MaskFixedWidthShiftCount(leftType))
+                CheckLeftShiftOverflow(model, leftType, expression.Right, true);
+            AddInstruction(OpCode.SHL);
+            NormalizeShiftResult(resultType);
+        }
+        else
+        {
+            MaskFixedWidthShiftCount(leftType);
+            AddInstruction(OpCode.SHR);
+        }
+        Jump(OpCode.JMP_L, endTarget);
+
+        if (rightNullTarget is not null)
+        {
+            rightNullTarget.Instruction = Nip();
+            Jump(OpCode.JMP_L, endTarget);
+        }
+
+        if (leftNullTarget is not null)
+        {
+            leftNullTarget.Instruction = Nop();
+            ConvertExpression(model, expression.Right);
+            Drop();
+        }
+
+        endTarget.Instruction = Nop();
     }
 
     /// <summary>
