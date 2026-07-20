@@ -180,6 +180,49 @@ namespace Neo.SmartContract.Analyzer.Test
         }
 
         [TestMethod]
+        public async Task ArraySegmentUsage_ShouldReportDiagnostic()
+        {
+            var test = TestNamespace + """
+
+                                       class TestClass
+                                       {
+                                           public void Run(byte[] buffer)
+                                           {
+                                               System.ArraySegment<byte> segment = new(buffer, 1, 2);
+                                           }
+                                       }
+                                       """;
+
+            var expected = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(18, 9)
+                .WithArguments("System.ArraySegment<T>", "an array or Span<T>");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task NestedArraySegmentSignature_ShouldReportDiagnostics()
+        {
+            var test = TestNamespace + """
+
+                                       class TestClass
+                                       {
+                                           public {|#0:System.Tuple<int, System.ArraySegment<byte>>|} Read(
+                                               {|#1:System.ArraySegment<byte>[]|} segments) => null;
+                                       }
+                                       """;
+
+            var returnDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.ArraySegment<T>", "an array or Span<T>");
+            var parameterDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("System.ArraySegment<T>", "an array or Span<T>");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic);
+        }
+
+        [TestMethod]
         public void CollectionDiagnostic_ShouldNotOfferAutomaticCodeFixes()
         {
             var fixes = typeof(CollectionTypesUsageAnalyzer).Assembly.GetTypes()
