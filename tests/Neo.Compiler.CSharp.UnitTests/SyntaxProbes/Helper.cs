@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -48,46 +49,31 @@ internal static class Helper
         Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
     }.GetParseOptions());
     private static readonly Lazy<ImmutableArray<MetadataReference>> AnalyzerReferences = new(CreateAnalyzerReferences);
-    private static readonly Lazy<ImmutableArray<DiagnosticAnalyzer>> SyntaxAnalyzers = new(() =>
-    [
-        new BanCastMethodAnalyzer(),
-        new BigIntegerCreationAnalyzer(),
-        new BigIntegerUsageAnalyzer(),
-        new BigIntegerUsingUsageAnalyzer(),
-        new BitOperationsUsageAnalyzer(),
-        new CatchOnlySystemExceptionAnalyzer(),
-        new CharMethodsUsageAnalyzer(),
-        new CollectionTypesUsageAnalyzer(),
-        new DecimalUsageAnalyzer(),
-        new DoubleUsageAnalyzer(),
-        new EnumMethodsUsageAnalyzer(),
-        new FloatUsageAnalyzer(),
-        new InitialValueAnalyzer(),
-        new KeywordUsageAnalyzer(),
-        new LinqUsageAnalyzer(),
-        new MultipleCatchBlockAnalyzer(),
-        new NepStandardImplementationAnalyzer(),
-        new NotifyEventNameAnalyzer(),
-        new RefKeywordUsageAnalyzer(),
-        new SmartContractMethodNamingAnalyzer(),
-        new SmartContractMethodNamingAnalyzerUnderline(),
-        new StaticFieldInitializationAnalyzer(),
-        new StorageKeyCollisionAnalyzer(),
-        new StringBuilderUsageAnalyzer(),
-        new StringMethodUsageAnalyzer(),
-        new SupportedStandardsAnalyzer(),
-        new SystemDiagnosticsUsageAnalyzer(),
-        new SystemMathUsageAnalyzer(),
-        new TaskLikeTypeUsageAnalyzer(),
-        new UnsupportedPlatformApiAnalyzer(),
-        new UnsupportedSyntaxAnalyzer(),
-        new VolatileKeywordUsageAnalyzer()
-    ]);
+    private static readonly Lazy<ImmutableArray<DiagnosticAnalyzer>> SyntaxAnalyzers = new(CreateSyntaxAnalyzers);
 
     internal static void TestCodeBlock(string codeBlock)
     {
         var source = BuildMethodBodySource(codeBlock);
         AssertCompilationResult(source, expectSuccess: true, "Expected snippet to compile successfully.");
+    }
+
+    private static ImmutableArray<DiagnosticAnalyzer> CreateSyntaxAnalyzers() =>
+        GetLoadableAnalyzerTypes()
+            .Where(type => !type.IsAbstract && typeof(DiagnosticAnalyzer).IsAssignableFrom(type))
+            .OrderBy(type => type.FullName, StringComparer.Ordinal)
+            .Select(type => (DiagnosticAnalyzer)Activator.CreateInstance(type)!)
+            .ToImmutableArray();
+
+    private static IEnumerable<Type> GetLoadableAnalyzerTypes()
+    {
+        try
+        {
+            return typeof(UnsupportedSyntaxAnalyzer).Assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException exception)
+        {
+            return exception.Types.OfType<Type>();
+        }
     }
 
     internal static void AssertCompilationFails(string codeBlock, string message)
