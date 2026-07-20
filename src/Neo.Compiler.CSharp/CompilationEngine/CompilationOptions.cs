@@ -58,6 +58,11 @@ namespace Neo.Compiler
         private CSharpParseOptions? parseOptions = null;
         public bool SkipRestoreIfAssetsPresent { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether the Neo contract analyzer suite runs before contract conversion.
+        /// </summary>
+        public bool RunAnalyzers { get; set; }
+
         public CSharpParseOptions GetParseOptions()
         {
             if (parseOptions is null)

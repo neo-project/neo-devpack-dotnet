@@ -6,6 +6,7 @@
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<Nullable>enable</Nullable>
+		<ExcludeByFile>**/src/Neo.SmartContract.Analyzer/**/*.cs</ExcludeByFile>
 	</PropertyGroup>
 
 	<ItemGroup>
