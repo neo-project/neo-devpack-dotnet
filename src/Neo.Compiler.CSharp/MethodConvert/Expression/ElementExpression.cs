@@ -183,7 +183,10 @@ internal partial class MethodConvert
                     ChangeType(VM.Types.StackItemType.ByteString);
                     break;
                 default:
-                    throw new CompilationException(indexOrRange, DiagnosticId.ArrayRange, $"The type {type} does not support range access.");
+                    throw new CompilationException(
+                        indexOrRange,
+                        DiagnosticId.ArrayRange,
+                        $"Range access is not supported for '{type}'. Use ranges only with byte[] or string receivers.");
             }
         }
         else
