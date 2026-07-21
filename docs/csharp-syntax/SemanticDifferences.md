@@ -46,6 +46,8 @@ Examples:
 
 This keeps contract execution deterministic and avoids culture-dependent behavior.
 
+NeoVM stores contract strings as UTF-8 byte strings. As a result, string `Length`, indexing, and slicing use encoded byte offsets instead of the UTF-16 code-unit offsets used by .NET. For example, `"é".Length` evaluates to `2` on NeoVM instead of `1`, and `"é"[0]` returns the first encoded byte (`195`) instead of the .NET character value (`233`). Contracts that may process non-ASCII text should choose explicit byte-oriented behavior or constrain and validate their input.
+
 ## `typeof`
 
 `typeof(T)` does not produce a .NET `System.Type` object in Neo contract code. The compiler lowers the expression to the simple type name string, for example `typeof(int)` becomes `"Int32"`.
