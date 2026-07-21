@@ -61,7 +61,12 @@ internal static class Helper
         GetLoadableAnalyzerTypes()
             .Where(type => !type.IsAbstract && typeof(DiagnosticAnalyzer).IsAssignableFrom(type))
             .OrderBy(type => type.FullName, StringComparer.Ordinal)
-            .Select(type => (DiagnosticAnalyzer)Activator.CreateInstance(type)!)
+            .Select(type =>
+            {
+                var instance = Activator.CreateInstance(type)
+                    ?? throw new InvalidOperationException($"Could not instantiate analyzer {type.FullName}.");
+                return (DiagnosticAnalyzer)instance;
+            })
             .ToImmutableArray();
 
     private static IEnumerable<Type> GetLoadableAnalyzerTypes()
