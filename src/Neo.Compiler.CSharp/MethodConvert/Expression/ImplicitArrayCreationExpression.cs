@@ -43,7 +43,20 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/arrays#implicitly-typed-arrays">Implicitly typed arrays</seealso>
     private void ConvertImplicitArrayCreationExpression(SemanticModel model, ImplicitArrayCreationExpressionSyntax expression)
     {
-        IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;
+        IArrayTypeSymbol type = ResolveImplicitArrayType(model, expression);
         ConvertInitializerExpression(model, type, expression.Initializer);
+    }
+
+    internal static IArrayTypeSymbol ResolveImplicitArrayType(
+        SemanticModel model,
+        ImplicitArrayCreationExpressionSyntax expression)
+    {
+        var type = (IArrayTypeSymbol)model.GetTypeInfo(expression).Type!;
+        if (type.ElementType.TypeKind != TypeKind.Error)
+            return type;
+
+        throw CompilationException.UnsupportedSyntax(
+            expression,
+            "Unable to determine the element type of this implicitly typed array.");
     }
 }
