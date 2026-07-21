@@ -55,3 +55,9 @@ This behavior exists primarily so supported enum helpers such as `Enum.Parse(typ
 Guidance:
 - Do not use `typeof` for .NET reflection or `System.Type` behavior in contracts. Reflection is outside the supported contract surface.
 - Treat direct `typeof` results as Neo string semantics, not standard .NET type metadata.
+
+## Lambdas that capture `foreach` variables
+
+Neo currently stores captured local variables in shared contract fields. A lambda created inside a `foreach` loop therefore observes the most recently assigned iteration value when it is invoked after the loop. Standard C# creates a distinct captured variable for each iteration.
+
+The analyzer reports `NC4063` when a lambda references its enclosing `foreach` variable. Avoid retaining that lambda across iterations; compute the value eagerly or pass it explicitly instead.

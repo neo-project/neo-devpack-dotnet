@@ -2,6 +2,7 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|------------------------------------------------
+NC4063  | Usage    | Warning  | CapturedForeachVariableAnalyzer
 NC4060  | Method   | Error    | BitOperationsUsageAnalyzer
 NC2010  | Syntax   | Error    | ArrayRangeUsageAnalyzer
 
