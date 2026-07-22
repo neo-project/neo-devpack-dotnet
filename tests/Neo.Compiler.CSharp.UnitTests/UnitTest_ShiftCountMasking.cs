@@ -144,6 +144,33 @@ public class UnitTest_ShiftCountMasking
         Assert.AreEqual(BigInteger.One << 33, contract.CompoundBigInteger(1, 33), optimization.ToString());
     }
 
+    [DataTestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.Basic)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
+    public void LiftedShift_WithNullableLeft_StillAppliesFixedWidthMask(CompilationOptions.OptimizationType optimization)
+    {
+        var options = TestHelper.CreateDefaultOptions();
+        options.Optimize = optimization;
+        var context = TestHelper.CompileSingleContract(Source, options);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(static p => p.ToString())));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<ShiftCountContract>(context.CreateExecutable(), context.CreateManifest());
+
+        // 33 should be masked to 1 for int shifts (C# semantics)
+        Assert.AreEqual(new BigInteger(2), contract.NullableBothLeft(1, 33));
+        Assert.AreEqual(new BigInteger(-4), contract.NullableBothRight(-8, 33));
+
+        // null propagation must remain intact
+        Assert.IsNull(contract.NullableBothLeft(null, 33));
+        Assert.IsNull(contract.NullableBothLeft(1, null));
+        Assert.IsNull(contract.NullableBothRight(null, 33));
+        Assert.IsNull(contract.NullableBothRight(-8, null));
+        Assert.IsNull(contract.NullableBothLeft(null, null));
+        Assert.IsNull(contract.NullableBothRight(null, null));
+    }
+
     public abstract class ShiftCountContract(SmartContractInitialize initialize)
         : SmartContract.Testing.SmartContract(initialize)
     {
