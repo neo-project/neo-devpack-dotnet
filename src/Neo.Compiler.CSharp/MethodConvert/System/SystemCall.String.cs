@@ -1839,10 +1839,10 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.STLOC, strSlot);
 
         methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.Dup();
         methodConvert.IsNull();
         methodConvert.Not();
         methodConvert.Assert();
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
         methodConvert.ChangeType(StackItemType.ByteString);
         methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
 
