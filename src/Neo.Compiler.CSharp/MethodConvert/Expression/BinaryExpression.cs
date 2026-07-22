@@ -154,18 +154,8 @@ internal partial class MethodConvert
         ITypeSymbol? leftType = model.GetTypeInfo(expression.Left).Type;
         ITypeSymbol? rightType = model.GetTypeInfo(expression.Right).Type;
         ITypeSymbol resultType = model.GetTypeInfo(expression).Type!;
-
         bool leftNullable = IsNullableValueType(leftType);
         bool rightNullable = IsNullableValueType(rightType);
-
-        ITypeSymbol? leftUnderlyingType = leftType;
-        while (leftUnderlyingType is INamedTypeSymbol
-            {
-                OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-            } nullableType)
-        {
-            leftUnderlyingType = nullableType.TypeArguments[0];
-        }
 
         JumpTarget? leftNullTarget = leftNullable ? new JumpTarget() : null;
         JumpTarget? rightNullTarget = rightNullable ? new JumpTarget() : null;
@@ -189,18 +179,17 @@ internal partial class MethodConvert
 
         if (expression.IsKind(SyntaxKind.LeftShiftExpression))
         {
-            if (!MaskFixedWidthShiftCount(leftUnderlyingType))
-                CheckLeftShiftOverflow(model, leftUnderlyingType, expression.Right, true);
+            if (!MaskFixedWidthShiftCount(leftType))
+                CheckLeftShiftOverflow(model, leftType, expression.Right, true);
 
             AddInstruction(OpCode.SHL);
             NormalizeShiftResult(resultType);
         }
         else
         {
-            MaskFixedWidthShiftCount(leftUnderlyingType);
+            MaskFixedWidthShiftCount(leftType);
             AddInstruction(OpCode.SHR);
         }
-
         Jump(OpCode.JMP_L, endTarget);
 
         if (rightNullTarget is not null)
