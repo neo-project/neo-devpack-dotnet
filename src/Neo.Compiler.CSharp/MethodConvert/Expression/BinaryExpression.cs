@@ -181,7 +181,6 @@ internal partial class MethodConvert
         {
             if (!MaskFixedWidthShiftCount(leftType))
                 CheckLeftShiftOverflow(model, leftType, expression.Right, true);
-
             AddInstruction(OpCode.SHL);
             NormalizeShiftResult(resultType);
         }
