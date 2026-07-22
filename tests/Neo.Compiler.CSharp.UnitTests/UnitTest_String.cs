@@ -425,6 +425,9 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual("Hello World<<<", Contract.TestInsert("Hello World", 11, "<<<"));
             AssertGasConsumed(2032650);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestInsert("Hello World", 0, null));
+            AssertGasConsumed(1293750);
         }
 
         [TestMethod]
