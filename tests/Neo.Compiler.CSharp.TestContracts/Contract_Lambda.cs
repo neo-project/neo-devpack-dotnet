@@ -87,6 +87,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         /// </summary>
         /// <param name="array"></param>
         /// <returns></returns>
+#pragma warning disable NC4063 // Intentional NeoVM foreach-capture behavior under test.
         public static SmartContract.Framework.List<int> ForEachVar(int[] array)
         {
             var list = new SmartContract.Framework.List<Func<int>>();
@@ -102,6 +103,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             }
             return result;
         }
+#pragma warning restore NC4063
 
         /// <summary>
         /// Use last value in for, different from C# behavior
