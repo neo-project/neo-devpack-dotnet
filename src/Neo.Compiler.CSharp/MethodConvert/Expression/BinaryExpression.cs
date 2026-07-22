@@ -158,12 +158,14 @@ internal partial class MethodConvert
         bool leftNullable = IsNullableValueType(leftType);
         bool rightNullable = IsNullableValueType(rightType);
 
-        ITypeSymbol? leftUnderlyingType = leftType is INamedTypeSymbol
+        ITypeSymbol? leftUnderlyingType = leftType;
+        while (leftUnderlyingType is INamedTypeSymbol
+            {
+                OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+            } nullableType)
         {
-            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-        } leftNullableType
-            ? leftNullableType.TypeArguments[0]
-            : leftType;
+            leftUnderlyingType = nullableType.TypeArguments[0];
+        }
 
         JumpTarget? leftNullTarget = leftNullable ? new JumpTarget() : null;
         JumpTarget? rightNullTarget = rightNullable ? new JumpTarget() : null;
