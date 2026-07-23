@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <NeoCorePackageVersion>3.10.0</NeoCorePackageVersion>
+    <NeoCorePackageVersion>3.10.1</NeoCorePackageVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' == 'true'">

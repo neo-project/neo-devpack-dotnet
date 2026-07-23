@@ -1,8 +1,8 @@
 {
   "$schema": "../../../profiles/neo-csharp-profile.schema.json",
   "schemaVersion": 1,
-  "profileVersion": "3.10.0",
-  "devpackVersion": "3.10.0",
+  "profileVersion": "3.10.1",
+  "devpackVersion": "3.10.1",
   "capabilities": {
     "syntax.expression-bodied-member": {
       "kind": "syntax",
