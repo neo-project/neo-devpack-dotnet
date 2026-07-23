@@ -120,9 +120,9 @@ Edit `HelloWorldContract.csproj`:
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="3.10.0" />
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.10.1" />
     <!-- Compile-time checks for NeoVM constraints and NEP standards (recommended). -->
-    <PackageReference Include="Neo.SmartContract.Analyzer" Version="3.10.0">
+    <PackageReference Include="Neo.SmartContract.Analyzer" Version="3.10.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -374,7 +374,7 @@ Edit `HelloWorldContract.Tests.csproj`:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Neo.SmartContract.Testing" Version="3.10.0" />
+    <PackageReference Include="Neo.SmartContract.Testing" Version="3.10.1" />
   </ItemGroup>
 
   <ItemGroup>
