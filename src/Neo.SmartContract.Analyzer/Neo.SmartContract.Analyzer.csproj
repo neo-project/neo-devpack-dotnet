@@ -13,7 +13,6 @@
     <Product>Neo.SmartContract.Analyzer.CSharp</Product>
     <Description>Neo.SmartContract.Analyzer.CSharp</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- Analyzer packages ship under analyzers/, not lib/, so symbol packages are empty and nuget.org rejects them. -->
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
 
