@@ -97,7 +97,9 @@ package_version_exists() {
 pack_and_push() {
     local project_path=$1
     local project_name
+    local package_file
     project_name=$(basename "$project_path" .csproj)
+    package_file="$OUTPUT_DIR/${project_name}.${VERSION}.nupkg"
     
     echo ""
     echo "Processing $project_name..."
@@ -118,12 +120,10 @@ pack_and_push() {
         --no-restore
     
     if [[ "$DRY_RUN" == "false" ]]; then
-        # Push the main nupkg; nuget also uploads a sibling .snupkg when present.
+        # Push the versioned nupkg; nuget also uploads a sibling .snupkg when present.
         echo "Publishing $project_name to $NUGET_SOURCE..."
-        local package_file
-        package_file=$(ls -1 "$OUTPUT_DIR/$project_name."*.nupkg 2>/dev/null | head -1)
-        if [[ -z "$package_file" ]]; then
-            echo "Error: packed nupkg for $project_name was not found in $OUTPUT_DIR"
+        if [[ ! -f "$package_file" ]]; then
+            echo "Error: packed nupkg was not found: $package_file"
             return 1
         fi
         dotnet nuget push "$package_file" \
@@ -196,7 +196,8 @@ if [[ "$CHECK_ONLY" == "true" ]]; then
     exit 0
 fi
 
-# Create output directory
+# Recreate output directory so leftover nupkgs from older versions cannot be pushed.
+rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
 # Restore all packages first
@@ -236,15 +237,14 @@ if package_version_exists "Neo.SmartContract.Template" "$VERSION"; then
     echo "Package Neo.SmartContract.Template version $VERSION already exists on NuGet, skipping..."
     echo "✓ Neo.SmartContract.Template skipped (already published)"
 else
+    template_package="$OUTPUT_DIR/Neo.SmartContract.Template.${VERSION}.nupkg"
     dotnet pack "./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj" \
         --configuration "$CONFIG" \
         --output "$OUTPUT_DIR"
 
     if [[ "$DRY_RUN" == "false" ]]; then
-        local template_package
-        template_package=$(ls -1 "$OUTPUT_DIR/Neo.SmartContract.Template."*.nupkg 2>/dev/null | head -1)
-        if [[ -z "$template_package" ]]; then
-            echo "Error: packed nupkg for Neo.SmartContract.Template was not found in $OUTPUT_DIR"
+        if [[ ! -f "$template_package" ]]; then
+            echo "Error: packed nupkg was not found: $template_package"
             exit 1
         fi
         dotnet nuget push "$template_package" \
