@@ -402,12 +402,17 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate character for digit check
         methodConvert.Within((ushort)'0', (ushort)'9');            // Check if within digit range
+        methodConvert.Dup();                                       // Dup the result, because JMPIF will pop the top of the stack
         methodConvert.JumpIfTrue(endTarget);                       // Jump if is digit
+        methodConvert.Drop();                                      // Drop the result if false
         methodConvert.Dup();                                       // Duplicate character for uppercase check
         methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
+        methodConvert.Dup();                                       // Dup the result, because JMPIF will pop the top of the stack
         methodConvert.JumpIfTrue(endTarget);                       // Jump if is uppercase
+        methodConvert.Drop();                                      // Drop the result if false
+        methodConvert.Dup();                                       // Duplicate character for lowercase check
         methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        endTarget.Instruction = methodConvert.Nip();               // Drop the input character to consume it
     }
 
     /// <summary>
