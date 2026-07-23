@@ -118,9 +118,15 @@ pack_and_push() {
         --no-restore
     
     if [[ "$DRY_RUN" == "false" ]]; then
-        # Push the package
+        # Push the main nupkg; nuget also uploads a sibling .snupkg when present.
         echo "Publishing $project_name to $NUGET_SOURCE..."
-        dotnet nuget push "$OUTPUT_DIR/$project_name.*.nupkg" \
+        local package_file
+        package_file=$(ls -1 "$OUTPUT_DIR/$project_name."*.nupkg 2>/dev/null | head -1)
+        if [[ -z "$package_file" ]]; then
+            echo "Error: packed nupkg for $project_name was not found in $OUTPUT_DIR"
+            return 1
+        fi
+        dotnet nuget push "$package_file" \
             --source "$NUGET_SOURCE" \
             --api-key "$API_KEY" \
             --skip-duplicate \
@@ -235,7 +241,13 @@ else
         --output "$OUTPUT_DIR"
 
     if [[ "$DRY_RUN" == "false" ]]; then
-        dotnet nuget push "$OUTPUT_DIR/Neo.SmartContract.Template.*.nupkg" \
+        local template_package
+        template_package=$(ls -1 "$OUTPUT_DIR/Neo.SmartContract.Template."*.nupkg 2>/dev/null | head -1)
+        if [[ -z "$template_package" ]]; then
+            echo "Error: packed nupkg for Neo.SmartContract.Template was not found in $OUTPUT_DIR"
+            exit 1
+        fi
+        dotnet nuget push "$template_package" \
             --source "$NUGET_SOURCE" \
             --api-key "$API_KEY" \
             --skip-duplicate \
