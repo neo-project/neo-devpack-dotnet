@@ -19,10 +19,6 @@
         <PackageReference Include="MSTest.TestFramework" Version="3.9.3"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="3.10.0"/>
-    </ItemGroup>
-
     <PropertyGroup>
         <!--   Overwrite the prebuild event defined in Directory.Build.props     -->
         <PreBuildEvent></PreBuildEvent>
