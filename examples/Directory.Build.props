@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
+    <!-- Available during Directory.Build.props evaluation (before project PropertyGroups). -->
+    <PropertyGroup>
+        <IsExampleUnitTest>false</IsExampleUnitTest>
+        <IsExampleUnitTest Condition="$(MSBuildProjectName.EndsWith('.UnitTests'))">true</IsExampleUnitTest>
+        <IsTestProject Condition="'$(IsExampleUnitTest)' == 'true'">true</IsTestProject>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsExampleUnitTest)' != 'true'">
         <Copyright>2024-2026 The Neo SmartContract Examples Project</Copyright>
         <VersionPrefix>3.10.1</VersionPrefix>
         <TargetFramework>net10.0</TargetFramework>
@@ -33,26 +40,27 @@
         <EnableDefaultEmbeddedResourceItems>true</EnableDefaultEmbeddedResourceItems>
         <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
         <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
-        
-        <NeoCorePackageVersion>3.10.0</NeoCorePackageVersion>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-        <PackageReference Include="Neo.SmartContract.Framework" Version="$(NeoCorePackageVersion)"/>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="$(NeoCorePackageVersion)"/>
-        <PackageReference Include="Neo.SmartContract.Analyzer" Version="$(NeoCorePackageVersion)">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+    <!-- Use in-repo project references so examples track the local DevPack without waiting for NuGet publish. -->
+    <ItemGroup Condition="'$(IsExampleUnitTest)' != 'true'">
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj"/>
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsExampleUnitTest)' == 'true'">
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj"/>
     </ItemGroup>
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent"
-            Condition="'$(IsTestProject)' != 'true' AND '$(MSBuildProjectName)' != 'TestContract' AND '$(DisableArtifactGeneration)' != 'true'">
+            Condition="'$(IsExampleUnitTest)' != 'true' AND '$(MSBuildProjectName)' != 'TestContract' AND '$(DisableArtifactGeneration)' != 'true'">
         <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot;"/>
     </Target>
 
     <!-- Smart Contract Artifact Generation Target -->
-    <Target Name="GenerateSmartContractArtifacts" AfterTargets="Build" Condition="'$(IsTestProject)' != 'true' AND '$(MSBuildProjectName)' != 'TestContract' AND '$(DisableArtifactGeneration)' != 'true'">
+    <Target Name="GenerateSmartContractArtifacts" AfterTargets="Build" Condition="'$(IsExampleUnitTest)' != 'true' AND '$(MSBuildProjectName)' != 'TestContract' AND '$(DisableArtifactGeneration)' != 'true'">
         <PropertyGroup>
             <ContractName>$(MSBuildProjectName)</ContractName>
             <UnitTestProjectDir>$(MSBuildProjectDirectory).UnitTests</UnitTestProjectDir>
