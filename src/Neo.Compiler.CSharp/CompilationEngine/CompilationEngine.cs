@@ -360,6 +360,8 @@ namespace Neo.Compiler
                         continue;
                     if (!allSmartContracts.Contains(namedTypeSymbol))
                         continue;
+                    if (SymbolEqualityComparer.Default.Equals(classSymbol, namedTypeSymbol))
+                        continue;
                     if (classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
                         continue;
                     classDependencies[classSymbol].Add(namedTypeSymbol);
@@ -474,6 +476,8 @@ namespace Neo.Compiler
                     if (namedTypeSymbol.IsAbstract)
                         continue;
                     if (!allSmartContracts.Contains(namedTypeSymbol))
+                        continue;
+                    if (SymbolEqualityComparer.Default.Equals(classSymbol, namedTypeSymbol))
                         continue;
                     if (classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
                         continue;
