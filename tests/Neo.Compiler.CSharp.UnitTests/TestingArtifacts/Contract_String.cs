@@ -13,12 +13,12 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_String"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""testEqual"",""parameters"":[],""returntype"":""Void"",""offset"":82,""safe"":false},{""name"":""testSubstring"",""parameters"":[],""returntype"":""Void"",""offset"":127,""safe"":false},{""name"":""testEmpty"",""parameters"":[],""returntype"":""String"",""offset"":167,""safe"":false},{""name"":""testIsNullOrEmpty"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":170,""safe"":false},{""name"":""testIsNullOrWhiteSpace"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":184,""safe"":false},{""name"":""testEndWith"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":234,""safe"":false},{""name"":""testEndWith"",""parameters"":[{""name"":""strA"",""type"":""String""},{""name"":""strB"",""type"":""String""}],""returntype"":""Boolean"",""offset"":282,""safe"":false},{""name"":""testContains"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":324,""safe"":false},{""name"":""testContainsChar"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""c"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":341,""safe"":false},{""name"":""testStartsWith"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":360,""safe"":false},{""name"":""testCompare"",""parameters"":[{""name"":""left"",""type"":""String""},{""name"":""right"",""type"":""String""}],""returntype"":""Integer"",""offset"":376,""safe"":false},{""name"":""testIndexOf"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Integer"",""offset"":407,""safe"":false},{""name"":""testLastIndexOf"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Integer"",""offset"":422,""safe"":false},{""name"":""testInterpolatedStringHandler"",""parameters"":[],""returntype"":""String"",""offset"":500,""safe"":false},{""name"":""testTrim"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":873,""safe"":false},{""name"":""testTrimStart"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":940,""safe"":false},{""name"":""testTrimStartChar"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""trimChar"",""type"":""Integer""}],""returntype"":""String"",""offset"":980,""safe"":false},{""name"":""testTrimEnd"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1014,""safe"":false},{""name"":""testTrimEndChar"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""trimChar"",""type"":""Integer""}],""returntype"":""String"",""offset"":1061,""safe"":false},{""name"":""testTrimArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1102,""safe"":false},{""name"":""testTrimStartArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1160,""safe"":false},{""name"":""testTrimEndArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1198,""safe"":false},{""name"":""testPickItem"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""index"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":1243,""safe"":false},{""name"":""testSubstringToEnd"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""}],""returntype"":""String"",""offset"":1250,""safe"":false},{""name"":""testConcat"",""parameters"":[{""name"":""s1"",""type"":""String""},{""name"":""s2"",""type"":""String""}],""returntype"":""String"",""offset"":1263,""safe"":false},{""name"":""testSplit"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1287,""safe"":false},{""name"":""testSplitRemoveEmpty"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1312,""safe"":false},{""name"":""testSplitCharArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1337,""safe"":false},{""name"":""testSplitStringArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1369,""safe"":false},{""name"":""testRemove"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""}],""returntype"":""String"",""offset"":1403,""safe"":false},{""name"":""testRemoveRange"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""},{""name"":""count"",""type"":""Integer""}],""returntype"":""String"",""offset"":1419,""safe"":false},{""name"":""testInsert"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""},{""name"":""value"",""type"":""String""}],""returntype"":""String"",""offset"":1461,""safe"":false},{""name"":""testReplace"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""oldValue"",""type"":""String""},{""name"":""newValue"",""type"":""String""}],""returntype"":""String"",""offset"":1507,""safe"":false},{""name"":""testIndexOfChar"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""c"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":1579,""safe"":false},{""name"":""testToLower"",""parameters"":[{""name"":""s"",""type"":""String""}],""returntype"":""String"",""offset"":1596,""safe"":false},{""name"":""testToUpper"",""parameters"":[{""name"":""s"",""type"":""String""}],""returntype"":""String"",""offset"":1642,""safe"":false},{""name"":""testTrimChar"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""trimChar"",""type"":""Integer""}],""returntype"":""String"",""offset"":1688,""safe"":false},{""name"":""testLength"",""parameters"":[{""name"":""s"",""type"":""String""}],""returntype"":""Integer"",""offset"":1741,""safe"":false},{""name"":""testStringCharCount"",""parameters"":[{""name"":""c"",""type"":""Integer""},{""name"":""length"",""type"":""Integer""}],""returntype"":""String"",""offset"":1747,""safe"":false},{""name"":""testStringBuilderBasic"",""parameters"":[],""returntype"":""String"",""offset"":1797,""safe"":false},{""name"":""testStringBuilderLength"",""parameters"":[],""returntype"":""Integer"",""offset"":1950,""safe"":false},{""name"":""testStringBuilderClear"",""parameters"":[],""returntype"":""String"",""offset"":2120,""safe"":false},{""name"":""testStringBuilderAppendBuilder"",""parameters"":[],""returntype"":""String"",""offset"":2224,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa"",""memoryCompare"",""memorySearch"",""stringSplit""]},{""contract"":""0xda65b600f7124ce6c79950c1772a36403104f2be"",""methods"":[""currentHash"",""getBlock""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_String"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""testEqual"",""parameters"":[],""returntype"":""Void"",""offset"":82,""safe"":false},{""name"":""testSubstring"",""parameters"":[],""returntype"":""Void"",""offset"":127,""safe"":false},{""name"":""testEmpty"",""parameters"":[],""returntype"":""String"",""offset"":167,""safe"":false},{""name"":""testIsNullOrEmpty"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":170,""safe"":false},{""name"":""testIsNullOrWhiteSpace"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":184,""safe"":false},{""name"":""testEndWith"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":234,""safe"":false},{""name"":""testEndWith"",""parameters"":[{""name"":""strA"",""type"":""String""},{""name"":""strB"",""type"":""String""}],""returntype"":""Boolean"",""offset"":282,""safe"":false},{""name"":""testContains"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":324,""safe"":false},{""name"":""testContainsChar"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""c"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":341,""safe"":false},{""name"":""testStartsWith"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Boolean"",""offset"":360,""safe"":false},{""name"":""testCompare"",""parameters"":[{""name"":""left"",""type"":""String""},{""name"":""right"",""type"":""String""}],""returntype"":""Integer"",""offset"":376,""safe"":false},{""name"":""testIndexOf"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Integer"",""offset"":407,""safe"":false},{""name"":""testLastIndexOf"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Integer"",""offset"":422,""safe"":false},{""name"":""testInterpolatedStringHandler"",""parameters"":[],""returntype"":""String"",""offset"":500,""safe"":false},{""name"":""testTrim"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":873,""safe"":false},{""name"":""testTrimStart"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":940,""safe"":false},{""name"":""testTrimStartChar"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""trimChar"",""type"":""Integer""}],""returntype"":""String"",""offset"":980,""safe"":false},{""name"":""testTrimEnd"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1014,""safe"":false},{""name"":""testTrimEndChar"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""trimChar"",""type"":""Integer""}],""returntype"":""String"",""offset"":1061,""safe"":false},{""name"":""testTrimArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1102,""safe"":false},{""name"":""testTrimStartArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1160,""safe"":false},{""name"":""testTrimEndArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""String"",""offset"":1198,""safe"":false},{""name"":""testPickItem"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""index"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":1243,""safe"":false},{""name"":""testSubstringToEnd"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""}],""returntype"":""String"",""offset"":1250,""safe"":false},{""name"":""testConcat"",""parameters"":[{""name"":""s1"",""type"":""String""},{""name"":""s2"",""type"":""String""}],""returntype"":""String"",""offset"":1263,""safe"":false},{""name"":""testSplit"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1287,""safe"":false},{""name"":""testSplitRemoveEmpty"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1312,""safe"":false},{""name"":""testSplitCharArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1337,""safe"":false},{""name"":""testSplitStringArray"",""parameters"":[{""name"":""str"",""type"":""String""}],""returntype"":""Array"",""offset"":1369,""safe"":false},{""name"":""testRemove"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""}],""returntype"":""String"",""offset"":1403,""safe"":false},{""name"":""testRemoveRange"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""},{""name"":""count"",""type"":""Integer""}],""returntype"":""String"",""offset"":1419,""safe"":false},{""name"":""testInsert"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""startIndex"",""type"":""Integer""},{""name"":""value"",""type"":""String""}],""returntype"":""String"",""offset"":1461,""safe"":false},{""name"":""testReplace"",""parameters"":[{""name"":""str"",""type"":""String""},{""name"":""oldValue"",""type"":""String""},{""name"":""newValue"",""type"":""String""}],""returntype"":""String"",""offset"":1507,""safe"":false},{""name"":""testIndexOfChar"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""c"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":1579,""safe"":false},{""name"":""testToLower"",""parameters"":[{""name"":""s"",""type"":""String""}],""returntype"":""String"",""offset"":1596,""safe"":false},{""name"":""testToUpper"",""parameters"":[{""name"":""s"",""type"":""String""}],""returntype"":""String"",""offset"":1642,""safe"":false},{""name"":""testTrimChar"",""parameters"":[{""name"":""s"",""type"":""String""},{""name"":""trimChar"",""type"":""Integer""}],""returntype"":""String"",""offset"":1688,""safe"":false},{""name"":""testLength"",""parameters"":[{""name"":""s"",""type"":""String""}],""returntype"":""Integer"",""offset"":1741,""safe"":false},{""name"":""testStringCharCount"",""parameters"":[{""name"":""c"",""type"":""Integer""},{""name"":""length"",""type"":""Integer""}],""returntype"":""String"",""offset"":1747,""safe"":false},{""name"":""testStringBuilderBasic"",""parameters"":[],""returntype"":""String"",""offset"":1914,""safe"":false},{""name"":""testStringBuilderLength"",""parameters"":[],""returntype"":""Integer"",""offset"":2066,""safe"":false},{""name"":""testStringBuilderClear"",""parameters"":[],""returntype"":""String"",""offset"":2234,""safe"":false},{""name"":""testStringBuilderAppendBuilder"",""parameters"":[],""returntype"":""String"",""offset"":2338,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa"",""memoryCompare"",""memorySearch"",""stringSplit""]},{""contract"":""0xda65b600f7124ce6c79950c1772a36403104f2be"",""methods"":[""currentHash"",""getBlock""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -1032,7 +1032,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUADAARwHBocWkQznIMA25lb0rYJgVFDABzamuLdGkQbNBpRWhxaRDOcgAg2yhzamuLdGkQbNBpRWhxaRDOcgwIY29tcGlsZXJK2CYFRQwAc2pri3RpEGzQaUVocWkQznJqDAEKi3NpEGvQaUVocWkQznIMB3J1bnRpbWVK2CYFRQwAc2priwwBCot0aRBs0GlFaHFpEM5A
+    /// Script: VwUADAARwHBocWkQznIMA25lb0rYJgVFDABzamuLdGkQbNBpRWhxaRDOcgwBIHNqa4t0aRBs0GlFaHFpEM5yDAhjb21waWxlckrYJgVFDABzamuLdGkQbNBpRWhxaRDOcmoMAQqLc2kQa9BpRWhxaRDOcgwHcnVudGltZUrYJgVFDABzamuLDAEKi3RpEGzQaUVocWkQzkA=
     /// INITSLOT 0500 [64 datoshi]
     /// PUSHDATA1 [8 datoshi]
     /// PUSH1 [1 datoshi]
@@ -1067,8 +1067,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 20 [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 20 [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -1239,7 +1238,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYADANuZW9K2CYFRQwAEcBwaHFpEM5yACDbKHNqa4t0aRBs0GlFaHFpEM5yDAJ2bUrYJgVFDABzamuLdGkQbNBpRQwAEcBxaXJqEM5zACDbKHRrbIt1ahBt0GpFaXJqEM5zDAd0b29saW5nStgmBUUMAHRrbIt1ahBt0GpFaHJqEM5zaXRs2CQObBDOStgmCUUMACIEDAB1a22LdGoQbNBqRWhyahDOykA=
+    /// Script: VwYADANuZW9K2CYFRQwAEcBwaHFpEM5yDAEgc2pri3RpEGzQaUVocWkQznIMAnZtStgmBUUMAHNqa4t0aRBs0GlFDAARwHFpcmoQznMMASB0a2yLdWoQbdBqRWlyahDOcwwHdG9vbGluZ0rYJgVFDAB0a2yLdWoQbdBqRWhyahDOc2l0bNgkDmwQzkrYJglFDAAiBAwAdWtti3RqEGzQakVocmoQzspA
     /// INITSLOT 0600 [64 datoshi]
     /// PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// DUP [2 datoshi]
@@ -1256,8 +1255,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 20 [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 20 [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -1302,8 +1300,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC3 [2 datoshi]
-    /// PUSHINT8 20 [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 20 [8 datoshi]
     /// STLOC4 [2 datoshi]
     /// LDLOC3 [2 datoshi]
     /// LDLOC4 [2 datoshi]
@@ -1385,9 +1382,88 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMCeNsocHlxaRAuEwwOTmVnYXRpdmUgY291bnQ6DAByaRAyC2poi3JpnXEi9WrbKEA=
-    /// INITSLOT 0302 [64 datoshi]
+    /// Script: VwQCeHNrEChpawB/MmFrAf8HMj9rAgDYAAACAOAAALskKhOIShBrHKkfkQHgAJLQShFrFqkAP5EBgACS0EoSawA/kQGAAJLQIjEMA++/vSIqEohKEGsWqQAfkQHAAJLQShFrAD+RAYAAktAiDmsiCxGIShBrAH+R0NsocHlxaRAuEwwOTmVnYXRpdmUgY291bnQ6DAByaRAyC2poi3JpnXEi9WrbKEA=
+    /// INITSLOT 0402 [64 datoshi]
     /// LDARG0 [2 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// JMPEQ 69 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSHINT8 7F [1 datoshi]
+    /// JMPLE 61 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSHINT16 FF07 [1 datoshi]
+    /// JMPLE 3F [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSHINT32 00D80000 [1 datoshi]
+    /// PUSHINT32 00E00000 [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 2A [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// NEWBUFFER [256 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSH12 [1 datoshi]
+    /// SHR [8 datoshi]
+    /// PUSH15 [1 datoshi]
+    /// AND [8 datoshi]
+    /// PUSHINT16 E000 [1 datoshi]
+    /// OR [8 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// SHR [8 datoshi]
+    /// PUSHINT8 3F [1 datoshi]
+    /// AND [8 datoshi]
+    /// PUSHINT16 8000 [1 datoshi]
+    /// OR [8 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSHINT8 3F [1 datoshi]
+    /// AND [8 datoshi]
+    /// PUSHINT16 8000 [1 datoshi]
+    /// OR [8 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// JMP 31 [2 datoshi]
+    /// PUSHDATA1 EFBFBD '???' [8 datoshi]
+    /// JMP 2A [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// NEWBUFFER [256 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// SHR [8 datoshi]
+    /// PUSHINT8 1F [1 datoshi]
+    /// AND [8 datoshi]
+    /// PUSHINT16 C000 [1 datoshi]
+    /// OR [8 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSHINT8 3F [1 datoshi]
+    /// AND [8 datoshi]
+    /// PUSHINT16 8000 [1 datoshi]
+    /// OR [8 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// JMP 0E [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// JMP 0B [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// NEWBUFFER [256 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// PUSHINT8 7F [1 datoshi]
+    /// AND [8 datoshi]
+    /// SETITEM [8192 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDARG1 [2 datoshi]

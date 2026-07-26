@@ -108,7 +108,7 @@ internal partial class MethodConvert
         else
         {
             ConvertExpression(model, charExpression);
-            ChangeType(StackItemType.ByteString);
+            ConvertCharToUtf8();
         }
         AccessSlot(OpCode.STLOC, charSlot);
 
@@ -784,9 +784,92 @@ internal partial class MethodConvert
 
     private static void HandleCharToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.ChangeType(StackItemType.ByteString);
+        if (instanceExpression is null)
+            return;
+
+        var constant = model.GetConstantValue(instanceExpression);
+        if (constant.HasValue && constant.Value is char character)
+        {
+            methodConvert.Push(character.ToString());
+            return;
+        }
+
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.ConvertCharToUtf8();
+    }
+
+    private void ConvertCharToUtf8()
+    {
+        byte charSlot = AddAnonymousVariable();
+        AccessSlot(OpCode.STLOC, charSlot);
+
+        JumpTarget nullTarget = new();
+        JumpTarget asciiTarget = new();
+        JumpTarget twoByteTarget = new();
+        JumpTarget replacementTarget = new();
+        JumpTarget endTarget = new();
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push0();
+        JumpIfEqual(nullTarget);
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x7f);
+        JumpIfLessOrEqual(asciiTarget);
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x7ff);
+        JumpIfLessOrEqual(twoByteTarget);
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Within(0xd800, 0xdfff);
+        JumpIfTrue(replacementTarget);
+
+        NewBuffer(3);
+        SetUtf8BufferByte(charSlot, 0, shift: 12, mask: 0x0f, prefix: 0xe0);
+        SetUtf8BufferByte(charSlot, 1, shift: 6, mask: 0x3f, prefix: 0x80);
+        SetUtf8BufferByte(charSlot, 2, shift: 0, mask: 0x3f, prefix: 0x80);
+        JumpAlways(endTarget);
+
+        replacementTarget.Instruction = Push("\ufffd");
+        JumpAlways(endTarget);
+
+        twoByteTarget.Instruction = Nop();
+        NewBuffer(2);
+        SetUtf8BufferByte(charSlot, 0, shift: 6, mask: 0x1f, prefix: 0xc0);
+        SetUtf8BufferByte(charSlot, 1, shift: 0, mask: 0x3f, prefix: 0x80);
+        JumpAlways(endTarget);
+
+        asciiTarget.Instruction = Nop();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        JumpAlways(endTarget);
+
+        nullTarget.Instruction = Nop();
+        NewBuffer(1);
+        SetUtf8BufferByte(charSlot, 0, shift: 0, mask: 0x7f, prefix: 0);
+
+        endTarget.Instruction = ChangeType(StackItemType.ByteString);
+        RemoveAnonymousVariable(charSlot);
+    }
+
+    private void SetUtf8BufferByte(byte charSlot, int index, int shift, int mask, int prefix)
+    {
+        Dup();
+        Push(index);
+        AccessSlot(OpCode.LDLOC, charSlot);
+        if (shift != 0)
+        {
+            Push(shift);
+            ShR();
+        }
+        Push(mask);
+        And();
+        if (prefix != 0)
+        {
+            Push(prefix);
+            Or();
+        }
+        SetItem();
     }
 
     // Handler for object.ToString()
