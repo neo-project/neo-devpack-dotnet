@@ -143,6 +143,7 @@ internal static class Helper
             sourceCode,
             expectSuccess,
             message,
+            requireAnalyzerError: true,
             allowCompilerErrors: CompilerFrontEndRejectedProbeIds.Contains(probe.Id));
     }
 
@@ -150,6 +151,7 @@ internal static class Helper
         string sourceCode,
         bool expectSuccess,
         string message,
+        bool requireAnalyzerError = false,
         bool allowCompilerErrors = true)
     {
         var (compilerDiagnostics, analyzerDiagnostics) = AnalyzeSource(sourceCode);
@@ -200,14 +202,27 @@ internal static class Helper
                 return;
             }
 
-            if (allowCompilerErrors && compilerErrors.Length != 0)
+            if (requireAnalyzerError)
             {
-                return;
+                if (allowCompilerErrors && compilerErrors.Length != 0)
+                {
+                    return;
+                }
+
+                Assert.Fail(
+                    $"{message}{Environment.NewLine}" +
+                    "Unsupported syntax accepted by the configured Roslyn frontend must be rejected by a Neo analyzer before compiler lowering.");
             }
 
-            Assert.Fail(
-                $"{message}{Environment.NewLine}" +
-                "Unsupported syntax accepted by the configured Roslyn frontend must be rejected by a Neo analyzer before compiler lowering.");
+            if (!result.Success)
+            {
+                if (result.Diagnostics.Count == 0)
+                {
+                    Assert.Fail($"{message}{Environment.NewLine}Compilation failed without reporting diagnostics.");
+                }
+
+                return;
+            }
         }
 
         if (result.Success == expectSuccess) return;
