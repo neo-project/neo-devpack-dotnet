@@ -23,6 +23,8 @@ namespace Neo.SmartContract.Analyzer;
 public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
 {
     private const string Category = "Syntax";
+    private const string HelpLinkBase =
+        "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/unsupported-syntax.md#";
 
     public const string UnsafeCodeRuleId = "NC4033";
     public const string AnonymousMethodRuleId = "NC4034";
@@ -140,7 +142,15 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         "Using statements and using declarations are not supported because the Neo compiler does not emit deterministic Dispose calls.");
 
     private static DiagnosticDescriptor CreateDescriptor(string id, string title, string message) =>
-        new(id, title, message, Category, DiagnosticSeverity.Error, isEnabledByDefault: true, description: message);
+        new(
+            id,
+            title,
+            message,
+            Category,
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: message,
+            helpLinkUri: HelpLinkBase + id.ToLowerInvariant());
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
         UnsafeCodeRule,
