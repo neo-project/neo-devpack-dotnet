@@ -213,6 +213,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047870);
             Assert.IsTrue(Contract.TestCharIsBetween('z', 'a', 'z'));
             AssertGasConsumed(1047870);
+            Assert.IsFalse(Contract.TestCharIsBetween('z' + 1, 'a', 'z'));
+            AssertGasConsumed(1047870);
+            Assert.IsFalse(Contract.TestCharIsBetween('a' - 1, 'a', 'z'));
+            AssertGasConsumed(1047870);
 
             Assert.IsFalse(Contract.TestCharIsBetween('A', 'a', 'z'));
             AssertGasConsumed(1047990);

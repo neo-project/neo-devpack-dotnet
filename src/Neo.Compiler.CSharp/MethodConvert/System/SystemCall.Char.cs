@@ -430,22 +430,15 @@ internal partial class MethodConvert
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget validTarget = new();
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate character for first comparison
-        methodConvert.Rot();                                       // Rotate stack to get minValue on top
-        methodConvert.Ge();                                        // Check if character >= minValue
-        methodConvert.Dup();                                       // Duplicate result for validation
-        methodConvert.JumpIfFalse(validTarget);                    // Jump if character < minValue
-        methodConvert.Reverse3();                                  // Reverse stack order
-        methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.JumpAlways(endTarget);                       // Jump to end with false result
-        validTarget.Instruction = methodConvert.Nop();             // Valid target marker
-        methodConvert.Drop();                                      // Drop the duplicate result
-        methodConvert.Lt();                                        // Check if character < maxValue
-        endTarget.Instruction = methodConvert.Nop();               // End target marker
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        // [value, min, max]
+        methodConvert.Rot();      // [min, max, value]
+        methodConvert.Swap();     // [min, value, max]
+        methodConvert.Over();     // [min, value, max, value]
+        methodConvert.Ge();       // [min, value, bool]
+        methodConvert.Reverse3(); // [bool, value, min]
+        methodConvert.Ge();       // [bool, bool]
+        methodConvert.BoolAnd();  // [bool]
     }
 
     /// <summary>
