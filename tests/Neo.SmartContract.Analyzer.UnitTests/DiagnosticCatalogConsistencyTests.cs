@@ -124,6 +124,32 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
+        public void UnsupportedSyntaxDiagnostics_ShouldLinkToDocumentedAnchors()
+        {
+            const string helpLinkBase =
+                "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/unsupported-syntax.md#";
+            var analyzerDirectory = FindAnalyzerDirectory();
+            var documentationPath = Path.GetFullPath(Path.Combine(
+                analyzerDirectory,
+                "..",
+                "..",
+                "docs",
+                "diagnostics",
+                "unsupported-syntax.md"));
+            var documentation = File.ReadAllText(documentationPath);
+
+            foreach (var descriptor in new UnsupportedSyntaxAnalyzer().SupportedDiagnostics)
+            {
+                var anchor = descriptor.Id.ToLowerInvariant();
+                Assert.AreEqual(helpLinkBase + anchor, descriptor.HelpLinkUri, descriptor.Id);
+                StringAssert.Contains(
+                    documentation,
+                    $"<a id=\"{anchor}\"></a>",
+                    $"Missing documentation anchor for {descriptor.Id}.");
+            }
+        }
+
+        [TestMethod]
         public void RemovedRule_ShouldNotRequireALiveDescriptor()
         {
             var events = ParseReleaseCatalogs(
