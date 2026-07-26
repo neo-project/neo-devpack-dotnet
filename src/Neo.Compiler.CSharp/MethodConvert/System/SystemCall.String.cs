@@ -1057,11 +1057,11 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Converts a string to lowercase by processing each character.
+    /// Converts ASCII uppercase bytes to lowercase while preserving all other UTF-8 bytes.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <remarks>
-    /// Algorithm: Iterates through string characters, converting uppercase to lowercase
+    /// Algorithm: Iterates through UTF-8 bytes, converting only the ASCII uppercase range.
     /// </remarks>
     private static void ConvertToLower(MethodConvert methodConvert, bool preserveInput = false)
     {
@@ -1069,6 +1069,8 @@ internal partial class MethodConvert
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         var charIsLower = new JumpTarget();
+        var appendAsciiByte = new JumpTarget();
+        var copyOriginalByte = new JumpTarget();
 
         if (preserveInput)
             methodConvert.Dup();
@@ -1090,21 +1092,24 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate character
         methodConvert.Within('A', 'Z');                            // Check if uppercase
         methodConvert.JumpIfTrue(charIsLower);                     // Jump if uppercase
-        methodConvert.Rot();                                       // Rotate stack
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Cat();                                       // Append original character
-        methodConvert.Swap();                                      // Swap back
-        methodConvert.Inc();                                       // Increment index
+        methodConvert.Dup();                                       // Integer zero converts to an empty byte string
+        methodConvert.Push0();
+        methodConvert.JumpIfLessOrEqual(copyOriginalByte);
+        methodConvert.Dup();                                       // Preserve the byte while checking whether it is ASCII
+        methodConvert.Push(0x80);
+        methodConvert.JumpIfLess(appendAsciiByte);
+        copyOriginalByte.Instruction = methodConvert.Nop();        // Copy NUL and non-ASCII bytes from the original string
+        AppendCurrentStringByte(methodConvert, strSlot);
+        methodConvert.JumpAlways(loopStart);
+
+        appendAsciiByte.Instruction = methodConvert.Nop();
+        AppendStringByte(methodConvert);
         methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Uppercase processing
         methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
         methodConvert.Add();                                       // Add 32 to get lowercase for ASCII
-        methodConvert.Rot();                                       // Rotate stack
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Cat();                                       // Append lowercase character
-        methodConvert.Swap();                                      // Swap back
-        methodConvert.Inc();                                       // Increment index
+        AppendStringByte(methodConvert);
         methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
@@ -1114,7 +1119,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles the string.ToUpper method by converting characters to uppercase.
+    /// Handles string.ToUpper by converting ASCII lowercase bytes to uppercase.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="model">The semantic model</param>
@@ -1122,7 +1127,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Iterates through each character and converts lowercase letters to uppercase
+    /// Algorithm: Iterates through UTF-8 bytes and preserves bytes outside the ASCII lowercase range.
     /// </remarks>
     private static void HandleStringToUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1135,11 +1140,11 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Converts a string to uppercase by processing each character.
+    /// Converts ASCII lowercase bytes to uppercase while preserving all other UTF-8 bytes.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <remarks>
-    /// Algorithm: Iterates through string characters, converting lowercase to uppercase
+    /// Algorithm: Iterates through UTF-8 bytes, converting only the ASCII lowercase range.
     /// </remarks>
     private static void ConvertToUpper(MethodConvert methodConvert, bool preserveInput = false)
     {
@@ -1147,6 +1152,8 @@ internal partial class MethodConvert
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         var charIsLower = new JumpTarget();
+        var appendAsciiByte = new JumpTarget();
+        var copyOriginalByte = new JumpTarget();
 
         if (preserveInput)
             methodConvert.Dup();
@@ -1168,27 +1175,50 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate character
         methodConvert.Within('a', 'z');                            // Check if lowercase
         methodConvert.JumpIfTrue(charIsLower);                     // Jump if lowercase
-        methodConvert.Rot();                                       // Rotate stack
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Cat();                                       // Append original character
-        methodConvert.Swap();                                      // Swap back
-        methodConvert.Inc();                                       // Increment index
+        methodConvert.Dup();                                       // Integer zero converts to an empty byte string
+        methodConvert.Push0();
+        methodConvert.JumpIfLessOrEqual(copyOriginalByte);
+        methodConvert.Dup();                                       // Preserve the byte while checking whether it is ASCII
+        methodConvert.Push(0x80);
+        methodConvert.JumpIfLess(appendAsciiByte);
+        copyOriginalByte.Instruction = methodConvert.Nop();        // Copy NUL and non-ASCII bytes from the original string
+        AppendCurrentStringByte(methodConvert, strSlot);
+        methodConvert.JumpAlways(loopStart);
+
+        appendAsciiByte.Instruction = methodConvert.Nop();
+        AppendStringByte(methodConvert);
         methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Lowercase processing
         methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
         methodConvert.Sub();                                       // Subtract 32 to get uppercase for ASCII
-        methodConvert.Rot();                                       // Rotate stack
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Cat();                                       // Append uppercase character
-        methodConvert.Swap();                                      // Swap back
-        methodConvert.Inc();                                       // Increment index
+        AppendStringByte(methodConvert);
         methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
         methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
         methodConvert.RemoveAnonymousVariable(strSlot);
+    }
+
+    private static void AppendCurrentStringByte(MethodConvert methodConvert, byte strSlot)
+    {
+        methodConvert.Drop();
+        methodConvert.Dup();
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Swap();
+        methodConvert.Push1();
+        methodConvert.SubStr();
+        AppendStringByte(methodConvert);
+    }
+
+    private static void AppendStringByte(MethodConvert methodConvert)
+    {
+        methodConvert.Rot();
+        methodConvert.Swap();
+        methodConvert.Cat();
+        methodConvert.Swap();
+        methodConvert.Inc();
     }
 
     /// <summary>

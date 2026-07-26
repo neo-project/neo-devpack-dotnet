@@ -48,6 +48,17 @@ internal static class Helper
         Debug = CompilationOptions.DebugType.Extended,
         Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
     }.GetParseOptions());
+    private static readonly HashSet<string> CompilerFrontEndRejectedProbeIds = new(StringComparer.Ordinal)
+    {
+        "interceptors",
+        "extension_types",
+        "shape_constraints",
+        "discriminated_union_types",
+        "lambda_default_parameters",
+        "lambda_parameter_modifiers",
+        "partial_events_constructors",
+        "user_defined_compound_assignment"
+    };
     private static readonly Lazy<ImmutableArray<MetadataReference>> AnalyzerReferences = new(CreateAnalyzerReferences);
     private static readonly Lazy<ImmutableArray<DiagnosticAnalyzer>> SyntaxAnalyzers = new(CreateSyntaxAnalyzers);
 
@@ -128,12 +139,23 @@ internal static class Helper
             _ => throw new ArgumentOutOfRangeException(nameof(probe.Scope), probe.Scope, "Unsupported scope for syntax probe.")
         };
 
-        AssertCompilationResult(sourceCode, expectSuccess, message);
+        AssertCompilationResult(
+            sourceCode,
+            expectSuccess,
+            message,
+            requireAnalyzerError: true,
+            allowCompilerErrors: CompilerFrontEndRejectedProbeIds.Contains(probe.Id));
     }
 
-    private static void AssertCompilationResult(string sourceCode, bool expectSuccess, string message)
+    private static void AssertCompilationResult(
+        string sourceCode,
+        bool expectSuccess,
+        string message,
+        bool requireAnalyzerError = false,
+        bool allowCompilerErrors = true)
     {
-        var analyzerDiagnostics = AnalyzeSource(sourceCode);
+        var (compilerDiagnostics, analyzerDiagnostics) = AnalyzeSource(sourceCode);
+        var compilerErrors = compilerDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         var analyzerErrors = analyzerDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         CompilationContext? result = null;
         Exception? compileException = null;
@@ -173,19 +195,34 @@ internal static class Helper
                 $"{FormatDiagnostics(analyzerErrors)}");
         }
 
-        if (!expectSuccess && analyzerErrors.Length != 0)
+        if (!expectSuccess)
         {
-            return;
-        }
-
-        if (!expectSuccess && !result.Success)
-        {
-            if (result.Diagnostics.Count == 0)
+            if (analyzerErrors.Length != 0)
             {
-                Assert.Fail($"{message}{Environment.NewLine}Compilation failed without reporting diagnostics.");
+                return;
             }
 
-            return;
+            if (requireAnalyzerError)
+            {
+                if (allowCompilerErrors && compilerErrors.Length != 0)
+                {
+                    return;
+                }
+
+                Assert.Fail(
+                    $"{message}{Environment.NewLine}" +
+                    "Unsupported syntax accepted by the configured Roslyn frontend must be rejected by a Neo analyzer before compiler lowering.");
+            }
+
+            if (!result.Success)
+            {
+                if (result.Diagnostics.Count == 0)
+                {
+                    Assert.Fail($"{message}{Environment.NewLine}Compilation failed without reporting diagnostics.");
+                }
+
+                return;
+            }
         }
 
         if (result.Success == expectSuccess) return;
@@ -206,7 +243,7 @@ internal static class Helper
         }
     }
 
-    private static ImmutableArray<Diagnostic> AnalyzeSource(string sourceCode)
+    private static (ImmutableArray<Diagnostic> CompilerDiagnostics, ImmutableArray<Diagnostic> AnalyzerDiagnostics) AnalyzeSource(string sourceCode)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode, AnalyzerParseOptions.Value, path: "SyntaxProbe.cs");
         var compilation = CSharpCompilation.Create(
@@ -215,7 +252,9 @@ internal static class Helper
             references: AnalyzerReferences.Value,
             options: AnalyzerCompilationOptions);
 
-        return compilation.WithAnalyzers(SyntaxAnalyzers.Value).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
+        return (
+            compilation.GetDiagnostics(),
+            compilation.WithAnalyzers(SyntaxAnalyzers.Value).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult());
     }
 
     private static ImmutableArray<MetadataReference> CreateAnalyzerReferences()

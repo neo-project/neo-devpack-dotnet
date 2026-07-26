@@ -84,6 +84,41 @@ public class BetaContract : SmartContract
     }
 
     [TestMethod]
+    public void PrepareProjectContracts_IgnoresSelfReferences()
+    {
+        using var project = CreateSelfReferencingContractProject();
+        var engine = new CompilationEngine(new CompilationOptions
+        {
+            SkipRestoreIfAssetsPresent = true
+        });
+
+        var (sortedClasses, classDependencies, allClassSymbols) = engine.PrepareProjectContracts(project.ProjectFile);
+        var contract = sortedClasses.Single();
+
+        Assert.AreEqual(0, classDependencies[contract].Count);
+        var context = engine.CompileProject(
+            project.ProjectFile,
+            sortedClasses,
+            classDependencies,
+            allClassSymbols).Single();
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+    }
+
+    [TestMethod]
+    public void CompileProject_IgnoresSelfReferences()
+    {
+        using var project = CreateSelfReferencingContractProject();
+        var engine = new CompilationEngine(new CompilationOptions
+        {
+            SkipRestoreIfAssetsPresent = true
+        });
+
+        var context = engine.CompileProject(project.ProjectFile).Single();
+
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+    }
+
+    [TestMethod]
     public void GetCompilation_ReportsRestoreFailureExitCode()
     {
         var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -361,5 +396,23 @@ public class BinGenerated
         {
             Directory.Delete(ProjectDirectory, recursive: true);
         }
+    }
+
+    private static TempContractProject CreateSelfReferencingContractProject()
+    {
+        var project = TempContractProject.Create(string.Empty);
+        project.WriteSource("Contract.cs", """
+using Neo.SmartContract.Framework;
+
+public class Contract : SmartContract
+{
+    private static Contract? _instance;
+
+    public Contract? Parent { get; set; }
+
+    public static int Main() => _instance is null ? 0 : 1;
+}
+""");
+        return project;
     }
 }

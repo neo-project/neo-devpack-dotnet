@@ -72,6 +72,7 @@ public class UnitTest_DynamicCharStringConstructor
         Assert.AreEqual("\ue000", contract.ToString('\ue000'), optimization.ToString());
         Assert.AreEqual("\uffff", contract.ToString('\uffff'), optimization.ToString());
         Assert.AreEqual("\ufffd", contract.ToString('\ud800'), optimization.ToString());
+        Assert.AreEqual("\ufffd", contract.ToString('\udfff'), optimization.ToString());
     }
 
     public abstract class DynamicCharStringContract(SmartContractInitialize initialize)
