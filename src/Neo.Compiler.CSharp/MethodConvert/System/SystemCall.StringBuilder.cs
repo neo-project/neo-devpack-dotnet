@@ -217,7 +217,7 @@ internal partial class MethodConvert
                 var constant = model.GetConstantValue(charExpression);
                 if (constant.HasValue && constant.Value is char character)
                 {
-                    methodConvert.Push(character.ToString());
+                    methodConvert.Push(NormalizeCharForUtf8(character).ToString());
                 }
                 else
                 {

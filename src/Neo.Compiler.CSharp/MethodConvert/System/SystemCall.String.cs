@@ -50,7 +50,7 @@ internal partial class MethodConvert
             countConstant.HasValue && countConstant.Value is int repeatCount &&
             repeatCount >= 0)
         {
-            Push(new string(character, repeatCount));
+            Push(new string(NormalizeCharForUtf8(character), repeatCount));
             return true;
         }
 
@@ -88,8 +88,8 @@ internal partial class MethodConvert
 
         long maxItemSize = ExecutionEngineLimits.Default.MaxItemSize;
         long byteCount = repeatCount;
-        if (charConstant.HasValue && charConstant.Value is char character && character > byte.MaxValue)
-            byteCount *= Encoding.UTF8.GetByteCount(character.ToString());
+        if (charConstant.HasValue && charConstant.Value is char character)
+            byteCount *= Encoding.UTF8.GetByteCount(NormalizeCharForUtf8(character).ToString());
 
         if (byteCount > maxItemSize)
             throw new CompilationException(countExpression, DiagnosticId.InvalidArgument, $"String byte length {byteCount} exceeds VM max item size {maxItemSize}.");
@@ -103,7 +103,7 @@ internal partial class MethodConvert
 
         if (charConstant.HasValue && charConstant.Value is char character)
         {
-            Push(character.ToString());
+            Push(NormalizeCharForUtf8(character).ToString());
         }
         else
         {
@@ -790,7 +790,7 @@ internal partial class MethodConvert
         var constant = model.GetConstantValue(instanceExpression);
         if (constant.HasValue && constant.Value is char character)
         {
-            methodConvert.Push(character.ToString());
+            methodConvert.Push(NormalizeCharForUtf8(character).ToString());
             return;
         }
 
@@ -798,6 +798,15 @@ internal partial class MethodConvert
         methodConvert.ConvertCharToUtf8();
     }
 
+    private static char NormalizeCharForUtf8(char character)
+    {
+        return char.IsSurrogate(character) ? '\ufffd' : character;
+    }
+
+    /// <summary>
+    /// Encodes one runtime UTF-16 code unit for Neo's UTF-8 string representation.
+    /// Isolated surrogate code units cannot be represented and are replaced with U+FFFD.
+    /// </summary>
     private void ConvertCharToUtf8()
     {
         byte charSlot = AddAnonymousVariable();

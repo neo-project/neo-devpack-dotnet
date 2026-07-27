@@ -46,6 +46,26 @@ public class UnitTest_StringConstructor
     }
 
     [TestMethod]
+    public void StringCharCountConstructor_UsesUtf8ByteCountForSizeLimit()
+    {
+        var context = TestHelper.CompileSingleContract("""
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+
+            public class Contract : SmartContract
+            {
+                [DisplayName("oversized")]
+                public static string Oversized() => new string('é', 524289);
+            }
+            """);
+
+        var diagnostics = string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString()));
+        Assert.IsFalse(context.Success, diagnostics);
+        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.InvalidArgument), diagnostics);
+        Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
+    }
+
+    [TestMethod]
     public void StringReplace_Compiles()
     {
         const string source = """

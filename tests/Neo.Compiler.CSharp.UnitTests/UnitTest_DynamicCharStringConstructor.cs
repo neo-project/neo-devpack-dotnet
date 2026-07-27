@@ -36,6 +36,18 @@ public class UnitTest_DynamicCharStringConstructor
 
             [DisplayName("append")]
             public static string Append(int value) => new StringBuilder("neo-").Append((char)value).ToString();
+
+            [DisplayName("constantRepeat")]
+            public static string ConstantRepeat() => new string('\ud800', 2);
+
+            [DisplayName("constantToString")]
+            public static string ConstantToString() => '\ud800'.ToString();
+
+            [DisplayName("constantAppend")]
+            public static string ConstantAppend() => new StringBuilder("neo-").Append('\udfff').ToString();
+
+            [DisplayName("pair")]
+            public static string Pair(int high, int low) => ((char)high).ToString() + ((char)low).ToString();
         }
         """;
 
@@ -73,6 +85,12 @@ public class UnitTest_DynamicCharStringConstructor
         Assert.AreEqual("\uffff", contract.ToString('\uffff'), optimization.ToString());
         Assert.AreEqual("\ufffd", contract.ToString('\ud800'), optimization.ToString());
         Assert.AreEqual("\ufffd", contract.ToString('\udfff'), optimization.ToString());
+        Assert.AreEqual("\ufffd\ufffd", contract.Repeat('\ud800'), optimization.ToString());
+        Assert.AreEqual("neo-\ufffd", contract.Append('\udfff'), optimization.ToString());
+        Assert.AreEqual("\ufffd\ufffd", contract.ConstantRepeat(), optimization.ToString());
+        Assert.AreEqual("\ufffd", contract.ConstantToString(), optimization.ToString());
+        Assert.AreEqual("neo-\ufffd", contract.ConstantAppend(), optimization.ToString());
+        Assert.AreEqual("\ufffd\ufffd", contract.Pair('\ud83d', '\ude00'), optimization.ToString());
     }
 
     public abstract class DynamicCharStringContract(SmartContractInitialize initialize)
@@ -86,5 +104,17 @@ public class UnitTest_DynamicCharStringConstructor
 
         [DisplayName("append")]
         public abstract string? Append(BigInteger value);
+
+        [DisplayName("constantRepeat")]
+        public abstract string? ConstantRepeat();
+
+        [DisplayName("constantToString")]
+        public abstract string? ConstantToString();
+
+        [DisplayName("constantAppend")]
+        public abstract string? ConstantAppend();
+
+        [DisplayName("pair")]
+        public abstract string? Pair(BigInteger high, BigInteger low);
     }
 }
