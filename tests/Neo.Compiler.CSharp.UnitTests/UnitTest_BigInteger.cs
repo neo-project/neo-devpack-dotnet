@@ -13,7 +13,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using System.Numerics;
-using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -153,8 +152,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.ThrowsException<TestException>(() => Contract.Testchar(-1));
             Assert.ThrowsException<TestException>(() => Contract.Testchar(65536));
 
-            // char.MaxValue is not a UTF-8 character, thus can not convert to string in neo
-            Assert.ThrowsException<DecoderFallbackException>(() => Contract.Testchartostring(char.MaxValue));
+            Assert.AreEqual(char.MaxValue.ToString(), Contract.Testchartostring(char.MaxValue));
             Assert.AreEqual("A", Contract.Testchartostring('A'));
         }
 

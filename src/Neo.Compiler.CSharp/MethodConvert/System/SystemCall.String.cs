@@ -50,7 +50,7 @@ internal partial class MethodConvert
             countConstant.HasValue && countConstant.Value is int repeatCount &&
             repeatCount >= 0)
         {
-            Push(new string(character, repeatCount));
+            Push(new string(NormalizeCharForUtf8(character), repeatCount));
             return true;
         }
 
@@ -88,8 +88,8 @@ internal partial class MethodConvert
 
         long maxItemSize = ExecutionEngineLimits.Default.MaxItemSize;
         long byteCount = repeatCount;
-        if (charConstant.HasValue && charConstant.Value is char character && character > byte.MaxValue)
-            byteCount *= Encoding.UTF8.GetByteCount(character.ToString());
+        if (charConstant.HasValue && charConstant.Value is char character)
+            byteCount *= Encoding.UTF8.GetByteCount(NormalizeCharForUtf8(character).ToString());
 
         if (byteCount > maxItemSize)
             throw new CompilationException(countExpression, DiagnosticId.InvalidArgument, $"String byte length {byteCount} exceeds VM max item size {maxItemSize}.");
@@ -103,12 +103,12 @@ internal partial class MethodConvert
 
         if (charConstant.HasValue && charConstant.Value is char character)
         {
-            Push(character.ToString());
+            Push(NormalizeCharForUtf8(character).ToString());
         }
         else
         {
             ConvertExpression(model, charExpression);
-            ChangeType(StackItemType.ByteString);
+            ConvertCharToUtf8();
         }
         AccessSlot(OpCode.STLOC, charSlot);
 
@@ -784,9 +784,101 @@ internal partial class MethodConvert
 
     private static void HandleCharToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.ChangeType(StackItemType.ByteString);
+        if (instanceExpression is null)
+            return;
+
+        var constant = model.GetConstantValue(instanceExpression);
+        if (constant.HasValue && constant.Value is char character)
+        {
+            methodConvert.Push(NormalizeCharForUtf8(character).ToString());
+            return;
+        }
+
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.ConvertCharToUtf8();
+    }
+
+    private static char NormalizeCharForUtf8(char character)
+    {
+        return char.IsSurrogate(character) ? '\ufffd' : character;
+    }
+
+    /// <summary>
+    /// Encodes one runtime UTF-16 code unit for Neo's UTF-8 string representation.
+    /// Isolated surrogate code units cannot be represented and are replaced with U+FFFD.
+    /// </summary>
+    private void ConvertCharToUtf8()
+    {
+        byte charSlot = AddAnonymousVariable();
+        AccessSlot(OpCode.STLOC, charSlot);
+
+        JumpTarget nullTarget = new();
+        JumpTarget asciiTarget = new();
+        JumpTarget twoByteTarget = new();
+        JumpTarget replacementTarget = new();
+        JumpTarget endTarget = new();
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push0();
+        JumpIfEqual(nullTarget);
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x7f);
+        JumpIfLessOrEqual(asciiTarget);
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x7ff);
+        JumpIfLessOrEqual(twoByteTarget);
+
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Within(0xd800, 0xdfff);
+        JumpIfTrue(replacementTarget);
+
+        NewBuffer(3);
+        SetUtf8BufferByte(charSlot, 0, shift: 12, mask: 0x0f, prefix: 0xe0);
+        SetUtf8BufferByte(charSlot, 1, shift: 6, mask: 0x3f, prefix: 0x80);
+        SetUtf8BufferByte(charSlot, 2, shift: 0, mask: 0x3f, prefix: 0x80);
+        JumpAlways(endTarget);
+
+        replacementTarget.Instruction = Push("\ufffd");
+        JumpAlways(endTarget);
+
+        twoByteTarget.Instruction = Nop();
+        NewBuffer(2);
+        SetUtf8BufferByte(charSlot, 0, shift: 6, mask: 0x1f, prefix: 0xc0);
+        SetUtf8BufferByte(charSlot, 1, shift: 0, mask: 0x3f, prefix: 0x80);
+        JumpAlways(endTarget);
+
+        asciiTarget.Instruction = Nop();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        JumpAlways(endTarget);
+
+        nullTarget.Instruction = Nop();
+        NewBuffer(1);
+        SetUtf8BufferByte(charSlot, 0, shift: 0, mask: 0x7f, prefix: 0);
+
+        endTarget.Instruction = ChangeType(StackItemType.ByteString);
+        RemoveAnonymousVariable(charSlot);
+    }
+
+    private void SetUtf8BufferByte(byte charSlot, int index, int shift, int mask, int prefix)
+    {
+        Dup();
+        Push(index);
+        AccessSlot(OpCode.LDLOC, charSlot);
+        if (shift != 0)
+        {
+            Push(shift);
+            ShR();
+        }
+        Push(mask);
+        And();
+        if (prefix != 0)
+        {
+            Push(prefix);
+            Or();
+        }
+        SetItem();
     }
 
     // Handler for object.ToString()

@@ -213,8 +213,17 @@ internal partial class MethodConvert
                 methodConvert.AccessSlot(OpCode.STLOC, slot);
                 return slot;
             case SpecialType.System_Char:
-                methodConvert.ConvertExpression(model, ExtractExpression(argument));
-                methodConvert.ChangeType(StackItemType.ByteString);
+                var charExpression = ExtractExpression(argument);
+                var constant = model.GetConstantValue(charExpression);
+                if (constant.HasValue && constant.Value is char character)
+                {
+                    methodConvert.Push(NormalizeCharForUtf8(character).ToString());
+                }
+                else
+                {
+                    methodConvert.ConvertExpression(model, charExpression);
+                    methodConvert.ConvertCharToUtf8();
+                }
                 slot = methodConvert.AddAnonymousVariable();
                 methodConvert.AccessSlot(OpCode.STLOC, slot);
                 return slot;

@@ -56,7 +56,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("67", logs.Dequeue());
             Assert.AreEqual("1", logs.Dequeue());
 
-            AssertGasConsumed(39468390);
+            AssertGasConsumed(39468870);
         }
 
         private static List<string> GetStandardEvaluationOrder()

@@ -18,7 +18,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBQAA/bwBVwUADAARwHBocWkQznIPNwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznISNwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznIA/TcAAHNqa4t0aRBs0GlFaHFpEM5yAHzbKHNqa4t0aRBs0GlFaHFpEM5yFDcAAHNqa4t0aRBs0GlFaHFpEM5yAHzbKHNqa4t0aRBs0GlFaHFpEM5yAPs3AABzamuLdGkQbNBpRWhxaRDOcgB82yhzamuLdGkQbNBpRWhxaRDOchY3AABzamuLdGkQbNBpRWhxaRDOcgB82yhzamuLdGkQbNBpRWhxaRDOcgD5NwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznIYNwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznIIJgoMBFRydWUiCQwFRmFsc2VzamuLdGkQbNBpRWhxaRDOcgB82yhzamuLdGkQbNBpRWhxaRDOcgkmCgwEVHJ1ZSIJDAVGYWxzZXNqa4t0aRBs0GlFaHFpEM5AMjytVA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBQAA/bMBVwUADAARwHBocWkQznIPNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchI3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yAP03AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yFDcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIA+zcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIWNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgD5NwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchg3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yCCYKDARUcnVlIgkMBUZhbHNlc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgkmCgwEVHJ1ZSIJDAVGYWxzZXNqa4t0aRBs0GlFaHFpEM5ADIBaGQ==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUADAARwHBocWkQznIPNwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznISNwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznIA/TcAAHNqa4t0aRBs0GlFaHFpEM5yAHzbKHNqa4t0aRBs0GlFaHFpEM5yFDcAAHNqa4t0aRBs0GlFaHFpEM5yAHzbKHNqa4t0aRBs0GlFaHFpEM5yAPs3AABzamuLdGkQbNBpRWhxaRDOcgB82yhzamuLdGkQbNBpRWhxaRDOchY3AABzamuLdGkQbNBpRWhxaRDOcgB82yhzamuLdGkQbNBpRWhxaRDOcgD5NwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznIYNwAAc2pri3RpEGzQaUVocWkQznIAfNsoc2pri3RpEGzQaUVocWkQznIIJgoMBFRydWUiCQwFRmFsc2VzamuLdGkQbNBpRWhxaRDOcgB82yhzamuLdGkQbNBpRWhxaRDOcgkmCgwEVHJ1ZSIJDAVGYWxzZXNqa4t0aRBs0GlFaHFpEM5A
+    /// Script: VwUADAARwHBocWkQznIPNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchI3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yAP03AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yFDcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIA+zcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIWNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgD5NwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchg3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yCCYKDARUcnVlIgkMBUZhbHNlc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgkmCgwEVHJ1ZSIJDAVGYWxzZXNqa4t0aRBs0GlFaHFpEM5A
     /// INITSLOT 0500 [64 datoshi]
     /// PUSHDATA1 [8 datoshi]
     /// PUSH1 [1 datoshi]
@@ -59,8 +59,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -97,8 +96,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -135,8 +133,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -173,8 +170,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -211,8 +207,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -249,8 +244,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -287,8 +281,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -325,8 +318,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
@@ -366,8 +358,7 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC2 [2 datoshi]
-    /// PUSHINT8 7C [1 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 7C [8 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// LDLOC3 [2 datoshi]
