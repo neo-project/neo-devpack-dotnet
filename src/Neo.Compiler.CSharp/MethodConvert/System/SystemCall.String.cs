@@ -551,7 +551,7 @@ internal partial class MethodConvert
         var endTarget = new JumpTarget();
         var validCountTarget = new JumpTarget();
         var suffixNotEmptyTarget = new JumpTarget();
-        methodConvert.Dup();                         // Duplicate suffix
+        methodConvert.Over();                        // Duplicate suffix
         methodConvert.Size();                        // Get suffix length
         methodConvert.Push(0);
         methodConvert.JumpIfNotEqual(suffixNotEmptyTarget); // if len(suffix) != 0 skip
