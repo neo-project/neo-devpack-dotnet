@@ -38,12 +38,13 @@ internal partial class MethodConvert
             return;
 
         JumpTarget endTarget = new();
-        methodConvert.Dup();
-        methodConvert.Push(maxValue);
-        methodConvert.JumpIfLessOrEqual(endTarget);
-        methodConvert.Drop();
-        methodConvert.Throw();
-        endTarget.Instruction = methodConvert.Nop();
+        methodConvert.Dup();                          // [value, value]
+        methodConvert.Push(maxValue);                 // [value, value, maxValue]
+        methodConvert.JumpIfLessOrEqual(endTarget);   // [value]
+        methodConvert.Drop();                         // []
+        methodConvert.Push("Overflow");               // [overflow]
+        methodConvert.Throw();                        // throw overflow
+        endTarget.Instruction = methodConvert.Nop(); // [value]
     }
 
     private static bool TryGetMathAbsMaxValue(SpecialType returnType, out long maxValue)
