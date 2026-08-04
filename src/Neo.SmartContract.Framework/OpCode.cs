@@ -858,7 +858,7 @@ namespace Neo.SmartContract.Framework
         /// </para>
         /// <remarks>
         ///     Push: 1 item(s)
-        ///     Pop: 0 item(s)
+        ///     Pop: 1 item(s)
         /// </remarks>
         /// </summary>
         PICK = 0x4D,
@@ -1665,7 +1665,7 @@ namespace Neo.SmartContract.Framework
         /// Pops the top two stack items and pushes the result of the boolean exclusive or between each bit in the items.
         /// If the items are not integers, they will be converted to integers.
         ///
-        /// <example> a^b </example>
+        /// <example> a xor b </example>
         /// <para>
         /// The execution will be faulted if the items cannot be converted to integers.
         /// </para>
@@ -1863,7 +1863,7 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Pops the top two stack items and pushes the result of raising value to the exponent power.
-        /// The first pushed item is the exponent, the second pushed item is the value(the top item).
+        /// The first pushed item is the value, the second pushed item is the exponent(the top item).
         /// If the inputs are not integers, they will be converted to integers.
         ///
         /// <example> a^b </example>
@@ -1896,7 +1896,7 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Performs modulus division on a number multiplied by another number.
-        /// The third pushed item is the modulus.
+        /// The third pushed item is the modulus(the top item).
         /// If the inputs are not integers, they will be converted to integers.
         ///
         /// <example> a*b%c </example>
@@ -1916,7 +1916,7 @@ namespace Neo.SmartContract.Framework
         /// Performs modulus division on a number raised to the power of another number.
         /// If the exponent is -1, it will have the calculation of the modular inverse.
         ///
-        /// The third pushed item is the modulus, the second pushed item is the exponent, the first pushed item is the value(the top item).
+        /// The third pushed item is the modulus(the top item), the second pushed item is the exponent, the first pushed item is the value.
         /// If the inputs are not integers, they will be converted to integers.
         ///
         /// <example> modpow(a, b, c) </example>
@@ -2379,7 +2379,7 @@ namespace Neo.SmartContract.Framework
         /// If the tartget is a buffer, the value should within [-128, 255].
         /// 
         /// <remarks>
-        ///     Push: 1 item(s)
+        ///     Push: 0 item(s)
         ///     Pop: 3 item(s)
         /// </remarks>
         /// </summary>
