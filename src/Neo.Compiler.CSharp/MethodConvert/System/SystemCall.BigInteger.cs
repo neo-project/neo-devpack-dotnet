@@ -1000,9 +1000,11 @@ internal partial class MethodConvert
 
         // Check if the value is within int range
         methodConvert.Dup();
-        methodConvert.Within(int.MinValue, int.MaxValue);
+        methodConvert.Size();
+        methodConvert.Push(4); // sizeof(int)
+
         var endIntCheck = new JumpTarget();
-        methodConvert.JumpIfFalse(endIntCheck);
+        methodConvert.JumpIfGreater(endIntCheck);
 
         // If within int range, mask with 0xFFFFFFFF
         methodConvert.Push(0xFFFFFFFF);
@@ -1012,7 +1014,7 @@ internal partial class MethodConvert
 
         // If larger than int, throw exception, cause too many check will make the script too long.
         endIntCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Push("Value out of range, must be between int.MinValue and int.MaxValue.");
+        methodConvert.Push("Out of int range");
         methodConvert.Throw();
         endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
 
