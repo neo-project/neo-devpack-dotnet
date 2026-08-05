@@ -50,16 +50,46 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterSyntaxNodeAction(AnalyzeUsingDirective, SyntaxKind.UsingDirective);
+            context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
         }
 
         private void AnalyzeUsingDirective(SyntaxNodeAnalysisContext context)
         {
             var usingDirective = (UsingDirectiveSyntax)context.Node;
-            if (usingDirective.Name!.ToString() == "System.Linq")
+            var symbol = context.SemanticModel.GetSymbolInfo(usingDirective.Name!, context.CancellationToken).Symbol;
+            if (!IsSystemLinqSymbol(symbol)) return;
+
+            var diagnostic = Diagnostic.Create(Rule, usingDirective.GetLocation(), usingDirective.Name);
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
+        {
+            var memberAccess = (MemberAccessExpressionSyntax)context.Node;
+            if (context.SemanticModel.GetAliasInfo(memberAccess.Expression, context.CancellationToken) is not null)
+                return;
+
+            var receiver = context.SemanticModel.GetSymbolInfo(memberAccess.Expression, context.CancellationToken).Symbol;
+            if (!IsSystemLinqSymbol(receiver)) return;
+
+            var member = context.SemanticModel.GetSymbolInfo(memberAccess, context.CancellationToken).Symbol;
+            if (member is null or INamespaceSymbol or INamedTypeSymbol) return;
+
+            var diagnostic = Diagnostic.Create(Rule, memberAccess.Name.GetLocation(), member.ToDisplayString());
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private static bool IsSystemLinqSymbol(ISymbol? symbol)
+        {
+            var namespaceName = symbol switch
             {
-                var diagnostic = Diagnostic.Create(Rule, usingDirective.GetLocation(), usingDirective.Name);
-                context.ReportDiagnostic(diagnostic);
-            }
+                INamespaceSymbol namespaceSymbol => namespaceSymbol.ToDisplayString(),
+                INamedTypeSymbol typeSymbol => typeSymbol.ContainingNamespace.ToDisplayString(),
+                _ => null
+            };
+
+            return namespaceName == "System.Linq" ||
+                namespaceName?.StartsWith("System.Linq.", System.StringComparison.Ordinal) == true;
         }
     }
 
@@ -76,8 +106,9 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var usingDirective = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<UsingDirectiveSyntax>().First();
-            if (usingDirective != null)
+            var usingDirective = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<UsingDirectiveSyntax>().FirstOrDefault();
+            if (usingDirective is { Alias: null, StaticKeyword.RawKind: 0 } &&
+                usingDirective.Name?.ToString() == "System.Linq")
             {
                 context.RegisterCodeFix(
                     CodeAction.Create(

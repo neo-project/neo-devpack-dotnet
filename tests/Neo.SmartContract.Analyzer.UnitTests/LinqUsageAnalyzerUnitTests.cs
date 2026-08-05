@@ -64,6 +64,82 @@ namespace Neo.SmartContract.Framework.Linq
         }
 
         [TestMethod]
+        public async Task FullyQualifiedSystemLinqCall_ShouldReportDiagnostic()
+        {
+            var test = """
+                       class TestClass
+                       {
+                           public int[] Run(int[] values) => System.Linq.Enumerable.{|#0:ToArray|}(values);
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(LinqUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.Linq.Enumerable.ToArray<int>(System.Collections.Generic.IEnumerable<int>)");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task AliasedSystemLinqType_ShouldReportDiagnosticAtUsing()
+        {
+            var test = """
+                       {|#0:using Linq = System.Linq.Enumerable;|}
+
+                       class TestClass
+                       {
+                           public int[] Run(int[] values) => Linq.ToArray(values);
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(LinqUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.Linq.Enumerable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task StaticSystemLinqUsing_ShouldReportDiagnostic()
+        {
+            var test = """
+                       {|#0:using static System.Linq.Enumerable;|}
+
+                       class TestClass
+                       {
+                           public System.Collections.Generic.IEnumerable<int> Run() => Range(0, 1);
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(LinqUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.Linq.Enumerable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task UserDefinedEnumerableType_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       namespace Example
+                       {
+                           public static class Enumerable
+                           {
+                               public static int Count(int[] values) => values.Length;
+                           }
+                       }
+
+                       class TestClass
+                       {
+                           public int Run(int[] values) => Example.Enumerable.Count(values);
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task QueryExpression_DoesNotSuggestFrameworkUsing()
         {
             var test = """
