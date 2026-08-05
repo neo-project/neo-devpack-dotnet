@@ -36,7 +36,7 @@ class TestClass
 
             var expectedDiagnostic = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
                 .WithLocation(8, 24)
-                .WithMessage("Use of new BigInteger(int) is not allowed, please use BigInteger x = 0;");
+                .WithMessage("BigInteger constructor is not supported. Only BigInteger(byte[]) is supported; use BigInteger.Zero for zero or an implicit conversion for integral values.");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
         }
@@ -91,7 +91,7 @@ class TestClass
 
             var expectedDiagnostic = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
                 .WithLocation(8, 24)
-                .WithMessage("Use of new BigInteger(int) is not allowed, please use BigInteger x = 0;");
+                .WithMessage("BigInteger constructor is not supported. Only BigInteger(byte[]) is supported; use BigInteger.Zero for zero or an implicit conversion for integral values.");
 
             await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixtest);
         }
@@ -197,6 +197,78 @@ class TestClass
                 .WithLocation(0);
 
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
+        }
+
+        [DataTestMethod]
+        [DataRow("uint")]
+        [DataRow("long")]
+        [DataRow("ulong")]
+        public async Task UnsupportedIntegralConstructors_ShouldReportDiagnostic(string parameterType)
+        {
+            var test = $$"""
+                         using System.Numerics;
+
+                         class TestClass
+                         {
+                             BigInteger Create({{parameterType}} value) => {|#0:new BigInteger(value)|};
+                         }
+                         """;
+
+            var expected = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
+                .WithLocation(0);
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ParameterlessConstructor_ShouldReportDiagnostic()
+        {
+            var test = """
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           BigInteger Create() => {|#0:new BigInteger()|};
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
+                .WithLocation(0);
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ByteArrayConstructorWithFlags_ShouldReportDiagnostic()
+        {
+            var test = """
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           BigInteger Create(byte[] value) => {|#0:new BigInteger(value, true, true)|};
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(BigIntegerCreationAnalyzer.DiagnosticId)
+                .WithLocation(0);
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ByteArrayConstructor_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       using System.Numerics;
+
+                       class TestClass
+                       {
+                           BigInteger Create(byte[] value) => new BigInteger(value);
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }
