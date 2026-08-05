@@ -404,22 +404,6 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles explicit conversion of BigInteger to various integer types with range checking.
-    /// </summary>
-    /// <param name="methodConvert">The method converter instance</param>
-    /// <param name="model">The semantic model</param>
-    /// <param name="symbol">The method symbol</param>
-    /// <param name="instanceExpression">The instance expression (if any)</param>
-    /// <param name="arguments">The method arguments</param>
-    /// <remarks>
-    /// Algorithm: Validates the BigInteger is within sbyte range [-128, 127], throws on overflow
-    /// </remarks>
-    private static void HandleBigIntegerExplicitConversion(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue, sbyte.MaxValue);
-    }
-
-    /// <summary>
     /// Shared helper that enforces a BigInteger value lies within the supplied inclusive range.
     /// </summary>
     /// <param name="methodConvert">The method converter instance.</param>
@@ -451,6 +435,23 @@ internal partial class MethodConvert
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
+    private static void HandleBigIntegerSizeCheckedConversion(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, int sizeofSigned)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        JumpTarget endTarget = new();
+        methodConvert.Dup();                              // Duplicate value for range check
+        methodConvert.Size();                             // Get the size of the value
+        methodConvert.Push(sizeofSigned);                 // Push the size of the type
+        methodConvert.JumpIfLessOrEqual(endTarget);       // Compare the size of the value to the size of the type
+        methodConvert.Throw();                            // Throw the value if it is out of range
+        endTarget.Instruction = methodConvert.Nop();      // End target
+    }
+
     /// <summary>
     /// Handles explicit conversion of BigInteger to sbyte with range checking.
     /// </summary>
@@ -464,7 +465,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToSByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue, sbyte.MaxValue);
+        HandleBigIntegerSizeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sizeof(sbyte));
     }
 
     /// <summary>
@@ -496,7 +497,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, short.MinValue, short.MaxValue);
+        HandleBigIntegerSizeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sizeof(short));
     }
 
     /// <summary>
@@ -528,7 +529,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, int.MinValue, int.MaxValue);
+        HandleBigIntegerSizeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sizeof(int));
     }
 
     /// <summary>
@@ -560,7 +561,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToLong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, long.MinValue, long.MaxValue);
+        HandleBigIntegerSizeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sizeof(long));
     }
 
     /// <summary>
