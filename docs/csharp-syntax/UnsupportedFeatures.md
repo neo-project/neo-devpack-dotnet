@@ -6,7 +6,7 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
 
 - **C# 1 Syntax Checklist**  
   - Unsafe code blocks (`unsafe_code`)
-  - Unsupported BitOperations members (`numerics_bit_operations`)
+  - BitOperations helpers (`numerics_bit_operations`)
   - DateTime helpers (`datetime_methods`)
   - TimeSpan helpers (`timespan_methods`)
   - Convert class helpers (`convert_methods`)

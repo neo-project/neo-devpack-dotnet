@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
@@ -53,24 +53,53 @@ public class SyntaxTests
     [TestMethod]
     public void Unsupported_Syntax_Summary_Is_UpToDate()
     {
-        var unsupportedIds = Probes
-            .Where(p => p.Status == SyntaxSupportStatus.Unsupported)
-            .Select(p => p.Id)
-            .Distinct()
-            .ToArray();
-
         var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
         var summaryPath = Path.Combine(repoRoot, "docs", "csharp-syntax", "UnsupportedFeatures.md");
-        var content = File.ReadAllText(summaryPath);
-        var referencedIds = Regex.Matches(content, @"\(`?([a-z0-9_]+)`?\)")
-            .Select(match => match.Groups[1].Value)
-            .ToHashSet(StringComparer.Ordinal);
+        var actual = NormalizeLineEndings(File.ReadAllText(summaryPath));
 
-        var missing = unsupportedIds.Where(id => !referencedIds.Contains(id)).ToArray();
-        CollectionAssert.AreEquivalent(Array.Empty<string>(), missing, "UnsupportedFeatures.md is missing entries: " + string.Join(", ", missing));
-
-        var unknown = referencedIds.Where(id => !unsupportedIds.Contains(id)).ToArray();
-        CollectionAssert.AreEquivalent(Array.Empty<string>(), unknown, "UnsupportedFeatures.md references unexpected ids: " + string.Join(", ", unknown));
+        Assert.AreEqual(
+            RenderUnsupportedFeaturesSummary(),
+            actual,
+            "UnsupportedFeatures.md must be regenerated from the versioned syntax probes.");
     }
 
+    private static string RenderUnsupportedFeaturesSummary()
+    {
+        StringBuilder builder = new();
+        builder.AppendLine("# Unsupported C# Features in Neo Compiler");
+        builder.AppendLine();
+        builder.AppendLine("The versioned syntax checklists flag every feature the Neo compiler currently rejects. This page is generated from those checklists so the status remains accurate.");
+        builder.AppendLine();
+        builder.AppendLine("## Summary by Version");
+        builder.AppendLine();
+
+        foreach (var version in Probes
+                     .Where(static probe => probe.Status == SyntaxSupportStatus.Unsupported)
+                     .GroupBy(static probe => probe.Version))
+        {
+            builder.Append("- **C# ")
+                .Append(version.Key.AsSpan("csharp-".Length))
+                .AppendLine(" Syntax Checklist**  ");
+            foreach (var probe in version)
+            {
+                builder.Append("  - ")
+                    .Append(probe.Title)
+                    .Append(" (`")
+                    .Append(probe.Id)
+                    .AppendLine("`)");
+            }
+
+            builder.AppendLine();
+        }
+
+        builder.AppendLine("## Next Actions");
+        builder.AppendLine();
+        builder.AppendLine("1. Confirm with the compiler team which gaps are expected versus candidates for future support.");
+        builder.AppendLine("2. File GitHub issues or backlog items for each unsupported feature that should be implemented.");
+        builder.AppendLine("3. Update the version checklists and rerun this script whenever support status changes.");
+        return builder.ToString();
+    }
+
+    private static string NormalizeLineEndings(string value) =>
+        value.Replace("\r\n", "\n", StringComparison.Ordinal);
 }
