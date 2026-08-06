@@ -99,5 +99,29 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             await VerifyCS.VerifyAnalyzerAsync(test, propertyDiagnostic);
         }
+
+        [TestMethod]
+        public async Task DecimalUsageAnalyzer_DirectExpressions_ShouldReportDiagnostics()
+        {
+            const string test = """
+                                public class TestClass
+                                {
+                                    private static object Consume(object value) => value;
+
+                                    public object FromCast(int value) => Consume({|#0:(decimal)value|});
+
+                                    public object FromLiteral() => Consume({|#1:1.5M|});
+                                }
+                                """;
+
+            var castDiagnostic = VerifyCS.Diagnostic(DecimalUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System_Decimal", "decimal");
+            var literalDiagnostic = VerifyCS.Diagnostic(DecimalUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("System_Decimal", "decimal");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, castDiagnostic, literalDiagnostic);
+        }
     }
 }

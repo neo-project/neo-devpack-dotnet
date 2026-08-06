@@ -40,6 +40,14 @@ namespace Neo.SmartContract.Analyzer
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
             context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeExpression(
+                    context,
+                    SpecialType.System_Double,
+                    Rule,
+                    static type => new object?[] { type.ToString() }),
+                SyntaxKind.CastExpression,
+                SyntaxKind.NumericLiteralExpression);
+            context.RegisterSyntaxNodeAction(
                 static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeMethodDeclaration(
                     context,
                     SpecialType.System_Double,
