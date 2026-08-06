@@ -51,6 +51,20 @@ public class SyntaxTests
     }
 
     [TestMethod]
+    public void EveryUnsupportedProbe_HasExpectedDiagnosticIds()
+    {
+        var unsupportedProbeIds = Probes
+            .Where(static probe => probe.Status == SyntaxSupportStatus.Unsupported)
+            .Select(static probe => probe.Id)
+            .ToArray();
+
+        CollectionAssert.AreEquivalent(
+            unsupportedProbeIds,
+            SyntaxProbeExpectedDiagnostics.ProbeIds.ToArray(),
+            "Expected diagnostic mappings must match unsupported syntax probes exactly.");
+    }
+
+    [TestMethod]
     public void Unsupported_Syntax_Summary_Is_UpToDate()
     {
         var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
