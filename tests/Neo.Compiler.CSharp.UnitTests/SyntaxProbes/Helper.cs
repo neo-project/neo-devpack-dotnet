@@ -144,7 +144,8 @@ internal static class Helper
             expectSuccess,
             message,
             requireAnalyzerError: true,
-            allowCompilerErrors: CompilerFrontEndRejectedProbeIds.Contains(probe.Id));
+            allowCompilerErrors: CompilerFrontEndRejectedProbeIds.Contains(probe.Id),
+            expectedErrorIds: expectSuccess ? null : SyntaxProbeExpectedDiagnostics.Get(probe.Id));
     }
 
     private static void AssertCompilationResult(
@@ -152,7 +153,8 @@ internal static class Helper
         bool expectSuccess,
         string message,
         bool requireAnalyzerError = false,
-        bool allowCompilerErrors = true)
+        bool allowCompilerErrors = true,
+        IReadOnlyList<string>? expectedErrorIds = null)
     {
         var (compilerDiagnostics, analyzerDiagnostics) = AnalyzeSource(sourceCode);
         var compilerErrors = compilerDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
@@ -197,6 +199,24 @@ internal static class Helper
 
         if (!expectSuccess)
         {
+            if (expectedErrorIds is not null)
+            {
+                var actualErrorIds = compilerErrors
+                    .Concat(analyzerErrors)
+                    .Select(static diagnostic => diagnostic.Id)
+                    .ToHashSet(StringComparer.Ordinal);
+                var missingErrorIds = expectedErrorIds
+                    .Where(expectedId => !actualErrorIds.Contains(expectedId))
+                    .ToArray();
+                if (missingErrorIds.Length != 0)
+                {
+                    Assert.Fail(
+                        $"{message}{Environment.NewLine}" +
+                        $"Expected diagnostic IDs: {string.Join(", ", expectedErrorIds)}{Environment.NewLine}" +
+                        $"Actual diagnostic IDs: {string.Join(", ", actualErrorIds.OrderBy(static id => id, StringComparer.Ordinal))}");
+                }
+            }
+
             if (analyzerErrors.Length != 0)
             {
                 return;
