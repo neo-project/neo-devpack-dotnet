@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
@@ -115,6 +116,60 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
 
         var type = (context.SemanticModel.GetDeclaredSymbol(propertyDeclaration, context.CancellationToken) as IPropertySymbol)?.Type;
         ReportIfUnsupportedType(context, propertyDeclaration.Type.GetLocation(), type, specialType, rule, getMessageArgs);
+    }
+
+    internal static void AnalyzeExpression(
+        SyntaxNodeAnalysisContext context,
+        SpecialType specialType,
+        DiagnosticDescriptor rule,
+        Func<ITypeSymbol, object?[]> getMessageArgs)
+    {
+        if (context.Node is not ExpressionSyntax expression) return;
+
+        var type = context.SemanticModel.GetTypeInfo(expression, context.CancellationToken).Type;
+        var matchedType = FindUnsupportedType(type, specialType);
+        if (matchedType is null || IsCoveredByDeclaration(context, expression, specialType)) return;
+
+        if (expression is LiteralExpressionSyntax &&
+            expression.Parent is CastExpressionSyntax castExpression &&
+            FindUnsupportedType(
+                context.SemanticModel.GetTypeInfo(castExpression, context.CancellationToken).Type,
+                specialType) is not null)
+        {
+            return;
+        }
+
+        context.ReportDiagnostic(Diagnostic.Create(rule, expression.GetLocation(), getMessageArgs(matchedType)));
+    }
+
+    private static bool IsCoveredByDeclaration(
+        SyntaxNodeAnalysisContext context,
+        ExpressionSyntax expression,
+        SpecialType specialType)
+    {
+        foreach (var ancestor in expression.Ancestors())
+        {
+            ITypeSymbol? declaredType = ancestor switch
+            {
+                VariableDeclarationSyntax variable =>
+                    context.SemanticModel.GetTypeInfo(variable.Type, context.CancellationToken).Type,
+                MethodDeclarationSyntax method =>
+                    context.SemanticModel.GetTypeInfo(method.ReturnType, context.CancellationToken).Type,
+                PropertyDeclarationSyntax property =>
+                    context.SemanticModel.GetTypeInfo(property.Type, context.CancellationToken).Type,
+                ParameterSyntax parameter when parameter.Type is not null =>
+                    context.SemanticModel.GetTypeInfo(parameter.Type, context.CancellationToken).Type,
+                _ => null
+            };
+
+            if (FindUnsupportedType(declaredType, specialType) is not null)
+                return true;
+
+            if (ancestor is StatementSyntax or MemberDeclarationSyntax)
+                break;
+        }
+
+        return false;
     }
 
     private static void ReportIfUnsupportedType(
