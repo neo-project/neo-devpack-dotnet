@@ -294,8 +294,9 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Mul();                                       // Multiply the values
         methodConvert.Dup();                                       // Duplicate result for range check
-        methodConvert.Within(long.MinValue, long.MaxValue);        // Check if within long range
-        methodConvert.JumpIfTrue(endTarget);                       // Jump if within range
+        methodConvert.Size();                                      // Get the size of the result
+        methodConvert.Push(sizeof(long));                          // Check if within long range
+        methodConvert.JumpIfLessOrEqual(endTarget);                // Jump if within range
         methodConvert.Drop();                                      // Drop the result if not within range
         methodConvert.Push("Overflow");                            // Push the error message
         methodConvert.Throw();                                     // Throw if overflow
