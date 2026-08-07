@@ -113,12 +113,12 @@ internal partial class MethodConvert
         else if (expression.OperatorToken.ValueText == "<<")
         {
             ITypeSymbol? leftType = model.GetTypeInfo(expression.Left).Type;
-            if (!MaskFixedWidthShiftCount(leftType))
+            if (!MaskFixedWidthShiftCount(model, leftType, expression.Right))
                 CheckLeftShiftOverflow(model, leftType, expression.Right, true);
         }
         else if (expression.OperatorToken.ValueText == ">>")
         {
-            MaskFixedWidthShiftCount(model.GetTypeInfo(expression.Left).Type);
+            MaskFixedWidthShiftCount(model, model.GetTypeInfo(expression.Left).Type, expression.Right);
         }
         AddInstruction(opcode);
 
@@ -179,14 +179,14 @@ internal partial class MethodConvert
 
         if (expression.IsKind(SyntaxKind.LeftShiftExpression))
         {
-            if (!MaskFixedWidthShiftCount(leftType))
+            if (!MaskFixedWidthShiftCount(model, leftType, expression.Right))
                 CheckLeftShiftOverflow(model, leftType, expression.Right, true);
             AddInstruction(OpCode.SHL);
             NormalizeShiftResult(resultType);
         }
         else
         {
-            MaskFixedWidthShiftCount(leftType);
+            MaskFixedWidthShiftCount(model, leftType, expression.Right);
             AddInstruction(OpCode.SHR);
         }
         Jump(OpCode.JMP_L, endTarget);
@@ -215,14 +215,11 @@ internal partial class MethodConvert
     /// six bits for 64-bit operands. Nullable wrappers use their underlying
     /// integral type to select the mask. BigInteger shift counts are not masked.
     /// </remarks>
-    private bool MaskFixedWidthShiftCount(ITypeSymbol? leftType)
+    private bool MaskFixedWidthShiftCount(SemanticModel model, ITypeSymbol? leftType, ExpressionSyntax rightExpr)
     {
         if (leftType is null) return false;
 
-        if (leftType is INamedTypeSymbol
-            {
-                OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-            } nullableType)
+        if (leftType is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullableType)
         {
             leftType = nullableType.TypeArguments[0];
         }
@@ -242,6 +239,11 @@ internal partial class MethodConvert
         };
 
         if (!mask.HasValue) return false;
+
+        if (TryGetIntegerConstant(model, rightExpr, out var shiftAmount))
+        {
+            if (shiftAmount >= 0 && shiftAmount <= mask.Value) return true;
+        }
 
         Push(mask.Value);
         AddInstruction(OpCode.AND);

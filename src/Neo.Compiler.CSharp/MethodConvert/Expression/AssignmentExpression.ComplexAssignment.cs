@@ -298,12 +298,12 @@ internal partial class MethodConvert
         }
         else if (operatorToken.ValueText == "<<=")
         {
-            if (!MaskFixedWidthShiftCount(type))
+            if (!MaskFixedWidthShiftCount(model, type, right))
                 CheckLeftShiftOverflow(model, type, right, false);
         }
         else if (operatorToken.ValueText == ">>=")
         {
-            MaskFixedWidthShiftCount(type);
+            MaskFixedWidthShiftCount(model, type, right);
         }
 
         AddInstruction(opcode);

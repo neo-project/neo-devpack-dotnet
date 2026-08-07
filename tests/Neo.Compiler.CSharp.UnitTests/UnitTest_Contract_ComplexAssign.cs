@@ -73,7 +73,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LeftShiftAssign_Checked()
         {
             var values = Contract.UnitTest_Left_Shift_Assign_Checked()!;
-            AssertGasConsumed(1050330);
+            AssertGasConsumed(1049790);
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
 
@@ -84,7 +84,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LeftShiftAssign_UnChecked()
         {
             var values = Contract.UnitTest_Left_Shift_Assign_UnChecked()!;
-            AssertGasConsumed(1050330);
+            AssertGasConsumed(1049790);
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
         }
@@ -93,7 +93,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_Checked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_Checked()!;
-            AssertGasConsumed(1049100);
+            AssertGasConsumed(1048560);
             Assert.AreEqual(new BigInteger(checked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(checked(int.MinValue >> 1)), values[1]);
         }
@@ -102,7 +102,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_UnChecked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_UnChecked()!;
-            AssertGasConsumed(1049100);
+            AssertGasConsumed(1048560);
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue >> 1)), values[1]);
         }
