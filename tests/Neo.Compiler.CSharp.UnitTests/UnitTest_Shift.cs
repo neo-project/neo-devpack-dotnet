@@ -23,7 +23,7 @@ public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
     public void Test_Shift()
     {
         var list = Contract.TestShift()?.Cast<BigInteger>().ToArray();
-        AssertGasConsumed(1049280);
+        AssertGasConsumed(1048740);
         CollectionAssert.AreEqual(new BigInteger[] { 16, 4 }, list);
     }
 
