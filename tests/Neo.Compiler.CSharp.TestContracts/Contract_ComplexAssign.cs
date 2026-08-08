@@ -11,6 +11,7 @@
 
 using Neo.SmartContract.Framework;
 using System;
+using System.Numerics;
 using System.ComponentModel;
 
 namespace Neo.Compiler.CSharp.TestContracts
@@ -102,6 +103,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         public static int LeftShiftAssignChecked(int value, int shift)
+        {
+            return checked(value <<= shift);
+        }
+
+        public static BigInteger LeftShiftAssignCheckedBigInteger(BigInteger value, int shift)
         {
             return checked(value <<= shift);
         }
