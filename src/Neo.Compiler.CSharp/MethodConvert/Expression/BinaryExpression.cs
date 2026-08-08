@@ -388,12 +388,16 @@ internal partial class MethodConvert
         Dup();
         Push(0);
         JumpIfGreaterOrEqual(checkUpperTarget);
+        Drop(2); // Drop the value and shift-amount
+        Push("NegativeShift");
         Throw();
 
         // Check if shift amount exceeds type bit width
         checkUpperTarget.Instruction = Dup();
         Push(maxShift);
         JumpIfLess(endTarget);
+        Drop(2); // Drop the value and shift-amount
+        Push("TooLargeShift");
         Throw();
 
         endTarget.Instruction = Nop();

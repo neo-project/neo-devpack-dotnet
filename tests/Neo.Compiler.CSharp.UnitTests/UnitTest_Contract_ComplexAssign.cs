@@ -76,8 +76,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1049790);
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
-
             Assert.AreEqual(new BigInteger(2), Contract.LeftShiftAssignChecked(1, 33));
+        }
+
+        [TestMethod]
+        public void Test_LeftShiftAssignCheckedBigInteger()
+        {
+            Assert.AreEqual(new BigInteger(2), Contract.LeftShiftAssignCheckedBigInteger(BigInteger.One, 1));
+            Assert.AreEqual(BigInteger.One, Contract.LeftShiftAssignCheckedBigInteger(BigInteger.One, 0));
+            Assert.AreEqual(BigInteger.MinusOne << 255, Contract.LeftShiftAssignCheckedBigInteger(BigInteger.MinusOne, 255));
+            Assert.ThrowsExactly<TestException>(() => Contract.LeftShiftAssignCheckedBigInteger(BigInteger.One, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.LeftShiftAssignCheckedBigInteger(BigInteger.One, 257));
+            Assert.ThrowsExactly<TestException>(() => Contract.LeftShiftAssignCheckedBigInteger(BigInteger.One, 256));
         }
 
         [TestMethod]
