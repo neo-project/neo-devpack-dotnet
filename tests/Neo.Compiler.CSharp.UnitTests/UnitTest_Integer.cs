@@ -729,7 +729,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.LeadingZeroCount(5), Contract.LeadingZeroCountInt(5));
             AssertGasConsumed(1049970);
             Assert.AreEqual(int.Log2(5), Contract.Log2Int(5));
-            AssertGasConsumed(1049250);
+            AssertGasConsumed(1048560);
         }
 
         [TestMethod]

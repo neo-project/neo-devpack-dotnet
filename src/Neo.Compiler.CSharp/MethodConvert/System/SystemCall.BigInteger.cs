@@ -748,7 +748,8 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Counts the number of bits needed to represent the value minus 1
+    /// Algorithm: Returns 0 when value &lt;= 1. Otherwise increments n from 0 until
+    /// (value &gt;&gt; n) &lt;= 1, which equals floor(log2(value)). Throws for negative values.
     /// </remarks>
     private static void HandleBigIntegerLog2(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -757,32 +758,28 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         JumpTarget nonNegativeTarget = new();
-        JumpTarget endMethod = new();
-        methodConvert.Dup();                                       // Duplicate value for negative check
-        methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfGreaterOrEqual(nonNegativeTarget);       // Jump if value >= 0
-        methodConvert.Throw();                                     // Throw if negative
-        nonNegativeTarget.Instruction = methodConvert.Nop();       // Non-negative target
-        methodConvert.Dup();                                       // Duplicate value for zero check
-        methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfEqual(endMethod);               // Return 0 when input is 0
-        methodConvert.Push0();                                     // Initialize result to 0
-        //input = 5 > 0; result = 0;
-        //do
-        //  result += 1
-        //while (input >> result) > 0
-        //result -= 1
         JumpTarget loopStart = new();
-        loopStart.Instruction = methodConvert.Nop();               // Loop start target
-        methodConvert.Inc();                                       // Increment result
-        methodConvert.Over();                                      // Copy input to top
-        methodConvert.Over();                                      // Copy result to top
-        methodConvert.ShR();                                       // Right shift input by result
-        methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfGreater(loopStart);               // Continue loop if result > 0
-        methodConvert.Nip();                                       // Remove the input, keep result
-        methodConvert.Dec();                                       // Decrement result by 1
-        endMethod.Instruction = methodConvert.Nop();               // End method target
+        JumpTarget doneTarget = new();
+
+        methodConvert.Dup();                                       // [value, value]
+        methodConvert.Push0();                                     // [value, value, 0]
+        methodConvert.JumpIfGreaterOrEqual(nonNegativeTarget);     // [value]
+        methodConvert.Throw();                                     // Throw if negative
+        nonNegativeTarget.Instruction = methodConvert.Nop();
+
+        // n starts at 0. If value <= 1, Log2 is 0 (no shift). Otherwise n++ until (value >> n) <= 1.
+        methodConvert.Push0();                                     // [value, n]
+        methodConvert.Over();                                      // [value, n, value]
+        methodConvert.Push1();                                     // [value, n, value, 1]
+        methodConvert.JumpIfLessOrEqual(doneTarget);               // [value, n] if value <= 1
+        loopStart.Instruction = methodConvert.Nop();
+        methodConvert.Inc();                                       // [value, n + 1]
+        methodConvert.Over();                                      // [value, n, value]
+        methodConvert.Over();                                      // [value, n, value, n]
+        methodConvert.ShR();                                       // [value, n, value >> n]
+        methodConvert.Push1();                                     // [value, n, value >> n, 1]
+        methodConvert.JumpIfGreater(loopStart);                    // continue while (value >> n) > 1
+        doneTarget.Instruction = methodConvert.Nip();              // [n]
     }
 
     /// <summary>
