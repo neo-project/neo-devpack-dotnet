@@ -65,10 +65,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DivideUncheckedInt32_Overflow_ShouldThrow()
         {
-            Assert.ThrowsException<TestException>(() =>
+            var ex = Assert.ThrowsException<TestException>(() =>
             {
                 Contract.DivideUncheckedInt32(int.MinValue, -1);
             });
+            Assert.Contains("Overflow", ex.Message);
         }
 
         /// <summary>
@@ -78,10 +79,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DivideAssignUncheckedInt32_Overflow_ShouldThrow()
         {
-            Assert.ThrowsException<TestException>(() =>
+            var ex = Assert.ThrowsExactly<TestException>(() =>
             {
                 Contract.DivideAssignUncheckedInt32(int.MinValue, -1);
             });
+            Assert.Contains("Overflow", ex.Message);
         }
 
         #endregion
@@ -95,10 +97,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DivideCheckedInt64_Overflow_ShouldThrow()
         {
-            Assert.ThrowsException<TestException>(() =>
+            var ex = Assert.ThrowsExactly<TestException>(() =>
             {
                 Contract.DivideCheckedInt64(long.MinValue, -1);
             });
+            Assert.Contains("Overflow", ex.Message);
         }
 
         /// <summary>
@@ -117,10 +120,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DivideUncheckedInt64_Overflow_ShouldThrow()
         {
-            Assert.ThrowsException<TestException>(() =>
+            var ex = Assert.ThrowsExactly<TestException>(() =>
             {
                 Contract.DivideUncheckedInt64(long.MinValue, -1);
             });
+            Assert.Contains("Overflow", ex.Message);
         }
 
         /// <summary>
@@ -130,10 +134,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DivideAssignUncheckedInt64_Overflow_ShouldThrow()
         {
-            Assert.ThrowsException<TestException>(() =>
+            var ex = Assert.ThrowsExactly<TestException>(() =>
             {
                 Contract.DivideAssignUncheckedInt64(long.MinValue, -1);
             });
+            Assert.Contains("Overflow", ex.Message);
         }
 
         #endregion
