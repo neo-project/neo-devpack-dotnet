@@ -338,6 +338,8 @@ internal partial class MethodConvert
         Push(minValue.Value);
         JumpIfNotEqual(endTarget);
 
+        Drop(2);
+        Push("Overflow");
         Throw();
         endTarget.Instruction = Nop();
     }
