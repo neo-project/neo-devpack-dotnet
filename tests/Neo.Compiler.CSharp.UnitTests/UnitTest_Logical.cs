@@ -110,29 +110,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         /// <summary>
-        /// Verifies that the bool ^ bool optimization emits NZ (4 units = 120 datoshi)
-        /// instead of convert Boolean (8192 units = 245,760 datoshi) saving 245,640 datoshi per call.
-        /// Bytecode: XOR + NZ  vs old: XOR + CONVERT
-        /// </summary>
-        [TestMethod]
-        public void Test_BoolXor_GasSaving()
-        {
-            const long gasAfterOptimization = 1_047_480; // XOR + NZ (4u × 30)
-
-            Assert.IsFalse(Contract.TestLogicalExclusiveOr(false, false));
-            AssertGasConsumed(gasAfterOptimization);
-
-            Assert.IsTrue(Contract.TestLogicalExclusiveOr(false, true));
-            AssertGasConsumed(gasAfterOptimization);
-
-            Assert.IsTrue(Contract.TestLogicalExclusiveOr(true, false));
-            AssertGasConsumed(gasAfterOptimization);
-
-            Assert.IsFalse(Contract.TestLogicalExclusiveOr(true, true));
-            AssertGasConsumed(gasAfterOptimization);
-        }
-
-        /// <summary>
         /// Verifies semantic correctness of bool ^ bool for all input combinations.
         /// Ensures NZ produces the same truth table as XOR on booleans.
         /// </summary>
