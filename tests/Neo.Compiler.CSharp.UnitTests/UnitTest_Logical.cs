@@ -105,7 +105,51 @@ namespace Neo.Compiler.CSharp.UnitTests
                 {
                     var result = Contract.TestLogicalExclusiveOr(x, y);
                     Assert.AreEqual(x ^ y, result);
-                    AssertGasConsumed(1293120);
+                    AssertGasConsumed(1047480);
+                }
+        }
+
+        /// <summary>
+        /// Verifies that the bool ^ bool optimization emits NZ (4 units = 120 datoshi)
+        /// instead of CONVERT Boolean (8192 units = 245,760 datoshi), saving 245,640 datoshi per call.
+        /// Bytecode: XOR + NZ  vs old: XOR + CONVERT
+        /// </summary>
+        [TestMethod]
+        public void Test_BoolXor_GasSaving()
+        {
+            const long gasBeforeOptimization = 1_293_120; // XOR + CONVERT Boolean (8192u × 30)
+            const long gasAfterOptimization  = 1_047_480; // XOR + NZ              (4u × 30)
+            const long expectedSaving        = gasBeforeOptimization - gasAfterOptimization;
+
+            Assert.AreEqual(expectedSaving, 245_640L, "Expected saving must be 245,640 datoshi (8188 units × 30): CONVERT=8192u vs NZ=4u.");
+
+            // Execute and confirm optimized gas is consumed for all four boolean combinations
+            Assert.IsFalse(Contract.TestLogicalExclusiveOr(false, false));
+            AssertGasConsumed(gasAfterOptimization);
+
+            Assert.IsTrue(Contract.TestLogicalExclusiveOr(false, true));
+            AssertGasConsumed(gasAfterOptimization);
+
+            Assert.IsTrue(Contract.TestLogicalExclusiveOr(true,  false));
+            AssertGasConsumed(gasAfterOptimization);
+
+            Assert.IsFalse(Contract.TestLogicalExclusiveOr(true,  true));
+            AssertGasConsumed(gasAfterOptimization);
+        }
+
+        /// <summary>
+        /// Verifies semantic correctness of bool ^ bool for all input combinations.
+        /// Ensures NZ produces the same truth table as XOR on booleans.
+        /// </summary>
+        [TestMethod]
+        public void Test_BoolXor_Correctness()
+        {
+            foreach (var x in new[] { false, true })
+                foreach (var y in new[] { false, true })
+                {
+                    bool expected = x ^ y;
+                    bool? actual = Contract.TestLogicalExclusiveOr(x, y);
+                    Assert.AreEqual(expected, actual, $"bool ^ bool correctness failed: {x} ^ {y} should be {expected} but was {actual}");
                 }
         }
 
