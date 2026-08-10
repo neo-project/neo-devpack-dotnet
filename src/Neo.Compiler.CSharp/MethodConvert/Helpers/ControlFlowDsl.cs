@@ -285,29 +285,29 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Emits the core pop-count loop assuming the value to inspect is on top of the stack
-    /// and the running count is beneath it.
+    /// Emits the core pop-count loop assuming the value to inspect is on top of the stack.
+    /// Uses Kernighan's algorithm (<c>v &amp;= v - 1</c>) so each iteration clears one set bit.
+    /// Must ensure the value is a positive value.
     /// </summary>
     private void EmitPopCountLoopCore()
     {
-        Push(0);                                                   // value count
-        Swap();                                                    // count value
-        EmitWhileComparisonTrueExit(
-            perIterationSetup: () => Dup(),                        // count value value
-            comparisonSetup: () => Push0(),                        // count value value 0
-            comparisonOp: OpCode.JMPEQ,                            // Exit when value == 0
-            bodyEmitter: _ =>
-            {
-                Dup();                                             // count value value
-                Push1();                                           // count value value 1
-                And();                                             // count value (value & 1)
-                Rot();                                             // value (value & 1) count
-                Add();                                             // value count += (value & 1)
-                Swap();                                            // count value
-                Push1();                                           // count value 1
-                ShR();                                             // count value >>= 1
-            },
-            exitEmitter: () => Drop());                            // Drop remaining value
+        Push0();  // [value, 0], the value is positive because it is masked to the desired width
+
+        JumpTarget loopStart = new(), doneTarget = new();
+
+        loopStart.Instruction = Over();                          // [value count value]
+        JumpIfNot(doneTarget);                                   // exit when value == 0 (0 is false)
+
+        // Clear the lowest set bit: value &= (value - 1)
+        Over();                                                  // [value count value]
+        Dec();                                                   // [value count (value - 1)]
+        Rot();                                                   // [count value (value - 1)]
+        And();                                                   // [count value']
+        Swap();                                                  // [value' count]
+        Inc();                                                   // [value' count+1]
+        JumpAlways(loopStart);
+
+        doneTarget.Instruction = Nip();                          // [count]
     }
 
     /// <summary>
@@ -323,8 +323,7 @@ internal partial class MethodConvert
     /// <summary>
     /// Emits a pop-count loop when the value has already been masked to the desired width.
     /// </summary>
-    private void EmitPopCountFromMaskedValue()
-        => EmitPopCountLoopCore();
+    private void EmitPopCountFromMaskedValue() => EmitPopCountLoopCore();
 
     private readonly struct LoopScope
     {
