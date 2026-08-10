@@ -117,7 +117,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_BoolXor_GasSaving()
         {
-            const long gasAfterOptimization  = 1_047_480; // XOR + NZ (4u × 30)
+            const long gasAfterOptimization = 1_047_480; // XOR + NZ (4u × 30)
 
             Assert.IsFalse(Contract.TestLogicalExclusiveOr(false, false));
             AssertGasConsumed(gasAfterOptimization);
@@ -125,10 +125,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestLogicalExclusiveOr(false, true));
             AssertGasConsumed(gasAfterOptimization);
 
-            Assert.IsTrue(Contract.TestLogicalExclusiveOr(true,  false));
+            Assert.IsTrue(Contract.TestLogicalExclusiveOr(true, false));
             AssertGasConsumed(gasAfterOptimization);
 
-            Assert.IsFalse(Contract.TestLogicalExclusiveOr(true,  true));
+            Assert.IsFalse(Contract.TestLogicalExclusiveOr(true, true));
             AssertGasConsumed(gasAfterOptimization);
         }
 
