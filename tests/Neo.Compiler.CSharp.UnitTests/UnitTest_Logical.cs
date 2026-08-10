@@ -111,19 +111,14 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         /// <summary>
         /// Verifies that the bool ^ bool optimization emits NZ (4 units = 120 datoshi)
-        /// instead of CONVERT Boolean (8192 units = 245,760 datoshi), saving 245,640 datoshi per call.
+        /// instead of convert Boolean (8192 units = 245,760 datoshi) saving 245,640 datoshi per call.
         /// Bytecode: XOR + NZ  vs old: XOR + CONVERT
         /// </summary>
         [TestMethod]
         public void Test_BoolXor_GasSaving()
         {
-            const long gasBeforeOptimization = 1_293_120; // XOR + CONVERT Boolean (8192u × 30)
-            const long gasAfterOptimization  = 1_047_480; // XOR + NZ              (4u × 30)
-            const long expectedSaving        = gasBeforeOptimization - gasAfterOptimization;
+            const long gasAfterOptimization  = 1_047_480; // XOR + NZ (4u × 30)
 
-            Assert.AreEqual(expectedSaving, 245_640L, "Expected saving must be 245,640 datoshi (8188 units × 30): CONVERT=8192u vs NZ=4u.");
-
-            // Execute and confirm optimized gas is consumed for all four boolean combinations
             Assert.IsFalse(Contract.TestLogicalExclusiveOr(false, false));
             AssertGasConsumed(gasAfterOptimization);
 
