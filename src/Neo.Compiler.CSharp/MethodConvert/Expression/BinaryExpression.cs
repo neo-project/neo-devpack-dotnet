@@ -122,9 +122,13 @@ internal partial class MethodConvert
         }
         AddInstruction(opcode);
 
+        // XOR of two booleans produces an integer (0 or 1).
+        // NZ (4 units = 120 datoshi) converts 0 -> false, nonzero -> true,
+        // which is correct for boolean results and 2048× cheaper than
+        // convert Boolean (8192 units = 245,760 datoshi).
         if (expression.OperatorToken.ValueText == "^" && type.GetStackItemType() == StackItemType.Boolean)
         {
-            ChangeType(StackItemType.Boolean);
+            Nz();
         }
 
         if (checkResult)

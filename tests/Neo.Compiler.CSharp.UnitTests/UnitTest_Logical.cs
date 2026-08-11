@@ -105,7 +105,23 @@ namespace Neo.Compiler.CSharp.UnitTests
                 {
                     var result = Contract.TestLogicalExclusiveOr(x, y);
                     Assert.AreEqual(x ^ y, result);
-                    AssertGasConsumed(1293120);
+                    AssertGasConsumed(1047480);
+                }
+        }
+
+        /// <summary>
+        /// Verifies semantic correctness of bool ^ bool for all input combinations.
+        /// Ensures NZ produces the same truth table as XOR on booleans.
+        /// </summary>
+        [TestMethod]
+        public void Test_BoolXor_Correctness()
+        {
+            foreach (var x in new[] { false, true })
+                foreach (var y in new[] { false, true })
+                {
+                    bool expected = x ^ y;
+                    bool? actual = Contract.TestLogicalExclusiveOr(x, y);
+                    Assert.AreEqual(expected, actual, $"bool ^ bool correctness failed: {x} ^ {y} should be {expected} but was {actual}");
                 }
         }
 
