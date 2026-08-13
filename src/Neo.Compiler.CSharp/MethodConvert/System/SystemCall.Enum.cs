@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -399,26 +400,15 @@ internal partial class MethodConvert
 
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
-        var endTarget = new JumpTarget();
-        foreach (var t in enumMembers)
-        {
-            methodConvert.Dup();                 // Duplicate input value
-            methodConvert.Push(t.ConstantValue); // Push enum value, the enum value is an int value
 
-            var nextCheck = new JumpTarget();
-            methodConvert.Jump(OpCode.JMPNE, nextCheck);  // If not numeric equal, check next
+        var cases = enumMembers
+            .Select(t => (new BigInteger(System.Convert.ToInt64(t.ConstantValue)), (Action)(() => methodConvert.Push(t.Name))))
+            .ToArray();
 
-            methodConvert.Drop();        // Remove the duplicated input value
-            methodConvert.Push(t.Name);  // Push enum name
-            methodConvert.JumpAlways(endTarget);
-
-            nextCheck.Instruction = methodConvert.Nop();
-        }
-
-        // No match found
-        methodConvert.Drop();     // Remove the input value
-        methodConvert.PushNull(); // Push null (no matching enum name)
-        endTarget.Instruction = methodConvert.Nop();
+        methodConvert.EmitSwitch(
+            valueEmitter: () => { },  // value is already on the stack
+            cases: cases,
+            defaultBody: () => methodConvert.PushNull());
     }
 
     /// <summary>

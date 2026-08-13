@@ -14,6 +14,7 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -207,6 +208,55 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1051230);
             Assert.IsNull(Contract.TestEnumGetNameWithType(4));
             AssertGasConsumed(1051230);
+        }
+
+        [TestMethod]
+        public void TestEnumGetName_EmitSwitch_EmitsJmpeqPerCase()
+        {
+            // Locate testEnumGetName in the manifest and determine its byte range.
+            var methods = Contract_Enum.Manifest.Abi.Methods
+                .OrderBy(m => m.Offset).ToArray();
+            var methodDesc = methods.First(m => m.Name == "testEnumGetName");
+            int startOffset = methodDesc.Offset;
+            int endOffset = methods.First(m => m.Offset > startOffset).Offset;
+
+            // Walk the instructions inside the method boundary.
+            var script = new Neo.VM.Script(Contract_Enum.Nef.Script);
+            var opcodes = new List<Neo.VM.OpCode>();
+            for (int pos = startOffset; pos < endOffset;)
+            {
+                var inst = script.GetInstruction(pos);
+                opcodes.Add(inst.OpCode);
+                pos += inst.Size;
+            }
+
+            // EmitSwitch generates exactly one JMPEQ per enum member.
+            // TestEnum has 3 members: Value1, Value2, Value3.
+            int jmpeqCount = opcodes.Count(
+                op => op == Neo.VM.OpCode.JMPEQ || op == Neo.VM.OpCode.JMPEQ_L);
+            Assert.AreEqual(3, jmpeqCount, $"Expected exactly 3 JMPEQ opcodes (one per enum member), found {jmpeqCount}.");
+        }
+
+        [TestMethod]
+        public void TestEnumGetName_EmitSwitch_GasDeltaIsConstantPerSkippedCase()
+        {
+            // Prime the engine so the first call is never cold.
+            Contract.TestEnumGetName(1);
+            long gasCase1 = Engine.FeeConsumed.Value;
+
+            Contract.TestEnumGetName(2);
+            long gasCase2 = Engine.FeeConsumed.Value;
+
+            Contract.TestEnumGetName(3);
+            long gasCase3 = Engine.FeeConsumed.Value;
+
+            long delta12 = gasCase2 - gasCase1;
+            long delta23 = gasCase3 - gasCase2;
+
+            // Each additional skipped case costs exactly delta12 (DUP + PUSH + JMPEQ).
+            // If NUMEQUAL+JMPIF+NOP were used the deltas would not be equal.
+            Assert.AreEqual(delta12, delta23, $"Gas delta per skipped case must be constant. Got delta12={delta12}, delta23={delta23}.");
+            Assert.IsTrue(delta12 > 0, "Each additional skipped case must cost positive gas.");
         }
 
         [TestMethod]
