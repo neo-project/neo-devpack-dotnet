@@ -42,6 +42,8 @@ internal partial class MethodConvert
         methodConvert.IsNull();
         JumpTarget notNull = new();
         methodConvert.JumpIfFalse(notNull);
+        methodConvert.Drop();
+        methodConvert.Push("Null");
         methodConvert.Throw();
         notNull.Instruction = methodConvert.Nop();
 
@@ -50,6 +52,8 @@ internal partial class MethodConvert
         methodConvert.Push(1);
         JumpTarget sizeOk = new();
         methodConvert.JumpIfEqual(sizeOk);
+        methodConvert.Drop();
+        methodConvert.Push("NotOneChar");
         methodConvert.Throw();
         sizeOk.Instruction = methodConvert.Nop();
 
