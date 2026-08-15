@@ -15,6 +15,8 @@ using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -93,6 +95,71 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
             _ = context.CreateExecutable();
+        }
+
+        [TestMethod]
+        public void TestEnumGetName_SupportsAllIntegralBackingTypes()
+        {
+            // Regression coverage for ToBigIntegerConstant: every valid enum backing type
+            // in C# (sbyte, byte, short, ushort, int, uint, long, ulong) must be converted
+            // to BigInteger without throwing, and Enum.GetName must resolve correctly.
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    public enum SByteEnum : sbyte { Value = -1 }
+                    public enum ByteEnum : byte { Value = 200 }
+                    public enum ShortEnum : short { Value = -1000 }
+                    public enum UShortEnum : ushort { Value = 60000 }
+                    public enum UIntEnum : uint { Value = 4000000000 }
+                    public enum LongEnum : long { Value = -9000000000000000000 }
+
+                    [DisplayName("getSByte")]
+                    public static string GetSByte() => Enum.GetName(SByteEnum.Value);
+
+                    [DisplayName("getByte")]
+                    public static string GetByte() => Enum.GetName(ByteEnum.Value);
+
+                    [DisplayName("getShort")]
+                    public static string GetShort() => Enum.GetName(ShortEnum.Value);
+
+                    [DisplayName("getUShort")]
+                    public static string GetUShort() => Enum.GetName(UShortEnum.Value);
+
+                    [DisplayName("getUInt")]
+                    public static string GetUInt() => Enum.GetName(UIntEnum.Value);
+
+                    [DisplayName("getLong")]
+                    public static string GetLong() => Enum.GetName(LongEnum.Value);
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<IntegralBackingTypesContract>(context.CreateExecutable(), context.CreateManifest());
+
+            Assert.AreEqual("Value", contract.GetSByte());
+            Assert.AreEqual("Value", contract.GetByte());
+            Assert.AreEqual("Value", contract.GetShort());
+            Assert.AreEqual("Value", contract.GetUShort());
+            Assert.AreEqual("Value", contract.GetUInt());
+            Assert.AreEqual("Value", contract.GetLong());
+        }
+
+        public abstract class IntegralBackingTypesContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("getSByte")] public abstract string? GetSByte();
+            [DisplayName("getByte")] public abstract string? GetByte();
+            [DisplayName("getShort")] public abstract string? GetShort();
+            [DisplayName("getUShort")] public abstract string? GetUShort();
+            [DisplayName("getUInt")] public abstract string? GetUInt();
+            [DisplayName("getLong")] public abstract string? GetLong();
         }
 
         [TestMethod]

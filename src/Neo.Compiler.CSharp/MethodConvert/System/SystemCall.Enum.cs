@@ -426,8 +426,6 @@ internal partial class MethodConvert
         uint v => v,
         long v => v,
         ulong v => v,
-        char v => (ushort)v,
-        BigInteger v => v,
         _ => throw new ArgumentOutOfRangeException(nameof(constantValue), constantValue, "Unsupported enum backing type"),
     };
 
