@@ -402,7 +402,7 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         var cases = enumMembers
-            .Select(t => (new BigInteger(System.Convert.ToInt64(t.ConstantValue)), (Action)(() => methodConvert.Push(t.Name))))
+            .Select(t => (ToBigIntegerConstant(t.ConstantValue), (Action)(() => methodConvert.Push(t.Name))))
             .ToArray();
 
         methodConvert.EmitSwitch(
@@ -410,6 +410,26 @@ internal partial class MethodConvert
             cases: cases,
             defaultBody: () => methodConvert.PushNull());
     }
+
+    /// <summary>
+    /// Converts a boxed enum constant value to <see cref="BigInteger"/> while preserving
+    /// the full integral domain of every possible enum backing type, including
+    /// <see langword="ulong"/> values above <see cref="long.MaxValue"/>.
+    /// </summary>
+    private static BigInteger ToBigIntegerConstant(object? constantValue) => constantValue switch
+    {
+        sbyte v => v,
+        byte v => v,
+        short v => v,
+        ushort v => v,
+        int v => v,
+        uint v => v,
+        long v => v,
+        ulong v => v,
+        char v => (ushort)v,
+        BigInteger v => v,
+        _ => throw new ArgumentOutOfRangeException(nameof(constantValue), constantValue, "Unsupported enum backing type"),
+    };
 
     /// <summary>
     /// Handles the Enum.GetName method with explicit type parameter.

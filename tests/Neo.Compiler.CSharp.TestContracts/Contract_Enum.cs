@@ -25,6 +25,19 @@ namespace Neo.Compiler.CSharp.TestContracts
             Value3 = 3
         }
 
+        public enum TestUlongEnum : ulong
+        {
+            Value1 = 1,
+            MaxValue = ulong.MaxValue
+        }
+
+        #pragma warning disable CS8603
+        public static string TestUlongEnumGetName(TestUlongEnum value)
+        {
+            return System.Enum.GetName(value);
+        }
+        #pragma warning restore CS8603
+
         public static object TestEnumParse(string value)
         {
             return System.Enum.Parse(typeof(TestEnum), value);

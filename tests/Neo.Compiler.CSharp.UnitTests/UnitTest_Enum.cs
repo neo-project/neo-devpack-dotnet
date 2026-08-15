@@ -260,6 +260,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestUlongEnumGetName_DoesNotThrowForValueAboveLongMaxValue()
+        {
+            // Regression test: HandleEnumGetName must not narrow enum constants through
+            // Convert.ToInt64, since a ulong-backed enum member can exceed long.MaxValue.
+            Assert.AreEqual("Value1", Contract.TestUlongEnumGetName(1));
+            Assert.AreEqual("MaxValue", Contract.TestUlongEnumGetName((System.Numerics.BigInteger)ulong.MaxValue));
+        }
+
+        [TestMethod]
         public void TestEnumHasFlagAndToString()
         {
             Assert.IsTrue(Contract.TestEnumHasFlag(3, 1));
