@@ -696,7 +696,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestIsPow2Int()
         {
             Assert.AreEqual(int.IsPow2(0), Contract.IsPow2Int(0));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047270);
             Assert.AreEqual(int.IsPow2(1), Contract.IsPow2Int(1));
             AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(2), Contract.IsPow2Int(2));
@@ -705,6 +705,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(4), Contract.IsPow2Int(4));
             AssertGasConsumed(1047720);
+            Assert.AreEqual(int.IsPow2(-1), Contract.IsPow2Int(-1));
+            AssertGasConsumed(1047270);
+            Assert.AreEqual(int.IsPow2(-2), Contract.IsPow2Int(-2));
+            AssertGasConsumed(1047270);
         }
 
         [TestMethod]
