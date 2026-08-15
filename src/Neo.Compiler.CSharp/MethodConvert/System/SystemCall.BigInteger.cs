@@ -716,27 +716,20 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         // (n & (n-1) == 0) and (n != 0)
-        JumpTarget endFalse = new();
-        JumpTarget endTrue = new();
         JumpTarget endTarget = new();
         JumpTarget greaterZero = new();
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
         methodConvert.JumpIfGreater(greaterZero);                  // Jump if non-zero
         methodConvert.Drop();                                      // Drop the value if zero
-        methodConvert.JumpAlways(endFalse);                        // Return false for zero
+        methodConvert.Push(false);                                 // Return false if value <= 0
+        methodConvert.JumpAlways(endTarget);                        // Return false for zero
         greaterZero.Instruction = methodConvert.Nop();             // Non-zero target
         methodConvert.Dup();                                       // Duplicate value
         methodConvert.Dec();                                       // Decrement (n-1)
         methodConvert.And();                                       // Calculate n & (n-1)
-        methodConvert.Push(0);
-        methodConvert.JumpIfEqual(endTrue);                        // Jump if result is 0
-        endFalse.Instruction = methodConvert.Nop();                // False case target
-        methodConvert.Push(false);
-        methodConvert.JumpAlways(endTarget);                       // Jump to end
-        endTrue.Instruction = methodConvert.Nop();                 // True case target
-        methodConvert.Push(true);
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.Not();                                       // Calculate !(n & (n-1))
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     /// <summary>
