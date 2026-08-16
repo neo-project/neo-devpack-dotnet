@@ -100,35 +100,35 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestIsNullOrWhiteSpace()
         {
             Assert.IsTrue(Contract.TestIsNullOrWhiteSpace("   "));
-            AssertGasConsumed(1060860);
+            AssertGasConsumed(1060830);
 
             Assert.IsTrue(Contract.TestIsNullOrWhiteSpace(null));
             AssertGasConsumed(1047300);
 
             Assert.IsFalse(Contract.TestIsNullOrWhiteSpace("hello world"));
-            AssertGasConsumed(1051920);
+            AssertGasConsumed(1051890);
         }
 
         [TestMethod]
         public void Test_TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith("hello world"));
-            AssertGasConsumed(1357920);
+            AssertGasConsumed(1357890);
 
             Assert.IsTrue(Contract.TestEndWith("world"));
-            AssertGasConsumed(1357920);
+            AssertGasConsumed(1357890);
 
             Assert.IsFalse(Contract.TestEndWith("hel"));
-            AssertGasConsumed(1049460);
+            AssertGasConsumed(1049430);
 
             Assert.IsFalse(Contract.TestEndWith("hello"));
-            AssertGasConsumed(1357920);
+            AssertGasConsumed(1357890);
 
             Assert.IsTrue(Contract.TestEndWith("hello world", ""));
-            AssertGasConsumed(1047960);
+            AssertGasConsumed(1047930);
 
             Assert.IsFalse(Contract.TestEndWith("", "world"));
-            AssertGasConsumed(1049520);
+            AssertGasConsumed(1049490);
         }
 
         [TestMethod]

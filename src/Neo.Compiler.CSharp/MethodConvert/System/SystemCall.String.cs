@@ -245,15 +245,14 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
         methodConvert.Size();
+        methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, valueLenSlot);
 
         JumpTarget valueNotEmptyTarget = new();
         JumpTarget canSearchTarget = new();
         JumpTarget endTarget = new();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
-        methodConvert.Push(0);
-        methodConvert.JumpIfNotEqual(valueNotEmptyTarget);
+        methodConvert.JumpIfTrue(valueNotEmptyTarget); // NonZero int means true.
         methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
         methodConvert.JumpAlways(endTarget);
         valueNotEmptyTarget.Instruction = methodConvert.Nop();
@@ -551,13 +550,12 @@ internal partial class MethodConvert
         var endTarget = new JumpTarget();
         var validCountTarget = new JumpTarget();
         var suffixNotEmptyTarget = new JumpTarget();
-        methodConvert.Over();                        // Duplicate suffix
-        methodConvert.Size();                        // Get suffix length
-        methodConvert.Push(0);
-        methodConvert.JumpIfNotEqual(suffixNotEmptyTarget); // if len(suffix) != 0 skip
-        methodConvert.Drop();                        // Drop suffix (empty string)
-        methodConvert.Drop();                        // Drop original string
-        methodConvert.PushT();                       // Push true any string ends with ""
+        methodConvert.Over();                          // Duplicate suffix
+        methodConvert.Size();                          // Get suffix length
+        methodConvert.JumpIfTrue(suffixNotEmptyTarget); // NonZero int means true.
+        methodConvert.Drop();                          // Drop suffix (empty string)
+        methodConvert.Drop();                          // Drop original string
+        methodConvert.PushT();                         // Push true any string ends with ""
         methodConvert.JumpAlways(endTarget);
         suffixNotEmptyTarget.Instruction = methodConvert.Nop();
         methodConvert.Dup();                                       // Duplicate string for length check
@@ -662,11 +660,9 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Size();
+        methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-        methodConvert.Push(0);
-        methodConvert.JumpIfEqual(emptyTarget);
+        methodConvert.JumpIfFalse(emptyTarget); // Zero int means false.
 
         methodConvert.Push(0);
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
