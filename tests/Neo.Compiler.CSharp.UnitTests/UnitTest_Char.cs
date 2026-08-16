@@ -229,8 +229,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual('A', Contract.TestCharParse("A"));
             Assert.AreEqual('0', Contract.TestCharParse("0"));
-            Assert.ThrowsException<TestException>(() => Contract.TestCharParse("TooLong"));
-            Assert.ThrowsException<TestException>(() => Contract.TestCharParse(string.Empty));
+
+            var ex = Assert.ThrowsException<TestException>(() => Contract.TestCharParse("TooLong"));
+            Assert.Contains("NotOneChar", ex.Message);
+
+            ex = Assert.ThrowsException<TestException>(() => Contract.TestCharParse(string.Empty));
+            Assert.Contains("NotOneChar", ex.Message);
+
+            ex = Assert.ThrowsException<TestException>(() => Contract.TestCharParse(null));
+            Assert.Contains("Null", ex.Message);
 
             var result = Contract.TestCharTryParse("Z");
             Assert.IsNotNull(result);
