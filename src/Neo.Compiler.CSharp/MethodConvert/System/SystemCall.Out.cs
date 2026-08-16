@@ -11,7 +11,6 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract.Native;
@@ -172,8 +171,7 @@ partial class MethodConvert
 
         // Drop the out parameter since it's not needed
         // We use the static field to store the result
-        methodConvert.Swap();                                      // Swap arguments order
-        methodConvert.Drop();                                      // Drop out parameter
+        methodConvert.Nip();               // StdCall, Drop out parameter
 
         byte strSlot = methodConvert.AddAnonymousVariable();
         JumpTarget failTarget = new();
@@ -236,8 +234,7 @@ partial class MethodConvert
 
         // Drop the out parameter since it's not needed.
         // We use the captured static field to hold the parsed value.
-        methodConvert.Swap();
-        methodConvert.Drop();
+        methodConvert.Nip();               // StdCall, Drop out parameter
 
         byte strSlot = methodConvert.AddAnonymousVariable();
 
@@ -281,11 +278,9 @@ partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Size();
+        methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-        methodConvert.Nz();
-        methodConvert.JumpIfFalseLong(failTarget);
+        methodConvert.JumpIfFalse(failTarget); // Jump to fail target if length is 0
 
         methodConvert.Push0();
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
@@ -346,21 +341,27 @@ partial class MethodConvert
     {
         if (arguments is null) return;
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index))
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
 
         JumpTarget trueTarget = new();
         JumpTarget falseTarget = new();
         JumpTarget endTarget = new();
 
-        methodConvert.Swap();                                      // Swap arguments order
-        methodConvert.Drop();                                      // Drop out parameter
+        methodConvert.Nip();               // StdCall, Drop out parameter
 
-        // Check for true values
+        // Check the most common values: true and false
         methodConvert.Dup();                                       // x x
         methodConvert.Push("true");                                // x x "true"
         methodConvert.Equal();                                     // x (equal result)
         methodConvert.JumpIfTrueLong(trueTarget);
 
+        methodConvert.Dup();
+        methodConvert.Push("false");                               // x x "false"
+        methodConvert.Equal();                                     // x (equal result)
+        methodConvert.JumpIfTrueLong(falseTarget);           // x
+
+        // Check for other true values
         methodConvert.Dup();                                       // x x
         methodConvert.Push("TRUE");                                // x x "TRUE"
         methodConvert.Equal();                                     // x (equal result)
@@ -406,12 +407,7 @@ partial class MethodConvert
         methodConvert.Equal();                                     // x (equal result)
         methodConvert.JumpIfTrueLong(trueTarget);            // x
 
-        // Check for false values
-        methodConvert.Dup();
-        methodConvert.Push("false");                               // x x "false"
-        methodConvert.Equal();                                     // x (equal result)
-        methodConvert.JumpIfTrueLong(falseTarget);           // x
-
+        // Check for other false values
         methodConvert.Dup();                                       // x x
         methodConvert.Push("FALSE");                               // x x "FALSE"
         methodConvert.Equal();                                     // x (equal result)
@@ -459,27 +455,23 @@ partial class MethodConvert
 
         // If parsing failed, clean up stack and push false
         methodConvert.Drop();                                      // Clean up input
-        methodConvert.Push(false);                                 // Default out value
-        methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store false in out parameter
         methodConvert.Push(false);                                 // Return false for parsing failure
-        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
+        methodConvert.Push(false);                                 // Default out value, consumed by STSFLD
+        methodConvert.JumpAlwaysLong(endTarget);                  // Jump to end
 
         // True case
         trueTarget.Instruction = methodConvert.Nop();              // True target
         methodConvert.Drop();                                      // Clean up input
-        methodConvert.Push(true);                                  // Set out value to true
-        methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store true in out parameter
         methodConvert.Push(true);                                  // Return true for successful parsing
-        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
+        methodConvert.Push(true);                                  // Set out value to true, consumed by STSFLD
+        methodConvert.JumpAlwaysLong(endTarget);                   // Jump to end
 
         // False case
         falseTarget.Instruction = methodConvert.Nop();             // False target
         methodConvert.Drop();                                      // Clean up input
-        methodConvert.Push(false);                                 // Set out value to false
-        methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store false in out parameter
         methodConvert.Push(true);                                  // Return true for successful parsing
+        methodConvert.Push(false);                                 // Set out value to false, consumed by STSFLD
 
-        // End target
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        endTarget.Instruction = methodConvert.AccessSlot(OpCode.STSFLD, index);  // Store result to out parameter
     }
 }
