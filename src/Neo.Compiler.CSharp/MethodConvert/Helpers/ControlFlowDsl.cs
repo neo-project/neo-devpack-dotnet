@@ -266,8 +266,7 @@ internal partial class MethodConvert
             caseTargets[i] = new JumpTarget();
             Dup();
             Push(cases[i].value);
-            NumEqual();
-            Jump(OpCode.JMPIF, caseTargets[i]);
+            Jump(OpCode.JMPEQ, caseTargets[i]);
         }
 
         Jump(OpCode.JMP, defaultTarget);

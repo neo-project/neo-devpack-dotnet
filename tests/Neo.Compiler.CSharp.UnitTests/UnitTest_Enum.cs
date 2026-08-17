@@ -14,6 +14,8 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -92,6 +94,71 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
             _ = context.CreateExecutable();
+        }
+
+        [TestMethod]
+        public void TestEnumGetName_SupportsAllIntegralBackingTypes()
+        {
+            // Regression coverage for ToBigIntegerConstant: every valid enum backing type
+            // in C# (sbyte, byte, short, ushort, int, uint, long, ulong) must be converted
+            // to BigInteger without throwing, and Enum.GetName must resolve correctly.
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    public enum SByteEnum : sbyte { Value = -1 }
+                    public enum ByteEnum : byte { Value = 200 }
+                    public enum ShortEnum : short { Value = -1000 }
+                    public enum UShortEnum : ushort { Value = 60000 }
+                    public enum UIntEnum : uint { Value = 4000000000 }
+                    public enum LongEnum : long { Value = -9000000000000000000 }
+
+                    [DisplayName("getSByte")]
+                    public static string GetSByte() => Enum.GetName(SByteEnum.Value);
+
+                    [DisplayName("getByte")]
+                    public static string GetByte() => Enum.GetName(ByteEnum.Value);
+
+                    [DisplayName("getShort")]
+                    public static string GetShort() => Enum.GetName(ShortEnum.Value);
+
+                    [DisplayName("getUShort")]
+                    public static string GetUShort() => Enum.GetName(UShortEnum.Value);
+
+                    [DisplayName("getUInt")]
+                    public static string GetUInt() => Enum.GetName(UIntEnum.Value);
+
+                    [DisplayName("getLong")]
+                    public static string GetLong() => Enum.GetName(LongEnum.Value);
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<IntegralBackingTypesContract>(context.CreateExecutable(), context.CreateManifest());
+
+            Assert.AreEqual("Value", contract.GetSByte());
+            Assert.AreEqual("Value", contract.GetByte());
+            Assert.AreEqual("Value", contract.GetShort());
+            Assert.AreEqual("Value", contract.GetUShort());
+            Assert.AreEqual("Value", contract.GetUInt());
+            Assert.AreEqual("Value", contract.GetLong());
+        }
+
+        public abstract class IntegralBackingTypesContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("getSByte")] public abstract string? GetSByte();
+            [DisplayName("getByte")] public abstract string? GetByte();
+            [DisplayName("getShort")] public abstract string? GetShort();
+            [DisplayName("getUShort")] public abstract string? GetUShort();
+            [DisplayName("getUInt")] public abstract string? GetUInt();
+            [DisplayName("getLong")] public abstract string? GetLong();
         }
 
         [TestMethod]
@@ -207,6 +274,64 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1051230);
             Assert.IsNull(Contract.TestEnumGetNameWithType(4));
             AssertGasConsumed(1051230);
+        }
+
+        [TestMethod]
+        public void TestEnumGetName_EmitSwitch_EmitsJmpeqPerCase()
+        {
+            // Locate testEnumGetName in the manifest and determine its byte range.
+            var methods = Contract_Enum.Manifest.Abi.Methods
+                .OrderBy(m => m.Offset).ToArray();
+            var methodDesc = methods.First(m => m.Name == "testEnumGetName");
+            int startOffset = methodDesc.Offset;
+            int endOffset = methods.First(m => m.Offset > startOffset).Offset;
+
+            // Walk the instructions inside the method boundary.
+            var script = new Neo.VM.Script(Contract_Enum.Nef.Script);
+            var opcodes = new List<Neo.VM.OpCode>();
+            for (int pos = startOffset; pos < endOffset;)
+            {
+                var inst = script.GetInstruction(pos);
+                opcodes.Add(inst.OpCode);
+                pos += inst.Size;
+            }
+
+            // EmitSwitch generates exactly one JMPEQ per enum member.
+            // TestEnum has 3 members: Value1, Value2, Value3.
+            int jmpeqCount = opcodes.Count(
+                op => op == Neo.VM.OpCode.JMPEQ || op == Neo.VM.OpCode.JMPEQ_L);
+            Assert.AreEqual(3, jmpeqCount, $"Expected exactly 3 JMPEQ opcodes (one per enum member), found {jmpeqCount}.");
+        }
+
+        [TestMethod]
+        public void TestEnumGetName_EmitSwitch_GasDeltaIsConstantPerSkippedCase()
+        {
+            // Prime the engine so the first call is never cold.
+            Contract.TestEnumGetName(1);
+            long gasCase1 = Engine.FeeConsumed.Value;
+
+            Contract.TestEnumGetName(2);
+            long gasCase2 = Engine.FeeConsumed.Value;
+
+            Contract.TestEnumGetName(3);
+            long gasCase3 = Engine.FeeConsumed.Value;
+
+            long delta12 = gasCase2 - gasCase1;
+            long delta23 = gasCase3 - gasCase2;
+
+            // Each additional skipped case costs exactly delta12 (DUP + PUSH + JMPEQ).
+            // If NUMEQUAL+JMPIF+NOP were used the deltas would not be equal.
+            Assert.AreEqual(delta12, delta23, $"Gas delta per skipped case must be constant. Got delta12={delta12}, delta23={delta23}.");
+            Assert.IsTrue(delta12 > 0, "Each additional skipped case must cost positive gas.");
+        }
+
+        [TestMethod]
+        public void TestUlongEnumGetName_DoesNotThrowForValueAboveLongMaxValue()
+        {
+            // Regression test: HandleEnumGetName must not narrow enum constants through
+            // Convert.ToInt64, since a ulong-backed enum member can exceed long.MaxValue.
+            Assert.AreEqual("Value1", Contract.TestUlongEnumGetName(1));
+            Assert.AreEqual("MaxValue", Contract.TestUlongEnumGetName((System.Numerics.BigInteger)ulong.MaxValue));
         }
 
         [TestMethod]
