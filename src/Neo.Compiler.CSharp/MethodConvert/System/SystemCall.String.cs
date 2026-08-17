@@ -639,16 +639,10 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
-        JumpTarget nullTarget = new();
-        JumpTarget emptyTarget = new();
+        JumpTarget falseTarget = new();
+        JumpTarget trueTarget = new();
         JumpTarget loopStart = new();
-        JumpTarget allWhitespaceTarget = new();
-        JumpTarget nonWhitespaceTarget = new();
         JumpTarget endTarget = new();
-
-        methodConvert.Dup();
-        methodConvert.IsNull();
-        methodConvert.JumpIfTrue(nullTarget);
 
         byte strSlot = methodConvert.AddAnonymousVariable();
         byte lengthSlot = methodConvert.AddAnonymousVariable();
@@ -656,13 +650,14 @@ internal partial class MethodConvert
 
         methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-        methodConvert.Drop();
+        methodConvert.IsNull();
+        methodConvert.JumpIfTrue(trueTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Size();
         methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
-        methodConvert.JumpIfFalse(emptyTarget); // Zero int means false.
+        methodConvert.JumpIfFalse(trueTarget); // Zero int means false.
 
         methodConvert.Push(0);
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
@@ -670,13 +665,13 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-        methodConvert.JumpIfGreaterOrEqual(allWhitespaceTarget);
+        methodConvert.JumpIfGreaterOrEqual(trueTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.PickItem();
 
-        CheckWithinWhiteSpace(methodConvert, nonWhitespaceTarget);
+        CheckWithinWhiteSpace(methodConvert, falseTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.Inc();
@@ -684,18 +679,10 @@ internal partial class MethodConvert
 
         methodConvert.JumpAlways(loopStart);
 
-        nonWhitespaceTarget.Instruction = methodConvert.PushF();
+        falseTarget.Instruction = methodConvert.PushF();
         methodConvert.JumpAlways(endTarget);
 
-        allWhitespaceTarget.Instruction = methodConvert.PushT();
-        methodConvert.JumpAlways(endTarget);
-
-        emptyTarget.Instruction = methodConvert.PushT();
-        methodConvert.JumpAlways(endTarget);
-
-        nullTarget.Instruction = methodConvert.Drop();
-        methodConvert.PushT();
-        methodConvert.JumpAlways(endTarget);
+        trueTarget.Instruction = methodConvert.PushT();
 
         endTarget.Instruction = methodConvert.Nop();
     }
@@ -1370,6 +1357,7 @@ internal partial class MethodConvert
 
     /// <summary>
     /// Checks if character is within whitespace range and exits loop if not.
+    /// The top stack item should be a picked item from string.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="loopEnd">Jump target for loop end</param>
@@ -1383,7 +1371,7 @@ internal partial class MethodConvert
         methodConvert.Swap();                                      // Swap for space check
 
         methodConvert.Push((ushort)' ');                           // Push space character
-        methodConvert.Equal();                                     // Check if equals space
+        methodConvert.NumEqual();                                  // Check if equals space
         methodConvert.BoolOr();                                    // Combine checks with OR
 
         methodConvert.JumpIfFalse(loopEnd);              // Exit if not whitespace
