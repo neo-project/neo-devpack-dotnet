@@ -44,13 +44,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Sbyte()
         {
             Assert.AreEqual(127, Contract.Testsbyte(127));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047660);
             Assert.AreEqual(-128, Contract.Testsbyte(-128));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047660);
             Assert.ThrowsException<TestException>(() => Contract.Testsbyte(128));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078440);
             Assert.ThrowsException<TestException>(() => Contract.Testsbyte(-129));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078440);
         }
 
         [TestMethod]
@@ -70,13 +70,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_short()
         {
             Assert.AreEqual(32767, Contract.Testshort(32767));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047660);
             Assert.AreEqual(-32768, Contract.Testshort(-32768));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047660);
             Assert.ThrowsException<TestException>(() => Contract.Testshort(32768));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078440);
             Assert.ThrowsException<TestException>(() => Contract.Testshort(-32769));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078440);
         }
 
         [TestMethod]
@@ -96,13 +96,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_int()
         {
             Assert.AreEqual(-2147483648, Contract.Testint(-2147483648));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047660);
             Assert.AreEqual(2147483647, Contract.Testint(2147483647));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047660);
             Assert.ThrowsException<TestException>(() => Contract.Testint(-2147483649));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078440);
             Assert.ThrowsException<TestException>(() => Contract.Testint(2147483648));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078440);
         }
 
         [TestMethod]
@@ -122,13 +122,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_long()
         {
             Assert.AreEqual(-9223372036854775808, Contract.Testlong(-9223372036854775808));
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(1047660);
             Assert.AreEqual(9223372036854775807, Contract.Testlong(9223372036854775807));
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(1047660);
             Assert.ThrowsException<TestException>(() => Contract.Testlong(BigInteger.Parse("-9223372036854775809")));
-            AssertGasConsumed(1078770);
+            AssertGasConsumed(1078530);
             Assert.ThrowsException<TestException>(() => Contract.Testlong(9223372036854775808));
-            AssertGasConsumed(1078770);
+            AssertGasConsumed(1078530);
         }
 
         [TestMethod]
