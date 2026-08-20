@@ -93,6 +93,27 @@ public class UnitTest_ArgumentEvaluationOrder
                     return Combine(first: Next(), Next(), Next());
                 }
 
+                [DisplayName("emptyExpandedParams")]
+                public static int EmptyExpandedParams()
+                {
+                    _counter = 0;
+                    return Combine(Next());
+                }
+
+                [DisplayName("explicitParamsArray")]
+                public static int ExplicitParamsArray()
+                {
+                    _counter = 0;
+                    return CombineOptional(remaining: new[] { Next(), Next() });
+                }
+
+                [DisplayName("paramsOnly")]
+                public static int ParamsOnly()
+                {
+                    _counter = 0;
+                    return CombineParamsOnly(Next(), Next(), Next());
+                }
+
                 private static int Next()
                 {
                     _counter++;
@@ -101,7 +122,19 @@ public class UnitTest_ArgumentEvaluationOrder
 
                 private static int Combine(int first, params int[] remaining)
                 {
+                    return first * 100 +
+                        (remaining.Length > 0 ? remaining[0] * 10 : 0) +
+                        (remaining.Length > 1 ? remaining[1] : 0);
+                }
+
+                private static int CombineOptional(int first = 9, params int[] remaining)
+                {
                     return first * 100 + remaining[0] * 10 + remaining[1];
+                }
+
+                private static int CombineParamsOnly(params int[] values)
+                {
+                    return values[0] * 100 + values[1] * 10 + values[2];
                 }
             }
             """;
@@ -112,6 +145,9 @@ public class UnitTest_ArgumentEvaluationOrder
 
         Assert.AreEqual(new BigInteger(123), contract.ExpandedParams());
         Assert.AreEqual(new BigInteger(123), contract.NamedExpandedParams());
+        Assert.AreEqual(new BigInteger(100), contract.EmptyExpandedParams());
+        Assert.AreEqual(new BigInteger(912), contract.ExplicitParamsArray());
+        Assert.AreEqual(new BigInteger(123), contract.ParamsOnly());
     }
 
     public abstract class ArgumentOrderContract(SmartContractInitialize initialize)
@@ -135,5 +171,14 @@ public class UnitTest_ArgumentEvaluationOrder
 
         [DisplayName("namedExpandedParams")]
         public abstract BigInteger? NamedExpandedParams();
+
+        [DisplayName("emptyExpandedParams")]
+        public abstract BigInteger? EmptyExpandedParams();
+
+        [DisplayName("explicitParamsArray")]
+        public abstract BigInteger? ExplicitParamsArray();
+
+        [DisplayName("paramsOnly")]
+        public abstract BigInteger? ParamsOnly();
     }
 }
