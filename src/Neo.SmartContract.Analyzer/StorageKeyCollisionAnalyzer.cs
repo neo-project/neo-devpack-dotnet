@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly Dictionary<string, byte[]> ReservedBasePrefixes = new(StringComparer.Ordinal)
         {
             ["global::Neo.SmartContract.Framework.Ownable"] = [0xFF],
-            ["global::Neo.SmartContract.Framework.Ownable2Step"] = [0xFD, 0xFC],
+            ["global::Neo.SmartContract.Framework.Ownable2Step"] = [0xFD, 0xFC, 0xFB],
             ["global::Neo.SmartContract.Framework.Pausable"] = [0xFE],
             ["global::Neo.SmartContract.Framework.PausableOwnable"] = [0xFE],
             ["global::Neo.SmartContract.Framework.AccessControl"] = [0xFB],
