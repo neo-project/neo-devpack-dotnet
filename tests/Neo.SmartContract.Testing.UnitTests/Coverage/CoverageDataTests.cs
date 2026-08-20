@@ -95,6 +95,19 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             StringAssert.Contains(report, int.MaxValue.ToString());
         }
 
+        [TestMethod]
+        public void CoverletRejectsProgrammaticReversedLineRange()
+        {
+            NeoDebugInfo.SequencePoint sequencePoint = new(0, 0, (2, 1), (1, 1));
+            NeoDebugInfo.Method method = new("0", "Contract", "main", (0, 0), [], [sequencePoint]);
+            NeoDebugInfo debugInfo = new(UInt160.Zero, "", ["Contract.cs"], [method]);
+            var coverage = new CoveredContract(MethodDetectionMechanism.NextMethod, UInt160.Zero, null);
+            var format = new CoverletJsonFormat((coverage, debugInfo));
+
+            Assert.ThrowsException<InvalidDataException>(() =>
+                format.WriteReport((_, write) => write(new MemoryStream())));
+        }
+
         private static string CreateDebugInfoJson(string sequencePoint)
         {
             return $$"""
