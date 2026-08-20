@@ -326,6 +326,9 @@ internal partial class MethodConvert
 
         if (ShouldPreserveArgumentEvaluationOrder(model, symbol, arguments, callingConvention))
         {
+            if (TryPrepareParamsArgumentsPreservingEvaluationOrder(model, symbol, arguments, callingConvention))
+                return;
+
             PrepareArgumentsPreservingEvaluationOrder(model, symbol, arguments, callingConvention);
             return;
         }
@@ -455,6 +458,98 @@ internal partial class MethodConvert
             RemoveAnonymousVariable(slot);
     }
 
+    private bool TryPrepareParamsArgumentsPreservingEvaluationOrder(
+        SemanticModel model,
+        IMethodSymbol symbol,
+        IReadOnlyList<SyntaxNode> arguments,
+        CallingConvention callingConvention)
+    {
+        if (callingConvention != CallingConvention.Cdecl ||
+            symbol.Parameters.LastOrDefault() is not { IsParams: true } paramsParameter)
+            return false;
+
+        Dictionary<IParameterSymbol, byte> regularSlots = new(SymbolEqualityComparer.Default);
+        List<(ExpressionSyntax Expression, byte Slot)> paramsSlots = [];
+        List<byte> anonymousSlots = [];
+        int positionalIndex = 0;
+
+        foreach (SyntaxNode argument in arguments)
+        {
+            ExpressionSyntax expression;
+            IParameterSymbol? parameter;
+
+            switch (argument)
+            {
+                case ArgumentSyntax syntax:
+                    expression = syntax.Expression;
+                    parameter = syntax.NameColon is null
+                        ? symbol.Parameters.ElementAtOrDefault(Math.Min(positionalIndex, paramsParameter.Ordinal))
+                        : symbol.Parameters.FirstOrDefault(p => p.Name == syntax.NameColon.Name.Identifier.ValueText);
+                    if (syntax.NameColon is not null && parameter is not null)
+                        positionalIndex = Math.Max(positionalIndex, parameter.Ordinal + 1);
+                    break;
+                case ExpressionSyntax syntax:
+                    expression = syntax;
+                    parameter = symbol.Parameters.ElementAtOrDefault(Math.Min(positionalIndex, paramsParameter.Ordinal));
+                    break;
+                default:
+                    return false;
+            }
+
+            if (parameter is null)
+                return false;
+
+            ConvertExpression(model, expression);
+            byte slot = AddAnonymousVariable();
+            AccessSlot(OpCode.STLOC, slot);
+            anonymousSlots.Add(slot);
+
+            if (parameter.IsParams)
+                paramsSlots.Add((expression, slot));
+            else
+                regularSlots[parameter] = slot;
+
+            if (!parameter.IsParams)
+                positionalIndex++;
+        }
+
+        foreach (IParameterSymbol parameter in DetermineParameterOrder(symbol, callingConvention))
+        {
+            if (!parameter.IsParams)
+            {
+                if (regularSlots.TryGetValue(parameter, out byte slot))
+                    AccessSlot(OpCode.LDLOC, slot);
+                else
+                    Push(parameter.ExplicitDefaultValue);
+                continue;
+            }
+
+            if (paramsSlots.Count == 1 &&
+                model.ClassifyConversion(paramsSlots[0].Expression, paramsParameter.Type).Exists)
+            {
+                AccessSlot(OpCode.LDLOC, paramsSlots[0].Slot);
+                continue;
+            }
+
+            if (paramsSlots.Count == 0)
+            {
+                AddInstruction(OpCode.NEWARRAY0);
+            }
+            else
+            {
+                for (int i = paramsSlots.Count - 1; i >= 0; i--)
+                    AccessSlot(OpCode.LDLOC, paramsSlots[i].Slot);
+                Push(paramsSlots.Count);
+                AddInstruction(OpCode.PACK);
+            }
+        }
+
+        foreach (byte slot in anonymousSlots)
+            RemoveAnonymousVariable(slot);
+
+        return true;
+    }
+
     private bool TryPrepareArgumentsWithStackReversal(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
     {
         if (callingConvention != CallingConvention.Cdecl ||
@@ -520,10 +615,14 @@ internal partial class MethodConvert
 
     private static bool ShouldPreserveArgumentEvaluationOrder(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
     {
-        if (callingConvention != CallingConvention.Cdecl || symbol.Parameters.Length <= 1)
+        if (callingConvention != CallingConvention.Cdecl)
             return false;
 
-        if (symbol.Parameters.Any(parameter => parameter.IsParams || IsByRef(parameter.RefKind)))
+        bool hasParams = symbol.Parameters.Any(parameter => parameter.IsParams);
+        if (!hasParams && symbol.Parameters.Length <= 1)
+            return false;
+
+        if (symbol.Parameters.Any(parameter => IsByRef(parameter.RefKind)))
             return false;
 
         foreach (SyntaxNode argument in arguments)
