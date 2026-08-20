@@ -143,11 +143,35 @@ internal partial class MethodConvert
                     return;  // Do not call meaningless contructors
             }
 
-            HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: true);
+            byte? instanceSlot = null;
+            try
+            {
+                if (NeedInstanceConstructor(symbol)
+                    && methodCallingConvention == CallingConvention.Cdecl
+                    && instanceExpression is not null
+                    && arguments.Length > 0)
+                {
+                    instanceSlot = AddAnonymousVariable();
+                    ConvertInstanceExpression(model, instanceExpression);
+                    AccessSlot(OpCode.STLOC, instanceSlot.Value);
+                }
+                else
+                {
+                    HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: true);
+                }
 
-            PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
+                PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
 
-            HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: false);
+                if (instanceSlot is byte slot)
+                    AccessSlot(OpCode.LDLOC, slot);
+                else
+                    HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: false);
+            }
+            finally
+            {
+                if (instanceSlot is byte slot)
+                    RemoveAnonymousVariable(slot);
+            }
 
             EmitMethodCall(convert, symbol);
         }
