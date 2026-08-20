@@ -143,35 +143,30 @@ internal partial class MethodConvert
                     return;  // Do not call meaningless contructors
             }
 
-            byte? instanceSlot = null;
-            try
-            {
-                if (NeedInstanceConstructor(symbol)
-                    && methodCallingConvention == CallingConvention.Cdecl
-                    && instanceExpression is not null
-                    && arguments.Length > 0)
-                {
-                    instanceSlot = AddAnonymousVariable();
-                    ConvertInstanceExpression(model, instanceExpression);
-                    AccessSlot(OpCode.STLOC, instanceSlot.Value);
-                }
-                else
-                {
-                    HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: true);
-                }
+            bool preserveInstanceEvaluationOrder =
+                NeedInstanceConstructor(symbol)
+                && methodCallingConvention == CallingConvention.Cdecl
+                && instanceExpression is not null
+                && arguments.Length > 0
+                && HasObservableEvaluationOrder(model, instanceExpression)
+                && arguments.Select(ExtractExpression).Any(argument =>
+                    HasObservableEvaluationOrder(model, argument));
 
-                PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
-
-                if (instanceSlot is byte slot)
-                    AccessSlot(OpCode.LDLOC, slot);
-                else
-                    HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: false);
-            }
-            finally
+            if (preserveInstanceEvaluationOrder)
             {
-                if (instanceSlot is byte slot)
-                    RemoveAnonymousVariable(slot);
+                ConvertInstanceExpression(model, instanceExpression!);
             }
+            else
+            {
+                HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: true);
+            }
+
+            PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
+
+            if (preserveInstanceEvaluationOrder)
+                HandleInstanceOnStack(symbol, true, methodCallingConvention);
+            else
+                HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: false);
 
             EmitMethodCall(convert, symbol);
         }
