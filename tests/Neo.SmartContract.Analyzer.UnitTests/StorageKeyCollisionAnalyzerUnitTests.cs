@@ -158,6 +158,24 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
+        public async Task InheritedOwnable2StepInitializedPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenG : Neo.SmartContract.Framework.Ownable2Step
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap OwnerInitialized =
+                        new((byte)0xFB);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 82, 37, 98)
+                .WithArguments("FB", "OwnerInitialized", "the reserved prefix of base class Ownable2Step");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task InheritedAccessControlPrefix_ReportsDiagnostic()
         {
             var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
