@@ -104,7 +104,6 @@ internal partial class MethodConvert
                 },
                 thenEmitter: () =>
                 {
-                    methodConvert.Drop(2);                       // Stack: [type, inputString]
                     methodConvert.Push(t.ConstantValue);         // Stack: [enumValue]
                     methodConvert.JumpAlwaysLong(endTarget);
                 });
@@ -114,7 +113,8 @@ internal partial class MethodConvert
         methodConvert.Drop(2);
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
-        endTarget.Instruction = methodConvert.Nop();
+        endTarget.Instruction = methodConvert.Nip();
+        methodConvert.Nip();
     }
 
     /// <summary>
@@ -753,21 +753,18 @@ internal partial class MethodConvert
                 methodConvert.Push(t.ConstantValue);
             }
 
-            // Equal comparison
-            methodConvert.Equal();                                 // Stack: [..., isEqual]
-
             var nextCheck = new JumpTarget();
+            methodConvert.Equal();                             // Stack: [..., isEqual]
             methodConvert.JumpIfNot(nextCheck);
 
-            // If equal, set result to true
-            methodConvert.Drop(2);                                 // Remove the EnumType and duplicated value
-            methodConvert.Push(true);                              // Set result to true
+            methodConvert.Push(true);                          // Set result to true
             methodConvert.JumpAlways(endTarget);
             nextCheck.Instruction = methodConvert.Nop();
         }
-        methodConvert.Drop(2);                                     // Remove the EnumType and duplicated value
+
         methodConvert.Push(false);
-        endTarget.Instruction = methodConvert.Nop();
+        endTarget.Instruction = methodConvert.Nip();   // Remove the EnumType and duplicated value
+        methodConvert.Nip();
     }
 
     private static INamedTypeSymbol EnsureEnumTypeArgument(IMethodSymbol symbol, int index, SyntaxNode? errorNode)
