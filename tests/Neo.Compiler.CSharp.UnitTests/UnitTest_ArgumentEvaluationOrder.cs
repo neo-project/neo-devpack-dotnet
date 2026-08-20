@@ -68,6 +68,46 @@ public class UnitTest_ArgumentEvaluationOrder
         Assert.AreEqual(new BigInteger(21), contract.NamedOutOfOrder());
     }
 
+    [TestMethod]
+    public void AssertMessageIsEvaluatedWhenConditionIsTrue()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+
+            public class Contract : SmartContract
+            {
+                private static int _counter;
+
+                [DisplayName("assertMessage")]
+                public static int AssertMessage()
+                {
+                    _counter = 0;
+                    ExecutionEngine.Assert(Condition(), Message());
+                    return _counter;
+                }
+
+                private static bool Condition()
+                {
+                    _counter++;
+                    return true;
+                }
+
+                private static string Message()
+                {
+                    _counter++;
+                    return "message";
+                }
+            }
+            """;
+
+        var context = TestHelper.CompileSingleContract(source);
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<AssertOrderContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual(new BigInteger(2), contract.AssertMessage());
+    }
+
     public abstract class ArgumentOrderContract(SmartContractInitialize initialize)
         : SmartContract.Testing.SmartContract(initialize)
     {
@@ -79,5 +119,12 @@ public class UnitTest_ArgumentEvaluationOrder
 
         [DisplayName("namedOutOfOrder")]
         public abstract BigInteger? NamedOutOfOrder();
+    }
+
+    public abstract class AssertOrderContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("assertMessage")]
+        public abstract BigInteger? AssertMessage();
     }
 }
