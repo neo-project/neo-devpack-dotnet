@@ -39,6 +39,7 @@ namespace Neo.SmartContract.Testing.Coverage
     public partial class NeoDebugInfo(UInt160 hash, string documentRoot, IReadOnlyList<string> documents, IReadOnlyList<NeoDebugInfo.Method> methods)
     {
         internal const int MaxDebugInfoJsonBytes = 16 * 1024 * 1024;
+        internal const int MaxSequencePointLineCount = 100_000;
         private const int CopyBufferSize = 81920;
 
         static readonly Regex spRegex = new(@"^(\d+)\[(-?\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)$");
@@ -356,6 +357,10 @@ namespace Neo.SmartContract.Testing.Coverage
             var document = int.Parse(match.Groups[2].Value);
             var start = (int.Parse(match.Groups[3].Value), int.Parse(match.Groups[4].Value));
             var end = (int.Parse(match.Groups[5].Value), int.Parse(match.Groups[6].Value));
+
+            long lineCount = (long)end.Item1 - start.Item1 + 1;
+            if (lineCount <= 0 || lineCount > MaxSequencePointLineCount)
+                throw new FormatException($"Invalid Sequence Point line range \"{sequence}\"");
 
             return new SequencePoint(address, document, start, end);
         }
