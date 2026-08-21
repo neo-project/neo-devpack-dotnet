@@ -150,6 +150,60 @@ public class UnitTest_ArgumentEvaluationOrder
         Assert.AreEqual(new BigInteger(123), contract.ParamsOnly());
     }
 
+    [TestMethod]
+    public void InstanceReceiverEvaluatesBeforeArguments()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+
+            public class Contract : SmartContract
+            {
+                private static int _counter;
+
+                [DisplayName("receiverBeforeArgument")]
+                public static int ReceiverBeforeArgument()
+                {
+                    _counter = 0;
+                    return NextReceiver().Combine(NextArgument());
+                }
+
+                private static Recorder NextReceiver()
+                {
+                    _counter++;
+                    return new Recorder(_counter);
+                }
+
+                private static int NextArgument()
+                {
+                    _counter++;
+                    return _counter;
+                }
+
+                private class Recorder
+                {
+                    private readonly int _order;
+
+                    public Recorder(int order)
+                    {
+                        _order = order;
+                    }
+
+                    public int Combine(int argument)
+                    {
+                        return _order * 10 + argument;
+                    }
+                }
+            }
+            """;
+
+        var context = TestHelper.CompileSingleContract(source);
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<ReceiverOrderContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual(new BigInteger(12), contract.ReceiverBeforeArgument());
+    }
+
     public abstract class ArgumentOrderContract(SmartContractInitialize initialize)
         : SmartContract.Testing.SmartContract(initialize)
     {
@@ -180,5 +234,12 @@ public class UnitTest_ArgumentEvaluationOrder
 
         [DisplayName("paramsOnly")]
         public abstract BigInteger? ParamsOnly();
+    }
+
+    public abstract class ReceiverOrderContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("receiverBeforeArgument")]
+        public abstract BigInteger? ReceiverBeforeArgument();
     }
 }
