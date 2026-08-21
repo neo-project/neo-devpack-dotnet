@@ -129,8 +129,13 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
                     // Lines
 
-                    for (int line = debugPoint.Start.Line; line <= debugPoint.End.Line; line++)
+                    long lineCount = (long)debugPoint.End.Line - debugPoint.Start.Line + 1;
+                    if (lineCount <= 0 || lineCount > NeoDebugInfo.MaxSequencePointLineCount)
+                        throw new InvalidDataException("Invalid sequence point line range.");
+
+                    for (int offset = 0; offset < lineCount; offset++)
                     {
+                        int line = debugPoint.Start.Line + offset;
                         var hits = contract.TryGetLine(debugPoint.Address, out var hit) ? hit.Hits : 0;
 
                         if (!method.Lines.TryGetValue(line, out var hitLine))
