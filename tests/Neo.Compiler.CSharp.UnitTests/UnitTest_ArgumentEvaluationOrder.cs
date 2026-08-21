@@ -204,6 +204,46 @@ public class UnitTest_ArgumentEvaluationOrder
         Assert.AreEqual(new BigInteger(12), contract.ReceiverBeforeArgument());
     }
 
+    [TestMethod]
+    public void NamedArgumentBeforeExpandedParamsBindsToCorrectParameter()
+    {
+        const string source = """
+        using Neo.SmartContract.Framework;
+        using System.ComponentModel;
+
+        public class Contract : SmartContract
+        {
+            [DisplayName("namedThenPositional")]
+            public static int NamedThenPositional()
+            {
+                // "a" is named but occupies its correct positional slot (ordinal 0),
+                // followed by plain positional arguments for "b" and the params array.
+                // Equivalent to calling Combine(1, 2, 3).
+                return Combine(a: 1, 2, 3);
+            }
+
+            private static int Combine(int a, int b, params int[] c)
+            {
+                // Expected: a=1, b=2, c=[3] => 1*1000 + 2*100 + (c.Length > 0 ? c[0] : 0) = 1203
+                return a * 1000 + b * 100 + (c.Length > 0 ? c[0] : 0);
+            }
+        }
+        """;
+
+        var context = TestHelper.CompileSingleContract(source);
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<NamedThenPositionalContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual(new BigInteger(1203), contract.NamedThenPositional());
+    }
+
+    public abstract class NamedThenPositionalContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("namedThenPositional")]
+        public abstract BigInteger? NamedThenPositional();
+    }
+
     public abstract class ArgumentOrderContract(SmartContractInitialize initialize)
         : SmartContract.Testing.SmartContract(initialize)
     {
