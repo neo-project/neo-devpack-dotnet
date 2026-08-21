@@ -68,6 +68,66 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.IsNull(debugInfo);
         }
 
+        [TestMethod]
+        public void NeoDebugInfoRejectsUnboundedSequencePointLineRanges()
+        {
+            string json = CreateDebugInfoJson("0[0]1:1-100001:1");
+
+            var exception = Assert.ThrowsException<FormatException>(() => NeoDebugInfo.FromDebugInfoJson(json));
+
+            StringAssert.Contains(exception.Message, "Invalid Sequence Point line range");
+        }
+
+        [TestMethod]
+        public void CoverletHandlesSequencePointAtMaximumLineNumber()
+        {
+            var debugInfo = NeoDebugInfo.FromDebugInfoJson(CreateDebugInfoJson($"0[0]{int.MaxValue}:1-{int.MaxValue}:1"));
+            var coverage = new CoveredContract(MethodDetectionMechanism.NextMethod, UInt160.Zero, null);
+            string? report = null;
+
+            new CoverletJsonFormat((coverage, debugInfo)).WriteReport((_, write) =>
+            {
+                using var stream = new MemoryStream();
+                write(stream);
+                report = Encoding.UTF8.GetString(stream.ToArray());
+            });
+
+            StringAssert.Contains(report, int.MaxValue.ToString());
+        }
+
+        [TestMethod]
+        public void CoverletRejectsProgrammaticReversedLineRange()
+        {
+            NeoDebugInfo.SequencePoint sequencePoint = new(0, 0, (2, 1), (1, 1));
+            NeoDebugInfo.Method method = new("0", "Contract", "main", (0, 0), [], [sequencePoint]);
+            NeoDebugInfo debugInfo = new(UInt160.Zero, "", ["Contract.cs"], [method]);
+            var coverage = new CoveredContract(MethodDetectionMechanism.NextMethod, UInt160.Zero, null);
+            var format = new CoverletJsonFormat((coverage, debugInfo));
+
+            Assert.ThrowsException<InvalidDataException>(() =>
+                format.WriteReport((_, write) => write(new MemoryStream())));
+        }
+
+        private static string CreateDebugInfoJson(string sequencePoint)
+        {
+            return $$"""
+                {
+                  "hash": "0x0000000000000000000000000000000000000000",
+                  "document-root": "",
+                  "documents": ["Contract.cs"],
+                  "methods": [
+                    {
+                      "id": "0",
+                      "name": "Contract,main",
+                      "range": "0-0",
+                      "params": [],
+                      "sequence-points": ["{{sequencePoint}}"]
+                    }
+                  ]
+                }
+                """;
+        }
+
         private static byte[] CreateDebugInfoArchive(string json)
         {
             using var compressedFileStream = new MemoryStream();
