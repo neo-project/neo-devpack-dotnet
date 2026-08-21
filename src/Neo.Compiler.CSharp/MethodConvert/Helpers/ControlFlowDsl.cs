@@ -245,10 +245,12 @@ internal partial class MethodConvert
     /// Emits a switch statement. The <paramref name="valueEmitter"/> must push the discriminant value.
     /// Each case body is executed after the switch value has been dropped.
     /// </summary>
-    private void EmitSwitch(Action valueEmitter, IReadOnlyList<(BigInteger value, Action body)> cases, Action? defaultBody = null)
+    private void EmitSwitch(Action valueEmitter, IReadOnlyList<(BigInteger Value, Action Body)> cases, Action? defaultBody = null)
     {
         ArgumentNullException.ThrowIfNull(valueEmitter);
         ArgumentNullException.ThrowIfNull(cases);
+
+        using var tempScope = PreserveAnonymousVariables();
 
         valueEmitter();
         if (cases.Count == 0 && defaultBody is null)
@@ -260,12 +262,14 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         JumpTarget defaultTarget = new();
         JumpTarget[] caseTargets = new JumpTarget[cases.Count];
+        byte targetSlot = AddAnonymousVariable();
 
+        StLoc(targetSlot);
         for (int i = 0; i < cases.Count; i++)
         {
             caseTargets[i] = new JumpTarget();
-            Dup();
-            Push(cases[i].value);
+            LdLoc(targetSlot);
+            Push(cases[i].Value);
             Jump(OpCode.JMPEQ, caseTargets[i]);
         }
 
@@ -273,12 +277,12 @@ internal partial class MethodConvert
 
         for (int i = 0; i < cases.Count; i++)
         {
-            caseTargets[i].Instruction = Drop();
-            cases[i].body();
+            caseTargets[i].Instruction = Nop();
+            cases[i].Body();
             Jump(OpCode.JMP, endTarget);
         }
 
-        defaultTarget.Instruction = Drop();
+        defaultTarget.Instruction = Nop();
         defaultBody?.Invoke();
         endTarget.Instruction = Nop();
     }
