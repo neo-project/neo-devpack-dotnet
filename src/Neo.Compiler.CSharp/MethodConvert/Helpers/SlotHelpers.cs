@@ -399,13 +399,22 @@ internal partial class MethodConvert
             {
                 case ArgumentSyntax argument:
                     expression = argument.Expression;
-                    targetParameter = argument.NameColon is null
-                        ? symbol.Parameters.ElementAtOrDefault(positionalIndex++)
-                        : symbol.Parameters.FirstOrDefault(p => p.Name == argument.NameColon.Name.Identifier.ValueText);
+                    if (argument.NameColon is null)
+                    {
+                        targetParameter = symbol.Parameters.ElementAtOrDefault(positionalIndex);
+                        positionalIndex++;
+                    }
+                    else
+                    {
+                        targetParameter = symbol.Parameters.FirstOrDefault(p => p.Name == argument.NameColon.Name.Identifier.ValueText);
+                        if (targetParameter is not null)
+                            positionalIndex = Math.Max(positionalIndex, targetParameter.Ordinal + 1);
+                    }
                     break;
                 case ExpressionSyntax exp:
                     expression = exp;
-                    targetParameter = symbol.Parameters.ElementAtOrDefault(positionalIndex++);
+                    targetParameter = symbol.Parameters.ElementAtOrDefault(positionalIndex);
+                    positionalIndex++;
                     break;
                 default:
                     continue;
@@ -482,15 +491,24 @@ internal partial class MethodConvert
             {
                 case ArgumentSyntax syntax:
                     expression = syntax.Expression;
-                    parameter = syntax.NameColon is null
-                        ? symbol.Parameters.ElementAtOrDefault(Math.Min(positionalIndex, paramsParameter.Ordinal))
-                        : symbol.Parameters.FirstOrDefault(p => p.Name == syntax.NameColon.Name.Identifier.ValueText);
-                    if (syntax.NameColon is not null && parameter is not null)
-                        positionalIndex = Math.Max(positionalIndex, parameter.Ordinal + 1);
+                    if (syntax.NameColon is null)
+                    {
+                        parameter = symbol.Parameters.ElementAtOrDefault(Math.Min(positionalIndex, paramsParameter.Ordinal));
+                        if (parameter is not null && !parameter.IsParams)
+                            positionalIndex++;
+                    }
+                    else
+                    {
+                        parameter = symbol.Parameters.FirstOrDefault(p => p.Name == syntax.NameColon.Name.Identifier.ValueText);
+                        if (parameter is not null)
+                            positionalIndex = Math.Max(positionalIndex, parameter.Ordinal + 1);
+                    }
                     break;
                 case ExpressionSyntax syntax:
                     expression = syntax;
                     parameter = symbol.Parameters.ElementAtOrDefault(Math.Min(positionalIndex, paramsParameter.Ordinal));
+                    if (parameter is not null && !parameter.IsParams)
+                        positionalIndex++;
                     break;
                 default:
                     return false;
@@ -508,9 +526,6 @@ internal partial class MethodConvert
                 paramsSlots.Add((expression, slot));
             else
                 regularSlots[parameter] = slot;
-
-            if (!parameter.IsParams)
-                positionalIndex++;
         }
 
         foreach (IParameterSymbol parameter in DetermineParameterOrder(symbol, callingConvention))
