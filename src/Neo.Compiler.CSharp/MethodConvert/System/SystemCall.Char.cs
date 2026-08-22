@@ -429,7 +429,7 @@ internal partial class MethodConvert
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
     /// Algorithm: Checks if character >= minValue and character <= maxValue.
-    /// Implemented as minInclusive &lt;= value &lt; maxInclusive + 1 (i.e. INC + WITHIN), which is
+    /// Implemented as minInclusive <= value < maxInclusive + 1 (i.e. INC + WITHIN), which is
     /// semantically equivalent to the inclusive range check but uses fewer opcodes.
     /// </remarks>
     private static void HandleCharIsBetween(MethodConvert methodConvert, SemanticModel model,
