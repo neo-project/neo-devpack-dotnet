@@ -69,7 +69,7 @@ public class UnitTest_ArgumentEvaluationOrder
     }
 
     [TestMethod]
-    public void AssertMessageIsEvaluatedWhenConditionIsTrue()
+    public void AssertArgumentsEvaluateLeftToRightWhenConditionIsTrue()
     {
         const string source = """
             using Neo.SmartContract.Framework;
@@ -89,13 +89,13 @@ public class UnitTest_ArgumentEvaluationOrder
 
                 private static bool Condition()
                 {
-                    _counter++;
+                    _counter = _counter * 10 + 1;
                     return true;
                 }
 
                 private static string Message()
                 {
-                    _counter++;
+                    _counter = _counter * 10 + 2;
                     return "message";
                 }
             }
@@ -105,7 +105,7 @@ public class UnitTest_ArgumentEvaluationOrder
         var engine = new TestEngine(true);
         var contract = engine.Deploy<AssertOrderContract>(context.CreateExecutable(), context.CreateManifest());
 
-        Assert.AreEqual(new BigInteger(2), contract.AssertMessage());
+        Assert.AreEqual(new BigInteger(12), contract.AssertMessage());
     }
 
     [TestMethod]
