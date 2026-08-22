@@ -293,10 +293,20 @@ internal partial class MethodConvert
          && symbol.Parameters[1].Type.ToString() == "string"
          && symbol.ContainingNamespace.ToString() == "Neo.SmartContract.Framework")
         {
+            using var tempScope = PreserveAnonymousVariables();
             JumpTarget continueExecution = new();
+
+            byte conditionSlot = AddAnonymousVariable();
             ConvertExpression(model, ExtractExpression(arguments![0]));
-            Jump(OpCode.JMPIF_L, continueExecution);
+            AccessSlot(OpCode.STLOC, conditionSlot);
+
+            byte messageSlot = AddAnonymousVariable();
             ConvertExpression(model, ExtractExpression(arguments[1]));
+            AccessSlot(OpCode.STLOC, messageSlot);
+
+            AccessSlot(OpCode.LDLOC, conditionSlot);
+            Jump(OpCode.JMPIF_L, continueExecution);
+            AccessSlot(OpCode.LDLOC, messageSlot);
             AbortMsg();
             continueExecution.Instruction = Nop();
             return true;

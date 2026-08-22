@@ -69,6 +69,46 @@ public class UnitTest_ArgumentEvaluationOrder
     }
 
     [TestMethod]
+    public void AssertArgumentsEvaluateLeftToRightWhenConditionIsTrue()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+
+            public class Contract : SmartContract
+            {
+                private static int _counter;
+
+                [DisplayName("assertMessage")]
+                public static int AssertMessage()
+                {
+                    _counter = 0;
+                    ExecutionEngine.Assert(Condition(), Message());
+                    return _counter;
+                }
+
+                private static bool Condition()
+                {
+                    _counter = _counter * 10 + 1;
+                    return true;
+                }
+
+                private static string Message()
+                {
+                    _counter = _counter * 10 + 2;
+                    return "message";
+                }
+            }
+            """;
+
+        var context = TestHelper.CompileSingleContract(source);
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<AssertOrderContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual(new BigInteger(12), contract.AssertMessage());
+    }
+
+    [TestMethod]
     public void InstanceReceiverEvaluatesBeforeArguments()
     {
         const string source = """
@@ -133,6 +173,13 @@ public class UnitTest_ArgumentEvaluationOrder
 
         [DisplayName("namedOutOfOrder")]
         public abstract BigInteger? NamedOutOfOrder();
+    }
+
+    public abstract class AssertOrderContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("assertMessage")]
+        public abstract BigInteger? AssertMessage();
     }
 
     public abstract class ReceiverOrderContract(SmartContractInitialize initialize)
