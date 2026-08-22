@@ -865,26 +865,24 @@ internal partial class MethodConvert
         JumpTarget notNegative = new();
         methodConvert.Dup();                                       // Duplicate value for negative check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfGreaterOrEqual(notNegative);             // Jump if value >= 0
+        methodConvert.JumpIfGreaterOrEqual(notNegative);           // Jump if value >= 0
         methodConvert.Drop();                                      // Drop negative value
         methodConvert.Push0();                                     // Return 0 for negative values
-        methodConvert.JumpAlways(endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                       // Jump to end
         notNegative.Instruction = methodConvert.Nop();             // Target for non-negative values
         methodConvert.Push(0);                                     // Initialize count to 0
         loopStart.Instruction = methodConvert.Swap();              // Swap count and value
         methodConvert.Dup();                                       // Duplicate value for zero check
-        methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfEqual(endLoop);                 // Exit loop if value is 0
+        methodConvert.JumpIfFalse(endLoop);                        // Exit loop if value is 0(0 is false)
         methodConvert.Push1();                                     // Push 1 for right shift
         methodConvert.ShR();                                       // Right shift value by 1
         methodConvert.Swap();                                      // Swap value and count
         methodConvert.Inc();                                       // Increment count
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
         endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
         JumpTarget nonZeroCount = new();
         methodConvert.Dup();                                       // Duplicate count for zero check
-        methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfNotEqual(nonZeroCount);                // Jump if count != 0
+        methodConvert.JumpIfTrue(nonZeroCount);                    // Jump if count != 0(non-zero is true)
         methodConvert.Drop();                                      // Drop zero count
         methodConvert.Push(32);                                    // Zero has one empty 32-bit limb
         methodConvert.JumpAlways(endTarget);                       // Jump to end
@@ -892,10 +890,10 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Preserve count for final subtraction
         methodConvert.Push(31);                                    // Round bit count up to a 32-bit limb
         methodConvert.Add();                                       // count + 31
-        methodConvert.Push(32);                                    // 32-bit limb divisor
-        methodConvert.Div();                                       // (count + 31) / 32
-        methodConvert.Push(32);                                    // 32-bit limb width
-        methodConvert.Mul();                                       // rounded width
+        methodConvert.Push(5);                                     // 32-bit limb divisor
+        methodConvert.ShR();                                       // (count + 31) / 32(count >> 5 == count / 32 if positive)
+        methodConvert.Push(5);                                     // 32-bit limb width
+        methodConvert.ShL();                                       // rounded width(count << 5 == count * 32)
         methodConvert.Swap();                                      // Swap width and count
         methodConvert.Sub();                                       // Calculate rounded width - count
         endTarget.Instruction = methodConvert.Nop();               // End target
