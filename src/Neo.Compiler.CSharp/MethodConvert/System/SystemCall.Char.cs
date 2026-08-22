@@ -428,9 +428,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Checks if character >= minValue and character <= maxValue.
-    /// Implemented as minInclusive <= value < maxInclusive + 1 (i.e. INC + WITHIN), which is
-    /// semantically equivalent to the inclusive range check but uses fewer opcodes.
+    /// Algorithm: Checks if minInclusive <= value and value <= maxInclusive.
     /// </remarks>
     private static void HandleCharIsBetween(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -438,8 +436,12 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // [value, min, max]
-        methodConvert.Inc();      // [value, min, max + 1]
-        methodConvert.Within();   // [bool] (min <= value < max + 1, equivalent to min <= value <= max)
+        methodConvert.Reverse3(); // [max, min, value]
+        methodConvert.Tuck();     // [max, value, min, value]
+        methodConvert.Le();       // [max, value, min <= value]
+        methodConvert.Reverse3(); // [min <= value, value, max]
+        methodConvert.Le();       // [min <= value, value <= max]
+        methodConvert.BoolAnd();  // [bool]
     }
 
     /// <summary>
