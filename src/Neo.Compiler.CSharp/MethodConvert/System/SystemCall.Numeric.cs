@@ -237,12 +237,8 @@ internal partial class MethodConvert
         methodConvert.Push(0);
         methodConvert.EmitWhileComparisonTrueExit(
             perIterationSetup: () => methodConvert.Swap(),
-            comparisonSetup: () =>
-            {
-                methodConvert.Dup();
-                methodConvert.Push0();
-            },
-            comparisonOp: OpCode.JMPEQ,
+            comparisonSetup: () => methodConvert.Dup(),
+            comparisonOp: OpCode.JMPIFNOT,
             bodyEmitter: scope =>
             {
                 methodConvert.Push1();
