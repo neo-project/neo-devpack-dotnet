@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Enum : DebugAndTestBase<Contract_Enum>
     {
-        protected override bool TestGasConsume => false;
+        protected override bool TestGasConsume => true;
 
         [TestMethod]
         public void TestEnumParse()
