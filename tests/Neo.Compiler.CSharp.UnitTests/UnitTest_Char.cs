@@ -43,7 +43,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(isDigit, Contract.TestCharIsDigit(c), $"IsDigit failed for '{c}'");
             AssertGasConsumed(1047330);
             Assert.AreEqual(isLetter, Contract.TestCharIsLetter(c), $"IsLetter failed for '{c}'");
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048080);
             Assert.AreEqual(isWhiteSpace, Contract.TestCharIsWhiteSpace(c), $"IsWhiteSpace failed for '{c}'");
             Assert.AreEqual(isLower, Contract.TestCharIsLower(c), $"IsLower failed for '{c}'");
             AssertGasConsumed(1047330);
@@ -199,10 +199,36 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestCharIsAsciiLetter()
         {
+            // Boundaries of the uppercase and lowercase ranges
             Assert.IsTrue(Contract.TestCharIsAsciiLetter('A'));
+            Assert.IsTrue(Contract.TestCharIsAsciiLetter('Z'));
+            Assert.IsTrue(Contract.TestCharIsAsciiLetter('a'));
             Assert.IsTrue(Contract.TestCharIsAsciiLetter('z'));
+
+            // Values just outside the uppercase range
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('@'));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('['));
+
+            // Values just outside the lowercase range
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('`'));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('{'));
+
+            // Digits and whitespace
             Assert.IsFalse(Contract.TestCharIsAsciiLetter('0'));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('9'));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter(' '));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('\t'));
+
+            // Non-ASCII characters, including ones that fold into the ASCII letter range
+            // when naively ORed with 0x20 (e.g. '\u0080' | 0x20 == '\u00A0', still out of range,
+            // and '\u00C0' | 0x20 == '\u00E0', which must still be rejected as non-ASCII).
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('\u0080'));
             Assert.IsFalse(Contract.TestCharIsAsciiLetter('\u00C0'));
+
+            // Values outside the char range (0..65535), passed directly as BigInteger
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter(BigInteger.MinusOne));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter(new BigInteger(char.MaxValue) + 1));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter((BigInteger.One << 255) - BigInteger.One)); // Int256.MaxValue
         }
 
         [TestMethod]
