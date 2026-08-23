@@ -1924,54 +1924,27 @@ internal partial class MethodConvert
 
         byte strSlot = methodConvert.AddAnonymousVariable();
         byte startSlot = methodConvert.AddAnonymousVariable();
-        byte valueSlot = methodConvert.AddAnonymousVariable();
 
         methodConvert.AccessSlot(OpCode.STLOC, strSlot);
         methodConvert.AccessSlot(OpCode.STLOC, startSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.Dup();
         methodConvert.IsNull();
         methodConvert.Not();
         methodConvert.Assert();
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
-
-        byte prefixSlot = methodConvert.AddAnonymousVariable();
-        byte suffixSlot = methodConvert.AddAnonymousVariable();
-        byte strLenSlot = methodConvert.AddAnonymousVariable();
-        byte suffixLengthSlot = methodConvert.AddAnonymousVariable();
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Size();
-        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Push0();
         methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-        methodConvert.SubStr();
-        methodConvert.AccessSlot(OpCode.STLOC, prefixSlot);
+        methodConvert.Left(null);
+        methodConvert.Swap();
+        methodConvert.Cat();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Dup();
+        methodConvert.Size();
         methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
         methodConvert.Sub();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixLengthSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixLengthSlot);
-        methodConvert.SubStr();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, prefixSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.Cat();
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixSlot);
+        methodConvert.Right(null);
         methodConvert.Cat();
         methodConvert.ChangeType(StackItemType.ByteString); // The CAT result is a buffer, so add CONVERT opcode.
     }
