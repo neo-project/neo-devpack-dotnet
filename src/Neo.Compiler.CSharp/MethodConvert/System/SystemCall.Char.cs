@@ -638,15 +638,20 @@ internal partial class MethodConvert
         EmitCharIsAsciiLetter(methodConvert);
     }
 
+    /// <summary>
+    /// Emits the check for whether a character is an ASCII letter (A-Z or a-z),
+    /// using ASCII case folding to avoid checking both ranges separately.
+    /// </summary>
+    /// <remarks>
+    /// Equivalence used: (value | 0x20) >= 'a' && (value | 0x20) <= 'z'.
+    /// For ASCII characters, ORing with 0x20 maps 'A'-'Z' onto 'a'-'z' while leaving
+    /// 'a'-'z' unchanged, so a single range check after the fold is sufficient.
+    /// </remarks>
     private static void EmitCharIsAsciiLetter(MethodConvert methodConvert)
     {
-        // Check for uppercase letters (A-Z)
-        methodConvert.Dup();                                       // Duplicate character for second check
-        methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
-        methodConvert.Swap();                                      // Bring original character back to top
-
-        // Check for lowercase letters (a-z)
-        methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
-        methodConvert.BoolOr();                                    // Combine both checks with OR
+        // Stack: value
+        methodConvert.Push(0x20);                                  // Stack: value, 0x20
+        methodConvert.Or();                                        // Stack: (value | 0x20) folds 'A'-'Z' onto 'a'-'z'
+        methodConvert.Within((ushort)'a', (ushort)'z');             // Stack: (value | 0x20) is within 'a'..'z'
     }
 }
