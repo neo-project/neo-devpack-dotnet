@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
@@ -154,12 +155,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestContainsChar()
         {
             Assert.IsTrue(Contract.TestContainsChar("hello world", 'w'));
+            AssertGasConsumed(2032710);
+
             Assert.IsTrue(Contract.TestContainsChar("hello world", ' '));
             Assert.IsFalse(Contract.TestContainsChar("hello", 'z'));
             Assert.IsFalse(Contract.TestContainsChar("", '\0'));
             Assert.IsFalse(Contract.TestContainsChar("abc", '\0'));
             Assert.IsTrue(Contract.TestContainsChar("\0abc", '\0'));
             Assert.IsTrue(Contract.TestContainsChar("a\0b", '\0'));
+
+            // Non-char Integer values outside the char range must still follow the non-zero path without FAULT
+            BigInteger int256Max = (BigInteger.One << 255) - BigInteger.One;
+            Assert.IsFalse(Contract.TestContainsChar("", int256Max));
         }
 
         [TestMethod]
@@ -482,19 +489,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestIndexOfChar()
         {
             Assert.AreEqual(1, Contract.TestIndexOfChar("Hello", 'e'));
-            AssertGasConsumed(2032470);
+            AssertGasConsumed(2032440);
 
             Assert.AreEqual(-1, Contract.TestIndexOfChar("World", 'x'));
-            AssertGasConsumed(2032470);
+            AssertGasConsumed(2032440);
 
             // Test with empty string
             Assert.AreEqual(-1, Contract.TestIndexOfChar("", 'a'));
-            AssertGasConsumed(2032470);
+            AssertGasConsumed(2032440);
 
             Assert.AreEqual(-1, Contract.TestIndexOfChar("", '\0'));
             Assert.AreEqual(-1, Contract.TestIndexOfChar("abc", '\0'));
             Assert.AreEqual(0, Contract.TestIndexOfChar("\0abc", '\0'));
             Assert.AreEqual(1, Contract.TestIndexOfChar("a\0b", '\0'));
+
+            // Non-char Integer values outside the char range must still follow the non-zero path without FAULT
+            BigInteger int256Max = (BigInteger.One << 255) - BigInteger.One;
+            Assert.AreEqual(-1, Contract.TestIndexOfChar("", int256Max));
         }
 
         [TestMethod]
