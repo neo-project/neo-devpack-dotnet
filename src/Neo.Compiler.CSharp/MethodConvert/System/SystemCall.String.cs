@@ -547,44 +547,34 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+
         var endTarget = new JumpTarget();
         var validCountTarget = new JumpTarget();
         var suffixNotEmptyTarget = new JumpTarget();
-        methodConvert.Over();                          // Duplicate suffix
-        methodConvert.Size();                          // Get suffix length
+        methodConvert.Over();                           // [suffix, value, suffix]
+        methodConvert.Size();                           // [suffix, value, suffix-size]
         methodConvert.JumpIfTrue(suffixNotEmptyTarget); // NonZero int means true.
-        methodConvert.Drop();                          // Drop suffix (empty string)
-        methodConvert.Drop();                          // Drop original string
-        methodConvert.PushT();                         // Push true any string ends with ""
+        methodConvert.Drop(2);                          // Drop suffix and value
+        methodConvert.PushT();                          // Push true any string ends with ""
         methodConvert.JumpAlways(endTarget);
         suffixNotEmptyTarget.Instruction = methodConvert.Nop();
-        methodConvert.Dup();                                       // Duplicate string for length check
-        methodConvert.Size();                                      // Get string length
-        methodConvert.Rot();                                       // Rotate stack for comparison
-        methodConvert.Dup();                                       // Duplicate comparison string
-        methodConvert.Size();                                      // Get comparison string length
-        methodConvert.Dup();                                       // Duplicate length for calculation
-        methodConvert.Push(3);                                     // Push 3 for ROLL operation
-        methodConvert.Roll();                                      // Roll stack elements
-        methodConvert.Swap();                                      // Swap top elements
-        methodConvert.Sub();                                       // Calculate start position
-        methodConvert.Dup();                                       // Duplicate for bounds check
-        methodConvert.Push(0);                                     // Push 0 for comparison
-        methodConvert.JumpIfGreaterOrEqual(validCountTarget); // Jump if position >= 0
-        methodConvert.Drop();                                      // Clean stack
-        methodConvert.Drop();                                      // Clean stack
-        methodConvert.Drop();                                      // Clean stack
-        methodConvert.Drop();                                      // Clean stack
-        methodConvert.PushF();                                     // Push false result
-        methodConvert.JumpAlways(endTarget);                 // Jump to end
-        validCountTarget.Instruction = methodConvert.Nop();        // Valid position target
-        methodConvert.Push(3);                                     // Push 3 for ROLL operation
-        methodConvert.Roll();                                      // Roll stack elements
-        methodConvert.Reverse3();                                  // Reverse top 3 elements
-        methodConvert.SubStr();                                    // Extract substring
-        methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
-        methodConvert.Equal();                                     // Compare for equality
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.Over();                                  // [suffix, value, suffix]
+        methodConvert.Size();                                  // [suffix, value, suffix-size]
+        methodConvert.Over();                                  // [suffix, value, suffix-size, value]
+        methodConvert.Size();                                  // [suffix, value, suffix-size, value-size]
+        methodConvert.Over();                                  // [suffix, value, suffix-size, value-size, suffix]
+        methodConvert.Sub();                                   // [suffix, value, suffix-size, start]
+        methodConvert.Dup();                                   // [suffix, value, suffix-size, start, start]
+        methodConvert.Push0();                                 // [suffix, value, suffix-size, start, start, 0]
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);  // [suffix, value, suffix-size, start]
+        methodConvert.Drop(4);                                 // []
+        methodConvert.PushF();                                 // [false]
+        methodConvert.JumpAlways(endTarget);                   // [false]
+        validCountTarget.Instruction = methodConvert.Swap();   // [suffix, value, start, suffix-size]
+        methodConvert.SubStr();                                // [suffix, suffix']
+        methodConvert.ChangeType(StackItemType.ByteString);    // [suffix, suffix']
+        methodConvert.Equal();                                 // [bool]
+        endTarget.Instruction = methodConvert.Nop();           // End target
     }
 
     private static void HandleStringSubstring(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
