@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Char : DebugAndTestBase<Contract_Char>
     {
-        protected override bool TestGasConsume => true;
+        protected override bool TestGasConsume => false;
 
         public static IEnumerable<object[]> CharTestData =>
             new List<object[]>

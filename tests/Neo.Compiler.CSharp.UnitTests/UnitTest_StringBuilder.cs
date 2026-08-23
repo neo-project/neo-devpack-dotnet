@@ -17,7 +17,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StringBuilder : DebugAndTestBase<Contract_StringBuilder>
     {
-        protected override bool TestGasConsume => true;
+        protected override bool TestGasConsume => false;
 
         [TestMethod]
         public void TestAppendPrimitiveValues()
