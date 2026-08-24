@@ -68,7 +68,7 @@ namespace Neo.Compiler.ControlFlow
 
     public class InstructionCoverage
     {
-        internal const int MaxControlFlowAnalysisDepth = 1024;
+        internal const int MaxControlFlowAnalysisDepth = 256;
 
         Script script;
         // Starting from the address, whether the call will surely throw or surely abort, or may be OK
