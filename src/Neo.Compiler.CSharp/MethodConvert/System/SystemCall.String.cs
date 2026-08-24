@@ -187,8 +187,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
 
         methodConvert.Dup();
-        methodConvert.Push0();
-        methodConvert.JumpIfNotEqual(endTarget);
+        methodConvert.JumpIfTrue(endTarget);
         methodConvert.Drop();
         methodConvert.Push(new byte[] { 0 });
         endTarget.Instruction = methodConvert.Nop();
