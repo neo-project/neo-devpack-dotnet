@@ -334,8 +334,7 @@ internal partial class MethodConvert
 
         JumpTarget endTarget = new();
         methodConvert.Dup();                                // a, b, b
-        methodConvert.Push0();                              // a, b, b, 0
-        methodConvert.JumpIfEqual(endTarget);               // a, b, // if b is 0, result is abs(a)
+        methodConvert.JumpIfNot(endTarget);                 // a, b, // if b is 0 (falsy), result is abs(a)
         JumpTarget gcdTarget = new()                        // a, b
         {
             Instruction = methodConvert.Swap()              // b, a
@@ -343,8 +342,7 @@ internal partial class MethodConvert
         methodConvert.Over();                               // b, a, b
         methodConvert.Mod();                                // b, a % b
         methodConvert.Dup();                                // b, a % b, a % b
-        methodConvert.Push0();                              // b, a % b, a % b, 0
-        methodConvert.JumpIfNotEqual(gcdTarget);            // b, a % b, // if a % b != 0, jump to the start
+        methodConvert.JumpIfTrue(gcdTarget);                // b, a % b, // if a % b != 0 (truthy), jump to the start
         endTarget.Instruction = methodConvert.Drop();       // b (or a if b is 0)
         methodConvert.Abs();                                // | result |
     }

@@ -430,16 +430,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestInsert()
         {
             Assert.AreEqual("Hello Neo World", Contract.TestInsert("Hello World", 6, "Neo "));
-            AssertGasConsumed(2032650);
+            AssertGasConsumed(1540260);
 
             Assert.AreEqual(">>>Hello World", Contract.TestInsert("Hello World", 0, ">>>"));
-            AssertGasConsumed(2032650);
+            AssertGasConsumed(1540260);
 
             Assert.AreEqual("Hello World<<<", Contract.TestInsert("Hello World", 11, "<<<"));
-            AssertGasConsumed(2032650);
+            AssertGasConsumed(1540260);
 
             Assert.ThrowsExactly<TestException>(() => Contract.TestInsert("Hello World", 0, null));
-            AssertGasConsumed(1293750);
+            AssertGasConsumed(1047810);
         }
 
         [TestMethod]
