@@ -189,7 +189,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestCharIsLetterOrDigit('0'));
             AssertGasConsumed(1048050);
             Assert.IsFalse(Contract.TestCharIsLetterOrDigit('$'));
-            AssertGasConsumed(1049010);
+            AssertGasConsumed(1048740);
 
             Assert.IsTrue(Contract.TestCharIsLetterOrDigitResult('b'));
             Assert.IsTrue(Contract.TestCharIsLetterOrDigitResult('B'));
