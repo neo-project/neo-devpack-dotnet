@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Framework.UnitTests
     public class GuardHelpersTest : DebugAndTestBase<Contract_GuardHelpers_Inline>
     {
         // Override to disable gas consumption testing since our values may differ
-        protected override bool TestGasConsume { get; set; } = false;
+        protected override bool TestGasConsume { get; set; } = true;
 
         [TestMethod]
         public void TestRequire()

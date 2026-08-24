@@ -18,7 +18,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_BitOperations : DebugAndTestBase<Contract_BitOperations>
     {
-        protected override bool TestGasConsume => false;
+        protected override bool TestGasConsume => true;
 
         [TestMethod]
         public void TestLog2UInt()
