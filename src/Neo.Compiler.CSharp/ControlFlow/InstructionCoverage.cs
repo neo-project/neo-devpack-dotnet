@@ -201,185 +201,256 @@ namespace Neo.Compiler.ControlFlow
             int? continueFromBasicBlockEntranceAddr = null, int? jumpFromBasicBlockEntranceAddr = null,
             int analysisDepth = 0)
         {
-            if (analysisDepth > MaxControlFlowAnalysisDepth)
-                throw new BadScriptException($"Control flow analysis depth exceeds {MaxControlFlowAnalysisDepth}");
-            if (continueFromBasicBlockEntranceAddr != null)
-                basicBlockContinuation[(int)continueFromBasicBlockEntranceAddr] = addr;
-            if (jumpFromBasicBlockEntranceAddr != null)
-            {
-                if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out HashSet<int>? jumpTargets))
-                {
-                    jumpTargets = new();
-                    basicBlockJump[(int)jumpFromBasicBlockEntranceAddr] = jumpTargets;
-                }
-                jumpTargets.Add(addr);
-            }
-            int entranceAddr = addr;
+            List<int> tailChainEntrances = [];
 
-            if (tryStack == null)
+            BranchType Finalize(BranchType result)
             {
-                tryStack = new();
-                tryStack.Push(new(-1, -1, TryType.NONE, false));
+                foreach (int e in tailChainEntrances)
+                    coveredMap[e] = result;
+                return result;
             }
-            else
-                tryStack = CopyStack(tryStack);
 
-            (int catchAddr, int finallyAddr, TryType stackType, bool continueAfterFinally) = tryStack.Peek();
+            BranchType ReturnWithAssign(int entrance, BranchType result)
+            {
+                tailChainEntrances.Add(entrance);
+                return Finalize(result);
+            }
 
             while (true)
             {
-                // For the analysis of basic blocks,
-                // we launched new recursion when exception is catched.
-                // Here we have the exception not catched
-                if (!coveredMap.TryGetValue(addr, out BranchType value))
-                    throw new BadScriptException($"wrong address {addr}");
-                VmInstruction instruction = script.GetInstruction(addr);
-                if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
-                    // on target of jump, start a new recursion to split basic blocks
-                    return coveredMap[entranceAddr] = CoverInstruction(addr, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                if (value != BranchType.UNCOVERED)
+                if (analysisDepth > MaxControlFlowAnalysisDepth)
+                    throw new BadScriptException($"Control flow analysis depth exceeds {MaxControlFlowAnalysisDepth}");
+                if (continueFromBasicBlockEntranceAddr != null)
+                    basicBlockContinuation[(int)continueFromBasicBlockEntranceAddr] = addr;
+                if (jumpFromBasicBlockEntranceAddr != null)
                 {
-                    if (stackType != TryType.FINALLY)
-                        // We have visited the code. Skip it.
-                        return coveredMap[entranceAddr] = value;
-                    // if we are in finally, we may visit the codes after ENDFINALLY
-                    // when previous codes did not throw
-                    if (value != BranchType.OK)  // the codes in finally or the codes after ENDFINALLY will THROW or ABORT
-                        return coveredMap[entranceAddr] = value;
-                    tryStack.Pop();  // end current finally
-                    // No THROW or ABORT in try, catch or finally
-                    // visit codes after ENDFINALLY
-                    if (continueAfterFinally)
-                        return coveredMap[entranceAddr] = CoverInstruction(finallyAddr, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                    // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
-                    return value;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
-                }
-                //if (instruction.OpCode != OpCode.NOP)
-                {
-                    coveredMap[addr] = BranchType.OK;
-                    // Add a basic block starting from entranceAddr
-                    if (!basicBlocksInDict.TryGetValue(entranceAddr, out Dictionary<int, VmInstruction>? instructions))
+                    if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out HashSet<int>? jumpTargets))
                     {
-                        instructions = new Dictionary<int, VmInstruction>();
-                        basicBlocksInDict.Add(entranceAddr, instructions);
+                        jumpTargets = new();
+                        basicBlockJump[(int)jumpFromBasicBlockEntranceAddr] = jumpTargets;
                     }
-                    // Add this instruction to the basic block starting from entranceAddr
-                    instructions.Add(addr, instruction);
+                    jumpTargets.Add(addr);
                 }
+                int entranceAddr = addr;
 
-                // ABORT and ABORTMSG terminate execution and cannot be caught.
-                if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
-                    return coveredMap[entranceAddr] = HandleAbort(entranceAddr, addr, tryStack, analysisDepth);
-                if (callWithJump.Contains(instruction.OpCode))
+                if (tryStack == null)
                 {
-                    BranchType returnedType;
-                    if (instruction.OpCode == OpCode.CALLA)
+                    tryStack = new();
+                    tryStack.Push(new(-1, -1, TryType.NONE, false));
+                }
+                else
+                    tryStack = CopyStack(tryStack);
+
+                (int catchAddr, int finallyAddr, TryType stackType, bool continueAfterFinally) = tryStack.Peek();
+
+                bool scheduledNextIteration = false;
+
+                while (true)
+                {
+                    // For the analysis of basic blocks,
+                    // we launched a new iteration when exception is catched.
+                    // Here we have the exception not catched
+                    if (!coveredMap.TryGetValue(addr, out BranchType value))
+                        throw new BadScriptException($"wrong address {addr}");
+                    VmInstruction instruction = script.GetInstruction(addr);
+                    if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     {
-                        returnedType = BranchType.ABORT;
-                        foreach (int callaTarget in pushaTargets.Keys)
+                        // on target of jump, start a new iteration to split basic blocks
+                        tailChainEntrances.Add(entranceAddr);
+                        continueFromBasicBlockEntranceAddr = entranceAddr;
+                        jumpFromBasicBlockEntranceAddr = null;
+                        analysisDepth += 1;
+                        scheduledNextIteration = true;
+                        break;
+                    }
+                    if (value != BranchType.UNCOVERED)
+                    {
+                        if (stackType != TryType.FINALLY)
+                            // We have visited the code. Skip it.
+                            return ReturnWithAssign(entranceAddr, value);
+                        // if we are in finally, we may visit the codes after ENDFINALLY
+                        // when previous codes did not throw
+                        if (value != BranchType.OK)  // the codes in finally or the codes after ENDFINALLY will THROW or ABORT
+                            return ReturnWithAssign(entranceAddr, value);
+                        tryStack.Pop();  // end current finally
+                        // No THROW or ABORT in try, catch or finally
+                        // visit codes after ENDFINALLY
+                        if (continueAfterFinally)
                         {
-                            // Use `tryStack: null` to avoid using current try stack in a deeper call stack
-                            BranchType singleCallaResult = CoverInstruction(callaTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                            if (singleCallaResult < returnedType)
-                                returnedType = singleCallaResult;
-                            // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
-                        }
-                    }
-                    else
-                    {
-                        int callTarget = ComputeJumpTarget(addr, instruction);
-                        // Use `tryStack: null` to avoid using current try stack in a deeper call stack
-                        returnedType = CoverInstruction(callTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                    }
-                    if (returnedType == BranchType.OK)
-                        return coveredMap[entranceAddr] = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                    if (returnedType == BranchType.ABORT)
-                        return coveredMap[entranceAddr] = HandleAbort(entranceAddr, addr, tryStack, analysisDepth);
-                    if (returnedType == BranchType.THROW)
-                        return coveredMap[entranceAddr] = HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
-                }
-                if (instruction.OpCode == OpCode.RET)
-                {
-                    // See if we are in a try. There may still be runtime exceptions
-                    // Do not judge with current stack.Peek(),
-                    // because the try can hide deep in the stack.
-                    // Just throw!
-                    HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
-                    // We should have poped try stack; however nobody else will read it anymore.
-                    // No need to handle the try stack!
-                    //while (tryStack.Count > 0 && tryStack.Peek().tryType != TryType.NONE)
-                    //    tryStack.Pop();
-                    //if (tryStack.Count > 0 && tryStack.Peek().tryType == TryType.NONE)
-                    //    tryStack.Pop();
-                    return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
-                }
-                if (tryThrowFinally.Contains(instruction.OpCode))
-                {
-                    if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
-                    {
-                        (int catchTarget, int finallyTarget) = ComputeTryTarget(addr, instruction);
-                        tryStack.Push(new(catchTarget, finallyTarget, TryType.TRY, true));
-                        return coveredMap[entranceAddr] = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                    }
-                    if (instruction.OpCode == OpCode.THROW)
-                        return coveredMap[entranceAddr] = HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
-                    if (instruction.OpCode == OpCode.ENDTRY || instruction.OpCode == OpCode.ENDTRY_L)
-                    {
-                        if (stackType != TryType.TRY && stackType != TryType.CATCH)
-                            throw new BadScriptException("No try stack on ENDTRY");
-
-                        // Terminate the try/catch context, but
-                        // visit catchAddr for current try, or finallyAddr for current catch
-                        // because there may still be exceptions at runtime
-                        HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
-
-                        tryStack.Pop();  // pop the ending TRY or CATCH
-                        int endPointer = ComputeJumpTarget(addr, instruction);
-                        if (finallyAddr != -1)
-                        {
-                            tryStack.Push(new(-1, endPointer, TryType.FINALLY, true));
+                            tailChainEntrances.Add(entranceAddr);
                             addr = finallyAddr;
+                            continueFromBasicBlockEntranceAddr = null;
+                            jumpFromBasicBlockEntranceAddr = entranceAddr;
+                            analysisDepth += 1;
+                            scheduledNextIteration = true;
+                            break;
+                        }
+                        // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
+                        return Finalize(value);  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
+                    }
+                    //if (instruction.OpCode != OpCode.NOP)
+                    {
+                        coveredMap[addr] = BranchType.OK;
+                        // Add a basic block starting from entranceAddr
+                        if (!basicBlocksInDict.TryGetValue(entranceAddr, out Dictionary<int, VmInstruction>? instructions))
+                        {
+                            instructions = new Dictionary<int, VmInstruction>();
+                            basicBlocksInDict.Add(entranceAddr, instructions);
+                        }
+                        // Add this instruction to the basic block starting from entranceAddr
+                        instructions.Add(addr, instruction);
+                    }
+
+                    // ABORT and ABORTMSG terminate execution and cannot be caught.
+                    if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
+                        return ReturnWithAssign(entranceAddr, HandleAbort(entranceAddr, addr, tryStack, analysisDepth));
+                    if (callWithJump.Contains(instruction.OpCode))
+                    {
+                        BranchType returnedType;
+                        if (instruction.OpCode == OpCode.CALLA)
+                        {
+                            returnedType = BranchType.ABORT;
+                            foreach (int callaTarget in pushaTargets.Keys)
+                            {
+                                // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                                BranchType singleCallaResult = CoverInstruction(callaTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
+                                if (singleCallaResult < returnedType)
+                                    returnedType = singleCallaResult;
+                                // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
+                            }
                         }
                         else
-                            addr = endPointer;
-                        return coveredMap[entranceAddr] = CoverInstruction(addr, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
+                        {
+                            int callTarget = ComputeJumpTarget(addr, instruction);
+                            // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                            returnedType = CoverInstruction(callTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
+                        }
+                        if (returnedType == BranchType.OK)
+                        {
+                            tailChainEntrances.Add(entranceAddr);
+                            addr = addr + instruction.Size;
+                            continueFromBasicBlockEntranceAddr = entranceAddr;
+                            jumpFromBasicBlockEntranceAddr = null;
+                            analysisDepth += 1;
+                            scheduledNextIteration = true;
+                            break;
+                        }
+                        if (returnedType == BranchType.ABORT)
+                            return ReturnWithAssign(entranceAddr, HandleAbort(entranceAddr, addr, tryStack, analysisDepth));
+                        if (returnedType == BranchType.THROW)
+                            return ReturnWithAssign(entranceAddr, HandleThrow(entranceAddr, addr, tryStack, analysisDepth));
                     }
-                    if (instruction.OpCode == OpCode.ENDFINALLY)
-                    {
-                        int endPointer = finallyAddr;
-                        if (stackType != TryType.FINALLY)
-                            throw new BadScriptException("No finally stack on ENDFINALLY");
-                        tryStack.Pop();  // pop the ending FINALLY
-                        if (continueAfterFinally)
-                            return coveredMap[entranceAddr] = CoverInstruction(endPointer, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                        // For this basic block in finally, the branch type is OK
-                        // The throw is caused by previous codes
-                        return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
-                    }
-                }
-                if (unconditionalJump.Contains(instruction.OpCode))
-                    //addr = ComputeJumpTarget(addr, instruction);
-                    //continue;
-                    // For the analysis of basic blocks, we launch a new recursion
-                    return coveredMap[entranceAddr] = CoverInstruction(ComputeJumpTarget(addr, instruction), tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
-                {
-                    BranchType noJump = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                    BranchType jump = CoverInstruction(ComputeJumpTarget(addr, instruction), tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                    if (noJump == BranchType.OK || jump == BranchType.OK)
+                    if (instruction.OpCode == OpCode.RET)
                     {
                         // See if we are in a try. There may still be runtime exceptions
+                        // Do not judge with current stack.Peek(),
+                        // because the try can hide deep in the stack.
+                        // Just throw!
                         HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
-                        return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
+                        // We should have poped try stack; however nobody else will read it anymore.
+                        // No need to handle the try stack!
+                        //while (tryStack.Count > 0 && tryStack.Peek().tryType != TryType.NONE)
+                        //    tryStack.Pop();
+                        //if (tryStack.Count > 0 && tryStack.Peek().tryType == TryType.NONE)
+                        //    tryStack.Pop();
+                        return Finalize(BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
                     }
-                    if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
-                        return coveredMap[entranceAddr] = HandleAbort(entranceAddr, addr, tryStack, analysisDepth);
-                    if (noJump == BranchType.THROW || jump == BranchType.THROW)  // THROW, ABORT => THROW
-                        return coveredMap[entranceAddr] = HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
-                    throw new Exception($"Unknown {nameof(BranchType)} {noJump} {jump}");
+                    if (tryThrowFinally.Contains(instruction.OpCode))
+                    {
+                        if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
+                        {
+                            (int catchTarget, int finallyTarget) = ComputeTryTarget(addr, instruction);
+                            tryStack.Push(new(catchTarget, finallyTarget, TryType.TRY, true));
+                            tailChainEntrances.Add(entranceAddr);
+                            addr = addr + instruction.Size;
+                            continueFromBasicBlockEntranceAddr = entranceAddr;
+                            jumpFromBasicBlockEntranceAddr = null;
+                            analysisDepth += 1;
+                            scheduledNextIteration = true;
+                            break;
+                        }
+                        if (instruction.OpCode == OpCode.THROW)
+                            return ReturnWithAssign(entranceAddr, HandleThrow(entranceAddr, addr, tryStack, analysisDepth));
+                        if (instruction.OpCode == OpCode.ENDTRY || instruction.OpCode == OpCode.ENDTRY_L)
+                        {
+                            if (stackType != TryType.TRY && stackType != TryType.CATCH)
+                                throw new BadScriptException("No try stack on ENDTRY");
+
+                            // Terminate the try/catch context, but
+                            // visit catchAddr for current try, or finallyAddr for current catch
+                            // because there may still be exceptions at runtime
+                            HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
+
+                            tryStack.Pop();  // pop the ending TRY or CATCH
+                            int endPointer = ComputeJumpTarget(addr, instruction);
+                            if (finallyAddr != -1)
+                            {
+                                tryStack.Push(new(-1, endPointer, TryType.FINALLY, true));
+                                addr = finallyAddr;
+                            }
+                            else
+                                addr = endPointer;
+                            tailChainEntrances.Add(entranceAddr);
+                            continueFromBasicBlockEntranceAddr = null;
+                            jumpFromBasicBlockEntranceAddr = entranceAddr;
+                            analysisDepth += 1;
+                            scheduledNextIteration = true;
+                            break;
+                        }
+                        if (instruction.OpCode == OpCode.ENDFINALLY)
+                        {
+                            int endPointer = finallyAddr;
+                            if (stackType != TryType.FINALLY)
+                                throw new BadScriptException("No finally stack on ENDFINALLY");
+                            tryStack.Pop();  // pop the ending FINALLY
+                            if (continueAfterFinally)
+                            {
+                                tailChainEntrances.Add(entranceAddr);
+                                addr = endPointer;
+                                continueFromBasicBlockEntranceAddr = null;
+                                jumpFromBasicBlockEntranceAddr = entranceAddr;
+                                analysisDepth += 1;
+                                scheduledNextIteration = true;
+                                break;
+                            }
+                            // For this basic block in finally, the branch type is OK
+                            // The throw is caused by previous codes
+                            return Finalize(BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
+                        }
+                    }
+                    if (unconditionalJump.Contains(instruction.OpCode))
+                    {
+                        // For the analysis of basic blocks, we launch a new iteration
+                        tailChainEntrances.Add(entranceAddr);
+                        addr = ComputeJumpTarget(addr, instruction);
+                        continueFromBasicBlockEntranceAddr = null;
+                        jumpFromBasicBlockEntranceAddr = entranceAddr;
+                        analysisDepth += 1;
+                        scheduledNextIteration = true;
+                        break;
+                    }
+                    if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
+                    {
+                        BranchType noJump = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
+                        BranchType jump = CoverInstruction(ComputeJumpTarget(addr, instruction), tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
+                        if (noJump == BranchType.OK || jump == BranchType.OK)
+                        {
+                            // See if we are in a try. There may still be runtime exceptions
+                            HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
+                            return Finalize(BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
+                        }
+                        if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
+                            return ReturnWithAssign(entranceAddr, HandleAbort(entranceAddr, addr, tryStack, analysisDepth));
+                        if (noJump == BranchType.THROW || jump == BranchType.THROW)  // THROW, ABORT => THROW
+                            return ReturnWithAssign(entranceAddr, HandleThrow(entranceAddr, addr, tryStack, analysisDepth));
+                        throw new Exception($"Unknown {nameof(BranchType)} {noJump} {jump}");
+                    }
+
+                    addr += instruction.Size;
                 }
 
-                addr += instruction.Size;
+                if (!scheduledNextIteration)
+                    throw new InvalidOperationException("Unreachable: inner loop exited without scheduling next iteration or returning");
             }
         }
     }
