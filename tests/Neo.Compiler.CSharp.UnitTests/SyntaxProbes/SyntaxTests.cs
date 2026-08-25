@@ -72,7 +72,7 @@ public class SyntaxTests
         var actual = NormalizeLineEndings(File.ReadAllText(summaryPath));
 
         Assert.AreEqual(
-            RenderUnsupportedFeaturesSummary(),
+            NormalizeLineEndings(RenderUnsupportedFeaturesSummary()),
             actual,
             "UnsupportedFeatures.md must be regenerated from the versioned syntax probes.");
     }
