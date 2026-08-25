@@ -292,9 +292,9 @@ internal partial class MethodConvert
             _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Complex assignment operator '{operatorToken.ValueText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
         };
 
-        if (operatorToken.ValueText == "/=")
+        if (operatorToken.ValueText is "/=" or "%=")
         {
-            CheckDivideOverflow(model, type, null, right);
+            CheckSignedDivisionOverflow(model, type, null, right);
         }
         else if (operatorToken.ValueText == "<<=")
         {
