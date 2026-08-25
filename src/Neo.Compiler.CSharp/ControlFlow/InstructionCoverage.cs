@@ -197,53 +197,196 @@ namespace Neo.Compiler.ControlFlow
         /// <returns>Whether it is possible to return without exception</returns>
         /// <exception cref="BadScriptException"></exception>
         /// <exception cref="NotImplementedException"></exception>
+        /// <summary>
+        /// One "virtual invocation" of the former recursive algorithm. Frames are kept on an
+        /// explicit heap-allocated stack (see <see cref="CoverInstruction"/>) instead of the CLR
+        /// call stack, so that long chains of CALL/CALL_L/CALLA instructions cannot exhaust it
+        /// (see issue #1980 and the PR #1981 review from Jim8y).
+        /// </summary>
+        private sealed class Frame
+        {
+            // Inputs, mirroring the parameters CoverInstruction used to take when it recursed.
+            public int Addr;
+            public Stack<TryState>? TryStackParam;
+            public int? ContinueFrom;
+            public int? JumpFrom;
+            public int AnalysisDepth;
+
+            // State of the basic block currently being scanned by this frame.
+            public int EntranceAddr;
+            public Stack<TryState> TryStack = null!;
+
+            // Entrance addresses whose coveredMap value must mirror the eventual result of this
+            // frame, replacing the former `coveredMap[entranceAddr] = CoverInstruction(...)` tail
+            // self-recursion pattern.
+            public readonly List<int> TailChainEntrances = new();
+
+            // Set while this frame is suspended, waiting for a child frame (pushed for a CALL,
+            // CALL_L or CALLA target) to produce a result.
+            public PendingKind Pending;
+            public int PendingInstrAddr;
+            public int PendingInstrSize;
+            public IEnumerator<int>? PendingCallaTargets;
+            public BranchType PendingCallaBest;
+        }
+
+        private enum PendingKind
+        {
+            None,
+            Call,
+            Calla,
+        }
+
+        private static Stack<TryState> CreateFreshTryStack()
+        {
+            Stack<TryState> stack = new();
+            stack.Push(new TryState(-1, -1, TryType.NONE, false));
+            return stack;
+        }
+
+        private BranchType Finalize(Frame frame, BranchType result)
+        {
+            foreach (int e in frame.TailChainEntrances)
+                coveredMap[e] = result;
+            return result;
+        }
+
+        private BranchType ReturnWithAssign(Frame frame, int entrance, BranchType result)
+        {
+            frame.TailChainEntrances.Add(entrance);
+            return Finalize(frame, result);
+        }
+
+        /// <summary>
+        /// Cover a basic block, and recursively cover all branches
+        /// </summary>
+        /// <param name="addr">Starting address of script. Should start at a basic block</param>
+        /// <param name="tryStack">try-catch-finally stack</param>
+        /// <param name="continueFromBasicBlockEntranceAddr">Specify the previous basic block entrance address, if we continue execution from the previous basic block</param>
+        /// <param name="jumpFromBasicBlockEntranceAddr">Specify the entrance address of the basic block as the source of jump, if we jumped to current address from that basic block</param>
+        /// <returns>Whether it is possible to return without exception</returns>
+        /// <exception cref="BadScriptException"></exception>
+        /// <exception cref="NotImplementedException"></exception>
         public BranchType CoverInstruction(int addr, Stack<TryState>? tryStack = null,
             int? continueFromBasicBlockEntranceAddr = null, int? jumpFromBasicBlockEntranceAddr = null,
             int analysisDepth = 0)
         {
-            List<int> tailChainEntrances = [];
-
-            BranchType Finalize(BranchType result)
+            // CALL/CALL_L/CALLA target analysis used to recurse into CoverInstruction and block
+            // on the C# call stack until the callee finished. For scripts with a long chain of
+            // calls (A calls B calls C ...), that real recursion could exhaust the CLR stack
+            // before the logical MaxControlFlowAnalysisDepth guard was reached, especially in
+            // Debug builds on Windows (see #1980 and the review comment on PR #1981). Call
+            // targets are now pushed onto this explicit, heap-allocated frame stack instead, and
+            // processed by a trampoline loop below.
+            Stack<Frame> frames = new();
+            frames.Push(new Frame
             {
-                foreach (int e in tailChainEntrances)
-                    coveredMap[e] = result;
-                return result;
-            }
+                Addr = addr,
+                TryStackParam = tryStack,
+                ContinueFrom = continueFromBasicBlockEntranceAddr,
+                JumpFrom = jumpFromBasicBlockEntranceAddr,
+                AnalysisDepth = analysisDepth,
+            });
 
-            BranchType ReturnWithAssign(int entrance, BranchType result)
-            {
-                tailChainEntrances.Add(entrance);
-                return Finalize(result);
-            }
-
+            BranchType? childResult = null;
             while (true)
             {
-                if (analysisDepth > MaxControlFlowAnalysisDepth)
-                    throw new BadScriptException($"Control flow analysis depth exceeds {MaxControlFlowAnalysisDepth}");
-                if (continueFromBasicBlockEntranceAddr != null)
-                    basicBlockContinuation[(int)continueFromBasicBlockEntranceAddr] = addr;
-                if (jumpFromBasicBlockEntranceAddr != null)
+                Frame frame = frames.Peek();
+                BranchType? result = RunFrame(frame, frames, childResult);
+                childResult = null;
+                if (result == null)
+                    // frame pushed a child frame and is waiting for its result
+                    continue;
+                frames.Pop();
+                if (frames.Count == 0)
+                    return result.Value;
+                childResult = result.Value;
+            }
+        }
+
+        /// <summary>
+        /// Runs (or resumes) a single <see cref="Frame"/> until it either produces a final
+        /// <see cref="BranchType"/> result, or suspends itself after pushing a child frame onto
+        /// <paramref name="frames"/> (in which case <c>null</c> is returned and this frame will be
+        /// invoked again, with the child's result, once that child frame completes).
+        /// </summary>
+        private BranchType? RunFrame(Frame frame, Stack<Frame> frames, BranchType? childResult)
+        {
+            if (frame.Pending != PendingKind.None)
+            {
+                PendingKind pending = frame.Pending;
+                frame.Pending = PendingKind.None;
+                BranchType result = childResult!.Value;
+
+                if (pending == PendingKind.Calla)
                 {
-                    if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out HashSet<int>? jumpTargets))
+                    if (result < frame.PendingCallaBest)
+                        frame.PendingCallaBest = result;
+                    if (frame.PendingCallaTargets!.MoveNext())
+                    {
+                        // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                        frames.Push(new Frame
+                        {
+                            Addr = frame.PendingCallaTargets.Current,
+                            TryStackParam = null,
+                            JumpFrom = frame.EntranceAddr,
+                            AnalysisDepth = frame.AnalysisDepth + 1,
+                        });
+                        frame.Pending = PendingKind.Calla;
+                        return null;
+                        // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
+                    }
+                    result = frame.PendingCallaBest;
+                }
+
+                int instrAddr = frame.PendingInstrAddr;
+                int instrSize = frame.PendingInstrSize;
+                if (result == BranchType.OK)
+                {
+                    frame.TailChainEntrances.Add(frame.EntranceAddr);
+                    frame.Addr = instrAddr + instrSize;
+                    frame.TryStackParam = frame.TryStack;
+                    frame.ContinueFrom = frame.EntranceAddr;
+                    frame.JumpFrom = null;
+                    frame.AnalysisDepth += 1;
+                    // fall through to the block loop below, starting a new basic block
+                }
+                else if (result == BranchType.ABORT)
+                    return ReturnWithAssign(frame, frame.EntranceAddr, HandleAbort(frame.EntranceAddr, instrAddr, frame.TryStack, frame.AnalysisDepth));
+                else // BranchType.THROW
+                    return ReturnWithAssign(frame, frame.EntranceAddr, HandleThrow(frame.EntranceAddr, instrAddr, frame.TryStack, frame.AnalysisDepth));
+            }
+
+            // Each iteration of this loop is equivalent to one former tail self-recursive call:
+            // it (re)establishes a new basic block entrance and scans forward until it must
+            // either return a final result, or start a new basic block (looping again).
+            while (true)
+            {
+                if (frame.AnalysisDepth > MaxControlFlowAnalysisDepth)
+                    throw new BadScriptException($"Control flow analysis depth exceeds {MaxControlFlowAnalysisDepth}");
+                if (frame.ContinueFrom != null)
+                    basicBlockContinuation[(int)frame.ContinueFrom] = frame.Addr;
+                if (frame.JumpFrom != null)
+                {
+                    if (!basicBlockJump.TryGetValue((int)frame.JumpFrom, out HashSet<int>? jumpTargets))
                     {
                         jumpTargets = new();
-                        basicBlockJump[(int)jumpFromBasicBlockEntranceAddr] = jumpTargets;
+                        basicBlockJump[(int)frame.JumpFrom] = jumpTargets;
                     }
-                    jumpTargets.Add(addr);
+                    jumpTargets.Add(frame.Addr);
                 }
-                int entranceAddr = addr;
+                int entranceAddr = frame.Addr;
+                frame.EntranceAddr = entranceAddr;
 
-                if (tryStack == null)
-                {
-                    tryStack = new();
-                    tryStack.Push(new(-1, -1, TryType.NONE, false));
-                }
-                else
-                    tryStack = CopyStack(tryStack);
+                Stack<TryState> tryStack = frame.TryStackParam == null
+                    ? CreateFreshTryStack()
+                    : CopyStack(frame.TryStackParam);
+                frame.TryStack = tryStack;
 
                 (int catchAddr, int finallyAddr, TryType stackType, bool continueAfterFinally) = tryStack.Peek();
 
-                bool scheduledNextIteration = false;
+                int addr = entranceAddr;
+                bool startedNewBlock = false;
 
                 while (true)
                 {
@@ -256,37 +399,40 @@ namespace Neo.Compiler.ControlFlow
                     if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     {
                         // on target of jump, start a new iteration to split basic blocks
-                        tailChainEntrances.Add(entranceAddr);
-                        continueFromBasicBlockEntranceAddr = entranceAddr;
-                        jumpFromBasicBlockEntranceAddr = null;
-                        analysisDepth += 1;
-                        scheduledNextIteration = true;
+                        frame.TailChainEntrances.Add(entranceAddr);
+                        frame.Addr = addr;
+                        frame.TryStackParam = tryStack;
+                        frame.ContinueFrom = entranceAddr;
+                        frame.JumpFrom = null;
+                        frame.AnalysisDepth += 1;
+                        startedNewBlock = true;
                         break;
                     }
                     if (value != BranchType.UNCOVERED)
                     {
                         if (stackType != TryType.FINALLY)
                             // We have visited the code. Skip it.
-                            return ReturnWithAssign(entranceAddr, value);
+                            return ReturnWithAssign(frame, entranceAddr, value);
                         // if we are in finally, we may visit the codes after ENDFINALLY
                         // when previous codes did not throw
                         if (value != BranchType.OK)  // the codes in finally or the codes after ENDFINALLY will THROW or ABORT
-                            return ReturnWithAssign(entranceAddr, value);
+                            return ReturnWithAssign(frame, entranceAddr, value);
                         tryStack.Pop();  // end current finally
                         // No THROW or ABORT in try, catch or finally
                         // visit codes after ENDFINALLY
                         if (continueAfterFinally)
                         {
-                            tailChainEntrances.Add(entranceAddr);
-                            addr = finallyAddr;
-                            continueFromBasicBlockEntranceAddr = null;
-                            jumpFromBasicBlockEntranceAddr = entranceAddr;
-                            analysisDepth += 1;
-                            scheduledNextIteration = true;
+                            frame.TailChainEntrances.Add(entranceAddr);
+                            frame.Addr = finallyAddr;
+                            frame.TryStackParam = tryStack;
+                            frame.ContinueFrom = null;
+                            frame.JumpFrom = entranceAddr;
+                            frame.AnalysisDepth += 1;
+                            startedNewBlock = true;
                             break;
                         }
                         // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
-                        return Finalize(value);  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
+                        return Finalize(frame, value);  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                     }
                     //if (instruction.OpCode != OpCode.NOP)
                     {
@@ -303,42 +449,46 @@ namespace Neo.Compiler.ControlFlow
 
                     // ABORT and ABORTMSG terminate execution and cannot be caught.
                     if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
-                        return ReturnWithAssign(entranceAddr, HandleAbort(entranceAddr, addr, tryStack, analysisDepth));
+                        return ReturnWithAssign(frame, entranceAddr, HandleAbort(entranceAddr, addr, tryStack, frame.AnalysisDepth));
                     if (callWithJump.Contains(instruction.OpCode))
                     {
-                        BranchType returnedType;
+                        frame.PendingInstrAddr = addr;
+                        frame.PendingInstrSize = instruction.Size;
+                        frame.TryStack = tryStack;
                         if (instruction.OpCode == OpCode.CALLA)
                         {
-                            returnedType = BranchType.ABORT;
-                            foreach (int callaTarget in pushaTargets.Keys)
+                            IEnumerator<int> targets = pushaTargets.Keys.GetEnumerator();
+                            if (!targets.MoveNext())
+                                // No PUSHA target at all: same as the loop never improving on the
+                                // initial `returnedType = BranchType.ABORT` default.
+                                return ReturnWithAssign(frame, entranceAddr, HandleAbort(entranceAddr, addr, tryStack, frame.AnalysisDepth));
+                            frame.PendingCallaTargets = targets;
+                            frame.PendingCallaBest = BranchType.ABORT;
+                            frame.Pending = PendingKind.Calla;
+                            // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                            frames.Push(new Frame
                             {
-                                // Use `tryStack: null` to avoid using current try stack in a deeper call stack
-                                BranchType singleCallaResult = CoverInstruction(callaTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                                if (singleCallaResult < returnedType)
-                                    returnedType = singleCallaResult;
-                                // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
-                            }
+                                Addr = targets.Current,
+                                TryStackParam = null,
+                                JumpFrom = entranceAddr,
+                                AnalysisDepth = frame.AnalysisDepth + 1,
+                            });
+                            return null;
                         }
                         else
                         {
                             int callTarget = ComputeJumpTarget(addr, instruction);
+                            frame.Pending = PendingKind.Call;
                             // Use `tryStack: null` to avoid using current try stack in a deeper call stack
-                            returnedType = CoverInstruction(callTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
+                            frames.Push(new Frame
+                            {
+                                Addr = callTarget,
+                                TryStackParam = null,
+                                JumpFrom = entranceAddr,
+                                AnalysisDepth = frame.AnalysisDepth + 1,
+                            });
+                            return null;
                         }
-                        if (returnedType == BranchType.OK)
-                        {
-                            tailChainEntrances.Add(entranceAddr);
-                            addr = addr + instruction.Size;
-                            continueFromBasicBlockEntranceAddr = entranceAddr;
-                            jumpFromBasicBlockEntranceAddr = null;
-                            analysisDepth += 1;
-                            scheduledNextIteration = true;
-                            break;
-                        }
-                        if (returnedType == BranchType.ABORT)
-                            return ReturnWithAssign(entranceAddr, HandleAbort(entranceAddr, addr, tryStack, analysisDepth));
-                        if (returnedType == BranchType.THROW)
-                            return ReturnWithAssign(entranceAddr, HandleThrow(entranceAddr, addr, tryStack, analysisDepth));
                     }
                     if (instruction.OpCode == OpCode.RET)
                     {
@@ -346,14 +496,14 @@ namespace Neo.Compiler.ControlFlow
                         // Do not judge with current stack.Peek(),
                         // because the try can hide deep in the stack.
                         // Just throw!
-                        HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
+                        HandleThrow(entranceAddr, addr, tryStack, frame.AnalysisDepth);
                         // We should have poped try stack; however nobody else will read it anymore.
                         // No need to handle the try stack!
                         //while (tryStack.Count > 0 && tryStack.Peek().tryType != TryType.NONE)
                         //    tryStack.Pop();
                         //if (tryStack.Count > 0 && tryStack.Peek().tryType == TryType.NONE)
                         //    tryStack.Pop();
-                        return Finalize(BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
+                        return Finalize(frame, BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
                     }
                     if (tryThrowFinally.Contains(instruction.OpCode))
                     {
@@ -361,16 +511,17 @@ namespace Neo.Compiler.ControlFlow
                         {
                             (int catchTarget, int finallyTarget) = ComputeTryTarget(addr, instruction);
                             tryStack.Push(new(catchTarget, finallyTarget, TryType.TRY, true));
-                            tailChainEntrances.Add(entranceAddr);
-                            addr = addr + instruction.Size;
-                            continueFromBasicBlockEntranceAddr = entranceAddr;
-                            jumpFromBasicBlockEntranceAddr = null;
-                            analysisDepth += 1;
-                            scheduledNextIteration = true;
+                            frame.TailChainEntrances.Add(entranceAddr);
+                            frame.Addr = addr + instruction.Size;
+                            frame.TryStackParam = tryStack;
+                            frame.ContinueFrom = entranceAddr;
+                            frame.JumpFrom = null;
+                            frame.AnalysisDepth += 1;
+                            startedNewBlock = true;
                             break;
                         }
                         if (instruction.OpCode == OpCode.THROW)
-                            return ReturnWithAssign(entranceAddr, HandleThrow(entranceAddr, addr, tryStack, analysisDepth));
+                            return ReturnWithAssign(frame, entranceAddr, HandleThrow(entranceAddr, addr, tryStack, frame.AnalysisDepth));
                         if (instruction.OpCode == OpCode.ENDTRY || instruction.OpCode == OpCode.ENDTRY_L)
                         {
                             if (stackType != TryType.TRY && stackType != TryType.CATCH)
@@ -379,22 +530,25 @@ namespace Neo.Compiler.ControlFlow
                             // Terminate the try/catch context, but
                             // visit catchAddr for current try, or finallyAddr for current catch
                             // because there may still be exceptions at runtime
-                            HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
+                            HandleThrow(entranceAddr, addr, tryStack, frame.AnalysisDepth);
 
                             tryStack.Pop();  // pop the ending TRY or CATCH
                             int endPointer = ComputeJumpTarget(addr, instruction);
+                            int nextAddr;
                             if (finallyAddr != -1)
                             {
                                 tryStack.Push(new(-1, endPointer, TryType.FINALLY, true));
-                                addr = finallyAddr;
+                                nextAddr = finallyAddr;
                             }
                             else
-                                addr = endPointer;
-                            tailChainEntrances.Add(entranceAddr);
-                            continueFromBasicBlockEntranceAddr = null;
-                            jumpFromBasicBlockEntranceAddr = entranceAddr;
-                            analysisDepth += 1;
-                            scheduledNextIteration = true;
+                                nextAddr = endPointer;
+                            frame.TailChainEntrances.Add(entranceAddr);
+                            frame.Addr = nextAddr;
+                            frame.TryStackParam = tryStack;
+                            frame.ContinueFrom = null;
+                            frame.JumpFrom = entranceAddr;
+                            frame.AnalysisDepth += 1;
+                            startedNewBlock = true;
                             break;
                         }
                         if (instruction.OpCode == OpCode.ENDFINALLY)
@@ -405,51 +559,57 @@ namespace Neo.Compiler.ControlFlow
                             tryStack.Pop();  // pop the ending FINALLY
                             if (continueAfterFinally)
                             {
-                                tailChainEntrances.Add(entranceAddr);
-                                addr = endPointer;
-                                continueFromBasicBlockEntranceAddr = null;
-                                jumpFromBasicBlockEntranceAddr = entranceAddr;
-                                analysisDepth += 1;
-                                scheduledNextIteration = true;
+                                frame.TailChainEntrances.Add(entranceAddr);
+                                frame.Addr = endPointer;
+                                frame.TryStackParam = tryStack;
+                                frame.ContinueFrom = null;
+                                frame.JumpFrom = entranceAddr;
+                                frame.AnalysisDepth += 1;
+                                startedNewBlock = true;
                                 break;
                             }
                             // For this basic block in finally, the branch type is OK
                             // The throw is caused by previous codes
-                            return Finalize(BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
+                            return Finalize(frame, BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
                         }
                     }
                     if (unconditionalJump.Contains(instruction.OpCode))
                     {
                         // For the analysis of basic blocks, we launch a new iteration
-                        tailChainEntrances.Add(entranceAddr);
-                        addr = ComputeJumpTarget(addr, instruction);
-                        continueFromBasicBlockEntranceAddr = null;
-                        jumpFromBasicBlockEntranceAddr = entranceAddr;
-                        analysisDepth += 1;
-                        scheduledNextIteration = true;
+                        frame.TailChainEntrances.Add(entranceAddr);
+                        frame.Addr = ComputeJumpTarget(addr, instruction);
+                        frame.TryStackParam = tryStack;
+                        frame.ContinueFrom = null;
+                        frame.JumpFrom = entranceAddr;
+                        frame.AnalysisDepth += 1;
+                        startedNewBlock = true;
                         break;
                     }
                     if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                     {
-                        BranchType noJump = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
-                        BranchType jump = CoverInstruction(ComputeJumpTarget(addr, instruction), tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: analysisDepth + 1);
+                        // Both branches must be evaluated before they can be combined, so this
+                        // remains real (non-tail) recursion. Its depth is bounded by conditional
+                        // branch nesting within a single basic block chain, not by CALL depth,
+                        // and remains guarded by MaxControlFlowAnalysisDepth.
+                        BranchType noJump = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: frame.AnalysisDepth + 1);
+                        BranchType jump = CoverInstruction(ComputeJumpTarget(addr, instruction), tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: frame.AnalysisDepth + 1);
                         if (noJump == BranchType.OK || jump == BranchType.OK)
                         {
                             // See if we are in a try. There may still be runtime exceptions
-                            HandleThrow(entranceAddr, addr, tryStack, analysisDepth);
-                            return Finalize(BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
+                            HandleThrow(entranceAddr, addr, tryStack, frame.AnalysisDepth);
+                            return Finalize(frame, BranchType.OK);  // No need to set coveredMap[entranceAddr] because it's OK when covered
                         }
                         if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
-                            return ReturnWithAssign(entranceAddr, HandleAbort(entranceAddr, addr, tryStack, analysisDepth));
+                            return ReturnWithAssign(frame, entranceAddr, HandleAbort(entranceAddr, addr, tryStack, frame.AnalysisDepth));
                         if (noJump == BranchType.THROW || jump == BranchType.THROW)  // THROW, ABORT => THROW
-                            return ReturnWithAssign(entranceAddr, HandleThrow(entranceAddr, addr, tryStack, analysisDepth));
+                            return ReturnWithAssign(frame, entranceAddr, HandleThrow(entranceAddr, addr, tryStack, frame.AnalysisDepth));
                         throw new Exception($"Unknown {nameof(BranchType)} {noJump} {jump}");
                     }
 
                     addr += instruction.Size;
                 }
 
-                if (!scheduledNextIteration)
+                if (!startedNewBlock)
                     throw new InvalidOperationException("Unreachable: inner loop exited without scheduling next iteration or returning");
             }
         }

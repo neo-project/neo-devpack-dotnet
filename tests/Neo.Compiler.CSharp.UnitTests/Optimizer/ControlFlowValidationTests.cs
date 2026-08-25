@@ -59,8 +59,24 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             }
             script.Add((byte)OpCode.RET);
 
-            var exception = Assert.ThrowsException<BadScriptException>(() =>
-                new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
+            var exception = Assert.ThrowsExactly<BadScriptException>(() => new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
+
+            StringAssert.Contains(exception.Message, "Control flow analysis depth");
+        }
+
+        [TestMethod]
+        public void InstructionCoverage_ThrowsBadScriptInsteadOfOverflowingForVeryDeepCallChain()
+        {
+            const int chainLength = 50_000;
+            var script = new List<byte>();
+            for (int i = 0; i < chainLength; i++)
+            {
+                script.Add((byte)OpCode.CALL);
+                script.Add(0x02);
+            }
+            script.Add((byte)OpCode.RET);
+
+            var exception = Assert.ThrowsExactly<BadScriptException>(() => new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
 
             StringAssert.Contains(exception.Message, "Control flow analysis depth");
         }
