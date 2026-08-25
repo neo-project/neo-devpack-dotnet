@@ -70,9 +70,10 @@ public class SyntaxTests
         var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
         var summaryPath = Path.Combine(repoRoot, "docs", "csharp-syntax", "UnsupportedFeatures.md");
         var actual = NormalizeLineEndings(File.ReadAllText(summaryPath));
+        var expected = NormalizeLineEndings(RenderUnsupportedFeaturesSummary());
 
         Assert.AreEqual(
-            RenderUnsupportedFeaturesSummary(),
+            expected,
             actual,
             "UnsupportedFeatures.md must be regenerated from the versioned syntax probes.");
     }
