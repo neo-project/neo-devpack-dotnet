@@ -613,9 +613,16 @@ internal partial class MethodConvert
         {
             case ArgumentSyntax syntax:
                 expression = syntax.Expression;
-                parameter = syntax.NameColon is null
-                    ? symbol.Parameters.ElementAtOrDefault(positionalIndex++)
-                    : symbol.Parameters.FirstOrDefault(p => p.Name == syntax.NameColon.Name.Identifier.ValueText);
+                if (syntax.NameColon is null)
+                {
+                    parameter = symbol.Parameters.ElementAtOrDefault(positionalIndex++);
+                }
+                else
+                {
+                    parameter = symbol.Parameters.FirstOrDefault(p => p.Name == syntax.NameColon.Name.Identifier.ValueText);
+                    if (parameter is not null)
+                        positionalIndex = Math.Max(positionalIndex, parameter.Ordinal + 1);
+                }
                 return parameter is not null;
             case ExpressionSyntax syntax:
                 expression = syntax;
