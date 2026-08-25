@@ -54,12 +54,10 @@ namespace Neo.Compiler.CSharp.UnitTests
                     var expected = int.DivRem(l * lSign, r * rSign);
                     Assert.AreEqual(expected.Remainder, (int)(BigInteger)result[0]);
                     Assert.AreEqual(expected.Quotient, (int)(BigInteger)result[1]);
-                    AssertGasConsumed(1109280);
+                    AssertGasConsumed(1109430);
                 }
 
-            var overflowResult = Contract.DivRemByte(int.MinValue, -1)!;
-            Assert.AreEqual(0, (int)(BigInteger)overflowResult[0]);
-            Assert.AreEqual(-(BigInteger)int.MinValue, (BigInteger)overflowResult[1]);  // no exception
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemInt(int.MinValue, -1));
         }
 
         [TestMethod]
@@ -71,7 +69,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = long.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (long)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (long)(BigInteger)result[1]);
-            AssertGasConsumed(1109280);
+            AssertGasConsumed(1109430);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemLong(long.MinValue, -1));
         }
 
         [TestMethod]

@@ -114,7 +114,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = Math.DivRem((int)10, (int)3);
             Assert.AreEqual(expected.Remainder, checked((int)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((int)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            AssertGasConsumed(1109430);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemInt(int.MinValue, -1));
         }
 
         [TestMethod]
@@ -126,7 +127,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = Math.DivRem((long)10, (long)3);
             Assert.AreEqual(expected.Remainder, checked((long)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((long)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            AssertGasConsumed(1109430);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemLong(long.MinValue, -1));
         }
 
         [TestMethod]
