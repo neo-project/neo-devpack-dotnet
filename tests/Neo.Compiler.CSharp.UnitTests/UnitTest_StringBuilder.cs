@@ -17,12 +17,11 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_StringBuilder : DebugAndTestBase<Contract_StringBuilder>
     {
-        protected override bool TestGasConsume => false;
-
         [TestMethod]
         public void TestAppendPrimitiveValues()
         {
             Assert.AreEqual("-1|2|-3|4|-5|6|-7|8|True|False", Contract.AppendPrimitiveValues());
+            AssertGasConsumed(15788670);
         }
     }
 }
