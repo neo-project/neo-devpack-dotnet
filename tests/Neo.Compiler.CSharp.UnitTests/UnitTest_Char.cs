@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Char : DebugAndTestBase<Contract_Char>
     {
-        protected override bool TestGasConsume => false;
+        protected override bool TestGasConsume => true;
 
         public static IEnumerable<object[]> CharTestData =>
             new List<object[]>
@@ -42,27 +42,27 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestCharProperties(char c, bool isDigit, bool isLetter, bool isWhiteSpace, bool isLower, bool isUpper)
         {
             Assert.AreEqual(isDigit, Contract.TestCharIsDigit(c), $"IsDigit failed for '{c}'");
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
             Assert.AreEqual(isLetter, Contract.TestCharIsLetter(c), $"IsLetter failed for '{c}'");
             AssertGasConsumed(1048080);
             Assert.AreEqual(isWhiteSpace, Contract.TestCharIsWhiteSpace(c), $"IsWhiteSpace failed for '{c}'");
             Assert.AreEqual(isLower, Contract.TestCharIsLower(c), $"IsLower failed for '{c}'");
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
             Assert.AreEqual(isUpper, Contract.TestCharIsUpper(c), $"IsUpper failed for '{c}'");
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
         }
 
         [TestMethod]
         public void TestCharGetNumericValue()
         {
             Assert.AreEqual(0, Contract.TestCharGetNumericValue('0'));
-            AssertGasConsumed(1047720);
+            AssertGasConsumed(1048200);
             Assert.AreEqual(9, Contract.TestCharGetNumericValue('9'));
-            AssertGasConsumed(1047720);
+            AssertGasConsumed(1048200);
             Assert.AreEqual(-1, Contract.TestCharGetNumericValue('a'));
-            AssertGasConsumed(1047540);
+            AssertGasConsumed(1048020);
             Assert.AreEqual(-1, Contract.TestCharGetNumericValue('$'));
-            AssertGasConsumed(1047540);
+            AssertGasConsumed(1048020);
         }
 
         [TestMethod]
@@ -71,125 +71,125 @@ namespace Neo.Compiler.CSharp.UnitTests
             for (char c = '\0'; c < 128; c++)
             {
                 Assert.AreEqual(char.IsPunctuation(c), Contract.TestCharIsPunctuation(c), $"IsPunctuation failed for '{c}'");
-                AssertGasConsumed(1047450);
+                AssertGasConsumed(1048470);
             }
             Assert.IsTrue(Contract.TestCharIsPunctuation('.'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1048470);
             Assert.IsTrue(Contract.TestCharIsPunctuation(','));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1048470);
             Assert.IsFalse(Contract.TestCharIsPunctuation('a'));
-            AssertGasConsumed(1048590);
+            AssertGasConsumed(1048470);
             Assert.IsFalse(Contract.TestCharIsPunctuation('\u00A9'));
 
             for (char c = '\0'; c < 128; c++)
             {
                 Assert.AreEqual(char.IsSymbol(c), Contract.TestCharIsSymbol(c), $"IsSymbol failed for '{c}'");
-                AssertGasConsumed(1047450);
+                AssertGasConsumed(1048470);
             }
             Assert.IsTrue(Contract.TestCharIsSymbol('$'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1048470);
             Assert.IsTrue(Contract.TestCharIsSymbol('+'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1048470);
             Assert.IsFalse(Contract.TestCharIsSymbol('a'));
-            AssertGasConsumed(1049010);
+            AssertGasConsumed(1048470);
             Assert.IsFalse(Contract.TestCharIsSymbol('\u00A9'));
 
             for (char c = '\0'; c < 128; c++)
             {
                 Assert.AreEqual(char.IsControl(c), Contract.TestCharIsControl(c), $"IsControl failed for '{c}'");
-                AssertGasConsumed(1047990);
+                AssertGasConsumed(1048470);
             }
             Assert.IsTrue(Contract.TestCharIsControl('\n'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048470);
             Assert.IsTrue(Contract.TestCharIsControl('\0'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048470);
             Assert.IsFalse(Contract.TestCharIsControl('a'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048470);
         }
 
         [TestMethod]
         public void TestCharSurrogates()
         {
             Assert.IsTrue(Contract.TestCharIsSurrogate('\uD800'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048470);
             Assert.IsTrue(Contract.TestCharIsSurrogate('\uDFFF'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048470);
             Assert.IsFalse(Contract.TestCharIsSurrogate('a'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048470);
 
             Assert.IsTrue(Contract.TestCharIsHighSurrogate('\uD800'));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
             Assert.IsFalse(Contract.TestCharIsHighSurrogate('\uDC00'));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
             Assert.IsFalse(Contract.TestCharIsHighSurrogate('a'));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
 
             Assert.IsTrue(Contract.TestCharIsLowSurrogate('\uDC00'));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
             Assert.IsFalse(Contract.TestCharIsLowSurrogate('\uD800'));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
             Assert.IsFalse(Contract.TestCharIsLowSurrogate('a'));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047810);
         }
 
         [TestMethod]
         public void TestCharConversions()
         {
             Assert.AreEqual('A', Contract.TestCharToUpper('a'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048200);
             Assert.AreEqual('A', Contract.TestCharToUpper('A'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual(' ', Contract.TestCharToUpper(' '));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual('D', Contract.TestCharToUpper('d'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1048200);
             Assert.AreEqual('a', Contract.TestCharToLower('A'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048200);
             Assert.AreEqual('a', Contract.TestCharToLower('a'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual(' ', Contract.TestCharToLower(' '));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual('d', Contract.TestCharToLower('D'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1048200);
         }
 
         [TestMethod]
         public void TestCharToUpperInvariant()
         {
             Assert.AreEqual('A', Contract.TestCharToUpperInvariant('a'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048200);
             Assert.AreEqual('A', Contract.TestCharToUpperInvariant('A'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual(' ', Contract.TestCharToUpperInvariant(' '));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual('1', Contract.TestCharToUpperInvariant('1'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestCharToLowerInvariant()
         {
             Assert.AreEqual('a', Contract.TestCharToLowerInvariant('A'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048200);
             Assert.AreEqual('a', Contract.TestCharToLowerInvariant('a'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual(' ', Contract.TestCharToLowerInvariant(' '));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
             Assert.AreEqual('1', Contract.TestCharToLowerInvariant('1'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestCharIsLetterOrDigit()
         {
             Assert.IsTrue(Contract.TestCharIsLetterOrDigit('a'));
-            AssertGasConsumed(1048170);
+            AssertGasConsumed(1048740);
             Assert.IsTrue(Contract.TestCharIsLetterOrDigit('A'));
-            AssertGasConsumed(1047870);
+            AssertGasConsumed(1048740);
             Assert.IsTrue(Contract.TestCharIsLetterOrDigit('0'));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1048050);
             Assert.IsFalse(Contract.TestCharIsLetterOrDigit('$'));
-            AssertGasConsumed(1048170);
+            AssertGasConsumed(1048740);
 
             Assert.IsTrue(Contract.TestCharIsLetterOrDigitResult('b'));
             Assert.IsTrue(Contract.TestCharIsLetterOrDigitResult('B'));
@@ -236,18 +236,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestCharIsBetween()
         {
             Assert.IsTrue(Contract.TestCharIsBetween('a', 'a', 'z'));
-            AssertGasConsumed(1047870);
+            AssertGasConsumed(1048650);
             Assert.IsTrue(Contract.TestCharIsBetween('z', 'a', 'z'));
-            AssertGasConsumed(1047870);
+            AssertGasConsumed(1048650);
             Assert.IsFalse(Contract.TestCharIsBetween('z' + 1, 'a', 'z'));
-            AssertGasConsumed(1047870);
+            AssertGasConsumed(1048650);
             Assert.IsFalse(Contract.TestCharIsBetween('a' - 1, 'a', 'z'));
-            AssertGasConsumed(1047870);
+            AssertGasConsumed(1048650);
 
             Assert.IsFalse(Contract.TestCharIsBetween('A', 'a', 'z'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048650);
             Assert.IsFalse(Contract.TestCharIsBetween('0', 'a', 'z'));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048650);
         }
 
         [TestMethod]
