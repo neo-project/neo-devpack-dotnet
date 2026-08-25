@@ -201,7 +201,6 @@ namespace Neo.Compiler.ControlFlow
         /// One "virtual invocation" of the former recursive algorithm. Frames are kept on an
         /// explicit heap-allocated stack (see <see cref="CoverInstruction"/>) instead of the CLR
         /// call stack, so that long chains of CALL/CALL_L/CALLA instructions cannot exhaust it
-        /// (see issue #1980 and the PR #1981 review from Jim8y).
         /// </summary>
         private sealed class Frame
         {
@@ -257,27 +256,10 @@ namespace Neo.Compiler.ControlFlow
             return Finalize(frame, result);
         }
 
-        /// <summary>
-        /// Cover a basic block, and recursively cover all branches
-        /// </summary>
-        /// <param name="addr">Starting address of script. Should start at a basic block</param>
-        /// <param name="tryStack">try-catch-finally stack</param>
-        /// <param name="continueFromBasicBlockEntranceAddr">Specify the previous basic block entrance address, if we continue execution from the previous basic block</param>
-        /// <param name="jumpFromBasicBlockEntranceAddr">Specify the entrance address of the basic block as the source of jump, if we jumped to current address from that basic block</param>
-        /// <returns>Whether it is possible to return without exception</returns>
-        /// <exception cref="BadScriptException"></exception>
-        /// <exception cref="NotImplementedException"></exception>
         public BranchType CoverInstruction(int addr, Stack<TryState>? tryStack = null,
             int? continueFromBasicBlockEntranceAddr = null, int? jumpFromBasicBlockEntranceAddr = null,
             int analysisDepth = 0)
         {
-            // CALL/CALL_L/CALLA target analysis used to recurse into CoverInstruction and block
-            // on the C# call stack until the callee finished. For scripts with a long chain of
-            // calls (A calls B calls C ...), that real recursion could exhaust the CLR stack
-            // before the logical MaxControlFlowAnalysisDepth guard was reached, especially in
-            // Debug builds on Windows (see #1980 and the review comment on PR #1981). Call
-            // targets are now pushed onto this explicit, heap-allocated frame stack instead, and
-            // processed by a trampoline loop below.
             Stack<Frame> frames = new();
             frames.Push(new Frame
             {
@@ -304,12 +286,6 @@ namespace Neo.Compiler.ControlFlow
             }
         }
 
-        /// <summary>
-        /// Runs (or resumes) a single <see cref="Frame"/> until it either produces a final
-        /// <see cref="BranchType"/> result, or suspends itself after pushing a child frame onto
-        /// <paramref name="frames"/> (in which case <c>null</c> is returned and this frame will be
-        /// invoked again, with the child's result, once that child frame completes).
-        /// </summary>
         private BranchType? RunFrame(Frame frame, Stack<Frame> frames, BranchType? childResult)
         {
             if (frame.Pending != PendingKind.None)
@@ -357,9 +333,6 @@ namespace Neo.Compiler.ControlFlow
                     return ReturnWithAssign(frame, frame.EntranceAddr, HandleThrow(frame.EntranceAddr, instrAddr, frame.TryStack, frame.AnalysisDepth));
             }
 
-            // Each iteration of this loop is equivalent to one former tail self-recursive call:
-            // it (re)establishes a new basic block entrance and scans forward until it must
-            // either return a final result, or start a new basic block (looping again).
             while (true)
             {
                 if (frame.AnalysisDepth > MaxControlFlowAnalysisDepth)
@@ -587,10 +560,6 @@ namespace Neo.Compiler.ControlFlow
                     }
                     if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                     {
-                        // Both branches must be evaluated before they can be combined, so this
-                        // remains real (non-tail) recursion. Its depth is bounded by conditional
-                        // branch nesting within a single basic block chain, not by CALL depth,
-                        // and remains guarded by MaxControlFlowAnalysisDepth.
                         BranchType noJump = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: frame.AnalysisDepth + 1);
                         BranchType jump = CoverInstruction(ComputeJumpTarget(addr, instruction), tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr, analysisDepth: frame.AnalysisDepth + 1);
                         if (noJump == BranchType.OK || jump == BranchType.OK)
