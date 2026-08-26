@@ -322,6 +322,8 @@ internal partial class MethodConvert
 
     private void EmitComplexAssignmentOperatorCore(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right, VM.Types.StackItemType itemType)
     {
+        type = GetNonNullableValueType(type);
+        itemType = type.GetStackItemType();
         bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
         var (opcode, checkResult) = operatorToken.ValueText switch
         {

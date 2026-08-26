@@ -99,6 +99,7 @@ internal partial class MethodConvert
 
     private void EmitBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, ITypeSymbol type)
     {
+        type = GetNonNullableValueType(type);
         bool isBoolean = type.GetStackItemType() == StackItemType.Boolean;
         var (opcode, checkResult) = expression.OperatorToken.ValueText switch
         {
@@ -123,7 +124,7 @@ internal partial class MethodConvert
 
         if (expression.OperatorToken.ValueText == "/")
         {
-            CheckDivideOverflow(model, model.GetTypeInfo(expression).Type, expression.Left, expression.Right);
+            CheckDivideOverflow(model, type, expression.Left, expression.Right);
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
@@ -164,6 +165,14 @@ internal partial class MethodConvert
         {
             OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
         };
+
+    private static ITypeSymbol GetNonNullableValueType(ITypeSymbol type) =>
+        type is INamedTypeSymbol
+        {
+            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+        } nullableType
+            ? nullableType.TypeArguments[0]
+            : type;
 
     private static bool IsLiftedNullPropagatingBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression)
     {
@@ -241,25 +250,31 @@ internal partial class MethodConvert
     private void EmitLiftedNullableBooleanOperator(byte leftSlot, byte rightSlot, bool isAnd)
     {
         var decisiveTarget = new JumpTarget();
+        var checkRightTarget = new JumpTarget();
+        var checkNullTarget = new JumpTarget();
         var nullTarget = new JumpTarget();
         var endTarget = new JumpTarget();
 
         LdLoc(leftSlot);
+        IsNull();
+        JumpIfTrue(checkRightTarget);
+        LdLoc(leftSlot);
         if (isAnd)
-            PushF();
+            JumpIfFalse(decisiveTarget);
         else
-            PushT();
-        AddInstruction(OpCode.EQUAL);
-        JumpIfTrue(decisiveTarget);
+            JumpIfTrue(decisiveTarget);
 
+        checkRightTarget.Instruction = Nop();
+        LdLoc(rightSlot);
+        IsNull();
+        JumpIfTrue(checkNullTarget);
         LdLoc(rightSlot);
         if (isAnd)
-            PushF();
+            JumpIfFalse(decisiveTarget);
         else
-            PushT();
-        AddInstruction(OpCode.EQUAL);
-        JumpIfTrue(decisiveTarget);
+            JumpIfTrue(decisiveTarget);
 
+        checkNullTarget.Instruction = Nop();
         LdLoc(leftSlot);
         IsNull();
         JumpIfTrue(nullTarget);

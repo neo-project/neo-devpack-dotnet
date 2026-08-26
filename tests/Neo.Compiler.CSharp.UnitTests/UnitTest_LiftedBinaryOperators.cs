@@ -178,6 +178,12 @@ public class Contract : SmartContract
     [DisplayName("boolXor")]
     public static bool? BoolXor(bool? left, bool? right) => left ^ right;
 
+    [DisplayName("boolXorThenAnd")]
+    public static bool? BoolXorThenAnd(bool? left, bool? right) => (left ^ right) & true;
+
+    [DisplayName("boolXorThenOr")]
+    public static bool? BoolXorThenOr(bool? left, bool? right) => (left ^ right) | false;
+
     [DisplayName("boolAndAssign")]
     public static bool? BoolAndAssign(bool? left, bool? right)
     {
@@ -189,6 +195,13 @@ public class Contract : SmartContract
     public static bool? BoolOrAssign(bool? left, bool? right)
     {
         left |= right;
+        return left;
+    }
+
+    [DisplayName("boolXorAssign")]
+    public static bool? BoolXorAssign(bool? left, bool? right)
+    {
+        left ^= right;
         return left;
     }
 
@@ -326,28 +339,22 @@ public class Contract : SmartContract
     public void NullableBooleanBitwiseOperatorsUseThreeValuedLogic(CompilationOptions.OptimizationType optimization)
     {
         var contract = Deploy(optimization);
+        bool?[] values = [null, false, true];
+        foreach (bool? left in values)
+        {
+            foreach (bool? right in values)
+            {
+                Assert.AreEqual(left & right, contract.BoolAnd(left, right));
+                Assert.AreEqual(left | right, contract.BoolOr(left, right));
+                Assert.AreEqual(left ^ right, contract.BoolXor(left, right));
+                Assert.AreEqual(left & right, contract.BoolAndAssign(left, right));
+                Assert.AreEqual(left | right, contract.BoolOrAssign(left, right));
+                Assert.AreEqual(left ^ right, contract.BoolXorAssign(left, right));
+            }
+        }
 
-        Assert.IsFalse(contract.BoolAnd(false, null));
-        Assert.IsFalse(contract.BoolAnd(null, false));
-        Assert.IsNull(contract.BoolAnd(true, null));
-        Assert.IsNull(contract.BoolAnd(null, true));
-        Assert.IsNull(contract.BoolAnd(null, null));
-
-        Assert.IsTrue(contract.BoolOr(true, null));
-        Assert.IsTrue(contract.BoolOr(null, true));
-        Assert.IsNull(contract.BoolOr(false, null));
-        Assert.IsNull(contract.BoolOr(null, false));
-        Assert.IsNull(contract.BoolOr(null, null));
-
-        Assert.IsNull(contract.BoolXor(true, null));
-        Assert.IsNull(contract.BoolXor(null, false));
-        Assert.IsFalse(contract.BoolXor(true, true));
-        Assert.IsTrue(contract.BoolXor(true, false));
-
-        Assert.IsFalse(contract.BoolAndAssign(false, null));
-        Assert.IsNull(contract.BoolAndAssign(true, null));
-        Assert.IsTrue(contract.BoolOrAssign(true, null));
-        Assert.IsNull(contract.BoolOrAssign(false, null));
+        Assert.IsFalse(contract.BoolXorThenAnd(true, true));
+        Assert.IsFalse(contract.BoolXorThenOr(false, false));
     }
 
     private static LiftedBinaryContract Deploy(CompilationOptions.OptimizationType optimization)
@@ -492,11 +499,20 @@ public class Contract : SmartContract
         [DisplayName("boolXor")]
         public abstract bool? BoolXor(bool? left, bool? right);
 
+        [DisplayName("boolXorThenAnd")]
+        public abstract bool? BoolXorThenAnd(bool? left, bool? right);
+
+        [DisplayName("boolXorThenOr")]
+        public abstract bool? BoolXorThenOr(bool? left, bool? right);
+
         [DisplayName("boolAndAssign")]
         public abstract bool? BoolAndAssign(bool? left, bool? right);
 
         [DisplayName("boolOrAssign")]
         public abstract bool? BoolOrAssign(bool? left, bool? right);
+
+        [DisplayName("boolXorAssign")]
+        public abstract bool? BoolXorAssign(bool? left, bool? right);
 
         [DisplayName("nullLeftEvaluationCount")]
         public abstract BigInteger? NullLeftEvaluationCount();
