@@ -14,7 +14,6 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -235,19 +234,58 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestCharIsBetween()
         {
+            // Value inside the range
+            Assert.IsTrue(Contract.TestCharIsBetween('m', 'a', 'z'));
+            AssertGasConsumed(1048590);
+            // Value equal to the lower bound (inclusive)
             Assert.IsTrue(Contract.TestCharIsBetween('a', 'a', 'z'));
-            AssertGasConsumed(1048650);
+            AssertGasConsumed(1048590);
+            // Value equal to the upper bound (inclusive)
             Assert.IsTrue(Contract.TestCharIsBetween('z', 'a', 'z'));
-            AssertGasConsumed(1048650);
-            Assert.IsFalse(Contract.TestCharIsBetween('z' + 1, 'a', 'z'));
-            AssertGasConsumed(1048650);
+            AssertGasConsumed(1048590);
+            // Value below the range
             Assert.IsFalse(Contract.TestCharIsBetween('a' - 1, 'a', 'z'));
-            AssertGasConsumed(1048650);
+            AssertGasConsumed(1048590);
+            // Value above the range
+            Assert.IsFalse(Contract.TestCharIsBetween('z' + 1, 'a', 'z'));
+            AssertGasConsumed(1048590);
 
             Assert.IsFalse(Contract.TestCharIsBetween('A', 'a', 'z'));
-            AssertGasConsumed(1048650);
+            AssertGasConsumed(1048590);
             Assert.IsFalse(Contract.TestCharIsBetween('0', 'a', 'z'));
-            AssertGasConsumed(1048650);
+            AssertGasConsumed(1048590);
+
+            // minInclusive == maxInclusive
+            Assert.IsTrue(Contract.TestCharIsBetween('a', 'a', 'a'));
+            AssertGasConsumed(1048590);
+            Assert.IsFalse(Contract.TestCharIsBetween('b', 'a', 'a'));
+            AssertGasConsumed(1048590);
+
+            // minInclusive > maxInclusive: no value can ever satisfy the range
+            Assert.IsFalse(Contract.TestCharIsBetween('a', 'z', 'a'));
+            AssertGasConsumed(1048590);
+
+            // Full range from char.MinValue to char.MaxValue
+            Assert.IsTrue(Contract.TestCharIsBetween(char.MinValue, char.MinValue, char.MaxValue));
+            AssertGasConsumed(1048590);
+            Assert.IsTrue(Contract.TestCharIsBetween(char.MaxValue, char.MinValue, char.MaxValue));
+            AssertGasConsumed(1048590);
+            Assert.IsTrue(Contract.TestCharIsBetween((char)32767, char.MinValue, char.MaxValue));
+            AssertGasConsumed(1048590);
+
+            // value == char.MaxValue and maxInclusive == char.MaxValue: preserves inclusivity of the upper bound
+            Assert.IsTrue(Contract.TestCharIsBetween(char.MaxValue, 'a', char.MaxValue));
+            AssertGasConsumed(1048590);
+            Assert.IsFalse(Contract.TestCharIsBetween(char.MaxValue, char.MaxValue, (char)('a' - 1)));
+            AssertGasConsumed(1048590);
+
+            BigInteger int256Max = (BigInteger.One << 255) - BigInteger.One;
+            Assert.IsTrue(Contract.TestCharIsBetween(int256Max, BigInteger.Zero, int256Max));
+            AssertGasConsumed(1048770);
+            Assert.IsTrue(Contract.TestCharIsBetween(BigInteger.Zero, BigInteger.Zero, int256Max));
+            AssertGasConsumed(1048680);
+            Assert.IsTrue(Contract.TestCharIsBetween(int256Max, int256Max, int256Max));
+            AssertGasConsumed(1048860);
         }
 
         [TestMethod]
