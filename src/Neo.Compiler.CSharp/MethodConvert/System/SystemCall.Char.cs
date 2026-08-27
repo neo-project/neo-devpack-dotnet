@@ -591,8 +591,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(128);                                   // Push 128 (first non-ASCII value)
-        methodConvert.Lt();                                        // Check if character < 128
+        methodConvert.Within(0, 127);
     }
 
     /// <summary>

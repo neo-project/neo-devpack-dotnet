@@ -197,6 +197,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestCharIsAscii()
+        {
+            Assert.IsTrue(Contract.TestCharIsAscii(0));
+            Assert.IsTrue(Contract.TestCharIsAscii('A'));
+            Assert.IsTrue(Contract.TestCharIsAscii(127));
+            Assert.IsFalse(Contract.TestCharIsAscii(128));
+            Assert.IsFalse(Contract.TestCharIsAscii(-1));
+        }
+
+        [TestMethod]
         public void TestCharIsAsciiLetter()
         {
             // Boundaries of the uppercase and lowercase ranges
