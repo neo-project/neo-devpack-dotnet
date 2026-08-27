@@ -146,6 +146,21 @@ public class Contract : SmartContract
         }
     }
 
+    [DisplayName("callerOwnedOperand")]
+    public static int CallerOwnedOperand(int dividend, int divisor) => 100 + SafeRemainder(dividend, divisor);
+
+    private static int SafeRemainder(int dividend, int divisor)
+    {
+        try
+        {
+            return dividend % divisor;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
     [DisplayName("compoundShort")]
     public static short CompoundShort(short dividend, short divisor)
     {
@@ -181,17 +196,18 @@ public class Contract : SmartContract
         }
 
         var contract = Deploy(context);
-        Assert.ThrowsExactly<TestException>(() => contract.CheckedInt(int.MinValue, -1));
-        Assert.ThrowsExactly<TestException>(() => contract.UncheckedInt(int.MinValue, -1));
-        Assert.ThrowsExactly<TestException>(() => contract.CheckedLong(long.MinValue, -1));
-        Assert.ThrowsExactly<TestException>(() => contract.UncheckedLong(long.MinValue, -1));
-        Assert.ThrowsExactly<TestException>(() => contract.CompoundInt(int.MinValue, -1));
-        Assert.ThrowsExactly<TestException>(() => contract.CompoundLong(long.MinValue, -1));
+        AssertOverflowFault(() => contract.CheckedInt(int.MinValue, -1));
+        AssertOverflowFault(() => contract.UncheckedInt(int.MinValue, -1));
+        AssertOverflowFault(() => contract.CheckedLong(long.MinValue, -1));
+        AssertOverflowFault(() => contract.UncheckedLong(long.MinValue, -1));
+        AssertOverflowFault(() => contract.CompoundInt(int.MinValue, -1));
+        AssertOverflowFault(() => contract.CompoundLong(long.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtArrayCompound(int.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtArrayDivide(int.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtFieldCompound(int.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtPropertyDivide(int.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtOuterExpression(int.MinValue, -1));
+        Assert.AreEqual(new BigInteger(100), contract.CallerOwnedOperand(int.MinValue, -1));
     }
 
     [DataTestMethod]
@@ -260,6 +276,13 @@ public class Contract : SmartContract
         return engine.Deploy<RemainderOverflowContract>(context.CreateExecutable(), context.CreateManifest());
     }
 
+    private static void AssertOverflowFault(Action action)
+    {
+        var exception = Assert.ThrowsExactly<TestException>(action);
+        Assert.IsInstanceOfType<VMUnhandledException>(exception.InnerException);
+        Assert.AreEqual("Overflow", ((VMUnhandledException)exception.InnerException).ExceptionObject.GetString());
+    }
+
     public abstract class RemainderOverflowContract(SmartContractInitialize initialize)
         : Neo.SmartContract.Testing.SmartContract(initialize)
     {
@@ -304,6 +327,9 @@ public class Contract : SmartContract
 
         [DisplayName("caughtOuterExpression")]
         public abstract BigInteger? CaughtOuterExpression(BigInteger dividend, BigInteger divisor);
+
+        [DisplayName("callerOwnedOperand")]
+        public abstract BigInteger? CallerOwnedOperand(BigInteger dividend, BigInteger divisor);
 
         [DisplayName("compoundShort")]
         public abstract BigInteger? CompoundShort(BigInteger dividend, BigInteger divisor);

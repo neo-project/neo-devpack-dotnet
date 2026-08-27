@@ -351,7 +351,7 @@ internal partial class MethodConvert
         Push(minValue.Value);
         JumpIfNotEqual(endTarget);
 
-        Clear();
+        RestoreMethodStackDepth();
         Push("Overflow");
         Throw();
         endTarget.Instruction = Nop();
