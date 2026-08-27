@@ -65,6 +65,7 @@ namespace Neo.Compiler
         private readonly Stack<byte> _exceptionStack = new();
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
         private readonly Stack<bool> _checkedStack = new();
+        private byte? _methodStackDepthIndex;
 
         #endregion
 
@@ -195,6 +196,7 @@ namespace Neo.Compiler
                 //     // ... rest of the method
                 // }
                 InsertInitializationInstructions();
+                InsertMethodStackDepthInitialization();
 
                 // Step 8: Process modifiers (exit)
                 // Handle any cleanup or additional instructions required by modifiers

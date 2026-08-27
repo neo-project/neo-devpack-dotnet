@@ -291,7 +291,7 @@ internal partial class MethodConvert
         methodConvert.Push(-1);
         methodConvert.JumpIfNotEqual(endTarget);
 
-        methodConvert.Clear();
+        methodConvert.RestoreMethodStackDepth();
         methodConvert.Push("Overflow");
         methodConvert.Throw();
         endTarget.Instruction = methodConvert.Nop();

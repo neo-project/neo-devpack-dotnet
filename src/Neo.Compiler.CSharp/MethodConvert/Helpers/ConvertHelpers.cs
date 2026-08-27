@@ -204,6 +204,40 @@ internal partial class MethodConvert
         }
     }
 
+    private void EnsureMethodStackDepth()
+    {
+        _methodStackDepthIndex ??= AddAnonymousVariable();
+    }
+
+    private void InsertMethodStackDepthInitialization()
+    {
+        if (!_methodStackDepthIndex.HasValue)
+            return;
+
+        int insertionIndex = _instructions.FindIndex(p => p.OpCode != OpCode.INITSSLOT && p.OpCode != OpCode.INITSLOT);
+        if (insertionIndex < 0)
+            insertionIndex = _instructions.Count;
+
+        byte index = _methodStackDepthIndex.Value;
+        var store = index >= 7
+            ? new Instruction { OpCode = OpCode.STLOC, Operand = [index] }
+            : new Instruction { OpCode = OpCode.STLOC0 + index };
+        _instructions.InsertRange(insertionIndex, [new Instruction { OpCode = OpCode.DEPTH }, store]);
+    }
+
+    private void RestoreMethodStackDepth()
+    {
+        EnsureMethodStackDepth();
+        var checkTarget = new JumpTarget();
+        var endTarget = new JumpTarget();
+        checkTarget.Instruction = Depth();
+        LdLoc(_methodStackDepthIndex!.Value);
+        JumpIfLessOrEqual(endTarget);
+        Drop();
+        Jump(checkTarget);
+        endTarget.Instruction = Nop();
+    }
+
     private void ProcessModifiersExit(SemanticModel model, (byte fieldIndex, AttributeData attribute)[] modifiers)
     {
         foreach (var (fieldIndex, attribute) in modifiers)

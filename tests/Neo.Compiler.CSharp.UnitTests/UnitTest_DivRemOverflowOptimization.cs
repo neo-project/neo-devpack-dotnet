@@ -60,6 +60,34 @@ public class Contract : SmartContract
             return 1;
         }
     }
+
+    public static int CallerInt(int dividend, int divisor) => 100 + SafeIntHelper(dividend, divisor);
+
+    public static long CallerMathLong(long dividend, long divisor) => 100 + SafeMathLongHelper(dividend, divisor);
+
+    private static int SafeIntHelper(int dividend, int divisor)
+    {
+        try
+        {
+            return int.DivRem(dividend, divisor).Quotient;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private static long SafeMathLongHelper(long dividend, long divisor)
+    {
+        try
+        {
+            return Math.DivRem(dividend, divisor).Quotient;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
 }
 """;
 
@@ -90,7 +118,7 @@ public class Contract : SmartContract
     [DataTestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
-    public void CatchPathsClearOuterExpressionValues(CompilationOptions.OptimizationType optimization)
+    public void CatchPathsPreserveCallerOwnedValues(CompilationOptions.OptimizationType optimization)
     {
         var context = CompileContract(optimization);
         var engine = new TestEngine(true);
@@ -98,6 +126,10 @@ public class Contract : SmartContract
 
         Assert.AreEqual(BigInteger.One, contract.CaughtInt(int.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtMathLong(long.MinValue, -1));
+        Assert.AreEqual(new BigInteger(100), contract.CallerInt(int.MinValue, -1));
+        Assert.AreEqual(new BigInteger(100), contract.CallerMathLong(long.MinValue, -1));
+        Assert.AreEqual(new BigInteger(10), contract.CaughtInt(10, 3));
+        Assert.AreEqual(new BigInteger(10), contract.CaughtMathLong(10, 3));
     }
 
     private static CompilationContext CompileContract(CompilationOptions.OptimizationType optimization)
@@ -135,5 +167,11 @@ public class Contract : SmartContract
 
         [DisplayName("caughtMathLong")]
         public abstract BigInteger? CaughtMathLong(BigInteger dividend, BigInteger divisor);
+
+        [DisplayName("callerInt")]
+        public abstract BigInteger? CallerInt(BigInteger dividend, BigInteger divisor);
+
+        [DisplayName("callerMathLong")]
+        public abstract BigInteger? CallerMathLong(BigInteger dividend, BigInteger divisor);
     }
 }
