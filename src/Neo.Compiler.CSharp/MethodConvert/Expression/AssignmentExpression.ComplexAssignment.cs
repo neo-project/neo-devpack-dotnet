@@ -282,7 +282,7 @@ internal partial class MethodConvert
         }
 
         ConvertExpression(model, right);
-        EmitComplexAssignmentOperatorCore(model, type, operatorToken, right, itemType);
+        EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
     }
 
     private void EmitLiftedComplexAssignmentOperator(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)
@@ -313,17 +313,17 @@ internal partial class MethodConvert
 
         LdLoc(leftSlot);
         LdLoc(rightSlot);
-        EmitComplexAssignmentOperatorCore(model, type, operatorToken, right, type.GetStackItemType());
+        EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
         Jump(OpCode.JMP_L, endTarget);
 
         nullTarget.Instruction = PushNull();
         endTarget.Instruction = Nop();
     }
 
-    private void EmitComplexAssignmentOperatorCore(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right, VM.Types.StackItemType itemType)
+    private void EmitComplexAssignmentOperatorCore(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)
     {
         type = GetNonNullableValueType(type);
-        itemType = type.GetStackItemType();
+        var itemType = type.GetStackItemType();
         bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
         var (opcode, checkResult) = operatorToken.ValueText switch
         {
