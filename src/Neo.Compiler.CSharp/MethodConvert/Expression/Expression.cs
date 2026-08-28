@@ -348,12 +348,12 @@ internal partial class MethodConvert
     /// <param name="type">The integer type to be checked.</param>
     private void EnsureIntegerInRange(ITypeSymbol type)
     {
-        if (type.Name == "BigInteger") return;
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
         }
+        if (type.Name == "BigInteger") return;
 
         var (minValue, maxValue, mask) = type.Name switch
         {

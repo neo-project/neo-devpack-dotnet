@@ -274,8 +274,56 @@ internal partial class MethodConvert
             ChangeType(VM.Types.StackItemType.ByteString);
             return;
         }
-        ConvertExpression(model, right);
 
+        if (IsNullableValueType(type))
+        {
+            EmitLiftedComplexAssignmentOperator(model, type, operatorToken, right);
+            return;
+        }
+
+        ConvertExpression(model, right);
+        EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
+    }
+
+    private void EmitLiftedComplexAssignmentOperator(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)
+    {
+        using var tempScope = PreserveAnonymousVariables();
+        byte leftSlot = AddAnonymousVariable();
+        byte rightSlot = AddAnonymousVariable();
+
+        StLoc(leftSlot);
+        ConvertExpression(model, right);
+        StLoc(rightSlot);
+
+        if (operatorToken.ValueText is "&=" or "|=" && IsNullableBoolean(type))
+        {
+            EmitLiftedNullableBooleanOperator(leftSlot, rightSlot, operatorToken.ValueText == "&=");
+            return;
+        }
+
+        var nullTarget = new JumpTarget();
+        var endTarget = new JumpTarget();
+
+        LdLoc(leftSlot);
+        IsNull();
+        JumpIfTrue(nullTarget);
+        LdLoc(rightSlot);
+        IsNull();
+        JumpIfTrue(nullTarget);
+
+        LdLoc(leftSlot);
+        LdLoc(rightSlot);
+        EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
+        Jump(OpCode.JMP_L, endTarget);
+
+        nullTarget.Instruction = PushNull();
+        endTarget.Instruction = Nop();
+    }
+
+    private void EmitComplexAssignmentOperatorCore(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)
+    {
+        type = GetNonNullableValueType(type);
+        var itemType = type.GetStackItemType();
         bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
         var (opcode, checkResult) = operatorToken.ValueText switch
         {
