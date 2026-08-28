@@ -481,7 +481,7 @@ internal partial class MethodConvert
 
     private static void RegisterArrayHandlers()
     {
-        RegisterHandler((Array a) => a.Length, HandleLength);
+        RegisterHandler((Array a) => a.Length, HandleArrayLength);
         RegisterHandler((Array array) => Array.Reverse(array), HandleArrayReverse);
     }
 
