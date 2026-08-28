@@ -66,6 +66,22 @@ public class Contract : SmartContract
 
     public static long CallerMathLong(long dividend, long divisor) => 100 + SafeMathLongHelper(dividend, divisor);
 
+    public static int InlineThenMethodOverflow(int safeDividend, int safeDivisor, int overflowDividend, int overflowDivisor) =>
+        1000 + MethodWithInlineThenOverflow(safeDividend, safeDivisor, overflowDividend, overflowDivisor);
+
+    private static int MethodWithInlineThenOverflow(int safeDividend, int safeDivisor, int overflowDividend, int overflowDivisor)
+    {
+        int prefix = 100 + SafeIntHelper(safeDividend, safeDivisor);
+        try
+        {
+            return prefix + int.DivRem(overflowDividend, overflowDivisor).Quotient;
+        }
+        catch
+        {
+            return prefix;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int SafeIntHelper(int dividend, int divisor)
     {
@@ -131,6 +147,7 @@ public class Contract : SmartContract
         Assert.AreEqual(BigInteger.One, contract.CaughtMathLong(long.MinValue, -1));
         Assert.AreEqual(new BigInteger(100), contract.CallerInt(int.MinValue, -1));
         Assert.AreEqual(new BigInteger(100), contract.CallerMathLong(long.MinValue, -1));
+        Assert.AreEqual(new BigInteger(1103), contract.InlineThenMethodOverflow(10, 3, int.MinValue, -1));
         Assert.AreEqual(new BigInteger(10), contract.CaughtInt(10, 3));
         Assert.AreEqual(new BigInteger(10), contract.CaughtMathLong(10, 3));
     }
@@ -176,5 +193,8 @@ public class Contract : SmartContract
 
         [DisplayName("callerMathLong")]
         public abstract BigInteger? CallerMathLong(BigInteger dividend, BigInteger divisor);
+
+        [DisplayName("inlineThenMethodOverflow")]
+        public abstract BigInteger? InlineThenMethodOverflow(BigInteger safeDividend, BigInteger safeDivisor, BigInteger overflowDividend, BigInteger overflowDivisor);
     }
 }

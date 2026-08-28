@@ -67,6 +67,7 @@ namespace Neo.Compiler
         private readonly Stack<bool> _checkedStack = new();
         private byte? _methodStackDepthIndex;
         private readonly Stack<StackDepthScope> _inlineStackDepthScopes = new();
+        private readonly Dictionary<int, byte> _inlineStackDepthSlots = new();
 
         #endregion
 
