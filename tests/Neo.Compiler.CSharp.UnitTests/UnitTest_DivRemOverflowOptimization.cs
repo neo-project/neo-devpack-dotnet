@@ -27,6 +27,7 @@ public class UnitTest_DivRemOverflowOptimization
     private const string Source = """
 using Neo.SmartContract.Framework;
 using System;
+using System.Runtime.CompilerServices;
 
 public class Contract : SmartContract
 {
@@ -65,6 +66,7 @@ public class Contract : SmartContract
 
     public static long CallerMathLong(long dividend, long divisor) => 100 + SafeMathLongHelper(dividend, divisor);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int SafeIntHelper(int dividend, int divisor)
     {
         try
@@ -77,6 +79,7 @@ public class Contract : SmartContract
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long SafeMathLongHelper(long dividend, long divisor)
     {
         try

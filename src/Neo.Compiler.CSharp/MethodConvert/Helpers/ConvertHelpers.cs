@@ -24,6 +24,12 @@ extern alias scfx;
 
 internal partial class MethodConvert
 {
+    private sealed class StackDepthScope(int insertionIndex)
+    {
+        public int InsertionIndex { get; } = insertionIndex;
+        public byte? SlotIndex { get; set; }
+    }
+
     private static byte RequireByteSizedSlotCount(ISymbol symbol, int count, string description)
     {
         if ((uint)count > byte.MaxValue)
@@ -72,6 +78,8 @@ internal partial class MethodConvert
             }
         }
 
+        StackDepthScope stackDepthScope = new(_instructions.Count);
+        _inlineStackDepthScopes.Push(stackDepthScope);
         JumpTarget inlineReturnTarget = new();
         if (parameterSlots is not null)
             _inlineParameterScopes.Push(parameterSlots);
@@ -106,12 +114,15 @@ internal partial class MethodConvert
         }
         finally
         {
+            _inlineStackDepthScopes.Pop();
             _inlineReturnTargets.Pop();
             if (parameterSlots is not null)
                 _inlineParameterScopes.Pop();
 
             foreach (byte slot in anonymousSlots)
                 RemoveAnonymousVariable(slot);
+            if (stackDepthScope.SlotIndex.HasValue)
+                RemoveAnonymousVariable(stackDepthScope.SlotIndex.Value);
         }
 
         inlineReturnTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -219,24 +230,42 @@ internal partial class MethodConvert
             insertionIndex = _instructions.Count;
 
         byte index = _methodStackDepthIndex.Value;
-        var store = index >= 7
-            ? new Instruction { OpCode = OpCode.STLOC, Operand = [index] }
-            : new Instruction { OpCode = OpCode.STLOC0 + index };
+        var store = StoreLocalInstruction(index);
         _instructions.InsertRange(insertionIndex, [new Instruction { OpCode = OpCode.DEPTH }, store]);
     }
 
     private void RestoreMethodStackDepth()
     {
-        EnsureMethodStackDepth();
+        byte stackDepthIndex;
+        if (_inlineStackDepthScopes.TryPeek(out StackDepthScope? scope))
+        {
+            if (!scope.SlotIndex.HasValue)
+            {
+                scope.SlotIndex = AddAnonymousVariable();
+                _instructions.InsertRange(scope.InsertionIndex,
+                    [new Instruction { OpCode = OpCode.DEPTH }, StoreLocalInstruction(scope.SlotIndex.Value)]);
+            }
+            stackDepthIndex = scope.SlotIndex.Value;
+        }
+        else
+        {
+            EnsureMethodStackDepth();
+            stackDepthIndex = _methodStackDepthIndex!.Value;
+        }
+
         var checkTarget = new JumpTarget();
         var endTarget = new JumpTarget();
         checkTarget.Instruction = Depth();
-        LdLoc(_methodStackDepthIndex!.Value);
+        LdLoc(stackDepthIndex);
         JumpIfLessOrEqual(endTarget);
         Drop();
         Jump(checkTarget);
         endTarget.Instruction = Nop();
     }
+
+    private static Instruction StoreLocalInstruction(byte index) => index >= 7
+        ? new Instruction { OpCode = OpCode.STLOC, Operand = [index] }
+        : new Instruction { OpCode = OpCode.STLOC0 + index };
 
     private void ProcessModifiersExit(SemanticModel model, (byte fieldIndex, AttributeData attribute)[] modifiers)
     {

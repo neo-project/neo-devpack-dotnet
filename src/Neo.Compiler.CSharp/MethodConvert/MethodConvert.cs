@@ -66,6 +66,7 @@ namespace Neo.Compiler
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
         private readonly Stack<bool> _checkedStack = new();
         private byte? _methodStackDepthIndex;
+        private readonly Stack<StackDepthScope> _inlineStackDepthScopes = new();
 
         #endregion
 
