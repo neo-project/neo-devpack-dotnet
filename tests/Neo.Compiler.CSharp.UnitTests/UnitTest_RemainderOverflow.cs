@@ -28,6 +28,7 @@ public class UnitTest_RemainderOverflow
     private const string Source = """
 using Neo.SmartContract.Framework;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 public class Contract : SmartContract
 {
@@ -149,6 +150,7 @@ public class Contract : SmartContract
     [DisplayName("callerOwnedOperand")]
     public static int CallerOwnedOperand(int dividend, int divisor) => 100 + SafeRemainder(dividend, divisor);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int SafeRemainder(int dividend, int divisor)
     {
         try
