@@ -123,26 +123,6 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles length properties for arrays and strings.
-    /// </summary>
-    /// <param name="methodConvert">The method converter instance</param>
-    /// <param name="model">The semantic model</param>
-    /// <param name="symbol">The method symbol</param>
-    /// <param name="instanceExpression">The instance expression (if any)</param>
-    /// <param name="arguments">The method arguments</param>
-    /// <remarks>
-    /// Algorithm: Returns the size of the collection or string
-    /// </remarks>
-    private static void HandleLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Size();                                      // Get size using helper method
-    }
-
-    /// <summary>
     /// Handles the char.IsDigit method to check if a character is a digit.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
