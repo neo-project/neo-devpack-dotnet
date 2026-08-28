@@ -150,6 +150,23 @@ public class Contract : SmartContract
     [DisplayName("callerOwnedOperand")]
     public static int CallerOwnedOperand(int dividend, int divisor) => 100 + SafeRemainder(dividend, divisor);
 
+    [DisplayName("inlineThenMethodOverflow")]
+    public static int InlineThenMethodOverflow(int safeDividend, int safeDivisor, int overflowDividend, int overflowDivisor) =>
+        1000 + MethodWithInlineThenOverflow(safeDividend, safeDivisor, overflowDividend, overflowDivisor);
+
+    private static int MethodWithInlineThenOverflow(int safeDividend, int safeDivisor, int overflowDividend, int overflowDivisor)
+    {
+        int prefix = 100 + SafeRemainder(safeDividend, safeDivisor);
+        try
+        {
+            return prefix + overflowDividend % overflowDivisor;
+        }
+        catch
+        {
+            return prefix;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int SafeRemainder(int dividend, int divisor)
     {
@@ -210,6 +227,7 @@ public class Contract : SmartContract
         Assert.AreEqual(BigInteger.One, contract.CaughtPropertyDivide(int.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtOuterExpression(int.MinValue, -1));
         Assert.AreEqual(new BigInteger(100), contract.CallerOwnedOperand(int.MinValue, -1));
+        Assert.AreEqual(new BigInteger(1101), contract.InlineThenMethodOverflow(10, 3, int.MinValue, -1));
     }
 
     [DataTestMethod]
@@ -332,6 +350,9 @@ public class Contract : SmartContract
 
         [DisplayName("callerOwnedOperand")]
         public abstract BigInteger? CallerOwnedOperand(BigInteger dividend, BigInteger divisor);
+
+        [DisplayName("inlineThenMethodOverflow")]
+        public abstract BigInteger? InlineThenMethodOverflow(BigInteger safeDividend, BigInteger safeDivisor, BigInteger overflowDividend, BigInteger overflowDivisor);
 
         [DisplayName("compoundShort")]
         public abstract BigInteger? CompoundShort(BigInteger dividend, BigInteger divisor);

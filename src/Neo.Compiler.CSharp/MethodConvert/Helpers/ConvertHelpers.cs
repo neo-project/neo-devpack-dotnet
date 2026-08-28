@@ -24,9 +24,10 @@ extern alias scfx;
 
 internal partial class MethodConvert
 {
-    private sealed class StackDepthScope(int insertionIndex)
+    private sealed class StackDepthScope(int insertionIndex, int nestingLevel)
     {
         public int InsertionIndex { get; } = insertionIndex;
+        public int NestingLevel { get; } = nestingLevel;
         public byte? SlotIndex { get; set; }
     }
 
@@ -78,7 +79,7 @@ internal partial class MethodConvert
             }
         }
 
-        StackDepthScope stackDepthScope = new(_instructions.Count);
+        StackDepthScope stackDepthScope = new(_instructions.Count, _inlineStackDepthScopes.Count);
         _inlineStackDepthScopes.Push(stackDepthScope);
         JumpTarget inlineReturnTarget = new();
         if (parameterSlots is not null)
@@ -121,8 +122,6 @@ internal partial class MethodConvert
 
             foreach (byte slot in anonymousSlots)
                 RemoveAnonymousVariable(slot);
-            if (stackDepthScope.SlotIndex.HasValue)
-                RemoveAnonymousVariable(stackDepthScope.SlotIndex.Value);
         }
 
         inlineReturnTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -217,7 +216,7 @@ internal partial class MethodConvert
 
     private void EnsureMethodStackDepth()
     {
-        _methodStackDepthIndex ??= AddAnonymousVariable();
+        _methodStackDepthIndex ??= AddPermanentAnonymousVariable();
     }
 
     private void InsertMethodStackDepthInitialization()
@@ -241,7 +240,12 @@ internal partial class MethodConvert
         {
             if (!scope.SlotIndex.HasValue)
             {
-                scope.SlotIndex = AddAnonymousVariable();
+                if (!_inlineStackDepthSlots.TryGetValue(scope.NestingLevel, out byte slotIndex))
+                {
+                    slotIndex = AddAnonymousVariable();
+                    _inlineStackDepthSlots.Add(scope.NestingLevel, slotIndex);
+                }
+                scope.SlotIndex = slotIndex;
                 _instructions.InsertRange(scope.InsertionIndex,
                     [new Instruction { OpCode = OpCode.DEPTH }, StoreLocalInstruction(scope.SlotIndex.Value)]);
             }
