@@ -15,6 +15,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -72,6 +73,15 @@ internal partial class MethodConvert
         if (symbol is not null && TryProcessSystemOperators(model, symbol, expression.Left, expression.Right))
             return;
 
+        if (IsLiftedNullPropagatingBinaryOperator(model, expression))
+        {
+            if (expression.OperatorToken.ValueText is "&" or "|" && HasNullableBooleanOperand(model, expression))
+                ConvertLiftedNullableBooleanExpression(model, expression);
+            else
+                ConvertLiftedBinaryExpression(model, expression);
+            return;
+        }
+
         if ((expression.IsKind(SyntaxKind.LeftShiftExpression) ||
              expression.IsKind(SyntaxKind.RightShiftExpression)) &&
             HasNullableOperand(model, expression))
@@ -84,6 +94,12 @@ internal partial class MethodConvert
         ConvertExpression(model, expression.Right);
 
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+        EmitBinaryOperator(model, expression, type);
+    }
+
+    private void EmitBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, ITypeSymbol type)
+    {
+        type = GetNonNullableValueType(type);
         bool isBoolean = type.GetStackItemType() == StackItemType.Boolean;
         var (opcode, checkResult) = expression.OperatorToken.ValueText switch
         {
@@ -108,7 +124,7 @@ internal partial class MethodConvert
 
         if (expression.OperatorToken.ValueText is "/" or "%")
         {
-            CheckSignedDivisionOverflow(model, model.GetTypeInfo(expression).Type, expression.Left, expression.Right);
+            CheckSignedDivisionOverflow(model, type, expression.Left, expression.Right);
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
@@ -149,6 +165,134 @@ internal partial class MethodConvert
         {
             OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
         };
+
+    private static ITypeSymbol GetNonNullableValueType(ITypeSymbol type) =>
+        type is INamedTypeSymbol
+        {
+            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+        } nullableType
+            ? nullableType.TypeArguments[0]
+            : type;
+
+    private static bool IsLiftedNullPropagatingBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        if (expression.OperatorToken.ValueText is not ("+" or "-" or "*" or "/" or "%" or "&" or "|" or "^"))
+            return false;
+
+        if (model.GetOperation(expression) is not IBinaryOperation { IsLifted: true } operation)
+            return false;
+
+        if (operation.OperatorMethod is null)
+            return true;
+
+        INamedTypeSymbol? bigIntegerType = model.Compilation.GetTypeByMetadataName("System.Numerics.BigInteger");
+        return SymbolEqualityComparer.Default.Equals(operation.OperatorMethod.ContainingType, bigIntegerType);
+    }
+
+    private static bool HasNullableBooleanOperand(SemanticModel model, BinaryExpressionSyntax expression) =>
+        IsNullableBoolean(model.GetTypeInfo(expression.Left).Type) ||
+        IsNullableBoolean(model.GetTypeInfo(expression.Right).Type);
+
+    private static bool IsNullableBoolean(ITypeSymbol? type) =>
+        type is INamedTypeSymbol
+        {
+            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T,
+            TypeArguments: [{ SpecialType: SpecialType.System_Boolean }]
+        };
+
+    /// <summary>
+    /// Emits a lifted arithmetic or bitwise operation while evaluating both operands exactly once.
+    /// </summary>
+    private void ConvertLiftedBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        using var tempScope = PreserveAnonymousVariables();
+        byte leftSlot = AddAnonymousVariable();
+        byte rightSlot = AddAnonymousVariable();
+
+        ConvertExpression(model, expression.Left);
+        StLoc(leftSlot);
+        ConvertExpression(model, expression.Right);
+        StLoc(rightSlot);
+
+        var nullTarget = new JumpTarget();
+        var endTarget = new JumpTarget();
+
+        LdLoc(leftSlot);
+        IsNull();
+        JumpIfTrue(nullTarget);
+        LdLoc(rightSlot);
+        IsNull();
+        JumpIfTrue(nullTarget);
+
+        LdLoc(leftSlot);
+        LdLoc(rightSlot);
+        EmitBinaryOperator(model, expression, model.GetTypeInfo(expression).Type!);
+        Jump(OpCode.JMP_L, endTarget);
+
+        nullTarget.Instruction = PushNull();
+        endTarget.Instruction = Nop();
+    }
+
+    private void ConvertLiftedNullableBooleanExpression(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        using var tempScope = PreserveAnonymousVariables();
+        byte leftSlot = AddAnonymousVariable();
+        byte rightSlot = AddAnonymousVariable();
+
+        ConvertExpression(model, expression.Left);
+        StLoc(leftSlot);
+        ConvertExpression(model, expression.Right);
+        StLoc(rightSlot);
+
+        EmitLiftedNullableBooleanOperator(leftSlot, rightSlot, expression.OperatorToken.ValueText == "&");
+    }
+
+    private void EmitLiftedNullableBooleanOperator(byte leftSlot, byte rightSlot, bool isAnd)
+    {
+        var decisiveTarget = new JumpTarget();
+        var checkRightTarget = new JumpTarget();
+        var checkNullTarget = new JumpTarget();
+        var nullTarget = new JumpTarget();
+        var endTarget = new JumpTarget();
+
+        LdLoc(leftSlot);
+        IsNull();
+        JumpIfTrue(checkRightTarget);
+        LdLoc(leftSlot);
+        if (isAnd)
+            JumpIfFalse(decisiveTarget);
+        else
+            JumpIfTrue(decisiveTarget);
+
+        checkRightTarget.Instruction = Nop();
+        LdLoc(rightSlot);
+        IsNull();
+        JumpIfTrue(checkNullTarget);
+        LdLoc(rightSlot);
+        if (isAnd)
+            JumpIfFalse(decisiveTarget);
+        else
+            JumpIfTrue(decisiveTarget);
+
+        checkNullTarget.Instruction = Nop();
+        LdLoc(leftSlot);
+        IsNull();
+        JumpIfTrue(nullTarget);
+        LdLoc(rightSlot);
+        IsNull();
+        JumpIfTrue(nullTarget);
+
+        if (isAnd)
+            PushT();
+        else
+            PushF();
+        Jump(OpCode.JMP_L, endTarget);
+
+        decisiveTarget.Instruction = isAnd ? PushF() : PushT();
+        Jump(OpCode.JMP_L, endTarget);
+        nullTarget.Instruction = PushNull();
+        endTarget.Instruction = Nop();
+    }
 
     /// <summary>
     /// Emits a lifted shift while preserving C# null propagation and operand evaluation order.
