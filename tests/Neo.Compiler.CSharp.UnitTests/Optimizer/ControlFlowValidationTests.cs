@@ -59,8 +59,64 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             }
             script.Add((byte)OpCode.RET);
 
-            var exception = Assert.ThrowsException<BadScriptException>(() =>
-                new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
+            var exception = Assert.ThrowsExactly<BadScriptException>(() => new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
+
+            StringAssert.Contains(exception.Message, "Control flow analysis depth");
+        }
+
+        [TestMethod]
+        public void InstructionCoverage_ThrowsBadScriptInsteadOfOverflowingForVeryDeepCallChain()
+        {
+            const int chainLength = 50_000;
+            var script = new List<byte>();
+            for (int i = 0; i < chainLength; i++)
+            {
+                script.Add((byte)OpCode.CALL);
+                script.Add(0x02);
+            }
+            script.Add((byte)OpCode.RET);
+
+            var exception = Assert.ThrowsExactly<BadScriptException>(() => new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
+
+            StringAssert.Contains(exception.Message, "Control flow analysis depth");
+        }
+
+        [TestMethod]
+        public void InstructionCoverage_ThrowsBadScriptInsteadOfOverflowingForVeryDeepConditionalChain()
+        {
+            const int chainLength = 50_000;
+            int returnAddress = chainLength * 5;
+            var script = new List<byte>();
+            for (int i = 0; i < chainLength; i++)
+            {
+                int instructionAddress = script.Count;
+                script.Add((byte)OpCode.JMPIF_L);
+                script.AddRange(BitConverter.GetBytes(returnAddress - instructionAddress));
+            }
+            script.Add((byte)OpCode.RET);
+
+            var exception = Assert.ThrowsExactly<BadScriptException>(() => new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
+
+            StringAssert.Contains(exception.Message, "Control flow analysis depth");
+        }
+
+        [TestMethod]
+        public void InstructionCoverage_ThrowsBadScriptInsteadOfOverflowingForDeeplyNestedTry()
+        {
+            int tryCount = InstructionCoverage.MaxControlFlowAnalysisDepth + 1;
+            int finallyAddress = tryCount * 9 + 1;
+            var script = new List<byte>();
+            for (int i = 0; i < tryCount; i++)
+            {
+                int instructionAddress = script.Count;
+                script.Add((byte)OpCode.TRY_L);
+                script.AddRange(BitConverter.GetBytes(0));
+                script.AddRange(BitConverter.GetBytes(finallyAddress - instructionAddress));
+            }
+            script.Add((byte)OpCode.RET);
+            script.Add((byte)OpCode.ENDFINALLY);
+
+            var exception = Assert.ThrowsExactly<BadScriptException>(() => new InstructionCoverage(CreateNefFile(script.ToArray()), CreateManifest()));
 
             StringAssert.Contains(exception.Message, "Control flow analysis depth");
         }
