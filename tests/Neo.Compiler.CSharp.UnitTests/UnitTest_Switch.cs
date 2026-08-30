@@ -58,13 +58,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchInteger()
         {
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchInteger(1)!).GetInteger());
-            AssertGasConsumed(1048500);
+            AssertGasConsumed(1047540);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchInteger(2)!).GetInteger());
-            AssertGasConsumed(1049610);
+            AssertGasConsumed(1047690);
             Assert.AreEqual(6, ((VM.Types.Integer)Contract.SwitchInteger(3)!).GetInteger());
-            AssertGasConsumed(1050720);
+            AssertGasConsumed(1047840);
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchInteger(0)!).GetInteger());
-            AssertGasConsumed(1050720);
+            AssertGasConsumed(1047840);
         }
 
         [TestMethod]

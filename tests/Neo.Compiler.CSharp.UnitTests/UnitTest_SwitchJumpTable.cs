@@ -141,7 +141,7 @@ public class Contract : SmartContract
     {
         var opcodes = GetMethodOpcodes(source, methodId);
 
-        CollectionAssert.Contains(opcodes, OpCode.EQUAL);
+        CollectionAssert.Contains(opcodes, OpCode.JMPEQ);
         Assert.IsFalse(opcodes.Any(IsRangeBranch),
             "Expected fallback switch dispatch to use equality checks instead of range branches.");
     }
