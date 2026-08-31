@@ -9,10 +9,13 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
+using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -54,12 +57,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                     var expected = int.DivRem(l * lSign, r * rSign);
                     Assert.AreEqual(expected.Remainder, (int)(BigInteger)result[0]);
                     Assert.AreEqual(expected.Quotient, (int)(BigInteger)result[1]);
-                    AssertGasConsumed(1109280);
+                    AssertGasConsumed(1109550);
                 }
 
-            var overflowResult = Contract.DivRemByte(int.MinValue, -1)!;
-            Assert.AreEqual(0, (int)(BigInteger)overflowResult[0]);
-            Assert.AreEqual(-(BigInteger)int.MinValue, (BigInteger)overflowResult[1]);  // no exception
+            AssertDivRemOverflow(() => Contract.DivRemInt(int.MinValue, -1));
+            AssertDivRemResult(Contract.DivRemInt(int.MinValue, 1), int.MinValue, 0);
+            AssertDivRemResult(Contract.DivRemInt(int.MinValue, -2), 1073741824, 0);
         }
 
         [TestMethod]
@@ -71,7 +74,24 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = long.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (long)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (long)(BigInteger)result[1]);
-            AssertGasConsumed(1109280);
+            AssertGasConsumed(1109550);
+            AssertDivRemOverflow(() => Contract.DivRemLong(long.MinValue, -1));
+            AssertDivRemResult(Contract.DivRemLong(long.MinValue, 1), long.MinValue, 0);
+            AssertDivRemResult(Contract.DivRemLong(long.MinValue, -2), 4611686018427387904L, 0);
+        }
+
+        private static void AssertDivRemResult(IList<object>? actual, BigInteger expectedQuotient, BigInteger expectedRemainder)
+        {
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expectedRemainder, (BigInteger)actual[0]);
+            Assert.AreEqual(expectedQuotient, (BigInteger)actual[1]);
+        }
+
+        private static void AssertDivRemOverflow(Action action)
+        {
+            var exception = Assert.ThrowsExactly<TestException>(action);
+            Assert.IsInstanceOfType<VMUnhandledException>(exception.InnerException);
+            Assert.AreEqual("Overflow", ((VMUnhandledException)exception.InnerException).ExceptionObject.GetString());
         }
 
         [TestMethod]
