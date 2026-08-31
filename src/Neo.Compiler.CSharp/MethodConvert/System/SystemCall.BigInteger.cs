@@ -828,6 +828,11 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        EmitDivRem(methodConvert);
+    }
+
+    private static void EmitDivRem(MethodConvert methodConvert)
+    {
         // algorithm: (left, right) => (left / right, left % right)
         methodConvert.Dup();                                       // r, l, l
         methodConvert.Pick(2);                                     // r, l, l, r

@@ -55,6 +55,15 @@ internal partial class MethodConvert
         return index;
     }
 
+    private byte AddPermanentAnonymousVariable()
+    {
+        RequireByteSizedSlotCount(Symbol, _localsCount + 1, "local slots");
+        byte index = (byte)_localsCount;
+        _anonymousVariables.Add(index);
+        _localsCount++;
+        return index;
+    }
+
     private byte GetAvailableVariableSlot()
     {
         int preferredIndex = _localVariables.Count + _anonymousVariables.Count;

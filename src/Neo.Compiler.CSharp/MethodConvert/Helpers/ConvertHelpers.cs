@@ -24,6 +24,13 @@ extern alias scfx;
 
 internal partial class MethodConvert
 {
+    private sealed class StackDepthScope(int insertionIndex, int nestingLevel)
+    {
+        public int InsertionIndex { get; } = insertionIndex;
+        public int NestingLevel { get; } = nestingLevel;
+        public byte? SlotIndex { get; set; }
+    }
+
     private static byte RequireByteSizedSlotCount(ISymbol symbol, int count, string description)
     {
         if ((uint)count > byte.MaxValue)
@@ -72,6 +79,8 @@ internal partial class MethodConvert
             }
         }
 
+        StackDepthScope stackDepthScope = new(_instructions.Count, _inlineStackDepthScopes.Count);
+        _inlineStackDepthScopes.Push(stackDepthScope);
         JumpTarget inlineReturnTarget = new();
         if (parameterSlots is not null)
             _inlineParameterScopes.Push(parameterSlots);
@@ -106,6 +115,7 @@ internal partial class MethodConvert
         }
         finally
         {
+            _inlineStackDepthScopes.Pop();
             _inlineReturnTargets.Pop();
             if (parameterSlots is not null)
                 _inlineParameterScopes.Pop();
@@ -203,6 +213,66 @@ internal partial class MethodConvert
             });
         }
     }
+
+    private void EnsureMethodStackDepth()
+    {
+        _methodStackDepthIndex ??= AddPermanentAnonymousVariable();
+    }
+
+    private void InsertMethodStackDepthInitialization()
+    {
+        if (!_methodStackDepthIndex.HasValue)
+            return;
+
+        int insertionIndex = _instructions.FindIndex(p => p.OpCode != OpCode.INITSSLOT && p.OpCode != OpCode.INITSLOT);
+        if (insertionIndex < 0)
+            insertionIndex = _instructions.Count;
+
+        byte index = _methodStackDepthIndex.Value;
+        var store = StoreLocalInstruction(index);
+        _instructions.InsertRange(insertionIndex, [new Instruction { OpCode = OpCode.DEPTH }, store]);
+    }
+
+    private void RestoreMethodStackDepth()
+    {
+        // NeoVM THROW preserves existing evaluation-stack items. Dropping only the two division operands
+        // would leave receiver, index, and outer-expression temporaries behind, so restore the nearest
+        // inline or method boundary before pushing the exception value.
+        byte stackDepthIndex;
+        if (_inlineStackDepthScopes.TryPeek(out StackDepthScope? scope))
+        {
+            if (!scope.SlotIndex.HasValue)
+            {
+                if (!_inlineStackDepthSlots.TryGetValue(scope.NestingLevel, out byte slotIndex))
+                {
+                    slotIndex = AddAnonymousVariable();
+                    _inlineStackDepthSlots.Add(scope.NestingLevel, slotIndex);
+                }
+                scope.SlotIndex = slotIndex;
+                _instructions.InsertRange(scope.InsertionIndex,
+                    [new Instruction { OpCode = OpCode.DEPTH }, StoreLocalInstruction(scope.SlotIndex.Value)]);
+            }
+            stackDepthIndex = scope.SlotIndex.Value;
+        }
+        else
+        {
+            EnsureMethodStackDepth();
+            stackDepthIndex = _methodStackDepthIndex!.Value;
+        }
+
+        var checkTarget = new JumpTarget();
+        var endTarget = new JumpTarget();
+        checkTarget.Instruction = Depth();
+        LdLoc(stackDepthIndex);
+        JumpIfLessOrEqual(endTarget);
+        Drop();
+        Jump(checkTarget);
+        endTarget.Instruction = Nop();
+    }
+
+    private static Instruction StoreLocalInstruction(byte index) => index >= 7
+        ? new Instruction { OpCode = OpCode.STLOC, Operand = [index] }
+        : new Instruction { OpCode = OpCode.STLOC0 + index };
 
     private void ProcessModifiersExit(SemanticModel model, (byte fieldIndex, AttributeData attribute)[] modifiers)
     {
