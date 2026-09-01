@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ComplexAssignment()
         {
             Contract.TestComplexAssignment();
-            AssertGasConsumed(2964090);
+            AssertGasConsumed(2964210);
         }
 
         [TestMethod]

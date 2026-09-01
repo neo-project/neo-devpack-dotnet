@@ -122,9 +122,9 @@ internal partial class MethodConvert
             _ => throw CompilationException.UnsupportedSyntax(expression.OperatorToken, $"Unsupported binary operator '{expression.OperatorToken.ValueText}'. Supported operators: +, -, *, /, %, <<, >>, |, &, ^, ==, !=, <, <=, >, >=, &&, ||")
         };
 
-        if (expression.OperatorToken.ValueText == "/")
+        if (expression.OperatorToken.ValueText is "/" or "%")
         {
-            CheckDivideOverflow(model, type, expression.Left, expression.Right);
+            CheckSignedDivisionOverflow(model, type, expression.Left, expression.Right);
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
@@ -423,15 +423,14 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Checks for signed division overflow.
-    /// Division overflow occurs when dividing the minimum value of a signed integer type by -1,
-    /// as the result would exceed the maximum value of that type.
+    /// Checks for signed division and remainder overflow.
+    /// Both operations overflow when the minimum value of a signed integer type is divided by -1.
     /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
     /// </summary>
     /// <param name="model">The semantic model of the compilation.</param>
-    /// <param name="type">The result type of the division expression.</param>
-    /// <param name="leftExpr">The left expression (dividend) of the division operation.</param>
-    /// <param name="rightExpr">The right expression (divisor) of the division operation.</param>
+    /// <param name="type">The result type of the division or remainder expression.</param>
+    /// <param name="leftExpr">The left expression (dividend) of the operation.</param>
+    /// <param name="rightExpr">The right expression (divisor) of the operation.</param>
     /// <remarks>
     /// Overflow check is needed for:
     /// - Int32 (int): int.MinValue / -1 overflows
@@ -444,13 +443,23 @@ internal partial class MethodConvert
     /// - Constant divisor != -1: overflow only occurs when dividing by -1
     /// - Constant dividend != minValue: overflow only occurs when dividend is the minimum value
     /// </remarks>
-    private void CheckDivideOverflow(SemanticModel model, ITypeSymbol? type, ExpressionSyntax? leftExpr, ExpressionSyntax rightExpr)
+    private void CheckSignedDivisionOverflow(SemanticModel model, ITypeSymbol? type, ExpressionSyntax? leftExpr, ExpressionSyntax rightExpr)
     {
         if (type is null) return;
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
+        }
+
+        if (leftExpr is not null)
+        {
+            var dividendType = model.GetTypeInfo(leftExpr).Type?.SpecialType;
+            if (dividendType is SpecialType.System_SByte or SpecialType.System_Byte or
+                SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Char)
+            {
+                return;
+            }
         }
 
         if (TryGetIntegerConstant(model, rightExpr, out var rightValue))
@@ -486,7 +495,7 @@ internal partial class MethodConvert
         Push(minValue.Value);
         JumpIfNotEqual(endTarget);
 
-        Drop(2);
+        RestoreMethodStackDepth();
         Push("Overflow");
         Throw();
         endTarget.Instruction = Nop();
