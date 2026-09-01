@@ -73,12 +73,12 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
-    public void TryGetIntegerConstant_SupportsBoolConstants_AndRejectsStrings()
+    public void TryGetIntegerConstantRejectsBoolAndStrings()
     {
         var (boolModel, boolExpression) = CreateSemanticModel("class Test { const bool Value = true; }", "true");
         var (stringModel, stringExpression) = CreateSemanticModel("class Test { const string Value = \"neo\"; }", "\"neo\"");
 
-        AssertTryGetIntegerConstant(boolModel, boolExpression, true, BigInteger.One);
+        AssertTryGetIntegerConstant(boolModel, boolExpression, false, BigInteger.Zero);
         AssertTryGetIntegerConstant(stringModel, stringExpression, false, BigInteger.Zero);
     }
 
