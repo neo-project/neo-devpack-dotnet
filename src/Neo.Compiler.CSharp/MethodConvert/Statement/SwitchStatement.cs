@@ -294,9 +294,6 @@ namespace Neo.Compiler
                 case char v:
                     value = (ushort)v;
                     return true;
-                case bool v:
-                    value = v ? BigInteger.One : BigInteger.Zero;
-                    return true;
                 case BigInteger v:
                     value = v;
                     return true;
