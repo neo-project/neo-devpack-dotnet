@@ -115,8 +115,15 @@ namespace Neo.Compiler
                             {
                                 AccessSlot(OpCode.LDLOC, anonymousIndex);
                                 ConvertExpression(model, caseSwitchLabel.Value);
-                                AddInstruction(OpCode.EQUAL);
-                                Jump(OpCode.JMPIF_L, target);
+                                if (TryGetIntegerConstant(model, caseSwitchLabel.Value, out var intValue))
+                                {
+                                    Jump(OpCode.JMPEQ_L, target);
+                                }
+                                else
+                                {
+                                    AddInstruction(OpCode.EQUAL);
+                                    Jump(OpCode.JMPIF_L, target);
+                                }
                             }
                             break;
                         case DefaultSwitchLabelSyntax defaultSwitchLabel:
