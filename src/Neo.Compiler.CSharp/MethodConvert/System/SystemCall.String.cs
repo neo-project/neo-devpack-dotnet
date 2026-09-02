@@ -547,33 +547,33 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
-        var endTarget = new JumpTarget();
-        var validCountTarget = new JumpTarget();
-        var suffixNotEmptyTarget = new JumpTarget();
-        methodConvert.Over();                           // [suffix, value, suffix]
-        methodConvert.Size();                           // [suffix, value, suffix-size]
-        methodConvert.JumpIfTrue(suffixNotEmptyTarget); // NonZero int means true.
-        methodConvert.Drop(2);                          // Drop suffix and value
-        methodConvert.PushT();                          // Push true any string ends with ""
+        JumpTarget valueNonEmptyTarget = new();
+        JumpTarget validCountTarget = new();
+        JumpTarget endTarget = new();
+
+        // After preparing the single argument and evaluating the instance,the stack is [value, source].
+        methodConvert.Over();                                 // [value, source, value]
+        methodConvert.Size();                                 // [value, source, valueSize]
+        methodConvert.Dup();                                  // [value, source, valueSize, valueSize]
+        methodConvert.JumpIfTrue(valueNonEmptyTarget);        // [value, source, valueSize]
+        methodConvert.Drop(3);                                // []
+        methodConvert.PushT();                                // Any string ends with an empty value.
         methodConvert.JumpAlways(endTarget);
-        suffixNotEmptyTarget.Instruction = methodConvert.Nop();
-        methodConvert.Over();                                  // [suffix, value, suffix]
-        methodConvert.Size();                                  // [suffix, value, suffix-size]
-        methodConvert.Over();                                  // [suffix, value, suffix-size, value]
-        methodConvert.Size();                                  // [suffix, value, suffix-size, value-size]
-        methodConvert.Over();                                  // [suffix, value, suffix-size, value-size, suffix]
-        methodConvert.Sub();                                   // [suffix, value, suffix-size, start]
-        methodConvert.Dup();                                   // [suffix, value, suffix-size, start, start]
-        methodConvert.Push0();                                 // [suffix, value, suffix-size, start, start, 0]
-        methodConvert.JumpIfGreaterOrEqual(validCountTarget);  // [suffix, value, suffix-size, start]
-        methodConvert.Drop(4);                                 // []
-        methodConvert.PushF();                                 // [false]
-        methodConvert.JumpAlways(endTarget);                   // [false]
-        validCountTarget.Instruction = methodConvert.Swap();   // [suffix, value, start, suffix-size]
-        methodConvert.SubStr();                                // [suffix, suffix']
-        methodConvert.ChangeType(StackItemType.ByteString);    // [suffix, suffix']
-        methodConvert.Equal();                                 // [bool]
-        endTarget.Instruction = methodConvert.Nop();           // End target
+
+        valueNonEmptyTarget.Instruction = methodConvert.Nop();
+        methodConvert.Over();                                 // [value, source, valueSize, source]
+        methodConvert.Size();                                 // [value, source, valueSize, sourceSize]
+        methodConvert.Over();                                 // [value, source, valueSize, sourceSize, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget); // [value, source, valueSize]
+        methodConvert.Drop(3);                                // []
+        methodConvert.PushF();                                // source shorter than value.
+        methodConvert.JumpAlways(endTarget);
+
+        validCountTarget.Instruction = methodConvert.Right(null); // [value, suffix]
+        methodConvert.ChangeType(StackItemType.ByteString);       // [value, suffix]
+        methodConvert.Equal();                                    // [bool]
+
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringSubstring(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
