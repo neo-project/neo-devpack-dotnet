@@ -182,18 +182,22 @@ partial class MethodConvert
         EmitIntegerStringValidation(methodConvert, strSlot, failTarget);
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
 
-        // Convert string to integer
+        // Convert string to integer. If parsing fails, the execution will be terminated(atoi never returns null).
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-
-        // Check if the parsing was successful (not null)
-        methodConvert.Dup();                                       // Duplicate result for null check
-        methodConvert.IsNull();                                    // Check if null (parse failed)
-        methodConvert.JumpIfTrueLong(failWithValueTarget);          // Jump to fail if null
 
         // If successful, check if the parsed value is within the valid range
         methodConvert.Dup();                                        // Duplicate value for range check
-        methodConvert.Within(minValue, maxValue);                   // Check if within range
-        methodConvert.JumpIfFalseLong(failWithValueTarget);         // Jump to fail if out of range
+        if (minValue < 0)
+        {
+            methodConvert.Size();
+            methodConvert.Push(maxValue.GetByteCount());
+            methodConvert.JumpIfGreater(failWithValueTarget);
+        }
+        else
+        {
+            methodConvert.Within(minValue, maxValue);                   // Check if within range
+            methodConvert.JumpIfFalseLong(failWithValueTarget);         // Jump to fail if out of range
+        }
 
         // If within range, store the value and push true
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store value in static field
