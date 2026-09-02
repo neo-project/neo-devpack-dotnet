@@ -113,31 +113,31 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith("hello world"));
-            AssertGasConsumed(1356750);
+            AssertGasConsumed(1356240);
 
             Assert.IsTrue(Contract.TestEndWith("world"));
-            AssertGasConsumed(1356750);
+            AssertGasConsumed(1356240);
 
             Assert.IsFalse(Contract.TestEndWith("worl"));
-            AssertGasConsumed(1048800);
+            AssertGasConsumed(1048290);
 
             Assert.IsFalse(Contract.TestEndWith("world-1"));
-            AssertGasConsumed(1356750);
+            AssertGasConsumed(1356240);
 
             Assert.IsFalse(Contract.TestEndWith("hel"));
-            AssertGasConsumed(1048800);
+            AssertGasConsumed(1048290);
 
             Assert.IsFalse(Contract.TestEndWith("hello"));
-            AssertGasConsumed(1356750);
+            AssertGasConsumed(1356240);
 
             Assert.IsTrue(Contract.TestEndWith("hello world", ""));
-            AssertGasConsumed(1047930);
+            AssertGasConsumed(1048050);
 
             Assert.IsFalse(Contract.TestEndWith("", "world"));
-            AssertGasConsumed(1048860);
+            AssertGasConsumed(1048350);
 
             Assert.IsTrue(Contract.TestEndWith("hello world", "ello world"));
-            AssertGasConsumed(1356810);
+            AssertGasConsumed(1356300);
         }
 
         [TestMethod]
