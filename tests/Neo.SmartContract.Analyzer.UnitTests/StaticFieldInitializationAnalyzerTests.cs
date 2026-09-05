@@ -42,6 +42,37 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
+        [DataTestMethod]
+        [DataRow("UInt160", "null")]
+        [DataRow("UInt160", "default")]
+        [DataRow("UInt160", "default(UInt160)")]
+        [DataRow("UInt256", "null")]
+        [DataRow("UInt256", "default")]
+        [DataRow("UInt256", "default(UInt256)")]
+        [DataRow("ECPoint", "null")]
+        [DataRow("ECPoint", "default")]
+        [DataRow("ECPoint", "default(ECPoint)")]
+        public async Task NullOrDefaultInitialization_NoDiagnostic(string typeName, string initializer)
+        {
+            var code = CreateFrameworkTypeCode(typeName, $"unset = {initializer}");
+
+            await VerifyAnalyzerAsync(code);
+        }
+
+        [TestMethod]
+        public async Task NullAndInvalidStringInSameDeclaration_ReportsOnlyInvalidString()
+        {
+            var code = CreateFrameworkTypeCode(
+                "UInt160",
+                """unset = null, {|#0:invalid = "invalid"|}, uninitialized = default""");
+
+            var expectedDiagnostic = Verifier.Diagnostic(StaticFieldInitializationAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("UInt160 must be initialized with a 40-character hex string or a 34-character string starting with 'N'.");
+
+            await VerifyAnalyzerAsync(code, expectedDiagnostic);
+        }
+
         [TestMethod]
         public async Task ValidUInt256Initialization_NoDiagnostic()
         {
