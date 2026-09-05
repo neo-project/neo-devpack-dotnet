@@ -21,28 +21,28 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestStartWith()
         {
             Assert.IsTrue(Contract.TestStartWith());
-            AssertGasConsumed(1987140);
+            AssertGasConsumed(1987200);
         }
 
         [TestMethod]
         public void TestIndexOf()
         {
             Assert.AreEqual(4, Contract.TestIndexOf());
-            AssertGasConsumed(1986900);
+            AssertGasConsumed(1986960);
         }
 
         [TestMethod]
         public void TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith());
-            AssertGasConsumed(1989810);
+            AssertGasConsumed(1989870);
         }
 
         [TestMethod]
         public void TestContains()
         {
             Assert.IsTrue(Contract.TestContains());
-            AssertGasConsumed(1987890);
+            AssertGasConsumed(1987950);
         }
 
         [TestMethod]

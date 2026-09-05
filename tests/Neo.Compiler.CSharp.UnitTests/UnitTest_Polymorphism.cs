@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test()
         {
             Assert.AreEqual(14 + 45 - 4, Contract.SumToBeOverriden(5, 9));
-            AssertGasConsumed(1227450);
+            AssertGasConsumed(1227960);
             Assert.AreEqual(14, Contract.Sum(5, 9));
             AssertGasConsumed(1233300);
             Assert.AreEqual(40, Contract.Mul(5, 8));
