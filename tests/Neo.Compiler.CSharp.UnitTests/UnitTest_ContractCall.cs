@@ -22,21 +22,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Engine.SetTransactionSigners(TestEngine.CreateSigner(UInt160.Parse("0102030405060708090A0102030405060708090A")));
             var c1 = Engine.Deploy<Contract1>(Contract1.Nef, Contract1.Manifest);
-            Assert.AreEqual("0x963b515f6a714267cd4ac756fd841c133e07e5df", c1.Hash.ToString());
+            Assert.AreEqual("0xeab8ba189dd0c25b8e8697a4770ebd986eee8e53", c1.Hash.ToString());
         }
 
         [TestMethod]
         public void Test_ContractCall()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.TestContractCall());
-            AssertGasConsumed(2461050);
+            AssertGasConsumed(2276760);
         }
 
         [TestMethod]
         public void Test_ContractCall_Void()
         {
             Contract.TestContractCallVoid(); // No error
-            AssertGasConsumed(2215050);
+            AssertGasConsumed(2030760);
         }
     }
 }

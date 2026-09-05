@@ -141,7 +141,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ByteArray_Test()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, Contract.CheckByteArray());
-            AssertGasConsumed(1230030);
+            AssertGasConsumed(1045740);
         }
 
         [TestMethod]

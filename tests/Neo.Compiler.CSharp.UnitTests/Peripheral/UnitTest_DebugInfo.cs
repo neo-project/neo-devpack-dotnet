@@ -48,7 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
             Assert.IsInstanceOfType(debugInfo["methods"], typeof(JArray));
             Assert.AreEqual(1, (debugInfo["methods"] as JArray)!.Count);
             Assert.AreEqual("Neo.Compiler.CSharp.TestContracts.Contract_Event,test", (debugInfo["methods"] as JArray)![0]!["name"]!.AsString());
-            Assert.AreEqual("0[0]30:28-30:29;1[0]30:13-30:29;2[0]31:28-31:32;3[0]31:13-31:32;4[0]32:25-32:47;9[0]32:25-32:47;11[0]32:49-32:71;16[0]32:49-32:71;18[0]32:73-32:85;19[0]32:13-32:86;20[0]32:13-32:86;21[0]32:13-32:86;22[0]32:13-32:86;32[0]32:13-32:86;37[0]33:9-33:10",
+            Assert.AreEqual("0[0]30:28-30:29;1[0]30:13-30:29;2[0]31:28-31:32;3[0]31:13-31:32;4[0]32:25-32:47;9[0]32:25-32:47;10[0]32:25-32:47;11[0]32:49-32:71;16[0]32:49-32:71;17[0]32:49-32:71;18[0]32:73-32:85;19[0]32:13-32:86;20[0]32:13-32:86;21[0]32:13-32:86;22[0]32:13-32:86;32[0]32:13-32:86;37[0]33:9-33:10",
                 string.Join(';', ((debugInfo["methods"] as JArray)![0]!["sequence-points"] as JArray)!.Select(u => u!.AsString())));
             Assert.IsTrue(debugInfo.ContainsProperty("events"));
             Assert.IsInstanceOfType(debugInfo["events"], typeof(JArray));

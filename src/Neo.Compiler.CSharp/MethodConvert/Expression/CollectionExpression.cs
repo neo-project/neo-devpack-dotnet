@@ -132,8 +132,7 @@ internal partial class MethodConvert
     private void ConvertConstantByteArray(Optional<object?>[] values)
     {
         var data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
-        Push(data);
-        ChangeType(VM.Types.StackItemType.Buffer);
+        PushAsBuffer(data);
     }
 
     /// <summary>

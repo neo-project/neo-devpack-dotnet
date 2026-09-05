@@ -24,14 +24,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArray_New()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.UnitTest_001());
-            AssertGasConsumed(1232070);
+            AssertGasConsumed(1047780);
         }
 
         [TestMethod]
         public void Test_testArgs1()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.TestArgs1(4));
-            AssertGasConsumed(1539000);
+            AssertGasConsumed(1354710);
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // No errors
             Contract.TestVoid();
-            AssertGasConsumed(1232010);
+            AssertGasConsumed(1047720);
         }
     }
 }

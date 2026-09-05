@@ -18,7 +18,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJtXBAIRDAGg2zBBOQzjChEMAaHbMEE5DOMKOzEAEgwBodswQTkM4wp4cAwFbWFpbkJxH3JB2/6odHlQEsBza2ppaEFifVtSRQg9BnAJPQJAEgwBoNswQTkM4wpAVwECEQwBsNswQTkM4wo0JjsYAMIfDAZ3cml0ZUF4QWJ9W1JFDAFCOnA9AnkmBgwBQjoIQBIMAbHbMEE5DOMKQPMiDkI=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJtXBAIRDAGgEY1BOQzjChEMAaERjUE5DOMKOzEAEgwBoRGNQTkM4wp4cAwFbWFpbkJxH3JB2/6odHlQEsBza2ppaEFifVtSRQg9BnAJPQJAEgwBoBGNQTkM4wpAVwECEQwBsBGNQTkM4wo0JjsYAMIfDAZ3cml0ZUF4QWJ9W1JFDAFCOnA9AnkmBgwBQjoIQBIMAbERjUE5DOMKQFWAd2E=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,20 +28,23 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwQCEQwBoNswQTkM4woRDAGh2zBBOQzjCjsxABIMAaHbMEE5DOMKeHAMBW1haW5CcR9yQdv+qHR5UBLAc2tqaWhBYn1bUkUIPQZwCT0CQA==
+    /// Script: VwQCEQwBoBGNQTkM4woRDAGhEY1BOQzjCjsxABIMAaERjUE5DOMKeHAMBW1haW5CcR9yQdv+qHR5UBLAc2tqaWhBYn1bUkUIPQZwCT0CQA==
     /// INITSLOT 0402 [64 datoshi]
     /// PUSH1 [1 datoshi]
     /// PUSHDATA1 A0 '?' [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// SYSCALL 390CE30A 'System.Storage.Local.Put' [32768 datoshi]
     /// PUSH1 [1 datoshi]
     /// PUSHDATA1 A1 '?' [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// SYSCALL 390CE30A 'System.Storage.Local.Put' [32768 datoshi]
     /// TRY 3100 [4 datoshi]
     /// PUSH2 [1 datoshi]
     /// PUSHDATA1 A1 '?' [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// SYSCALL 390CE30A 'System.Storage.Local.Put' [32768 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -75,11 +78,12 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECEQwBsNswQTkM4wo0JjsYAMIfDAZ3cml0ZUF4QWJ9W1JFDAFCOnA9AnkmBgwBQjoIQA==
+    /// Script: VwECEQwBsBGNQTkM4wo0JjsYAMIfDAZ3cml0ZUF4QWJ9W1JFDAFCOnA9AnkmBgwBQjoIQA==
     /// INITSLOT 0102 [64 datoshi]
     /// PUSH1 [1 datoshi]
     /// PUSHDATA1 B0 '?' [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// SYSCALL 390CE30A 'System.Storage.Local.Put' [32768 datoshi]
     /// CALL 26 [512 datoshi]
     /// TRY 1800 [4 datoshi]
@@ -107,10 +111,11 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EgwBoNswQTkM4wpA
+    /// Script: EgwBoBGNQTkM4wpA
     /// PUSH2 [1 datoshi]
     /// PUSHDATA1 A0 '?' [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// SYSCALL 390CE30A 'System.Storage.Local.Put' [32768 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -121,10 +126,11 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EgwBsdswQTkM4wpA
+    /// Script: EgwBsRGNQTkM4wpA
     /// PUSH2 [1 datoshi]
     /// PUSHDATA1 B1 '?' [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// SYSCALL 390CE30A 'System.Storage.Local.Put' [32768 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
