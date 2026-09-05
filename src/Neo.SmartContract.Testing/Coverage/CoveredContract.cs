@@ -125,7 +125,7 @@ namespace Neo.SmartContract.Testing.Coverage
                                 }
                                 break;
                             }
-                        case OpCode.CALLT:
+                        case OpCode.CALL:
                             {
                                 var offset = ip + instruction.TokenI8;
                                 if (privateAdded.Add(offset))
