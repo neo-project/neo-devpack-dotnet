@@ -362,7 +362,14 @@ internal partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.ChangeType(VM.Types.StackItemType.Buffer);
+        var nonZeroTarget = new JumpTarget();
+        methodConvert.Dup();
+        methodConvert.JumpIfTrue(nonZeroTarget);
+        methodConvert.Drop();
+        methodConvert.Push([(byte)0x00]);
+        nonZeroTarget.Instruction = methodConvert.Dup();
+        methodConvert.Size();
+        methodConvert.Left(null);
     }
 
     /// <summary>
