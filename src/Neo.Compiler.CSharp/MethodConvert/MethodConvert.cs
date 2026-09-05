@@ -273,7 +273,8 @@ namespace Neo.Compiler
                         PushDefault(field.Type);
                     else
                     {
-                        model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+                        var assembly = (ISourceAssemblySymbol)field.ContainingAssembly;
+                        model = assembly.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
                         ConvertExpression(model, initializer.Value, syntaxNode);
                     }
                     postInitialize?.Invoke();
