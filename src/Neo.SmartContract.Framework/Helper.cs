@@ -20,6 +20,10 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts byte to byte[] considering the byte as a BigInteger (0x00 at the end)
         /// </summary>
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.JMPIF, "06")]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSHDATA1, "0100")]
         [OpCode(OpCode.PUSH1)]
         [OpCode(OpCode.LEFT)]
         public extern static byte[] ToByteArray(this byte source);
@@ -27,7 +31,12 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts sbyte to byte[].
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.JMPIF, "06")]
+        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSHDATA1, "0100")]
+        [OpCode(OpCode.PUSH1)]
+        [OpCode(OpCode.LEFT)]
         public extern static byte[] ToByteArray(this sbyte source);
 
         /// <summary>
