@@ -80,8 +80,7 @@ internal partial class MethodConvert
             else
             {
                 byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
-                Push(data);
-                ChangeType(VM.Types.StackItemType.Buffer);
+                PushAsBuffer(data);
             }
         }
         else

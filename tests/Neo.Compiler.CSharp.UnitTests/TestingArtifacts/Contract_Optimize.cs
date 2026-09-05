@@ -18,7 +18,7 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADJXAQAMBAECAwTbMHBoQFcBAAwEAQIDBNswcEBXAQEMBAECAwPbMHBoE3jQaEBXAAF4QMnuqc4=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADJXAQAMBAECAwQUjXBoQFcBAAwEAQIDBBSNcEBXAQEMBAECAwMUjXBoE3jQaEBXAAF4QPiiR2I=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,10 +28,11 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBDAQBAgMD2zBwaBN40GhA
+    /// Script: VwEBDAQBAgMDFI1waBN40GhA
     /// INITSLOT 0101 [64 datoshi]
     /// PUSHDATA1 01020303 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH3 [1 datoshi]
@@ -59,10 +60,11 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEADAQBAgME2zBwQA==
+    /// Script: VwEADAQBAgMEFI1wQA==
     /// INITSLOT 0100 [64 datoshi]
     /// PUSHDATA1 01020304 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -73,10 +75,11 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEADAQBAgME2zBwaEA=
+    /// Script: VwEADAQBAgMEFI1waEA=
     /// INITSLOT 0100 [64 datoshi]
     /// PUSHDATA1 01020304 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// RET [0 datoshi]

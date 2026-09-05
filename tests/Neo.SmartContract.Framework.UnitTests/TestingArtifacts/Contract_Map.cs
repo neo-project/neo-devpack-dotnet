@@ -18,7 +18,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrA1qc29uU2VyaWFsaXplAQABBcDvOc7g5OklxsKgannhRA3Yb86sD2pzb25EZXNlcmlhbGl6ZQEAAQUAAP1fAVcCAchwEHEiLmhpaVNT0GlKnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JNFoykBXAQHIcGh42ygMC3Rlc3RzdHJpbmcyU1PQaDcAAEBXAQHIcGh42ygMC3Rlc3RzdHJpbmcyU1PQaNNoNwAAQFcCAMhwDAIBAdsw2yhxaGkMADcAAFNT0Gg3AABAVwEByHBoeAwSMTI5ODQwdGVzdDEwMDIyOTM5U1PQaDcAAEBXAQHIcGgMAmFieFNT0Gg3AABAVwECyHBoeHlTU9BoNwAAQFcBAchwaHgMBnN0cmluZ1NT0Gg3AABAVwEByHBoeAwIdGVzdGJvb2xTU9BoNwAAQFcCAchwaHgMD3Rlc3RkZXNlcmlhbGl6ZVNT0Gg3AABxaTcBAEBXAwDIcAwUAAAAAAAAAAAAAAAAAAAAAAAAAABxaGkRU1PQaDcAAHJqNwEAQCihB8E=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrA1qc29uU2VyaWFsaXplAQABBcDvOc7g5OklxsKgannhRA3Yb86sD2pzb25EZXNlcmlhbGl6ZQEAAQUAAP1fAVcCAchwEHEiLmhpaVNT0GlKnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JNFoykBXAQHIcGh42ygMC3Rlc3RzdHJpbmcyU1PQaDcAAEBXAQHIcGh42ygMC3Rlc3RzdHJpbmcyU1PQaNNoNwAAQFcCAMhwDAIBARKN2yhxaGkMADcAAFNT0Gg3AABAVwEByHBoeAwSMTI5ODQwdGVzdDEwMDIyOTM5U1PQaDcAAEBXAQHIcGgMAmFieFNT0Gg3AABAVwECyHBoeHlTU9BoNwAAQFcBAchwaHgMBnN0cmluZ1NT0Gg3AABAVwEByHBoeAwIdGVzdGJvb2xTU9BoNwAAQFcCAchwaHgMD3Rlc3RkZXNlcmlhbGl6ZVNT0Gg3AABxaTcBAEBXAwDIcAwUAAAAAAAAAAAAAAAAAAAAAAAAAABxaGkRU1PQaDcAAHJqNwEAQM1/vjU=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -71,12 +71,13 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAyHAMAgEB2zDbKHFoaQwANwAAU1PQaDcAAEA=
+    /// Script: VwIAyHAMAgEBEo3bKHFoaQwANwAAU1PQaDcAAEA=
     /// INITSLOT 0200 [64 datoshi]
     /// NEWMAP [8 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSHDATA1 0101 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
     /// STLOC1 [2 datoshi]
     /// LDLOC0 [2 datoshi]

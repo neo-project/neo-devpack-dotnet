@@ -18,7 +18,7 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1XAQAMAwACA9swcGgQEdBoEhTQaEBXAQAMAwACA9swcGgQEdBoExTQaEBXAgAC////f3AMAwACA9swcWkQaAH/AJHQaUBXAgAMBHRlc3RwDAMAAgPbMHFpEGjQaUBXAQESiEoQEdBKEXjQcGhAcWdhew==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1XAQAMAwACAxONcGgQEdBoEhTQaEBXAQAMAwACAxONcGgQEdBoExTQaEBXAgAC////f3AMAwACAxONcWkQaAH/AJHQaUBXAgAMBHRlc3RwDAMAAgMTjXFpEGjQaUBXAQESiEoQEdBKEXjQcGhA/YkxNw==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,10 +28,11 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEADAMAAgPbMHBoEBHQaBIU0GhA
+    /// Script: VwEADAMAAgMTjXBoEBHQaBIU0GhA
     /// INITSLOT 0100 [64 datoshi]
     /// PUSHDATA1 000203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
@@ -74,10 +75,11 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEADAMAAgPbMHBoEBHQaBMU0GhA
+    /// Script: VwEADAMAAgMTjXBoEBHQaBMU0GhA
     /// INITSLOT 0100 [64 datoshi]
     /// PUSHDATA1 000203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
@@ -97,12 +99,13 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAAv///39wDAMAAgPbMHFpEGgB/wCR0GlA
+    /// Script: VwIAAv///39wDAMAAgMTjXFpEGgB/wCR0GlA
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHINT32 FFFFFF7F [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSHDATA1 000203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC1 [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// PUSH0 [1 datoshi]
@@ -120,12 +123,13 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIADAR0ZXN0cAwDAAID2zBxaRBo0GlA
+    /// Script: VwIADAR0ZXN0cAwDAAIDE41xaRBo0GlA
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHDATA1 74657374 'test' [8 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSHDATA1 000203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC1 [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// PUSH0 [1 datoshi]
