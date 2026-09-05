@@ -65,7 +65,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(4, Contract.ModMultiply(4, 7, 6));
             AssertGasConsumed(1048170);
             Assert.AreEqual(9, Contract.ModInverse(3, 26));
-            AssertGasConsumed(1125990);
+            AssertGasConsumed(1126050);
             Assert.AreEqual(344, Contract.ModPow(23895, 15, 14189));
             AssertGasConsumed(1108650);
         }

@@ -143,14 +143,13 @@ internal partial class MethodConvert
                     return;  // Do not call meaningless contructors
             }
 
+            // Fix the receiver before argument evaluation: an argument can replace it,
+            // and evaluating the receiver can change a value read by an argument.
             bool preserveInstanceEvaluationOrder =
                 NeedInstanceConstructor(symbol)
                 && methodCallingConvention == CallingConvention.Cdecl
                 && instanceExpression is not null
-                && arguments.Length > 0
-                && HasObservableEvaluationOrder(model, instanceExpression)
-                && arguments.Select(ExtractExpression).Any(argument =>
-                    HasObservableEvaluationOrder(model, argument));
+                && arguments.Length > 0;
 
             if (preserveInstanceEvaluationOrder)
             {
