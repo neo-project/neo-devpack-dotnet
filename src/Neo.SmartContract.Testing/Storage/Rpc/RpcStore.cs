@@ -129,8 +129,9 @@ public class RpcStore : IStore
             // it could return wrong results if we want to get data between contracts
             ConcurrentDictionary<byte[], byte[]> data = new();
 
-            // We ask for 5 bytes because the minimum prefix is one byte
-            foreach (var (Key, Value) in Find([.. key.Take(key.Length == 4 ? 4 : 5)], SeekDirection.Forward))
+            // The seek key is an upper bound, not a storage prefix. Fetch the whole
+            // contract so keys below that bound are included before filtering locally.
+            foreach (var (Key, Value) in Find(key[..sizeof(int)], SeekDirection.Forward))
             {
                 data.TryAdd(Key, Value);
             }
