@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ByteArrayForeachTest()
         {
             var array = Contract.ByteArrayForeach()!;
-            AssertGasConsumed(1978500);
+            AssertGasConsumed(1794210);
 
             Assert.AreEqual(array[0], new BigInteger(1));
             Assert.AreEqual(array[1], new BigInteger(10));
@@ -132,7 +132,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ObjectarrayForeachTest()
         {
             var array = Contract.ObjectArrayForeach()!;
-            AssertGasConsumed(2040240);
+            AssertGasConsumed(1855950);
 
             Assert.AreEqual(array.Count, 3);
             CollectionAssert.AreEqual(array[0] as byte[], new byte[] { 0x01, 0x02 });

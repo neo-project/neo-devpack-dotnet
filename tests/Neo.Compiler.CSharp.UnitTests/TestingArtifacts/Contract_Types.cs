@@ -18,7 +18,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBcDvOc7g5OklxsKgannhRA3Yb86sEWJhc2U1OENoZWNrRW5jb2RlAQABBf2j+kNG6lMqJY/El92t22Q3yf3/BmRlcGxveQMAAQ8AAP1MAVcAAXgkCgwFRmFsc2VADARUcnVlQAtACEAJQBVAFUAVQBVAFUAVQBVAFUAAbkAMA25lb0BXAAJ4ec5ADANuZW8RwEAVQAwDAQID2zBAFUAVQFcAAUAMCWNoZWNrTnVsbEAK7v///0AK6P///0AMA25lbxHADApEdW1teUV2ZW50QZUBb2FAVwEACxHAcGgQDANuZW/QaEBXAQALEb9waBAMA25lb9BoQAwNc21hcnQgZWNvbm9teQwDbmVvEr9AVwEADA1zbWFydCBlY29ub215DANuZW8Sv3BoQFcAAnh5i9soeHmL2yiL2yhAVwACeHk3AACL2yhKgEBXAAJ4eSYKDARUcnVlIgkMBUZhbHNli9soSoBAVwACeXg0A0BXAQIRiEoQedBwaHiLcGjbKDcBAEBXAAR7enl4QWJ9W1JAVwACC3l42yg3AgBAQ3fixA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBcDvOc7g5OklxsKgannhRA3Yb86sEWJhc2U1OENoZWNrRW5jb2RlAQABBf2j+kNG6lMqJY/El92t22Q3yf3/BmRlcGxveQMAAQ8AAP1MAVcAAXgkCgwFRmFsc2VADARUcnVlQAtACEAJQBVAFUAVQBVAFUAVQBVAFUAAbkAMA25lb0BXAAJ4ec5ADANuZW8RwEAVQAwDAQIDE41AFUAVQFcAAUAMCWNoZWNrTnVsbEAK7v///0AK6P///0AMA25lbxHADApEdW1teUV2ZW50QZUBb2FAVwEACxHAcGgQDANuZW/QaEBXAQALEb9waBAMA25lb9BoQAwNc21hcnQgZWNvbm9teQwDbmVvEr9AVwEADA1zbWFydCBlY29ub215DANuZW8Sv3BoQFcAAnh5i9soeHmL2yiL2yhAVwACeHk3AACL2yhKgEBXAAJ4eSYKDARUcnVlIgkMBUZhbHNli9soSoBAVwACeXg0A0BXAQIRiEoQedBwaHiLcGjbKDcBAEBXAAR7enl4QWJ9W1JAVwACC3l42yg3AgBACGksLQ==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -126,9 +126,10 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAMBAgPbMEA=
+    /// Script: DAMBAgMTjUA=
     /// PUSHDATA1 010203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("checkByteArray")]

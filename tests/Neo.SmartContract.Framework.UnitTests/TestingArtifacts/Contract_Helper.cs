@@ -18,7 +18,7 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABBQAA/TsBDAYKCwwNDg9AVwIBeAiXcAwMVVQtRVJST1ItMTIzcWgkBGngFUBXAAF42yFAVwACeHmzQFcAAnh5tEBXAAN4eXqlQFcAAnl4NANAVwACeA95pkBXAAN4eXqmQFcAAXjbKErYJgVFEEDbIUBXAAF4NwAAQFcAAXgIlzlAVwABeEokBkUMAQARjUBXAQAMAwECA9swStFwaEBXAAF4SiQGRQwBABGNQFcCAAwLaGVsbG8gd29ybGRwaNswcWlAVwMADAMBAgPbMHAMAwQFBtswcWhpi3JqQFcCAAwDAQID2zBwaBERjHFpQFcCAAwDAQID2zBwaBKNcWlAVwIADAMBAgPbMHBoEo5xaUAMFAECAwQFBgcICQoLDA0OD6q7zN3uQFcAAXhKAIABgAC7OUBXAAF4SgCAAYAAuzlATd1P0Q==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABBQAA/TsBDAYKCwwNDg9AVwIBeAiXcAwMVVQtRVJST1ItMTIzcWgkBGngFUBXAAF42yFAVwACeHmzQFcAAnh5tEBXAAN4eXqlQFcAAnl4NANAVwACeA95pkBXAAN4eXqmQFcAAXjbKErYJgVFEEDbIUBXAAF4NwAAQFcAAXgIlzlAVwABeEokBkUMAQARjUBXAQAMAwECAxONStFwaEBXAAF4SiQGRQwBABGNQFcCAAwLaGVsbG8gd29ybGRwaNswcWlAVwMADAMBAgMTjXAMAwQFBhONcWhpi3JqQFcCAAwDAQIDE41waBERjHFpQFcCAAwDAQIDE41waBKNcWlAVwIADAMBAgMTjXBoEo5xaUAMFAECAwQFBgcICQoLDA0OD6q7zN3uQFcAAXhKAIABgAC7OUBXAAF4SgCAAYAAuzlA9QWCTA==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -179,13 +179,15 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMADAMBAgPbMHAMAwQFBtswcWhpi3JqQA==
+    /// Script: VwMADAMBAgMTjXAMAwQFBhONcWhpi3JqQA==
     /// INITSLOT 0300 [64 datoshi]
     /// PUSHDATA1 010203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSHDATA1 040506 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC1 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// LDLOC1 [2 datoshi]
@@ -212,10 +214,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIADAMBAgPbMHBoEo5xaUA=
+    /// Script: VwIADAMBAgMTjXBoEo5xaUA=
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHDATA1 010203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -259,10 +262,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIADAMBAgPbMHBoERGMcWlA
+    /// Script: VwIADAMBAgMTjXBoERGMcWlA
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHDATA1 010203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH1 [1 datoshi]
@@ -279,10 +283,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEADAMBAgPbMErRcGhA
+    /// Script: VwEADAMBAgMTjUrRcGhA
     /// INITSLOT 0100 [64 datoshi]
     /// PUSHDATA1 010203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// DUP [2 datoshi]
     /// REVERSEITEMS [8192 datoshi]
     /// STLOC0 [2 datoshi]
@@ -331,10 +336,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIADAMBAgPbMHBoEo1xaUA=
+    /// Script: VwIADAMBAgMTjXBoEo1xaUA=
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHDATA1 010203 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// LEFT [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH2 [1 datoshi]

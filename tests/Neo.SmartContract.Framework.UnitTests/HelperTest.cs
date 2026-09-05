@@ -126,7 +126,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_Reverse()
         {
             CollectionAssert.AreEqual(new byte[] { 0x03, 0x02, 0x01 }, Contract.TestReverse());
-            AssertGasConsumed(1477890);
+            AssertGasConsumed(1293600);
         }
 
         [TestMethod]
@@ -150,28 +150,28 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_Concat()
         {
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 }, Contract.TestConcat());
-            AssertGasConsumed(1539750);
+            AssertGasConsumed(1171170);
         }
 
         [TestMethod]
         public void Test_Range()
         {
             CollectionAssert.AreEqual(new byte[] { 0x02 }, Contract.TestRange());
-            AssertGasConsumed(1293690);
+            AssertGasConsumed(1109400);
         }
 
         [TestMethod]
         public void Test_Take()
         {
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02 }, Contract.TestTake());
-            AssertGasConsumed(1293660);
+            AssertGasConsumed(1109370);
         }
 
         [TestMethod]
         public void Test_Last()
         {
             CollectionAssert.AreEqual(new byte[] { 0x02, 0x03 }, Contract.TestLast());
-            AssertGasConsumed(1293660);
+            AssertGasConsumed(1109370);
         }
 
         [TestMethod]

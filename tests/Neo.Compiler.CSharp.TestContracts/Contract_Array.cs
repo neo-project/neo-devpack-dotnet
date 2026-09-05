@@ -14,6 +14,7 @@ using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
@@ -252,6 +253,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static byte[,] MultiDimensionalByteInitializer()
         {
             return new byte[,] { { 1, 2 }, { 3, 4 } };
+        }
+
+        public static object PushEmptyBuffer()
+        {
+            return new byte[] { };
         }
     }
 }

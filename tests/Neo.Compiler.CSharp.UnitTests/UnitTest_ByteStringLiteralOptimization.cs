@@ -152,9 +152,7 @@ public class Contract : SmartContract
 """;
 
         var instructions = GetMethodInstructions(source, "Contract.Key()");
-
-        Assert.IsTrue(
-            HasConvertTo(instructions, StackItemType.Buffer),
+        Assert.IsTrue(instructions.Any(instruction => instruction.OpCode == OpCode.LEFT),
             "Plain byte[] literals should still compile as Buffer values.");
     }
 

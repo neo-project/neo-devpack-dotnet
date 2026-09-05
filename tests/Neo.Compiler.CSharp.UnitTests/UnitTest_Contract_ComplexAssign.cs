@@ -121,7 +121,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Member_Element_Complex_Assign()
         {
             Contract.UnitTest_Member_Element_Complex_Assign();
-            AssertGasConsumed(1800180);
+            AssertGasConsumed(1615890);
         }
 
         [TestMethod]

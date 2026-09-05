@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Except: {"\u0001\u0001":"\u0022\u0022"}
             Assert.AreEqual("{\"\\u0001\\u0001\":\"\\u0022\\u0022\"}", Contract.TestByteArray2());
-            AssertGasConsumed(3936270);
+            AssertGasConsumed(3751980);
         }
 
         [TestMethod]

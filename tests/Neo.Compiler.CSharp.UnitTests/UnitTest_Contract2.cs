@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayPick()
         {
             Assert.AreEqual(3, Contract.UnitTest_002("hello", 1));
-            AssertGasConsumed(1295280);
+            AssertGasConsumed(1110990);
         }
     }
 }

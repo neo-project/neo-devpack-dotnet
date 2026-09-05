@@ -236,6 +236,12 @@ internal partial class MethodConvert
         }
     }
 
+    private void PushAsBuffer(byte[] data)
+    {
+        Push(data);
+        Left(data.Length); // LEFT is much cheaper than CONVERT
+    }
+
     private Instruction PushDefault(ITypeSymbol type)
     {
         return AddInstruction(type.GetStackItemType() switch
