@@ -697,7 +697,6 @@ internal partial class MethodConvert
             throw new CompilationException(symbol.ContainingType, DiagnosticId.InterfaceCall, "Interfaces are not supported.");
 
         var members = symbol.ContainingType.GetAllMembers().Where(p => !p.IsStatic).ToArray();
-        var fields = members.OfType<IFieldSymbol>().ToArray();
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
 
         int index = Array.IndexOf(virtualMethods, symbol);
@@ -705,7 +704,10 @@ internal partial class MethodConvert
             throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Virtual method '{symbol.Name}' not found in type '{symbol.ContainingType.Name}'. Ensure the method is properly declared as virtual or override.");
 
         AddInstruction(OpCode.DUP);
-        Push(fields.Length);
+        // The virtual table follows all fields of the runtime type.
+        AddInstruction(OpCode.DUP);
+        AddInstruction(OpCode.SIZE);
+        AddInstruction(OpCode.DEC);
         AddInstruction(OpCode.PICKITEM);
         Push(index);
         AddInstruction(OpCode.PICKITEM);
