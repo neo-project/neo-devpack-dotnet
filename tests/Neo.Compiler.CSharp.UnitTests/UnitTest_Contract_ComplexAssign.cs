@@ -149,13 +149,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_BoolXorAssign()
         {
             Assert.AreEqual(true, Contract.TestBoolXorAssign(true, false));
-            AssertGasConsumed(1293240);
+            AssertGasConsumed(1047600);
 
             Assert.AreEqual(false, Contract.TestBoolXorAssign(false, false));
-            AssertGasConsumed(1293240);
+            AssertGasConsumed(1047600);
 
             Assert.AreEqual(false, Contract.TestBoolXorAssign(true, true));
-            AssertGasConsumed(1293240);
+            AssertGasConsumed(1047600);
         }
 
         [TestMethod]

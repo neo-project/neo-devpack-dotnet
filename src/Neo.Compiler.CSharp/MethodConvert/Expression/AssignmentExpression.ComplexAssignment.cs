@@ -356,7 +356,10 @@ internal partial class MethodConvert
 
         AddInstruction(opcode);
         if (opcode == OpCode.XOR && isBoolean)
-            ChangeType(VM.Types.StackItemType.Boolean);
+        {
+            Nz();
+        }
+
         if (checkResult)
         {
             if (operatorToken.ValueText == "<<=")
