@@ -115,8 +115,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void Test_ByteToByteArray()
         {
-            CollectionAssert.AreEqual(new byte[] { 0x01 }, Contract.TestByteToByteArray());
-            AssertGasConsumed(1047690);
+            CollectionAssert.AreEqual(new byte[] { 0x01 }, Contract.TestByteToByteArray(0x01));
+            AssertGasConsumed(1108620);
+
+            CollectionAssert.AreEqual(new byte[] { 0x00 }, Contract.TestByteToByteArray(0x00));
+            AssertGasConsumed(1108920);
         }
 
         [TestMethod]
@@ -129,8 +132,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void Test_SbyteToByteArray()
         {
-            CollectionAssert.AreEqual(new byte[] { 255 }, Contract.TestSbyteToByteArray());
-            AssertGasConsumed(1231980);
+            CollectionAssert.AreEqual(new byte[] { 255 }, Contract.TestSbyteToByteArray(-1));
+            AssertGasConsumed(1108620);
+
+            CollectionAssert.AreEqual(new byte[] { 0x00 }, Contract.TestSbyteToByteArray(0));
+            AssertGasConsumed(1108920);
         }
 
         [TestMethod]
