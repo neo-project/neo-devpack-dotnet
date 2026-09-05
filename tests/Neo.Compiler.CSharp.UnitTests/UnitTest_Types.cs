@@ -51,7 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ToAddress_Test()
         {
             Assert.AreEqual("NdtB8RXRmJ7Nhw1FPTm7E6HoDZGnDw37nf", Contract.ToAddress(UInt160.Parse("820944cfdc70976602d71b0091445eedbc661bc5"), 53));
-            AssertGasConsumed(4574880);
+            AssertGasConsumed(4574940);
         }
 
         [TestMethod]
