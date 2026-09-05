@@ -569,8 +569,6 @@ namespace Neo.Optimizer
             // We replace LDSFLD with PUSH in an ordinary method if the field is written with const only once in _initialize
             // and never written in the method.
             Dictionary<byte, Instruction> writtenConstInInit = [];
-            // all instructions before STSFLD that push const
-            HashSet<Instruction> pushConstStaticInInit = [];
             HashSet<byte> readInInit = [];
 
             foreach (BasicBlock currentBlock in initBlocks)
@@ -588,8 +586,6 @@ namespace Neo.Optimizer
                             // multiple STSFLD to the same index
                             // do not handle this staticfield.
                             writtenConstInInit[staticFieldIndex] = Instruction.RET;
-                        else
-                            pushConstStaticInInit.Add(prevPushConst);
                         prevPushConst = null;
                     }
                     if (OpCodeTypes.loadStaticFields.Contains(i.OpCode))
@@ -600,6 +596,10 @@ namespace Neo.Optimizer
                         prevPushConst = null;
                 }
             }
+
+            // Only final candidates may have their PUSH and STSFLD removed.
+            HashSet<Instruction> pushConstStaticInInit = writtenConstInInit.Values
+                .Where(i => OpCodeTypes.pushConst.Contains(i.OpCode)).ToHashSet();
 
             // do not replace these LDSFLD with PUSH
             // because they are written in ordinary methods
