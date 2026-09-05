@@ -166,10 +166,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestStartsWith()
         {
             Assert.IsTrue(Contract.TestStartsWith("worldwide"));
-            AssertGasConsumed(2032590);
+            AssertGasConsumed(2032710);
 
             Assert.IsFalse(Contract.TestStartsWith("hello world"));
-            AssertGasConsumed(2032590);
+            AssertGasConsumed(2032710);
         }
 
         [TestMethod]

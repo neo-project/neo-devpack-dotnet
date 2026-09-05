@@ -195,11 +195,25 @@ internal partial class MethodConvert
 
     private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
+        byte? receiverSlot = null;
+
+        if (instanceExpression is not null)
+        {
+            receiverSlot = methodConvert.AddAnonymousVariable();
+            methodConvert.ConvertExpression(model, instanceExpression);
+            methodConvert.AccessSlot(OpCode.STLOC, receiverSlot.Value);
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
+
+        if (receiverSlot.HasValue)
+            methodConvert.AccessSlot(OpCode.LDLOC, receiverSlot.Value);
+
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+
         methodConvert.Not();
     }
 

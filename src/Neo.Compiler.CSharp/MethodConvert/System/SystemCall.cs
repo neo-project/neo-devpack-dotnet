@@ -318,10 +318,36 @@ internal partial class MethodConvert
         //see ~/tests/Neo.Compiler.CSharp.TestContracts/Contract_Delegate.cs
         if (symbol.ContainingType.TypeKind == TypeKind.Delegate && symbol.Name == "Invoke")
         {
-            if (arguments is not null)
-                PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+            // No parameters: there is no evaluation-order issue and we can avoid
+            // introducing an unnecessary temporary local.
+            if (symbol.Parameters.Length == 0)
+            {
+                ConvertExpression(model, instanceExpression!);
+                CallA();
+                return true;
+            }
+
+            using var tempScope = PreserveAnonymousVariables();
+
+            // C# requires the delegate receiver to be evaluated before its arguments.
+            byte receiverSlot = AddAnonymousVariable();
+
             ConvertExpression(model, instanceExpression!);
+            AccessSlot(OpCode.STLOC, receiverSlot);
+
+            if (arguments is not null)
+                PrepareArgumentsForMethod(
+                    model,
+                    symbol,
+                    arguments,
+                    CallingConvention.Cdecl);
+
+            // Restore the delegate after the arguments so CALLA receives the same
+            // stack layout as before.
+            AccessSlot(OpCode.LDLOC, receiverSlot);
+
             CallA();
+
             return true;
         }
 

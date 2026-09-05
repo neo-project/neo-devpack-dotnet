@@ -10,7 +10,6 @@
 // modifications are permitted.
 
 using System;
-using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.TestContracts
@@ -25,6 +24,24 @@ namespace Neo.Compiler.CSharp.TestContracts
         private static int privateSum(int a, int b)
         {
             return a + b;
+        }
+
+        public static int delegateInvokeEvaluationOrder()
+        {
+            int[] state = [1];
+
+            return getDelegate(state).Invoke(state[0]);
+        }
+
+        private static Func<int, int> getDelegate(int[] state)
+        {
+            state[0] = 2;
+            return new Func<int, int>(identity);
+        }
+
+        private static int identity(int value)
+        {
+            return value;
         }
 
         public delegate int MyDelegate(int x, int y);
