@@ -308,6 +308,37 @@ internal partial class MethodConvert
         return map;
     }
 
+    private Action CaptureByRefArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, SyntaxNode argument)
+    {
+        if (argument is not ArgumentSyntax syntax)
+            throw CompilationException.UnsupportedSyntax(argument, $"Missing ref or out argument for parameter '{parameter.Name}'.");
+
+        SyntaxKind expectedKeyword = parameter.RefKind == RefKind.Ref ? SyntaxKind.RefKeyword : SyntaxKind.OutKeyword;
+        if (!syntax.RefKindKeyword.IsKind(expectedKeyword))
+            throw CompilationException.UnsupportedSyntax(argument, $"Argument for parameter '{parameter.Name}' must use '{expectedKeyword.ToString().ToLowerInvariant()}'.");
+
+        // Locals, parameters and static fields have stable locations. Delay their inbound
+        // values until every argument has run; later arguments can change those values.
+        if (model.GetSymbolInfo(syntax.Expression).Symbol is not IFieldSymbol { IsStatic: false } field)
+            return () => ProcessByRefArgument(model, methodSymbol, parameter, syntax);
+
+        // An instance field's location includes its receiver. Capture it now so that
+        // later arguments cannot redirect the reference by replacing that receiver.
+        byte instanceSlot = _context.AddAnonymousStaticField();
+        if (syntax.Expression is MemberAccessExpressionSyntax member)
+            ConvertExpression(model, member.Expression);
+        else
+            AddInstruction(OpCode.LDARG0);
+        AddInstruction(OpCode.DUP);
+        AccessSlot(OpCode.STSFLD, instanceSlot);
+        Push(GetInstanceFieldIndex(field));
+        AddInstruction(OpCode.PICKITEM);
+        AddInstruction(OpCode.DROP);
+
+        return () => ProcessByRefField(model, parameter, field, parameter.RefKind == RefKind.Ref,
+            instanceExpression: null, syntax, captureOnly: false, instanceSlot);
+    }
+
     private void ProcessByRefArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, ArgumentSyntax argument, bool captureOnly = false)
     {
         bool isRef = parameter.RefKind == RefKind.Ref;
@@ -417,7 +448,7 @@ internal partial class MethodConvert
         }
     }
 
-    private void ProcessByRefField(SemanticModel model, IParameterSymbol parameter, IFieldSymbol field, bool isRef, ExpressionSyntax? instanceExpression, SyntaxNode syntaxNode, bool captureOnly)
+    private void ProcessByRefField(SemanticModel model, IParameterSymbol parameter, IFieldSymbol field, bool isRef, ExpressionSyntax? instanceExpression, SyntaxNode syntaxNode, bool captureOnly, byte? capturedInstanceSlot = null)
     {
         if (field.IsStatic)
         {
@@ -442,12 +473,15 @@ internal partial class MethodConvert
         if (captureOnly)
             return;
 
-        byte instanceSlot = _context.AddAnonymousStaticField();
-        if (instanceExpression is null)
-            AddInstruction(OpCode.LDARG0);
-        else
-            ConvertExpression(model, instanceExpression);
-        AccessSlot(OpCode.STSFLD, instanceSlot);
+        byte instanceSlot = capturedInstanceSlot ?? _context.AddAnonymousStaticField();
+        if (capturedInstanceSlot is null)
+        {
+            if (instanceExpression is null)
+                AddInstruction(OpCode.LDARG0);
+            else
+                ConvertExpression(model, instanceExpression);
+            AccessSlot(OpCode.STSFLD, instanceSlot);
+        }
 
         if (isRef)
         {
