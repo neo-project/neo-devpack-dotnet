@@ -596,38 +596,38 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(0), Contract.CreateCheckedInt(0));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(-5), Contract.CreateCheckedInt(-5));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
 
             // Test with max values
             Assert.AreEqual(int.CreateChecked(int.MaxValue), Contract.CreateCheckedInt(int.MaxValue));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(int.MinValue), Contract.CreateCheckedInt(int.MinValue));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
 
             // Test with min values
             Assert.AreEqual(int.CreateChecked(int.MaxValue), Contract.CreateCheckedInt(int.MaxValue));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(int.MinValue), Contract.CreateCheckedInt(int.MinValue));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
         }
 
         [TestMethod]
         public void TestMethodShortCreateChecked()
         {
             Assert.AreEqual(short.CreateChecked(5), Contract.CreateCheckedShort(5));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(0), Contract.CreateCheckedShort(0));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(-5), Contract.CreateCheckedShort(-5));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(short.MaxValue), Contract.CreateCheckedShort(short.MaxValue));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(short.MinValue), Contract.CreateCheckedShort(short.MinValue));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
         }
 
         [TestMethod]
@@ -737,7 +737,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.CopySign(5, -1), Contract.CopySignInt(5, -1));
             AssertGasConsumed(1047600);
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
-            AssertGasConsumed(1047450);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
             AssertGasConsumed(1047630);
             Assert.AreEqual(int.IsEvenInteger(5), Contract.IsEvenIntegerInt(5));

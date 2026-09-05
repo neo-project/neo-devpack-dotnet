@@ -827,12 +827,11 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
         // Stack: [value, flag]
-        byte flagSlot = methodConvert.AddAnonymousVariable();
-        methodConvert.AccessSlot(OpCode.STLOC, flagSlot); // store flag, keep value on stack
-        methodConvert.AccessSlot(OpCode.LDLOC, flagSlot);
-        methodConvert.And();
-        methodConvert.AccessSlot(OpCode.LDLOC, flagSlot);
-        methodConvert.Equal();
+        methodConvert.Tuck(); // [flag, value, flag]
+        methodConvert.And();  // [flag, value']
+
+        // The HasFlag method returns the result of the following Boolean expression: (thisInstance & flag) == flag
+        methodConvert.NumEqual();
     }
 
     private static void HandleEnumParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,

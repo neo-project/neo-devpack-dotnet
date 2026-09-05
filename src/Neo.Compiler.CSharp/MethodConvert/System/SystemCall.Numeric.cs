@@ -148,14 +148,22 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.EmitIf(
-            () =>
-            {
-                methodConvert.Dup();
-                methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
-                methodConvert.Not();
-            },
-            () => { methodConvert.Throw(); });
+
+        var endTarget = new JumpTarget();
+        methodConvert.Dup();
+        if (descriptor.IsSigned)
+        {
+            methodConvert.Size();
+            methodConvert.Push(descriptor.BitSize / 8);
+            methodConvert.JumpIfLessOrEqual(endTarget);
+        }
+        else
+        {
+            methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
+            methodConvert.JumpIfTrue(endTarget);
+        }
+        methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleNumericCreateSaturating(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
