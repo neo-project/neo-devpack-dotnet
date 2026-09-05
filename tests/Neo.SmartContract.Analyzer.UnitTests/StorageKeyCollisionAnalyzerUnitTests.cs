@@ -67,6 +67,74 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
+        [DataTestMethod]
+        [DataRow(true, "Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(false, "Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(true, "context: Storage.CurrentContext, prefix: (byte)0x2A")]
+        [DataRow(false, "context: Storage.CurrentContext, prefix: (byte)0x2A")]
+        [DataRow(true, "prefix: (byte)0x2A, context: Storage.CurrentContext")]
+        [DataRow(false, "prefix: (byte)0x2A, context: Storage.CurrentContext")]
+        [DataRow(true, "context: Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(false, "context: Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(true, "Storage.CurrentContext, prefix: (byte)0x2A")]
+        [DataRow(false, "Storage.CurrentContext, prefix: (byte)0x2A")]
+        public async Task ConstructorArgumentOrder_DuplicatePrefix_ReportsDiagnostic(bool explicitType, string arguments)
+        {
+            var creationType = explicitType ? "StorageMap" : "";
+            var test = "using Neo.SmartContract.Framework.Services;\n" + StorageStubs + $$"""
+                public class Contract
+                {
+                    private static readonly StorageMap Owners = new(Storage.CurrentContext, (byte)0x2A);
+                    private static readonly StorageMap {|#0:Admins|} = new {{creationType}}({{arguments}});
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("2A", "Admins", "Owners");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [DataTestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public async Task ReorderedNamedArguments_DifferentPrefixes_NoDiagnostic(bool explicitType)
+        {
+            var creationType = explicitType ? "StorageMap" : "";
+            var test = "using Neo.SmartContract.Framework.Services;\n" + StorageStubs + $$"""
+                public class Contract
+                {
+                    private static readonly StorageMap Owners = new(Storage.CurrentContext, (byte)0x2A);
+                    private static readonly StorageMap Admins =
+                        new {{creationType}}(prefix: (byte)0x2B, context: Storage.CurrentContext);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task NamedFactoryAndLocalStoragePrefixes_ReportDiagnostic()
+        {
+            var test = "using Neo.SmartContract.Framework.Services;\n" + StorageStubs + """
+                public class Contract
+                {
+                    private static readonly StorageMap Owners = CreateOwners();
+                    private static readonly LocalStorageMap {|#0:Admins|} = new(prefix: (byte)0x2A);
+
+                    private static StorageMap CreateOwners() =>
+                        new StorageMap(prefix: (byte)0x2A, context: Storage.CurrentContext);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("2A", "Admins", "Owners");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
         [TestMethod]
         public async Task InheritedOwnablePrefix_ReportsDiagnostic()
         {
