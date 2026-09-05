@@ -48,15 +48,16 @@ internal partial class MethodConvert
                 break;
             case "-":
                 ConvertExpression(model, expression.Operand);
-                EmitNegativeInteger(model.GetTypeInfo(expression.Operand).Type);
+                var negativeType = model.GetTypeInfo(expression.Operand).Type;
+                EmitLiftedUnaryOperation(negativeType, () => EmitNegativeInteger(negativeType));
                 break;
             case "~":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.INVERT);
+                EmitLiftedUnaryOperation(model.GetTypeInfo(expression.Operand).Type, () => AddInstruction(OpCode.INVERT));
                 break;
             case "!":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.NOT);
+                EmitLiftedUnaryOperation(model.GetTypeInfo(expression.Operand).Type, () => AddInstruction(OpCode.NOT));
                 break;
             case "++":
             case "--":
@@ -379,13 +380,32 @@ internal partial class MethodConvert
 
     private void EmitIncrementOrDecrement(SyntaxToken operatorToken, ITypeSymbol? typeSymbol)
     {
-        AddInstruction(operatorToken.ValueText switch
+        EmitLiftedUnaryOperation(typeSymbol, () =>
         {
-            "++" => OpCode.INC,
-            "--" => OpCode.DEC,
-            _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Invalid increment/decrement operator '{operatorToken.ValueText}'. Only '++' and '--' are supported.")
+            AddInstruction(operatorToken.ValueText switch
+            {
+                "++" => OpCode.INC,
+                "--" => OpCode.DEC,
+                _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Invalid increment/decrement operator '{operatorToken.ValueText}'. Only '++' and '--' are supported.")
+            });
+            if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
         });
-        if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
+    }
+
+    private void EmitLiftedUnaryOperation(ITypeSymbol? typeSymbol, Action emitOperation)
+    {
+        if (typeSymbol is not INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T })
+        {
+            emitOperation();
+            return;
+        }
+
+        var endTarget = new JumpTarget();
+        AddInstruction(OpCode.DUP);
+        AddInstruction(OpCode.ISNULL);
+        Jump(OpCode.JMPIF_L, endTarget);
+        emitOperation();
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
     private void EmitNegativeInteger(ITypeSymbol? typeSymbol)
