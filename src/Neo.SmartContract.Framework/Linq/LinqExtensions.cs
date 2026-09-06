@@ -124,14 +124,14 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             int count = 0;
-            int sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += item;
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (int)(sum / count);
         }
 
         /// <summary>
@@ -147,14 +147,14 @@ namespace Neo.SmartContract.Framework.Linq
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
             int count = 0;
-            int sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += selector(item);
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (int)(sum / count);
         }
 
         /// <summary>
@@ -167,14 +167,14 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             int count = 0;
-            long sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += item;
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (long)(sum / count);
         }
 
         /// <summary>
@@ -190,14 +190,14 @@ namespace Neo.SmartContract.Framework.Linq
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
             int count = 0;
-            long sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += selector(item);
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (long)(sum / count);
         }
 
         /// <summary>

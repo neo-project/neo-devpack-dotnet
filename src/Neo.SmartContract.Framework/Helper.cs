@@ -78,34 +78,26 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
-        /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
+        /// ScriptAttribute: DUP PUSHINT8(-128) PUSHINT8(128) WITHIN ASSERT
         /// </summary>
         [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.SIZE)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.NUMEQUAL)]
+        [OpCode(OpCode.PUSHINT8, "80")]
+        [OpCode(OpCode.PUSHINT16, "8000")]
+        [OpCode(OpCode.WITHIN)]
         [OpCode(OpCode.ASSERT)]
         public extern static sbyte AsSbyte(this BigInteger source);
-        //{
-        //    Assert(source.AsByteArray().Length == 1);
-        //    return (sbyte) source;
-        //}
 
         /// <summary>
         /// Converts and ensures parameter source is sbyte (range 0x00 to 0xff); faults otherwise.
         /// Examples: 255 -> fault; -128 -> [0x80]; 0 -> [0x00]; 10 -> [0x0a]; 127 -> [0x7f]; 128 -> fault
-        /// ScriptAttribute: DUP SIZE PUSH1 NUMEQUAL ASSERT
+        /// ScriptAttribute: DUP PUSHINT8(-128) PUSHINT8(128) WITHIN ASSERT
         /// </summary>
         [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.SIZE)]
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.NUMEQUAL)]
+        [OpCode(OpCode.PUSHINT8, "80")]
+        [OpCode(OpCode.PUSHINT16, "8000")]
+        [OpCode(OpCode.WITHIN)]
         [OpCode(OpCode.ASSERT)]
         public extern static sbyte AsSbyte(this int source);
-        //{
-        //    Assert(((BigInteger)source).AsByteArray().Length == 1);
-        //    return (sbyte) source;
-        //}
 
         /// <summary>
         /// Converts and ensures parameter source is byte (range 0x00 to 0xff); faults otherwise.
