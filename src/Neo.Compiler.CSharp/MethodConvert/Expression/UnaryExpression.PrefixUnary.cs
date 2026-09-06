@@ -53,6 +53,18 @@ internal partial class MethodConvert
             case "~":
                 ConvertExpression(model, expression.Operand);
                 AddInstruction(OpCode.INVERT);
+                // INVERT produces a signed result; unsigned complements retain their width even in checked code.
+                switch (GetNonNullableValueType(model.GetTypeInfo(expression).Type!).SpecialType)
+                {
+                    case SpecialType.System_UInt32:
+                        Push(uint.MaxValue);
+                        AddInstruction(OpCode.AND);
+                        break;
+                    case SpecialType.System_UInt64:
+                        Push(ulong.MaxValue);
+                        AddInstruction(OpCode.AND);
+                        break;
+                }
                 break;
             case "!":
                 ConvertExpression(model, expression.Operand);
