@@ -41,5 +41,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             arrobj[7] = int3;
             return arrobj;
         }
+
+        public static byte[] IntToBytes(BigInteger value)
+        {
+            return value.ToByteArray();
+        }
     }
 }
