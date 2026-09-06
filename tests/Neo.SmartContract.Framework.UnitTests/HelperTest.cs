@@ -180,5 +180,43 @@ namespace Neo.SmartContract.Framework.UnitTests
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xaa, 0xbb, 0xcc, 0xdd, 0xee }, Contract.TestToScriptHash());
             AssertGasConsumed(984270);
         }
+
+        [TestMethod]
+        public void TestBigIntegerToSbyte()
+        {
+            Assert.AreEqual(127, Contract.BigIntegerToSbyte(127));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(-128, Contract.BigIntegerToSbyte(-128));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(0, Contract.BigIntegerToSbyte(0));
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerToSbyte(128));
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerToSbyte(-129));
+            AssertGasConsumed(1047420);
+        }
+
+        [TestMethod]
+        public void TestIntToSbyte()
+        {
+            Assert.AreEqual(127, Contract.IntToSbyte(127));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(-128, Contract.IntToSbyte(-128));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(0, Contract.IntToSbyte(0));
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntToSbyte(128));
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntToSbyte(-129));
+            AssertGasConsumed(1047420);
+        }
     }
 }

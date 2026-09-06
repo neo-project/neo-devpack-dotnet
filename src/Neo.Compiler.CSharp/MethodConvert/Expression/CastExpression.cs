@@ -68,6 +68,27 @@ internal partial class MethodConvert
 
         ConvertExpression(model, expression.Expression);
 
+        JumpTarget? nullableEnd = null;
+        if (IsNullableValueType(sType) && tType.IsValueType)
+        {
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.ISNULL);
+            if (IsNullableValueType(tType))
+            {
+                nullableEnd = new JumpTarget();
+                Jump(OpCode.JMPIF_L, nullableEnd);
+            }
+            else
+            {
+                JumpTarget nonNull = new();
+                Jump(OpCode.JMPIFNOT_L, nonNull);
+                Throw();
+                nonNull.Instruction = AddInstruction(OpCode.NOP);
+            }
+        }
+
+        sType = GetNonNullableValueType(sType);
+        tType = GetNonNullableValueType(tType);
         switch ((sType.Name, tType.Name))
         {
             case ("ByteString", "ECPoint"):
@@ -171,6 +192,9 @@ internal partial class MethodConvert
                 }
                 break;
         }
+
+        if (nullableEnd is not null)
+            nullableEnd.Instruction = AddInstruction(OpCode.NOP);
     }
 
     private bool TryConvertConstantByteArrayToByteString(SemanticModel model, ExpressionSyntax expression)
