@@ -82,7 +82,7 @@ namespace Neo.SmartContract.Analyzer
                     continue;
 
                 var literalExpression = initializer.Value as LiteralExpressionSyntax;
-                if (literalExpression == null)
+                if (literalExpression == null || !literalExpression.IsKind(SyntaxKind.StringLiteralExpression))
                     continue;
 
                 var literalValue = literalExpression.Token.ValueText;

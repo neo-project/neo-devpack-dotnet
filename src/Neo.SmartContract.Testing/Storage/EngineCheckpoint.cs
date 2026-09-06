@@ -58,11 +58,9 @@ namespace Neo.SmartContract.Testing.Storage
             while (TryReadExactly(stream, buffer))
             {
                 var key = ReadCheckpointField(stream, buffer, MaxCheckpointKeyLength, "key");
-                if (key is null) break;
-                if (!TryReadExactly(stream, buffer)) break;
+                stream.ReadExactly(buffer);
 
                 var data = ReadCheckpointField(stream, buffer, MaxCheckpointValueLength, "value");
-                if (data is null) break;
 
                 list.Add((key, data));
             }
@@ -142,14 +140,15 @@ namespace Neo.SmartContract.Testing.Storage
             }
         }
 
-        private static byte[]? ReadCheckpointField(Stream stream, byte[] lengthBuffer, int maxLength, string fieldName)
+        private static byte[] ReadCheckpointField(Stream stream, byte[] lengthBuffer, int maxLength, string fieldName)
         {
             var length = BinaryPrimitives.ReadInt32LittleEndian(lengthBuffer);
             if (length < 0 || length > maxLength)
                 throw new InvalidDataException($"Invalid checkpoint {fieldName} length: {length}.");
 
             var data = new byte[length];
-            return TryReadExactly(stream, data) ? data : null;
+            stream.ReadExactly(data);
+            return data;
         }
 
         private static bool TryReadExactly(Stream stream, Span<byte> buffer)
@@ -158,7 +157,11 @@ namespace Neo.SmartContract.Testing.Storage
             while (offset < buffer.Length)
             {
                 var read = stream.Read(buffer[offset..]);
-                if (read == 0) return false;
+                if (read == 0)
+                {
+                    if (offset == 0) return false;
+                    throw new EndOfStreamException("Incomplete checkpoint key length.");
+                }
                 offset += read;
             }
 
