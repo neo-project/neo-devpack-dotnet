@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -206,6 +207,9 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
 
     private static bool HasMember(INamedTypeSymbol typeSymbol, string memberName, NepStandardKind standard)
     {
+        var abiName = LowercaseFirstCharacter(memberName);
+        var seenMethods = new HashSet<(string Name, int ParameterCount)>();
+
         bool Predicate(IMethodSymbol method) =>
             !method.IsImplicitlyDeclared &&
             method.Parameters.Length switch
@@ -224,23 +228,45 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
 
         for (var current = typeSymbol; current is not null; current = current.BaseType)
         {
-            foreach (var member in current.GetMembers(memberName))
+            foreach (var method in current.GetMembers().OfType<IMethodSymbol>())
             {
-                if (member is IMethodSymbol method)
-                {
-                    if (Predicate(method))
-                        return true;
-                }
-                else if (member is IPropertySymbol property)
-                {
-                    if (PropertyPredicate(property))
-                        return true;
-                }
+                // The compiler exports the most derived public method for each C# name and arity.
+                if (method.DeclaredAccessibility != Accessibility.Public ||
+                    !seenMethods.Add((method.Name, method.Parameters.Length)) ||
+                    method.IsAbstract)
+                    continue;
+
+                var isRequiredMember = method.MethodKind == MethodKind.Ordinary && Predicate(method) ||
+                    method.MethodKind == MethodKind.PropertyGet &&
+                    method.Parameters.Length == 0 &&
+                    method.AssociatedSymbol is IPropertySymbol property && PropertyPredicate(property);
+
+                if (isRequiredMember && GetAbiName(method) == abiName)
+                    return true;
             }
         }
 
         return false;
     }
+
+    private static string GetAbiName(IMethodSymbol method)
+    {
+        // Match the compiler's attribute precedence for methods and property getters.
+        static string? DisplayName(ISymbol symbol) => symbol.GetAttributes()
+            .FirstOrDefault(attribute => attribute.AttributeClass?.Name == nameof(DisplayNameAttribute))?
+            .ConstructorArguments.FirstOrDefault().Value as string;
+
+        if (DisplayName(method) is { } methodName)
+            return methodName;
+
+        ISymbol member = method.MethodKind == MethodKind.PropertyGet ? method.AssociatedSymbol! : method;
+        return DisplayName(member) ?? LowercaseFirstCharacter(member.Name);
+    }
+
+    private static string LowercaseFirstCharacter(string name) =>
+        name.Length > 1 && name[0] == '_'
+            ? "_" + char.ToLowerInvariant(name[1]) + name.Substring(2)
+            : char.ToLowerInvariant(name[0]) + name.Substring(1);
 
     private static void ReportMemberDiagnostic(
         SymbolAnalysisContext context,
