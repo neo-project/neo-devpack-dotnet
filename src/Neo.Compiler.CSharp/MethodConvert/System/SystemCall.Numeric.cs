@@ -57,6 +57,7 @@ internal partial class MethodConvert
         }
         return method;
     }
+
     private static void HandleNumericParse(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -65,14 +66,23 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.EmitIf(
-            () =>
-            {
-                methodConvert.Dup();
-                methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
-                methodConvert.Not();
-            },
-            () => { methodConvert.Throw(); });
+
+        var endTarget = new JumpTarget();
+        methodConvert.Dup();
+        if (descriptor.MinValue < 0) // signed integer
+        {
+            methodConvert.Size();
+            methodConvert.Push(descriptor.BitSize / 8);
+            methodConvert.JumpIfLessOrEqual(endTarget);
+        }
+        else
+        {
+            methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
+            methodConvert.JumpIfTrue(endTarget);
+        }
+
+        methodConvert.Throw(); // throw the overflowed value.
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleNumericLeadingZeroCount(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
