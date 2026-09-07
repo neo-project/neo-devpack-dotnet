@@ -53,7 +53,23 @@ internal partial class MethodConvert
                 break;
             case "~":
                 ConvertExpression(model, expression.Operand);
-                EmitLiftedUnaryOperation(model.GetTypeInfo(expression.Operand).Type, () => AddInstruction(OpCode.INVERT));
+                var complementType = model.GetTypeInfo(expression).Type;
+                EmitLiftedUnaryOperation(model.GetTypeInfo(expression.Operand).Type, () =>
+                {
+                    AddInstruction(OpCode.INVERT);
+                    // INVERT produces a signed result; unsigned complements retain their width even in checked code.
+                    switch (GetNonNullableValueType(complementType!).SpecialType)
+                    {
+                        case SpecialType.System_UInt32:
+                            Push(uint.MaxValue);
+                            AddInstruction(OpCode.AND);
+                            break;
+                        case SpecialType.System_UInt64:
+                            Push(ulong.MaxValue);
+                            AddInstruction(OpCode.AND);
+                            break;
+                    }
+                });
                 break;
             case "!":
                 ConvertExpression(model, expression.Operand);
