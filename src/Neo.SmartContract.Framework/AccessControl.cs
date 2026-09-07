@@ -74,8 +74,9 @@ namespace Neo.SmartContract.Framework
         private static byte[] CountKey(BigInteger role)
             => new byte[] { TAG_COUNT }.Concat(RoleBytes(role));
 
-        private static byte[] RoleBytes(BigInteger role)
-            => (byte[])(ByteString)role;
+        [OpCode(OpCode.PUSHDATA1, "00")] // Empty string
+        [OpCode(OpCode.CAT)]
+        private static extern byte[] RoleBytes(BigInteger role);
 
         private static void ValidateRole(BigInteger role)
             => ExecutionEngine.Assert(role >= 0, "AccessControl: role must be non-negative");
