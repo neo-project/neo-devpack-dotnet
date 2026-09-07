@@ -20,6 +20,7 @@ public class UnitTest_InstanceReceiverEvaluationOrder
         public class Contract : SmartContract
         {
             private static int counter;
+            private static string stringMarker;
 
             public static int Run(int scenario)
             {
@@ -49,6 +50,9 @@ public class UnitTest_InstanceReceiverEvaluationOrder
                         return result * 10 + counter;
                     case 10:
                         return Receiver.Combine(counter);
+                    case 11:
+                        stringMarker = "b";
+                        return GetStringReceiver().StartsWith(GetStringMarker()) ? 1 : 0;
                     default:
                         return receiver.Combine(counter);
                 }
@@ -61,6 +65,14 @@ public class UnitTest_InstanceReceiverEvaluationOrder
                 counter = 2;
                 return new Box(1);
             }
+
+            private static string GetStringReceiver()
+            {
+                stringMarker = "a";
+                return "abc";
+            }
+
+            private static string GetStringMarker() => stringMarker;
 
             private class Holder
             {
@@ -110,6 +122,8 @@ public class UnitTest_InstanceReceiverEvaluationOrder
     [DataRow(CompilationOptions.OptimizationType.All, 9, 11)]
     [DataRow(CompilationOptions.OptimizationType.None, 10, 12)]
     [DataRow(CompilationOptions.OptimizationType.All, 10, 12)]
+    [DataRow(CompilationOptions.OptimizationType.None, 11, 1)]
+    [DataRow(CompilationOptions.OptimizationType.All, 11, 1)]
     public void ReceiverIsEvaluatedBeforeArgumentValues(
         CompilationOptions.OptimizationType optimization, int scenario, int expected)
     {

@@ -27,6 +27,8 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     private readonly Stack<Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>> _outStaticFieldSyncScopes = new();
+    private ExpressionSyntax? _preEvaluatedInstanceExpression;
+    private byte? _preEvaluatedInstanceSlot;
 
     /// <summary>
     /// Creates an instruction to call an interop method using the given descriptor.
@@ -118,8 +120,26 @@ internal partial class MethodConvert
     private void CallMethodWithInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
     {
         PushOutStaticFieldSyncScope();
+        var previousInstanceExpression = _preEvaluatedInstanceExpression;
+        var previousInstanceSlot = _preEvaluatedInstanceSlot;
         try
         {
+            bool preserveInstanceEvaluationOrder = NeedInstanceConstructor(symbol)
+                && instanceExpression is not null
+                && arguments.Length > 0;
+
+            // Special method handlers normally emit the receiver after their arguments.
+            // Capture it first so handlers such as string methods and delegate Invoke
+            // still follow C# receiver-before-argument evaluation order.
+            if (preserveInstanceEvaluationOrder)
+            {
+                byte slot = AddAnonymousVariable();
+                ConvertInstanceExpression(model, instanceExpression);
+                AccessSlot(OpCode.STLOC, slot);
+                _preEvaluatedInstanceExpression = instanceExpression;
+                _preEvaluatedInstanceSlot = slot;
+            }
+
             if (TryProcessSpecialMethods(model, symbol, instanceExpression, arguments))
             {
                 EmitOutStaticFieldSync(symbol.Parameters);
@@ -145,15 +165,9 @@ internal partial class MethodConvert
 
             // Fix the receiver before argument evaluation: an argument can replace it,
             // and evaluating the receiver can change a value read by an argument.
-            bool preserveInstanceEvaluationOrder =
-                NeedInstanceConstructor(symbol)
-                && methodCallingConvention == CallingConvention.Cdecl
-                && instanceExpression is not null
-                && arguments.Length > 0;
-
             if (preserveInstanceEvaluationOrder)
             {
-                ConvertInstanceExpression(model, instanceExpression!);
+                AccessSlot(OpCode.LDLOC, _preEvaluatedInstanceSlot!.Value);
             }
             else
             {
@@ -171,6 +185,8 @@ internal partial class MethodConvert
         }
         finally
         {
+            _preEvaluatedInstanceExpression = previousInstanceExpression;
+            _preEvaluatedInstanceSlot = previousInstanceSlot;
             PopOutStaticFieldSyncScope();
         }
     }
