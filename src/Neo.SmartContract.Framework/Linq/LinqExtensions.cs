@@ -123,7 +123,7 @@ namespace Neo.SmartContract.Framework.Linq
         public static int Average(this IEnumerable<int> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -146,7 +146,7 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -166,7 +166,7 @@ namespace Neo.SmartContract.Framework.Linq
         public static long Average(this IEnumerable<long> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -189,7 +189,7 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -209,7 +209,7 @@ namespace Neo.SmartContract.Framework.Linq
         public static BigInteger Average(this IEnumerable<BigInteger> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -232,7 +232,7 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -266,12 +266,12 @@ namespace Neo.SmartContract.Framework.Linq
         public static int Count<T>(this IEnumerable<T> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
+            BigInteger count = 0;
             foreach (var item in source)
             {
                 count++;
             }
-            return count;
+            return (int)count;
         }
 
         /// <summary>
@@ -286,12 +286,12 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(predicate, nameof(predicate));
-            int count = 0;
+            BigInteger count = 0;
             foreach (var item in source)
             {
                 if (predicate(item)) count++;
             }
-            return count;
+            return (int)count;
         }
 
         /// <summary>
@@ -370,12 +370,12 @@ namespace Neo.SmartContract.Framework.Linq
         public static int Sum(this IEnumerable<int> source)
         {
             AssertSourceNotNull(source);
-            int sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += item;
             }
-            return sum;
+            return (int)sum;
         }
 
         /// <summary>
@@ -389,12 +389,12 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += selector(item);
             }
-            return sum;
+            return (int)sum;
         }
 
         /// <summary>
@@ -406,12 +406,12 @@ namespace Neo.SmartContract.Framework.Linq
         public static long Sum(this IEnumerable<long> source)
         {
             AssertSourceNotNull(source);
-            long sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += item;
             }
-            return sum;
+            return (long)sum;
         }
 
         /// <summary>
@@ -425,12 +425,12 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            long sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += selector(item);
             }
-            return sum;
+            return (long)sum;
         }
 
         /// <summary>
