@@ -60,7 +60,16 @@ public class UnitTest_ByRefArgumentEvaluationOrder
                 value = 4;
                 return first * 100 + last;
             }
-            private class Holder { public int Value; }
+            private class Holder
+            {
+                public int Value;
+
+                public int Run()
+                {
+                    Value = 7;
+                    return Update(Next(), ref Value, Next());
+                }
+            }
         }
         """;
 
@@ -82,7 +91,8 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         "return Forward(0);",
         "return Update(Next(), ref NextHolder().Value, Next()) * 10 + counter;",
         "return WithParams(remaining: new[] { Next(), Next() }, value: ref value, first: Next()) * 10 + value;",
-        "int result = WithOut(Next(), out field, Next()); return result * 10 + field;"
+        "int result = WithOut(Next(), out field, Next()); return result * 10 + field;",
+        "return holder.Run();"
     ];
 
     [DataTestMethod]
@@ -120,6 +130,8 @@ public class UnitTest_ByRefArgumentEvaluationOrder
     [DataRow(CompilationOptions.OptimizationType.All, 15, 3124)]
     [DataRow(CompilationOptions.OptimizationType.None, 16, 1024)]
     [DataRow(CompilationOptions.OptimizationType.All, 16, 1024)]
+    [DataRow(CompilationOptions.OptimizationType.None, 17, 12)]
+    [DataRow(CompilationOptions.OptimizationType.All, 17, 12)]
     public void ValueArgumentsAndByRefTargetsFollowSourceOrder(
         CompilationOptions.OptimizationType optimization, int scenario, int expected)
     {

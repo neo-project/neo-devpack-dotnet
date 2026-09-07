@@ -310,12 +310,7 @@ internal partial class MethodConvert
 
     private Action CaptureByRefArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, SyntaxNode argument)
     {
-        if (argument is not ArgumentSyntax syntax)
-            throw CompilationException.UnsupportedSyntax(argument, $"Missing ref or out argument for parameter '{parameter.Name}'.");
-
-        SyntaxKind expectedKeyword = parameter.RefKind == RefKind.Ref ? SyntaxKind.RefKeyword : SyntaxKind.OutKeyword;
-        if (!syntax.RefKindKeyword.IsKind(expectedKeyword))
-            throw CompilationException.UnsupportedSyntax(argument, $"Argument for parameter '{parameter.Name}' must use '{expectedKeyword.ToString().ToLowerInvariant()}'.");
+        var syntax = (ArgumentSyntax)argument;
 
         // Locals, parameters and static fields have stable locations. Delay their inbound
         // values until every argument has run; later arguments can change those values.
