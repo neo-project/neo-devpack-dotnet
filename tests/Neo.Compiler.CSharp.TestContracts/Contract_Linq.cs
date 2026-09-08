@@ -58,6 +58,8 @@ namespace Neo.Compiler.CSharp.TestContracts
             return array.Average();
         }
 
+        public static long AverageLong(long[] array) => array.Average();
+
         public static int AverageTwice(int[] array)
         {
             return array.Average(a => 2 * a);
@@ -161,6 +163,8 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return array.Sum();
         }
+
+        public static long SumLong(long[] array) => array.Sum();
 
         public static int SumTwice(int[] array)
         {
