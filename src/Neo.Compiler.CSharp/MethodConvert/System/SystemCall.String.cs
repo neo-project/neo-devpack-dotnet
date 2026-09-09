@@ -1206,24 +1206,26 @@ internal partial class MethodConvert
     /// Initializes the string length variable.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
-    /// <param name="strLen">Variable to store string length</param>
+    /// <param name="stringIndex">Variable to store string</param>
+    /// <param name="lengthIndex">Variable to store string length</param>
     /// <remarks>
     /// Algorithm: Gets string size and stores it in local variable
     /// </remarks>
-    private static void InitStrLen(MethodConvert methodConvert, byte strLen)
+    private static void InitStringLength(MethodConvert methodConvert, byte stringIndex, byte lengthIndex)
     {
-        GetString(methodConvert);                                  // Get string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Get string
         methodConvert.Size();                                      // Get string size
-        methodConvert.AccessSlot(OpCode.STLOC, strLen);            // Store in local variable
+        methodConvert.AccessSlot(OpCode.STLOC, lengthIndex);       // Store in local variable
     }
 
     /// <summary>
     /// Gets the string length from a local variable.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
-    /// <param name="strLen">Variable containing string length</param>
+    /// <param name="lengthIndex">Variable containing string length</param>
     /// <returns>String length on stack</returns>
-    private static void GetStrLen(MethodConvert methodConvert, byte strLen) => methodConvert.AccessSlot(OpCode.LDLOC, strLen);
+    private static void GetStringLength(MethodConvert methodConvert, byte lengthIndex)
+        => methodConvert.AccessSlot(OpCode.LDLOC, lengthIndex);
 
     /// <summary>
     /// Initializes the start index variable to 0.
@@ -1244,13 +1246,13 @@ internal partial class MethodConvert
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="endIndex">Variable to store end index</param>
-    /// <param name="strLen">Variable containing string length</param>
+    /// <param name="lengthIndex">Variable containing string length</param>
     /// <remarks>
     /// Algorithm: Sets end index to last character position
     /// </remarks>
-    private static void InitEndIndex(MethodConvert methodConvert, byte endIndex, byte strLen)
+    private static void InitEndIndex(MethodConvert methodConvert, byte endIndex, byte lengthIndex)
     {
-        GetStrLen(methodConvert, strLen);                          // Get string length
+        GetStringLength(methodConvert, lengthIndex);               // Get string length
         methodConvert.Dec();                                       // Subtract 1 for last index
         methodConvert.AccessSlot(OpCode.STLOC, endIndex);          // Store in local variable
     }
@@ -1263,12 +1265,6 @@ internal partial class MethodConvert
     /// <returns>End index on stack</returns>
     private static void GetEndIndex(MethodConvert methodConvert, byte endIndex) => methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
 
-    /// <summary>
-    /// Gets the string argument (LDARG0).
-    /// </summary>
-    /// <param name="methodConvert">The method converter instance</param>
-    /// <returns>String argument on stack</returns>
-    private static void GetString(MethodConvert methodConvert) => methodConvert.LdArg0();
 
     /// <summary>
     /// Gets the start index from a local variable.
@@ -1284,14 +1280,14 @@ internal partial class MethodConvert
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="loopEnd">Jump target for loop end</param>
     /// <param name="startIndex">Variable containing start index</param>
-    /// <param name="strLen">Variable containing string length</param>
+    /// <param name="lengthIndex">Variable containing string length</param>
     /// <remarks>
     /// Algorithm: Exits loop if start index >= string length
     /// </remarks>
-    private static void CheckStartIndex(MethodConvert methodConvert, JumpTarget loopEnd, byte startIndex, byte strLen)
+    private static void CheckStartIndex(MethodConvert methodConvert, JumpTarget loopEnd, byte startIndex, byte lengthIndex)
     {
         GetStartIndex(methodConvert, startIndex);                  // Get start index
-        GetStrLen(methodConvert, strLen);                          // Get string length
+        GetStringLength(methodConvert, lengthIndex);                    // Get string length
         methodConvert.JumpIfGreaterOrEqual(loopEnd);               //  Check if index < length, Exit if not less than
     }
 
@@ -1309,20 +1305,21 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, startIndex);        // Load start index
         methodConvert.Inc();                                       // Increment by 1
         methodConvert.AccessSlot(OpCode.STLOC, startIndex);        // Store back
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
     }
 
     /// <summary>
     /// Picks character at the start index position for processing.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="stringIndex">Variable to store string</param>
     /// <param name="startIndex">Variable containing start index</param>
     /// <remarks>
     /// Algorithm: Gets character at the current start position
     /// </remarks>
-    private static void PickCharStart(MethodConvert methodConvert, byte startIndex)
+    private static void PickCharStart(MethodConvert methodConvert, byte stringIndex, byte startIndex)
     {
-        GetString(methodConvert);                                  // Get string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Get string
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         methodConvert.PickItem();                                  // Get character at index
     }
@@ -1417,13 +1414,14 @@ internal partial class MethodConvert
     /// Picks character at the end index position for processing.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="stringIndex">Variable to store string</param>
     /// <param name="endIndex">Variable containing end index</param>
     /// <remarks>
     /// Algorithm: Gets character at the current end position
     /// </remarks>
-    private static void PickCharEnd(MethodConvert methodConvert, byte endIndex)
+    private static void PickCharEnd(MethodConvert methodConvert, byte stringIndex, byte endIndex)
     {
-        GetString(methodConvert);                                  // Get string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Get string
         GetEndIndex(methodConvert, endIndex);                      // Get end index
         methodConvert.PickItem();                                  // Get character at index
     }
@@ -1445,21 +1443,25 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
 
-        var strLen = methodConvert.AddAnonymousVariable();
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
 
-        InitStrLen(methodConvert, strLen);                         // strLen = string.Length
+        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
+        InitStringLength(methodConvert, stringIndex, lengthIndex); // strLen = string.Length
         InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
-        InitEndIndex(methodConvert, endIndex, strLen);             // endIndex = string.Length - 1
+        InitEndIndex(methodConvert, endIndex, lengthIndex);        // endIndex = string.Length - 1
 
         // Loop to trim leading whitespace
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
-        loopStart.Instruction = methodConvert.Nop();               // Loop start marker
-        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
-        PickCharStart(methodConvert, startIndex);                  // Pick character to check
+        loopStart.Instruction = methodConvert.Nop();                       // Loop start marker
+        CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
+        PickCharStart(methodConvert, stringIndex, startIndex);             // Pick character to check
         CheckWithinWhiteSpace(methodConvert, loopEnd);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
@@ -1467,15 +1469,15 @@ internal partial class MethodConvert
         // Process trailing whitespace
         var loopStart2 = new JumpTarget();
         var loopEnd2 = new JumpTarget();
-        loopStart2.Instruction = methodConvert.Nop();              // Second loop start
+        loopStart2.Instruction = methodConvert.Nop();                 // Second loop start
         CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
-        PickCharEnd(methodConvert, endIndex);                      // Pick character to check
+        PickCharEnd(methodConvert, stringIndex, endIndex);            // Pick character to check
         CheckWithinWhiteSpace(methodConvert, loopEnd2);
         MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
         loopEnd2.Instruction = methodConvert.Nop();                // Second loop end
 
         // Extract the trimmed substring
-        GetString(methodConvert);                                  // Get original string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Load string
         GetStartIndex(methodConvert, startIndex);                  // Get start position
         GetEndIndex(methodConvert, endIndex);                      // Get end position
         GetStartIndex(methodConvert, startIndex);                  // Get start for calculation
@@ -1516,38 +1518,42 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
 
-        var strLen = methodConvert.AddAnonymousVariable();
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
 
-        InitStrLen(methodConvert, strLen);                         // strLen = string.Length
+        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
+        InitStringLength(methodConvert, stringIndex, lengthIndex); // strLen = string.Length
         InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
-        InitEndIndex(methodConvert, endIndex, strLen);             // endIndex = string.Length - 1
+        InitEndIndex(methodConvert, endIndex, lengthIndex);        // endIndex = string.Length - 1
         methodConvert.Drop();                                      // Clean up stack (remove argument from evaluation stack)
 
         // Loop to trim leading characters
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
-        loopStart.Instruction = methodConvert.Nop();               // Loop start marker
-        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
-        PickCharStart(methodConvert, startIndex);                  // Pick character to check
+        loopStart.Instruction = methodConvert.Nop();                        // Loop start marker
+        CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
+        PickCharStart(methodConvert, stringIndex, startIndex);              // Pick character to check
         CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
-        loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
+        loopEnd.Instruction = methodConvert.Nop();                           // Loop end marker
 
         // Process trailing characters
         var loopStart2 = new JumpTarget();
         var loopEnd2 = new JumpTarget();
-        loopStart2.Instruction = methodConvert.Nop();              // Second loop start
+        loopStart2.Instruction = methodConvert.Nop();                  // Second loop start
         CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
-        PickCharEnd(methodConvert, endIndex);                      // Pick character to check
+        PickCharEnd(methodConvert, stringIndex, endIndex);             // Pick character to check
         CheckTrimChar(methodConvert, loopEnd2, constantTrimChar);
         MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
-        loopEnd2.Instruction = methodConvert.Nop();                // Second loop end
+        loopEnd2.Instruction = methodConvert.Nop();                    // Second loop end
 
         // Extract the trimmed substring
-        GetString(methodConvert);                                  // Get original string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Load string
         GetStartIndex(methodConvert, startIndex);                  // Get start position
         GetEndIndex(methodConvert, endIndex);                      // Get end position
         GetStartIndex(methodConvert, startIndex);                  // Get start for calculation
@@ -1580,11 +1586,15 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
 
-        var strLen = methodConvert.AddAnonymousVariable();
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
 
-        InitStrLen(methodConvert, strLen);
+        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
+        InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitStartIndex(methodConvert, startIndex);
 
         if (useTrimChar)
@@ -1595,8 +1605,8 @@ internal partial class MethodConvert
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.Nop();
-        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
-        PickCharStart(methodConvert, startIndex);
+        CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
+        PickCharStart(methodConvert, stringIndex, startIndex);
         if (useTrimChar)
             CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
         else
@@ -1604,9 +1614,9 @@ internal partial class MethodConvert
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();
 
-        GetString(methodConvert);
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);    // Load string
         GetStartIndex(methodConvert, startIndex);
-        GetStrLen(methodConvert, strLen);
+        GetStringLength(methodConvert, lengthIndex);
         GetStartIndex(methodConvert, startIndex);
         methodConvert.Sub();
         methodConvert.SubStr();
@@ -1636,12 +1646,16 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
 
-        var strLen = methodConvert.AddAnonymousVariable();
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
 
-        InitStrLen(methodConvert, strLen);
-        InitEndIndex(methodConvert, endIndex, strLen);
+        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
+        InitStringLength(methodConvert, stringIndex, lengthIndex);
+        InitEndIndex(methodConvert, endIndex, lengthIndex);
 
         if (useTrimChar)
         {
@@ -1652,7 +1666,7 @@ internal partial class MethodConvert
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.Nop();
         CheckEndIndexNonNegative(methodConvert, loopEnd, endIndex);
-        PickCharEnd(methodConvert, endIndex);
+        PickCharEnd(methodConvert, stringIndex, endIndex);
         if (useTrimChar)
             CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
         else
@@ -1667,7 +1681,7 @@ internal partial class MethodConvert
         methodConvert.Push(-1);
         methodConvert.JumpIfEqual(allTrimmed);
 
-        GetString(methodConvert);
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);    // Load string
         methodConvert.Push0();
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Inc();
