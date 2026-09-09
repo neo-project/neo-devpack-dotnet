@@ -799,10 +799,9 @@ internal partial class MethodConvert
         {
             methodConvert.Dup();
             methodConvert.Push(member.ConstantValue);
-            methodConvert.Equal();
 
             var next = new JumpTarget();
-            methodConvert.JumpIfFalse(next);
+            methodConvert.JumpIfNotEqual(next);
             methodConvert.Drop();
             methodConvert.Push(member.Name);
             methodConvert.JumpAlways(endTarget);
