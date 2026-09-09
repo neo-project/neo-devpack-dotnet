@@ -122,10 +122,46 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(2);
 
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1156290);
+            AssertGasConsumed(1155480);
             array.Add(3);
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1159890);
+            AssertGasConsumed(1158810);
+
+            array = new List<object>() { int.MaxValue, int.MaxValue };
+            Assert.AreEqual(int.MaxValue, Contract.Average(array));
+            AssertGasConsumed(1152150);
+
+            array = new List<object>() { (long)int.MaxValue + 2, int.MaxValue };
+            Assert.ThrowsExactly<TestException>(() => Contract.Average(array));
+            AssertGasConsumed(1167510);
+        }
+
+        [TestMethod]
+        public void Test_AverageLong()
+        {
+            var array = new List<object>();
+            var exception = Assert.ThrowsException<TestException>(() => Contract.AverageLong(array));
+            AssertGasConsumed(1099470);
+            Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
+
+            array.Add(0);
+            array.Add(1);
+            array.Add(2);
+
+            Assert.AreEqual(1, Contract.AverageLong(array));
+            AssertGasConsumed(1155480);
+
+            array.Add(3);
+            Assert.AreEqual(1, Contract.AverageLong(array));
+            AssertGasConsumed(1158810);
+
+            array = new List<object>() { long.MaxValue, long.MaxValue };
+            Assert.AreEqual(long.MaxValue, Contract.AverageLong(array));
+            AssertGasConsumed(1152150);
+
+            array = new List<object>() { (BigInteger)long.MaxValue + 2, long.MaxValue };
+            Assert.ThrowsExactly<TestException>(() => Contract.AverageLong(array));
+            AssertGasConsumed(1167600);
         }
 
         [TestMethod]
@@ -141,10 +177,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(1);
             array.Add(2);
             Assert.AreEqual(2, Contract.AverageTwice(array));
-            AssertGasConsumed(1227990);
+            AssertGasConsumed(1227180);
+
             array.Add(3);
             Assert.AreEqual(3, Contract.AverageTwice(array));
-            AssertGasConsumed(1249530);
+            AssertGasConsumed(1248450);
         }
 
         [TestMethod]
@@ -157,7 +194,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(3, Contract.Count(array));
-            AssertGasConsumed(1154130);
+            AssertGasConsumed(1153590);
 
             array.Add(1);
             array.Add(-8);
@@ -165,7 +202,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(56);
 
             Assert.AreEqual(7, Contract.Count(array));
-            AssertGasConsumed(1166850);
+            AssertGasConsumed(1165230);
         }
 
         [TestMethod]
@@ -178,7 +215,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(0, Contract.CountGreaterThanZero(array));
-            AssertGasConsumed(1223490);
+            AssertGasConsumed(1223760);
 
             array.Add(1);
             array.Add(-8);
@@ -186,7 +223,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(56);
 
             Assert.AreEqual(3, Contract.CountGreaterThanZero(array));
-            AssertGasConsumed(1306740);
+            AssertGasConsumed(1306200);
         }
 
         [TestMethod]
@@ -357,16 +394,64 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(-101, Contract.Sum(array));
-            AssertGasConsumed(1154310);
+            AssertGasConsumed(1153770);
 
             array.Add(1);
             array.Add(5);
             array.Add(100);
 
             Assert.AreEqual(5, Contract.Sum(array));
-            AssertGasConsumed(1164030);
+            AssertGasConsumed(1162680);
+
             Assert.AreEqual(10, Contract.SumTwice(array));
-            AssertGasConsumed(1289550);
+            AssertGasConsumed(1288200);
+
+            array = new List<object> { int.MaxValue / 2, int.MaxValue / 2 + 1 };
+            Assert.AreEqual(int.MaxValue, Contract.Sum(array));
+            AssertGasConsumed(1150800);
+
+            array = new List<object> { int.MinValue / 2, int.MinValue / 2 };
+            Assert.AreEqual(int.MinValue, Contract.Sum(array));
+            AssertGasConsumed(1150800);
+
+            array = new List<object> { int.MaxValue, int.MaxValue };
+            Assert.ThrowsExactly<TestException>(() => Contract.Sum(array));
+            AssertGasConsumed(1166160);
+
+            array = new List<object> { int.MinValue, int.MinValue };
+            Assert.ThrowsExactly<TestException>(() => Contract.Sum(array));
+            AssertGasConsumed(1166160);
+        }
+
+        [TestMethod]
+        public void Test_SumLong()
+        {
+            var array = new List<object> { 0, -1, -100 };
+            Assert.AreEqual(-101, Contract.SumLong(array));
+            AssertGasConsumed(1153770);
+
+            array.Add(1);
+            array.Add(5);
+            array.Add(100);
+
+            Assert.AreEqual(5, Contract.SumLong(array));
+            AssertGasConsumed(1162680);
+
+            array = new List<object> { long.MaxValue / 2, long.MaxValue / 2 + 1 };
+            Assert.AreEqual(long.MaxValue, Contract.SumLong(array));
+            AssertGasConsumed(1150800);
+
+            array = new List<object> { long.MinValue / 2, long.MinValue / 2 };
+            Assert.AreEqual(long.MinValue, Contract.SumLong(array));
+            AssertGasConsumed(1150800);
+
+            array = new List<object> { long.MaxValue, long.MaxValue };
+            Assert.ThrowsExactly<TestException>(() => Contract.SumLong(array));
+            AssertGasConsumed(1166160);
+
+            array = new List<object> { long.MinValue, long.MinValue };
+            Assert.ThrowsExactly<TestException>(() => Contract.SumLong(array));
+            AssertGasConsumed(1166160);
         }
 
         [TestMethod]
