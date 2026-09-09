@@ -407,23 +407,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestRemove()
         {
             Assert.AreEqual("Hello", Contract.TestRemove("HelloWorld", 5));
-            AssertGasConsumed(1354920);
+            AssertGasConsumed(1354530);
 
             Assert.AreEqual("", Contract.TestRemove("Neo", 0));
-            AssertGasConsumed(1354920);
+            AssertGasConsumed(1354530);
 
             Assert.AreEqual("HelloWorld", Contract.TestRemove("HelloWorld", 10));
-            AssertGasConsumed(1354920);
+            AssertGasConsumed(1354530);
         }
 
         [TestMethod]
         public void Test_TestRemoveRange()
         {
             Assert.AreEqual("HeWorld", Contract.TestRemoveRange("HelloWorld", 2, 3));
-            AssertGasConsumed(1725210);
+            AssertGasConsumed(1478580);
 
             Assert.AreEqual("Hello", Contract.TestRemoveRange("HelloWorld", 5, 5));
-            AssertGasConsumed(1725210);
+            AssertGasConsumed(1478580);
         }
 
         [TestMethod]
