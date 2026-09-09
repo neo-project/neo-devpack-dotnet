@@ -1834,82 +1834,47 @@ internal partial class MethodConvert
         methodConvert.ChangeType(StackItemType.ByteString);
     }
 
-    private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
         bool hasCount = symbol.Parameters.Length == 2;
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, callingConvention: CallingConvention.StdCall);
 
-        byte strSlot = methodConvert.AddAnonymousVariable();
-        byte startSlot = methodConvert.AddAnonymousVariable();
-        byte countSlot = hasCount ? methodConvert.AddAnonymousVariable() : (byte)0;
-
-        if (hasCount)
+        if (!hasCount) // [string, start]
         {
-            methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-            methodConvert.AccessSlot(OpCode.STLOC, startSlot);
-            methodConvert.AccessSlot(OpCode.STLOC, countSlot);
-        }
-        else
-        {
-            methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-            methodConvert.AccessSlot(OpCode.STLOC, startSlot);
-        }
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-
-        if (!hasCount)
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-            methodConvert.Push0();
-            methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-            methodConvert.SubStr();
+            methodConvert.Left(null);
+            methodConvert.ChangeType(StackItemType.ByteString);
             return;
         }
 
-        byte prefixSlot = methodConvert.AddAnonymousVariable();
-        byte suffixSlot = methodConvert.AddAnonymousVariable();
-        byte strLenSlot = methodConvert.AddAnonymousVariable();
-        byte suffixStartSlot = methodConvert.AddAnonymousVariable();
-        byte suffixLengthSlot = methodConvert.AddAnonymousVariable();
+        // stack: [string, start, count]
+        byte startSlot = methodConvert.AddAnonymousVariable();
+        byte countSlot = methodConvert.AddAnonymousVariable();
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, startSlot);
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Size();
-        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
+        methodConvert.Dup();                               // [string, string]
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [string, string, start]
+        methodConvert.Left(null);                          // [string, prefix]
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Push0();
-        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-        methodConvert.SubStr();
-        methodConvert.AccessSlot(OpCode.STLOC, prefixSlot);
+        methodConvert.Swap();                              // [prefix, string]
+        methodConvert.Dup();                               // [prefix, string, string]
+        methodConvert.Size();                              // [prefix, string, size]
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [prefix, string, size, start]
+        methodConvert.Sub();                               // [prefix, string, remain]
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot); // [prefix, string, remain, count]
+        methodConvert.Sub();                               // [prefix, string, remain']
 
-        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
-        methodConvert.Add();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixStartSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixStartSlot);
-        methodConvert.Sub();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixLengthSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixStartSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixLengthSlot);
-        methodConvert.SubStr();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, prefixSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixSlot);
-        methodConvert.Cat();
-        methodConvert.ChangeType(StackItemType.ByteString); // The CAT result is a buffer, so add CONVERT opcode.
+        methodConvert.Right(null);                         // [prefix, suffix]
+        methodConvert.Cat();                               // [result]
+        methodConvert.ChangeType(StackItemType.ByteString);
     }
 
     private static void HandleStringInsert(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
