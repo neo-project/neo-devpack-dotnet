@@ -18,6 +18,7 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -75,6 +76,34 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         Assert.AreEqual(BigInteger.Zero, c.DEFAULT_ADMIN_ROLE());
+        Merge(c);
+    }
+
+    [TestMethod]
+    public void RoleStorageKeys_PreserveMinimalLegacyEncoding()
+    {
+        var engine = CreateEngine();
+        var c = Deploy(engine);
+        c.GrantRole(MinterAdmin, Alice.Account, Alice.Account);
+        c.SetRoleAdmin(Minter, MinterAdmin, Alice.Account);
+        c.GrantRole(Minter, Alice.Account, Alice.Account);
+
+        var keys = engine.Storage.Snapshot.GetChangeSet()
+            .Select(change => change.Key.Key.ToArray())
+            .Where(key => key.Length >= 2 && key[0] == 0xFB)
+            .ToArray();
+        static void AssertKey(IEnumerable<byte[]> keys, byte[] expected)
+            => Assert.IsTrue(keys.Any(key => key.AsSpan().SequenceEqual(expected)), $"Missing storage key {Convert.ToHexString(expected)}");
+
+        // RoleBytes(0) must stay empty: changing it to [0] would move all
+        // default-admin storage entries and break existing deployments.
+        AssertKey(keys, new byte[] { 0xFB, 0x01 }.Concat(Alice.Account.GetSpan().ToArray()).ToArray());
+        AssertKey(keys, new byte[] { 0xFB, 0x03 });
+
+        // Small non-zero roles retain their one-byte minimal encoding.
+        AssertKey(keys, new byte[] { 0xFB, 0x01, 0x01 }.Concat(Alice.Account.GetSpan().ToArray()).ToArray());
+        AssertKey(keys, new byte[] { 0xFB, 0x02, 0x01 });
+        AssertKey(keys, new byte[] { 0xFB, 0x03, 0x01 });
         Merge(c);
     }
 
