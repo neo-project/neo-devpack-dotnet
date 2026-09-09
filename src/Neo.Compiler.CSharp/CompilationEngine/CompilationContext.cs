@@ -60,14 +60,16 @@ namespace Neo.Compiler
         private readonly ConcurrentDictionary<IMethodSymbol, bool> _needInstanceConstructorCache = new(SymbolEqualityComparer.Default);
         internal readonly struct OutSyncTarget
         {
-            public OutSyncTarget(ISymbol symbol, byte? instanceSlot = null)
+            public OutSyncTarget(ISymbol symbol, byte? instanceSlot = null, bool instanceSlotIsLocal = false)
             {
                 Symbol = symbol;
                 InstanceSlot = instanceSlot;
+                InstanceSlotIsLocal = instanceSlotIsLocal;
             }
 
             public ISymbol Symbol { get; }
             public byte? InstanceSlot { get; }
+            public bool InstanceSlotIsLocal { get; }
         }
 
         // This dictionary is used to sync value from key symbol to value symbol

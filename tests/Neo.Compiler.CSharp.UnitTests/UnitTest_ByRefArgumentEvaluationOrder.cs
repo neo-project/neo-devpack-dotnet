@@ -21,6 +21,7 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         {
             private static int counter;
             private static int field;
+            private static Box tail;
 
             public static int Run()
             {
@@ -61,6 +62,21 @@ public class UnitTest_ByRefArgumentEvaluationOrder
                 return first * 100 + last;
             }
             private static void Set(ref int value) => value = 4;
+            private static int SetAndReturn(ref int value, int ignored)
+            {
+                value = 7;
+                return 0;
+            }
+            private static int Walk(Box box, int depth)
+            {
+                if (depth == 0) return 0;
+                return SetAndReturn(ref box.Value, Walk(tail, depth - 1));
+            }
+
+            private class Box
+            {
+                public int Value;
+            }
             private class Holder
             {
                 public int Value;
@@ -102,7 +118,8 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         "return holder.Run();",
         "return Update(1, ref holder.Value, 2) * 10 + holder.Value;",
         "Set(ref holder.Value); return holder.Value;",
-        "return holder.SetSelf();"
+        "return holder.SetSelf();",
+        "var first = new Box { Value = 1 }; tail = new Box { Value = 2 }; Walk(first, 2); return first.Value * 10 + tail.Value;"
     ];
 
     [DataTestMethod]
@@ -148,6 +165,8 @@ public class UnitTest_ByRefArgumentEvaluationOrder
     [DataRow(CompilationOptions.OptimizationType.All, 19, 4)]
     [DataRow(CompilationOptions.OptimizationType.None, 20, 4)]
     [DataRow(CompilationOptions.OptimizationType.All, 20, 4)]
+    [DataRow(CompilationOptions.OptimizationType.None, 21, 77)]
+    [DataRow(CompilationOptions.OptimizationType.All, 21, 77)]
     public void ValueArgumentsAndByRefTargetsFollowSourceOrder(
         CompilationOptions.OptimizationType optimization, int scenario, int expected)
     {
