@@ -60,6 +60,7 @@ public class UnitTest_ByRefArgumentEvaluationOrder
                 value = 4;
                 return first * 100 + last;
             }
+            private static void Set(ref int value) => value = 4;
             private class Holder
             {
                 public int Value;
@@ -68,6 +69,12 @@ public class UnitTest_ByRefArgumentEvaluationOrder
                 {
                     Value = 7;
                     return Update(Next(), ref Value, Next());
+                }
+
+                public int SetSelf()
+                {
+                    Set(ref Value);
+                    return Value;
                 }
             }
         }
@@ -92,7 +99,10 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         "return Update(Next(), ref NextHolder().Value, Next()) * 10 + counter;",
         "return WithParams(remaining: new[] { Next(), Next() }, value: ref value, first: Next()) * 10 + value;",
         "int result = WithOut(Next(), out field, Next()); return result * 10 + field;",
-        "return holder.Run();"
+        "return holder.Run();",
+        "return Update(1, ref holder.Value, 2) * 10 + holder.Value;",
+        "Set(ref holder.Value); return holder.Value;",
+        "return holder.SetSelf();"
     ];
 
     [DataTestMethod]
@@ -132,6 +142,12 @@ public class UnitTest_ByRefArgumentEvaluationOrder
     [DataRow(CompilationOptions.OptimizationType.All, 16, 1024)]
     [DataRow(CompilationOptions.OptimizationType.None, 17, 12)]
     [DataRow(CompilationOptions.OptimizationType.All, 17, 12)]
+    [DataRow(CompilationOptions.OptimizationType.None, 18, 124)]
+    [DataRow(CompilationOptions.OptimizationType.All, 18, 124)]
+    [DataRow(CompilationOptions.OptimizationType.None, 19, 4)]
+    [DataRow(CompilationOptions.OptimizationType.All, 19, 4)]
+    [DataRow(CompilationOptions.OptimizationType.None, 20, 4)]
+    [DataRow(CompilationOptions.OptimizationType.All, 20, 4)]
     public void ValueArgumentsAndByRefTargetsFollowSourceOrder(
         CompilationOptions.OptimizationType optimization, int scenario, int expected)
     {
