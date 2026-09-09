@@ -119,6 +119,10 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallMethodWithInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
     {
+        // Receiver temporaries are only live for this call lowering. Keep nested
+        // calls independent and release the slot after the special handler has
+        // consumed it, including when optimization is enabled.
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
         var previousInstanceExpression = _preEvaluatedInstanceExpression;
         var previousInstanceSlot = _preEvaluatedInstanceSlot;

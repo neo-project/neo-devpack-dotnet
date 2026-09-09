@@ -8,6 +8,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.ComponentModel;
 using System.Numerics;
+using System;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -136,6 +138,41 @@ public class UnitTest_InstanceReceiverEvaluationOrder
         var contract = engine.Deploy<ReceiverContract>(nef, manifest);
 
         Assert.AreEqual(new BigInteger(expected), contract.Run(scenario));
+    }
+
+    [TestMethod]
+    public void SequentialSpecialCallsReuseReceiverTemporarySlots()
+    {
+        string calls = string.Join(Environment.NewLine,
+            Enumerable.Repeat("GetStringReceiver().StartsWith(GetStringMarker());", 256));
+        string source = $$"""
+            using Neo.SmartContract.Framework;
+
+            public class Contract : SmartContract
+            {
+                private static string marker;
+
+                public static int Run()
+                {
+                    marker = "b";
+                    {{calls}}
+                    return 1;
+                }
+
+                private static string GetStringReceiver()
+                {
+                    marker = "a";
+                    return "abc";
+                }
+
+                private static string GetStringMarker() => marker;
+            }
+            """;
+
+        var options = TestHelper.CreateDefaultOptions();
+        options.Optimize = CompilationOptions.OptimizationType.All;
+        var context = TestHelper.CompileSingleContract(source, options);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
     }
 
     public abstract class ReceiverContract(SmartContractInitialize initialize)
