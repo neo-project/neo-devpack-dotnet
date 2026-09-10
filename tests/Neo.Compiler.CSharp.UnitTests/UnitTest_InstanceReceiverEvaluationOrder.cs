@@ -18,11 +18,14 @@ public class UnitTest_InstanceReceiverEvaluationOrder
 {
     private const string Source = """
         using Neo.SmartContract.Framework;
+        using System;
 
         public class Contract : SmartContract
         {
             private static int counter;
             private static string stringMarker;
+            private static Box target;
+            private static Func<int, int> delegateReceiver;
 
             public static int Run(int scenario)
             {
@@ -55,6 +58,17 @@ public class UnitTest_InstanceReceiverEvaluationOrder
                     case 11:
                         stringMarker = "b";
                         return GetStringReceiver().StartsWith(GetStringMarker()) ? 1 : 0;
+                    case 12:
+                        target = new Box(1);
+                        return target.Read(new Token());
+                    case 13:
+                        target = new Box(1);
+                        return target.Read(new());
+                    case 14:
+                        return GetDelegateReceiver().Invoke(counter);
+                    case 15:
+                        delegateReceiver = First;
+                        return delegateReceiver.Invoke(ReplaceDelegate());
                     default:
                         return receiver.Combine(counter);
                 }
@@ -76,6 +90,26 @@ public class UnitTest_InstanceReceiverEvaluationOrder
 
             private static string GetStringMarker() => stringMarker;
 
+            private static Func<int, int> GetDelegateReceiver()
+            {
+                counter = 2;
+                return First;
+            }
+
+            private static int First(int value) => 10 + value;
+            private static int Second(int value) => 20 + value;
+
+            private static int ReplaceDelegate()
+            {
+                delegateReceiver = Second;
+                return 2;
+            }
+
+            private class Token
+            {
+                public Token() { target = new Box(2); }
+            }
+
             private class Holder
             {
                 public Box Receiver;
@@ -86,6 +120,7 @@ public class UnitTest_InstanceReceiverEvaluationOrder
                 public int Value;
                 public Box(int value) { Value = value; }
                 public int Combine(int argument) => Value * 10 + argument;
+                public int Read(Token unused) => Value;
                 public int Pair(int first = 9, int second = 8) => Value * 100 + first * 10 + second;
                 public int Many(params int[] values)
                 {
@@ -126,6 +161,14 @@ public class UnitTest_InstanceReceiverEvaluationOrder
     [DataRow(CompilationOptions.OptimizationType.All, 10, 12)]
     [DataRow(CompilationOptions.OptimizationType.None, 11, 1)]
     [DataRow(CompilationOptions.OptimizationType.All, 11, 1)]
+    [DataRow(CompilationOptions.OptimizationType.None, 12, 1)]
+    [DataRow(CompilationOptions.OptimizationType.All, 12, 1)]
+    [DataRow(CompilationOptions.OptimizationType.None, 13, 1)]
+    [DataRow(CompilationOptions.OptimizationType.All, 13, 1)]
+    [DataRow(CompilationOptions.OptimizationType.None, 14, 12)]
+    [DataRow(CompilationOptions.OptimizationType.All, 14, 12)]
+    [DataRow(CompilationOptions.OptimizationType.None, 15, 12)]
+    [DataRow(CompilationOptions.OptimizationType.All, 15, 12)]
     public void ReceiverIsEvaluatedBeforeArgumentValues(
         CompilationOptions.OptimizationType optimization, int scenario, int expected)
     {

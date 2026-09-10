@@ -206,7 +206,7 @@ internal partial class MethodConvert
     {
         return node.DescendantNodesAndSelf().Any(static syntax => syntax switch
         {
-            InvocationExpressionSyntax or ObjectCreationExpressionSyntax or AssignmentExpressionSyntax => true,
+            InvocationExpressionSyntax or BaseObjectCreationExpressionSyntax or AssignmentExpressionSyntax => true,
             PrefixUnaryExpressionSyntax unary => unary.IsKind(SyntaxKind.PreIncrementExpression) || unary.IsKind(SyntaxKind.PreDecrementExpression),
             PostfixUnaryExpressionSyntax unary => unary.IsKind(SyntaxKind.PostIncrementExpression) || unary.IsKind(SyntaxKind.PostDecrementExpression),
             _ => false
