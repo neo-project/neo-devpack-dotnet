@@ -13,12 +13,12 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Enum"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testUlongEnumGetName"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""testEnumParse"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Any"",""offset"":53,""safe"":false},{""name"":""testEnumParseWithContinuation"",""parameters"":[],""returntype"":""Integer"",""offset"":138,""safe"":false},{""name"":""testEnumParseIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Any"",""offset"":1322,""safe"":false},{""name"":""testEnumParseIgnoreCaseFromExpression"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""caseSensitive"",""type"":""Boolean""}],""returntype"":""Any"",""offset"":1515,""safe"":false},{""name"":""testEnumTryParse"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Boolean"",""offset"":1789,""safe"":false},{""name"":""testEnumTryParseIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Boolean"",""offset"":1870,""safe"":false},{""name"":""testEnumTryParseIgnoreCaseFromExpression"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""caseSensitive"",""type"":""Boolean""}],""returntype"":""Boolean"",""offset"":2056,""safe"":false},{""name"":""testEnumGetNames"",""parameters"":[],""returntype"":""Array"",""offset"":2249,""safe"":false},{""name"":""testEnumGetValues"",""parameters"":[],""returntype"":""Array"",""offset"":2286,""safe"":false},{""name"":""testEnumIsDefined"",""parameters"":[{""name"":""value"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":2302,""safe"":false},{""name"":""testEnumIsDefinedByName"",""parameters"":[{""name"":""name"",""type"":""String""}],""returntype"":""Boolean"",""offset"":2344,""safe"":false},{""name"":""testEnumGetName"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":2407,""safe"":false},{""name"":""testEnumGetNameWithType"",""parameters"":[{""name"":""value"",""type"":""Any""}],""returntype"":""String"",""offset"":2455,""safe"":false},{""name"":""testEnumHasFlag"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""flag"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":2504,""safe"":false},{""name"":""testEnumToString"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":2513,""safe"":false},{""name"":""testEnumToStringUnknown"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":2563,""safe"":false},{""name"":""testEnumParseGeneric"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Integer"",""offset"":2613,""safe"":false},{""name"":""testEnumParseGenericIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":2715,""safe"":false},{""name"":""testEnumTryParseGeneric"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Boolean"",""offset"":2861,""safe"":false},{""name"":""testEnumTryParseGenericIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Boolean"",""offset"":2944,""safe"":false},{""name"":""testEnumGetValuesGeneric"",""parameters"":[],""returntype"":""Array"",""offset"":3071,""safe"":false},{""name"":""testEnumGetNamesGeneric"",""parameters"":[],""returntype"":""Array"",""offset"":3077,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":3104,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Enum"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testUlongEnumGetName"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""testEnumParse"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Any"",""offset"":53,""safe"":false},{""name"":""testEnumParseWithContinuation"",""parameters"":[],""returntype"":""Integer"",""offset"":138,""safe"":false},{""name"":""testEnumParseIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Any"",""offset"":1316,""safe"":false},{""name"":""testEnumParseIgnoreCaseFromExpression"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""caseSensitive"",""type"":""Boolean""}],""returntype"":""Any"",""offset"":1509,""safe"":false},{""name"":""testEnumTryParse"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Boolean"",""offset"":1783,""safe"":false},{""name"":""testEnumTryParseIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Boolean"",""offset"":1858,""safe"":false},{""name"":""testEnumTryParseIgnoreCaseFromExpression"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""caseSensitive"",""type"":""Boolean""}],""returntype"":""Boolean"",""offset"":2041,""safe"":false},{""name"":""testEnumGetNames"",""parameters"":[],""returntype"":""Array"",""offset"":2231,""safe"":false},{""name"":""testEnumGetValues"",""parameters"":[],""returntype"":""Array"",""offset"":2268,""safe"":false},{""name"":""testEnumIsDefined"",""parameters"":[{""name"":""value"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":2284,""safe"":false},{""name"":""testEnumIsDefinedByName"",""parameters"":[{""name"":""name"",""type"":""String""}],""returntype"":""Boolean"",""offset"":2326,""safe"":false},{""name"":""testEnumGetName"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":2389,""safe"":false},{""name"":""testEnumGetNameWithType"",""parameters"":[{""name"":""value"",""type"":""Any""}],""returntype"":""String"",""offset"":2437,""safe"":false},{""name"":""testEnumHasFlag"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""flag"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":2486,""safe"":false},{""name"":""testEnumToString"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":2495,""safe"":false},{""name"":""testEnumToStringUnknown"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""String"",""offset"":2545,""safe"":false},{""name"":""testEnumParseGeneric"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Integer"",""offset"":2595,""safe"":false},{""name"":""testEnumParseGenericIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":2697,""safe"":false},{""name"":""testEnumTryParseGeneric"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""Boolean"",""offset"":2843,""safe"":false},{""name"":""testEnumTryParseGenericIgnoreCase"",""parameters"":[{""name"":""value"",""type"":""String""},{""name"":""ignoreCase"",""type"":""Boolean""}],""returntype"":""Boolean"",""offset"":2926,""safe"":false},{""name"":""testEnumGetValuesGeneric"",""parameters"":[],""returntype"":""Array"",""offset"":3053,""safe"":false},{""name"":""testEnumGetNamesGeneric"",""parameters"":[],""returntype"":""Array"",""offset"":3059,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":3086,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -273,11 +273,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBCXg1efz//3BoDAZWYWx1ZTGXJgQRQGgMBlZhbHVlMpcmBBJAaAwGVmFsdWUzlyYEE0AIJhcMEk5vIHN1Y2ggZW51bSB2YWx1ZToMFk5vIHN3aXRjaCBhcm0gbWF0Y2hlZC46
+    /// Script: VwEBCXg1hfz//3BoDAZWYWx1ZTGXJgQRQGgMBlZhbHVlMpcmBBJAaAwGVmFsdWUzlyYEE0AIJhcMEk5vIHN1Y2ggZW51bSB2YWx1ZToMFk5vIHN3aXRjaCBhcm0gbWF0Y2hlZC46
     /// INITSLOT 0101 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL_L 79FCFFFF [512 datoshi]
+    /// CALL_L 85FCFFFF [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
@@ -311,11 +311,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICeXg1E/z//3BocWkMBlZBTFVFMZcmBBFAaQwGVkFMVUUylyYEEkBpDAZWQUxVRTOXJgQTQGkMBlZhbHVlMZcmBBFAaQwGVmFsdWUylyYEEkBpDAZWYWx1ZTOXJgQTQAgmFwwSTm8gc3VjaCBlbnVtIHZhbHVlOgwWTm8gc3dpdGNoIGFybSBtYXRjaGVkLjo=
+    /// Script: VwICeXg1H/z//3BocWkMBlZBTFVFMZcmBBFAaQwGVkFMVUUylyYEEkBpDAZWQUxVRTOXJgQTQGkMBlZhbHVlMZcmBBFAaQwGVmFsdWUylyYEEkBpDAZWYWx1ZTOXJgQTQAgmFwwSTm8gc3VjaCBlbnVtIHZhbHVlOgwWTm8gc3dpdGNoIGFybSBtYXRjaGVkLjo=
     /// INITSLOT 0202 [64 datoshi]
     /// LDARG1 [2 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL_L 13FCFFFF [512 datoshi]
+    /// CALL_L 1FFCFFFF [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// STLOC1 [2 datoshi]
@@ -584,7 +584,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwkADAhUZXN0RW51bQwGVmFsdWUxSgwGVmFsdWUxlyYFESI3SgwGVmFsdWUylyYFEiIoSgwGVmFsdWUzlyYFEyIZRUUMEk5vIHN1Y2ggZW51bSB2YWx1ZTpGRnAMCFRlc3RFbnVtDAZ2YWx1ZTIIcmomQnMMABBKa8ouNkprUM5KAGEAe7skIEoQMghKAYAAMA9FSmtQEYxRUItQnCLaUVCLUJwi0wAgn1FQi1CcIslF2yhKaiYMDAZWQUxVRTEiCgwGVmFsdWUxlyYHRUURIlVKaiYMDAZWQUxVRTIiCgwGVmFsdWUylyYHRUUSIjdKaiYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHRUUTIhlFRQwSTm8gc3VjaCBlbnVtIHZhbHVlOnEMCFRlc3RFbnVtDAZWYWx1ZTIJc2smQnQMABBKbMouNkpsUM5KAGEAe7skIEoQMghKAYAAMA9FSmxQEYxRUItQnCLaUVCLUJwi0wAgn1FQi1CcIslF2yhKayYMDAZWQUxVRTEiCgwGVmFsdWUxlyYHRUURIlVKayYMDAZWQUxVRTIiCgwGVmFsdWUylyYHRUUSIjdKayYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHRUUTIhlFRQwSTm8gc3VjaCBlbnVtIHZhbHVlOnIMBlZhbHVlMUoMBlZhbHVlMZcmB0URdCI6SgwGVmFsdWUylyYHRRJ0IilKDAZWYWx1ZTOXJgdFE3QiGEUMEk5vIHN1Y2ggZW51bSB2YWx1ZTpscwwGVkFMVUUzCHZuJkZ3BwwAEEpvB8ouOEpvB1DOSgBhAHu7JCFKEDIISgGAADAQRUpvB1ARjFFQi1CcItdRUItQnCLQACCfUVCLUJwixkXbKEpuJgwMBlZBTFVFMSIKDAZWYWx1ZTGXJgdFEXUiVEpuJgwMBlZBTFVFMiIKDAZWYWx1ZTKXJgdFEnUiNkpuJgwMBlZBTFVFMyIKDAZWYWx1ZTOXJgdFE3UiGEUMEk5vIHN1Y2ggZW51bSB2YWx1ZTptdAwGVmFsdWUyCXcHbwcmRncIDAAQSm8Iyi44Sm8IUM5KAGEAe7skIUoQMghKAYAAMBBFSm8IUBGMUVCLUJwi11FQi1CcItAAIJ9RUItQnCLGRdsoSm8HJgwMBlZBTFVFMSIKDAZWYWx1ZTGXJgdFEXYiVkpvByYMDAZWQUxVRTIiCgwGVmFsdWUylyYHRRJ2IjdKbwcmDAwGVkFMVUUzIgoMBlZhbHVlM5cmB0UTdiIYRQwSTm8gc3VjaCBlbnVtIHZhbHVlOm51aGmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfap5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9rnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2yeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfbZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8ankrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// Script: VwkADAhUZXN0RW51bQwGVmFsdWUxSgwGVmFsdWUxlyYFESI3SgwGVmFsdWUylyYFEiIoSgwGVmFsdWUzlyYFEyIZRUUMEk5vIHN1Y2ggZW51bSB2YWx1ZTpGRnAMCFRlc3RFbnVtDAZ2YWx1ZTIIcmomQnMMABBKa8ouNkprUM5KAGEAe7skIEoQMghKAYAAMA9FSmtQEYxRUItQnCLaUVCLUJwi0wAgn1FQi1CcIslF2yhKaiYMDAZWQUxVRTEiCgwGVmFsdWUxlyYHRUURIlVKaiYMDAZWQUxVRTIiCgwGVmFsdWUylyYHRUUSIjdKaiYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHRUUTIhlFRQwSTm8gc3VjaCBlbnVtIHZhbHVlOnEMCFRlc3RFbnVtDAZWYWx1ZTIJc2smQnQMABBKbMouNkpsUM5KAGEAe7skIEoQMghKAYAAMA9FSmxQEYxRUItQnCLaUVCLUJwi0wAgn1FQi1CcIslF2yhKayYMDAZWQUxVRTEiCgwGVmFsdWUxlyYHRUURIlVKayYMDAZWQUxVRTIiCgwGVmFsdWUylyYHRUUSIjdKayYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHRUUTIhlFRQwSTm8gc3VjaCBlbnVtIHZhbHVlOnIMBlZhbHVlMUoMBlZhbHVlMZcmBREiNkoMBlZhbHVlMpcmBRIiJ0oMBlZhbHVlM5cmBRMiGEUMEk5vIHN1Y2ggZW51bSB2YWx1ZTpGcwwGVkFMVUUzCHZuJkZ3BwwAEEpvB8ouOEpvB1DOSgBhAHu7JCFKEDIISgGAADAQRUpvB1ARjFFQi1CcItdRUItQnCLQACCfUVCLUJwixkXbKEpuJgwMBlZBTFVFMSIKDAZWYWx1ZTGXJgdFEXUiVEpuJgwMBlZBTFVFMiIKDAZWYWx1ZTKXJgdFEnUiNkpuJgwMBlZBTFVFMyIKDAZWYWx1ZTOXJgdFE3UiGEUMEk5vIHN1Y2ggZW51bSB2YWx1ZTptdAwGVmFsdWUyCXcHbwcmRncIDAAQSm8Iyi44Sm8IUM5KAGEAe7skIUoQMghKAYAAMBBFSm8IUBGMUVCLUJwi11FQi1CcItAAIJ9RUItQnCLGRdsoSm8HJgwMBlZBTFVFMSIKDAZWYWx1ZTGXJgdFEXYiVkpvByYMDAZWQUxVRTIiCgwGVmFsdWUylyYHRRJ2IjdKbwcmDAwGVkFMVUUzIgoMBlZhbHVlM5cmB0UTdiIYRQwSTm8gc3VjaCBlbnVtIHZhbHVlOm51aGmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfap5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9rnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2yeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfbZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8ankrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
     /// INITSLOT 0900 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
@@ -811,31 +811,25 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// DUP [2 datoshi]
     /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 07 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
     /// PUSH1 [1 datoshi]
-    /// STLOC4 [2 datoshi]
-    /// JMP 3A [2 datoshi]
+    /// JMP 36 [2 datoshi]
     /// DUP [2 datoshi]
     /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 07 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
     /// PUSH2 [1 datoshi]
-    /// STLOC4 [2 datoshi]
-    /// JMP 29 [2 datoshi]
+    /// JMP 27 [2 datoshi]
     /// DUP [2 datoshi]
     /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 07 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
     /// PUSH3 [1 datoshi]
-    /// STLOC4 [2 datoshi]
     /// JMP 18 [2 datoshi]
     /// DROP [2 datoshi]
     /// PUSHDATA1 4E6F207375636820656E756D2076616C7565 [8 datoshi]
     /// THROW [512 datoshi]
-    /// LDLOC4 [2 datoshi]
+    /// NIP [2 datoshi]
     /// STLOC3 [2 datoshi]
     /// PUSHDATA1 56414C554533 'VALUE3' [8 datoshi]
     /// PUSHT [1 datoshi]
@@ -1179,7 +1173,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDAhUZXN0RW51bXgLYUoMBlZhbHVlMZcmCUVFEWAIIi1KDAZWYWx1ZTKXJglFRRJgCCIaSgwGVmFsdWUzlyYJRUUTYAgiB0VFEGAJWGFA
+    /// Script: VwABDAhUZXN0RW51bXgLYUoMBlZhbHVlMZcmBxFgCCInSgwGVmFsdWUylyYHEmAIIhZKDAZWYWx1ZTOXJgcTYAgiBRBgCUZGWGFA
     /// INITSLOT 0001 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// LDARG0 [2 datoshi]
@@ -1188,38 +1182,32 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// DUP [2 datoshi]
     /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 09 [2 datoshi]
-    /// DROP [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH1 [1 datoshi]
     /// STSFLD0 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 2D [2 datoshi]
+    /// JMP 27 [2 datoshi]
     /// DUP [2 datoshi]
     /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 09 [2 datoshi]
-    /// DROP [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// STSFLD0 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 1A [2 datoshi]
+    /// JMP 16 [2 datoshi]
     /// DUP [2 datoshi]
     /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 09 [2 datoshi]
-    /// DROP [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// STSFLD0 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 07 [2 datoshi]
-    /// DROP [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMP 05 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STSFLD0 [2 datoshi]
     /// PUSHF [1 datoshi]
+    /// NIP [2 datoshi]
+    /// NIP [2 datoshi]
     /// LDSFLD0 [2 datoshi]
     /// STSFLD1 [2 datoshi]
     /// RET [0 datoshi]
@@ -1231,11 +1219,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBCXg1gfv//3BoDAZWYWx1ZTGXJgQIQGgMBlZhbHVlMpcmBAhAaAwGVmFsdWUzlyYECEAIJgQJQAwWTm8gc3dpdGNoIGFybSBtYXRjaGVkLjo=
+    /// Script: VwEBCXg1jfv//3BoDAZWYWx1ZTGXJgQIQGgMBlZhbHVlMpcmBAhAaAwGVmFsdWUzlyYECEAIJgQJQAwWTm8gc3dpdGNoIGFybSBtYXRjaGVkLjo=
     /// INITSLOT 0101 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL_L 81FBFFFF [512 datoshi]
+    /// CALL_L 8DFBFFFF [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
@@ -1269,11 +1257,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICeXg1Lvv//3BocWkMBlZBTFVFMZcmBAhAaQwGVkFMVUUylyYECEBpDAZWQUxVRTOXJgQIQGkMBlZhbHVlMZcmBAhAaQwGVmFsdWUylyYECEBpDAZWYWx1ZTOXJgQIQAgmBAlADBZObyBzd2l0Y2ggYXJtIG1hdGNoZWQuOg==
+    /// Script: VwICeXg1Ovv//3BocWkMBlZBTFVFMZcmBAhAaQwGVkFMVUUylyYECEBpDAZWQUxVRTOXJgQIQGkMBlZhbHVlMZcmBAhAaQwGVmFsdWUylyYECEBpDAZWYWx1ZTOXJgQIQAgmBAlADBZObyBzd2l0Y2ggYXJtIG1hdGNoZWQuOg==
     /// INITSLOT 0202 [64 datoshi]
     /// LDARG1 [2 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL_L 2EFBFFFF [512 datoshi]
+    /// CALL_L 3AFBFFFF [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// STLOC1 [2 datoshi]
@@ -1327,7 +1315,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICDAhUZXN0RW51bXh5C2NKcCZCcQwAEEppyi42SmlQzkoAYQB7uyQgShAyCEoBgAAwD0VKaVARjFFQi1CcItpRUItQnCLTACCfUVCLUJwiyUXbKEZKaCYMDAZWQUxVRTEiCgwGVmFsdWUxlyYIRRFiCCJESmgmDAwGVkFMVUUyIgoMBlZhbHVlMpcmCEUSYggiJUpoJgwMBlZBTFVFMyIKDAZWYWx1ZTOXJghFE2IIIgZFEGIJWmNA
+    /// Script: VwICDAhUZXN0RW51bXh5C2NKcCZCcQwAEEppyi42SmlQzkoAYQB7uyQgShAyCEoBgAAwD0VKaVARjFFQi1CcItpRUItQnCLTACCfUVCLUJwiyUXbKEZKaCYMDAZWQUxVRTEiCgwGVmFsdWUxlyYHEWIIIkFKaCYMDAZWQUxVRTIiCgwGVmFsdWUylyYHEmIIIiNKaCYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHE2IIIgUQYglGWmNA
     /// INITSLOT 0202 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// LDARG0 [2 datoshi]
@@ -1395,12 +1383,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// JMP 0A [2 datoshi]
     /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 08 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH1 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 44 [2 datoshi]
+    /// JMP 41 [2 datoshi]
     /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// JMPIFNOT 0C [2 datoshi]
@@ -1408,12 +1395,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// JMP 0A [2 datoshi]
     /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 08 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 25 [2 datoshi]
+    /// JMP 23 [2 datoshi]
     /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// JMPIFNOT 0C [2 datoshi]
@@ -1421,16 +1407,15 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// JMP 0A [2 datoshi]
     /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 08 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 06 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMP 05 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHF [1 datoshi]
+    /// NIP [2 datoshi]
     /// LDSFLD2 [2 datoshi]
     /// STSFLD3 [2 datoshi]
     /// RET [0 datoshi]
@@ -1442,12 +1427,12 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICDAhUZXN0RW51bQl4NZz+//95qgtkSnAmQnEMABBKacouNkppUM5KAGEAe7skIEoQMghKAYAAMA9FSmlQEYxRUItQnCLaUVCLUJwi0wAgn1FQi1CcIslF2yhGSmgmDAwGVkFMVUUxIgoMBlZhbHVlMZcmCEURYggiREpoJgwMBlZBTFVFMiIKDAZWYWx1ZTKXJghFEmIIIiVKaCYMDAZWQUxVRTMiCgwGVmFsdWUzlyYIRRNiCCIGRRBiCVpkQA==
+    /// Script: VwICDAhUZXN0RW51bQl4NaX+//95qgtkSnAmQnEMABBKacouNkppUM5KAGEAe7skIEoQMghKAYAAMA9FSmlQEYxRUItQnCLaUVCLUJwi0wAgn1FQi1CcIslF2yhGSmgmDAwGVkFMVUUxIgoMBlZhbHVlMZcmBxFiCCJBSmgmDAwGVkFMVUUyIgoMBlZhbHVlMpcmBxJiCCIjSmgmDAwGVkFMVUUzIgoMBlZhbHVlM5cmBxNiCCIFEGIJRlpkQA==
     /// INITSLOT 0202 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// PUSHF [1 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL_L 9CFEFFFF [512 datoshi]
+    /// CALL_L A5FEFFFF [512 datoshi]
     /// LDARG1 [2 datoshi]
     /// NOT [4 datoshi]
     /// PUSHNULL [1 datoshi]
@@ -1513,12 +1498,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// JMP 0A [2 datoshi]
     /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 08 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH1 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 44 [2 datoshi]
+    /// JMP 41 [2 datoshi]
     /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// JMPIFNOT 0C [2 datoshi]
@@ -1526,12 +1510,11 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// JMP 0A [2 datoshi]
     /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 08 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 25 [2 datoshi]
+    /// JMP 23 [2 datoshi]
     /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// JMPIFNOT 0C [2 datoshi]
@@ -1539,16 +1522,15 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// JMP 0A [2 datoshi]
     /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
     /// EQUAL [32 datoshi]
-    /// JMPIFNOT 08 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHT [1 datoshi]
-    /// JMP 06 [2 datoshi]
-    /// DROP [2 datoshi]
+    /// JMP 05 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STSFLD2 [2 datoshi]
     /// PUSHF [1 datoshi]
+    /// NIP [2 datoshi]
     /// LDSFLD2 [2 datoshi]
     /// STSFLD4 [2 datoshi]
     /// RET [0 datoshi]
