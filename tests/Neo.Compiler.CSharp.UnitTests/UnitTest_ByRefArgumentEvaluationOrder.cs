@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.ComponentModel;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests;
@@ -176,6 +177,95 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         Assert.IsTrue(context.Success, string.Join(System.Environment.NewLine, context.Diagnostics));
         var (nef, manifest, _) = context.CreateResults();
         var engine = new TestEngine(true);
+        var contract = engine.Deploy<ByRefContract>(nef, manifest);
+
+        Assert.AreEqual(new BigInteger(expected), contract.Run());
+    }
+
+    [DataTestMethod]
+    [DataRow(CompilationOptions.OptimizationType.Basic, "ref")]
+    [DataRow(CompilationOptions.OptimizationType.All, "ref")]
+    [DataRow(CompilationOptions.OptimizationType.Basic, "out")]
+    [DataRow(CompilationOptions.OptimizationType.All, "out")]
+    public void SequentialParamsCallsReuseCapturedReceiverSlots(
+        CompilationOptions.OptimizationType optimization, string refKind)
+    {
+        const int callCount = 300;
+        var calls = string.Join(System.Environment.NewLine,
+            Enumerable.Repeat($"Set({refKind} box.Value, box.Value, 0);", callCount));
+        var source = $$"""
+            using Neo.SmartContract.Framework;
+
+            public class Contract : SmartContract
+            {
+                public static int Run()
+                {
+                    var box = new Box();
+                    {{calls}}
+                    return box.Value;
+                }
+
+                private static void Set({{refKind}} int value, params int[] values)
+                    => value = values[0] + 1;
+
+                private class Box
+                {
+                    public int Value;
+                }
+            }
+            """;
+
+        AssertExecution(source, optimization, callCount);
+    }
+
+    [DataTestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.Basic)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
+    public void NestedParamsCallsKeepCapturedReceiversUntilWriteback(
+        CompilationOptions.OptimizationType optimization)
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+
+            public class Contract : SmartContract
+            {
+                public static int Run()
+                {
+                    var first = new Box { Value = 1 };
+                    var second = new Box { Value = 2 };
+                    var original = first;
+                    Set(ref first.Value,
+                        Set(ref second.Value, (first = new Box { Value = 3 }).Value),
+                        second.Value);
+                    return original.Value * 100 + second.Value * 10 + first.Value;
+                }
+
+                private static int Set(ref int value, params int[] values)
+                {
+                    value += values[0];
+                    if (values.Length > 1) value += values[1];
+                    return value;
+                }
+
+                private class Box
+                {
+                    public int Value;
+                }
+            }
+            """;
+
+        AssertExecution(source, optimization, 1153);
+    }
+
+    private static void AssertExecution(string source, CompilationOptions.OptimizationType optimization, int expected)
+    {
+        var options = TestHelper.CreateDefaultOptions();
+        options.Optimize = optimization;
+        var context = TestHelper.CompileSingleContract(source, options);
+        Assert.IsTrue(context.Success, string.Join(System.Environment.NewLine, context.Diagnostics));
+        var (nef, manifest, _) = context.CreateResults();
+        var engine = new TestEngine(true) { Fee = 1000_00000000 };
         var contract = engine.Deploy<ByRefContract>(nef, manifest);
 
         Assert.AreEqual(new BigInteger(expected), contract.Run());

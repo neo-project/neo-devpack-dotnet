@@ -443,7 +443,6 @@ internal partial class MethodConvert
 
     private void PrepareArgumentsPreservingEvaluationOrder(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
     {
-        using var anonymousVariableScope = PreserveAnonymousVariables();
         if (TryPrepareArgumentsWithStackReversal(model, symbol, arguments, callingConvention))
             return;
 

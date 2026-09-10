@@ -68,6 +68,7 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallInstanceMethod(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
     {
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
         try
         {
@@ -117,6 +118,7 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallMethodWithInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
     {
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
         try
         {
@@ -184,6 +186,7 @@ internal partial class MethodConvert
     /// <param name="callingConvention">The calling convention to use for the method call.</param>
     private void CallMethodWithConvention(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
         try
         {
@@ -319,6 +322,7 @@ internal partial class MethodConvert
 
         // An instance field's location includes its receiver. Capture it now so that
         // later arguments cannot redirect the reference by replacing that receiver.
+        // The enclosing call scope keeps this slot alive through writeback.
         byte instanceSlot = AddAnonymousVariable();
         if (syntax.Expression is MemberAccessExpressionSyntax member)
             ConvertExpression(model, member.Expression);
