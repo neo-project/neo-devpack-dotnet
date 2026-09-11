@@ -27,6 +27,8 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     private readonly Stack<Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>> _outStaticFieldSyncScopes = new();
+    private ExpressionSyntax? _preEvaluatedInstanceExpression;
+    private byte? _preEvaluatedInstanceSlot;
 
     /// <summary>
     /// Creates an instruction to call an interop method using the given descriptor.
@@ -117,9 +119,35 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallMethodWithInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
     {
+        // Receiver temporaries are only live for this call lowering. Keep nested
+        // calls independent and release the slot after the special handler has
+        // consumed it, including when optimization is enabled.
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
+        var previousInstanceExpression = _preEvaluatedInstanceExpression;
+        var previousInstanceSlot = _preEvaluatedInstanceSlot;
         try
         {
+            bool hasReceiverSideEffects = instanceExpression is not null && HasPotentialSideEffects(model, instanceExpression);
+            bool hasArgumentSideEffects = arguments.Any(argument => HasPotentialSideEffects(model, argument));
+            bool preserveInstanceEvaluationOrder = NeedInstanceConstructor(symbol)
+                && instanceExpression is not null
+                && arguments.Length > 0
+                && (hasReceiverSideEffects || hasArgumentSideEffects);
+            bool usePreEvaluatedInstanceSlot = preserveInstanceEvaluationOrder && IsSpecialMethodWithInstance(symbol);
+
+            // Special method handlers normally emit the receiver after their arguments.
+            // Capture it first so handlers such as string methods and delegate Invoke
+            // still follow C# receiver-before-argument evaluation order.
+            if (usePreEvaluatedInstanceSlot)
+            {
+                byte slot = AddAnonymousVariable();
+                ConvertInstanceExpression(model, instanceExpression);
+                AccessSlot(OpCode.STLOC, slot);
+                _preEvaluatedInstanceExpression = instanceExpression;
+                _preEvaluatedInstanceSlot = slot;
+            }
+
             if (TryProcessSpecialMethods(model, symbol, instanceExpression, arguments))
             {
                 EmitOutStaticFieldSync(symbol.Parameters);
@@ -143,18 +171,14 @@ internal partial class MethodConvert
                     return;  // Do not call meaningless contructors
             }
 
-            bool preserveInstanceEvaluationOrder =
-                NeedInstanceConstructor(symbol)
-                && methodCallingConvention == CallingConvention.Cdecl
-                && instanceExpression is not null
-                && arguments.Length > 0
-                && HasObservableEvaluationOrder(model, instanceExpression)
-                && arguments.Select(ExtractExpression).Any(argument =>
-                    HasObservableEvaluationOrder(model, argument));
-
+            // Fix the receiver before argument evaluation: an argument can replace it,
+            // and evaluating the receiver can change a value read by an argument.
             if (preserveInstanceEvaluationOrder)
             {
-                ConvertInstanceExpression(model, instanceExpression!);
+                if (usePreEvaluatedInstanceSlot)
+                    AccessSlot(OpCode.LDLOC, _preEvaluatedInstanceSlot!.Value);
+                else
+                    ConvertInstanceExpression(model, instanceExpression);
             }
             else
             {
@@ -172,8 +196,30 @@ internal partial class MethodConvert
         }
         finally
         {
+            _preEvaluatedInstanceExpression = previousInstanceExpression;
+            _preEvaluatedInstanceSlot = previousInstanceSlot;
             PopOutStaticFieldSyncScope();
         }
+    }
+
+    private static bool HasPotentialSideEffects(SemanticModel model, SyntaxNode node)
+    {
+        return node.DescendantNodesAndSelf().Any(static syntax => syntax switch
+        {
+            InvocationExpressionSyntax or BaseObjectCreationExpressionSyntax or AssignmentExpressionSyntax => true,
+            PrefixUnaryExpressionSyntax unary => unary.IsKind(SyntaxKind.PreIncrementExpression) || unary.IsKind(SyntaxKind.PreDecrementExpression),
+            PostfixUnaryExpressionSyntax unary => unary.IsKind(SyntaxKind.PostIncrementExpression) || unary.IsKind(SyntaxKind.PostDecrementExpression),
+            _ => false
+        }) || node.DescendantNodesAndSelf().OfType<ExpressionSyntax>().Any(syntax =>
+            (syntax is SimpleNameSyntax or MemberAccessExpressionSyntax or ElementAccessExpressionSyntax)
+            && model.GetSymbolInfo(syntax).Symbol is IPropertySymbol);
+    }
+
+    private static bool IsSpecialMethodWithInstance(IMethodSymbol symbol)
+    {
+        return (symbol.ContainingType.TypeKind == TypeKind.Delegate && symbol.Name == "Invoke")
+            || symbol.ContainingType.SpecialType is SpecialType.System_String or SpecialType.System_Enum
+            || symbol.ContainingNamespace?.ToString().StartsWith("System.", StringComparison.Ordinal) == true;
     }
 
     /// <summary>

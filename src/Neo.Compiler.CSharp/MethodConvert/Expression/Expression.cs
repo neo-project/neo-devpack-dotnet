@@ -35,6 +35,14 @@ internal partial class MethodConvert
     /// <param name="syntaxNode">Optional parent syntax node for context.</param>
     private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode = null)
     {
+        if (_preEvaluatedInstanceExpression is not null
+            && ReferenceEquals(_preEvaluatedInstanceExpression, syntax)
+            && _preEvaluatedInstanceSlot is byte instanceSlot)
+        {
+            AccessSlot(OpCode.LDLOC, instanceSlot);
+            return;
+        }
+
         // Insert a sequence point for debugging purposes
         using var sequence = InsertSequencePoint(syntax);
 
