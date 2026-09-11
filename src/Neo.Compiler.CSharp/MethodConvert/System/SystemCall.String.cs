@@ -1371,12 +1371,12 @@ internal partial class MethodConvert
     /// <remarks>
     /// Algorithm: Compares character with the specified trim character
     /// </remarks>
-    private static void CheckTrimChar(MethodConvert methodConvert, JumpTarget loopEnd, char? constantTrimChar)
+    private static void CheckTrimChar(MethodConvert methodConvert, JumpTarget loopEnd, byte trimCharIndex, char? constantTrimChar)
     {
         if (constantTrimChar.HasValue)
             methodConvert.Push((ushort)constantTrimChar.Value);
         else
-            methodConvert.LdArg1();                                // Load trim character
+            methodConvert.LdLoc(trimCharIndex);             // Load trim character
         methodConvert.JumpIfNotEqual(loopEnd);              // Exit if not equal
     }
 
@@ -1512,7 +1512,8 @@ internal partial class MethodConvert
         HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, trimChar);
     }
 
-    private static void HandleStringTrimCharInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, char? constantTrimChar)
+    private static void HandleStringTrimCharInternal(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, char? constantTrimChar)
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
@@ -1525,12 +1526,23 @@ internal partial class MethodConvert
         var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
+        methodConvert.StLoc(stringIndex);      // Store string
 
-        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
+        var trimCharIndex = (byte)0;
+        if (constantTrimChar is null)
+        {
+            trimCharIndex = methodConvert.AddAnonymousVariable();
+            methodConvert.StLoc(trimCharIndex);   // Store trim-char
+        }
+        else
+        {
+            methodConvert.Drop();                 // Clean up stack (remove argument from evaluation stack)
+        }
+
         InitStringLength(methodConvert, stringIndex, lengthIndex); // strLen = string.Length
         InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
         InitEndIndex(methodConvert, endIndex, lengthIndex);        // endIndex = string.Length - 1
-        methodConvert.Drop();                                      // Clean up stack (remove argument from evaluation stack)
+
 
         // Loop to trim leading characters
         var loopStart = new JumpTarget();
@@ -1538,7 +1550,7 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();                        // Loop start marker
         CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
         PickCharStart(methodConvert, stringIndex, startIndex);              // Pick character to check
-        CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
+        CheckTrimChar(methodConvert, loopEnd, trimCharIndex, constantTrimChar);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();                           // Loop end marker
 
@@ -1548,12 +1560,12 @@ internal partial class MethodConvert
         loopStart2.Instruction = methodConvert.Nop();                  // Second loop start
         CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
         PickCharEnd(methodConvert, stringIndex, endIndex);             // Pick character to check
-        CheckTrimChar(methodConvert, loopEnd2, constantTrimChar);
+        CheckTrimChar(methodConvert, loopEnd2, trimCharIndex, constantTrimChar);
         MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
         loopEnd2.Instruction = methodConvert.Nop();                    // Second loop end
 
         // Extract the trimmed substring
-        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Load string
+        methodConvert.LdLoc(stringIndex);                          // Load string
         GetStartIndex(methodConvert, startIndex);                  // Get start position
         GetEndIndex(methodConvert, endIndex);                      // Get end position
         GetStartIndex(methodConvert, startIndex);                  // Get start for calculation
@@ -1592,15 +1604,24 @@ internal partial class MethodConvert
         var stringIndex = methodConvert.AddAnonymousVariable();
         var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
+        methodConvert.StLoc(stringIndex);       // Store string
 
-        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
-        InitStringLength(methodConvert, stringIndex, lengthIndex);
-        InitStartIndex(methodConvert, startIndex);
-
+        var trimCharIndex = (byte)0;
         if (useTrimChar)
         {
-            methodConvert.Drop();
+            if (constantTrimChar is null)
+            {
+                trimCharIndex = methodConvert.AddAnonymousVariable();
+                methodConvert.StLoc(trimCharIndex);   // Store trim-char
+            }
+            else
+            {
+                methodConvert.Drop();
+            }
         }
+
+        InitStringLength(methodConvert, stringIndex, lengthIndex);
+        InitStartIndex(methodConvert, startIndex);
 
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
@@ -1608,13 +1629,13 @@ internal partial class MethodConvert
         CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
         PickCharStart(methodConvert, stringIndex, startIndex);
         if (useTrimChar)
-            CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
+            CheckTrimChar(methodConvert, loopEnd, trimCharIndex, constantTrimChar);
         else
             CheckWithinWhiteSpace(methodConvert, loopEnd);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);    // Load string
+        methodConvert.LdLoc(stringIndex);    // Load string
         GetStartIndex(methodConvert, startIndex);
         GetStringLength(methodConvert, lengthIndex);
         GetStartIndex(methodConvert, startIndex);
@@ -1652,15 +1673,23 @@ internal partial class MethodConvert
         var stringIndex = methodConvert.AddAnonymousVariable();
         var lengthIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
+        methodConvert.StLoc(stringIndex);       // Store string
 
-        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
-        InitStringLength(methodConvert, stringIndex, lengthIndex);
-        InitEndIndex(methodConvert, endIndex, lengthIndex);
-
+        var trimCharIndex = (byte)0;
         if (useTrimChar)
         {
-            methodConvert.Drop();
+            if (constantTrimChar is null)
+            {
+                trimCharIndex = methodConvert.AddAnonymousVariable();
+                methodConvert.StLoc(trimCharIndex);   // Store trim-char
+            }
+            else
+            {
+                methodConvert.Drop();
+            }
         }
+        InitStringLength(methodConvert, stringIndex, lengthIndex);
+        InitEndIndex(methodConvert, endIndex, lengthIndex);
 
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
@@ -1668,7 +1697,7 @@ internal partial class MethodConvert
         CheckEndIndexNonNegative(methodConvert, loopEnd, endIndex);
         PickCharEnd(methodConvert, stringIndex, endIndex);
         if (useTrimChar)
-            CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
+            CheckTrimChar(methodConvert, loopEnd, trimCharIndex, constantTrimChar);
         else
             CheckWithinWhiteSpace(methodConvert, loopEnd);
         MoveEndIndexAndLoop(methodConvert, loopStart, endIndex);
@@ -1681,7 +1710,7 @@ internal partial class MethodConvert
         methodConvert.Push(-1);
         methodConvert.JumpIfEqual(allTrimmed);
 
-        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);    // Load string
+        methodConvert.LdLoc(stringIndex);    // Load string
         methodConvert.Push0();
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Inc();
