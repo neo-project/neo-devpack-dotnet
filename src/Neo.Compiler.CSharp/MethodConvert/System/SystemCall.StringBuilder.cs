@@ -103,28 +103,32 @@ internal partial class MethodConvert
 
     private static void HandleStringBuilderToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
-        LoadStringBuilderContent(methodConvert, builderSlot);
-        methodConvert.RemoveAnonymousVariable(builderSlot);
+        if (instanceExpression is null)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, "A StringBuilder instance is required for this operation.");
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Push(0);
+        methodConvert.PickItem();
     }
 
     private static void HandleStringBuilderLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
-        LoadStringBuilderContent(methodConvert, builderSlot);
+        if (instanceExpression is null)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, "A StringBuilder instance is required for this operation.");
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Push(0);
+        methodConvert.PickItem();
         methodConvert.Size();
-        methodConvert.RemoveAnonymousVariable(builderSlot);
     }
 
     private static void HandleStringBuilderClear(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
-        methodConvert.AccessSlot(OpCode.LDLOC, builderSlot);
+        if (instanceExpression is null)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, "A StringBuilder instance is required for this operation.");
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Dup();
         methodConvert.Push(0);
         methodConvert.Push("");
         methodConvert.SetItem();
-        methodConvert.AccessSlot(OpCode.LDLOC, builderSlot);
-        methodConvert.RemoveAnonymousVariable(builderSlot);
     }
 
     private static void AppendStringBuilderValue(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments, ITypeSymbol? parameterType, bool appendNewLine, bool includeArgument)
