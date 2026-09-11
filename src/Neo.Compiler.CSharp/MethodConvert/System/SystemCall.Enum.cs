@@ -290,7 +290,6 @@ internal partial class MethodConvert
 
             var nextCheck = new JumpTarget();
             methodConvert.JumpIfFalse(nextCheck);              // Stack: [..., string], If not equal, discard duplicated string and proceed to next
-            methodConvert.Drop();                              // Stack: [...]
             methodConvert.Push(t.ConstantValue);               // Stack: [..., enumValue]
             methodConvert.AccessSlot(OpCode.STSFLD, index);    // Stack: [...]
             methodConvert.Push(true);                          // Stack: [..., true]
@@ -298,11 +297,10 @@ internal partial class MethodConvert
             nextCheck.Instruction = methodConvert.Nop();
         }
 
-        methodConvert.Drop();                            // Remove the string from the stack
         methodConvert.Push(0);                           // Push default value (0) for the out parameter
         methodConvert.AccessSlot(OpCode.STSFLD, index);  // Store the default value (0) in the out parameter
         methodConvert.Push(false);                       // Push false to indicate failure
-        endTarget.Instruction = methodConvert.Nop();
+        endTarget.Instruction = methodConvert.Nip();     // Remove the string from the stack
     }
 
     /// <summary>
@@ -359,7 +357,6 @@ internal partial class MethodConvert
 
             var nextCheck = new JumpTarget();
             methodConvert.JumpIfNot(nextCheck);                    // If not equal, check next
-            methodConvert.Drop();                                  // Remove the duplicated input name
             methodConvert.Push(true);                              // Push true (enum name is defined)
             methodConvert.JumpAlways(endTarget);
 
@@ -367,9 +364,8 @@ internal partial class MethodConvert
         }
 
         // No match found
-        methodConvert.Drop();                                      // Remove the input name
         methodConvert.Push(false);                                 // Push false (enum name is not defined)
-        endTarget.Instruction = methodConvert.Nop();
+        endTarget.Instruction = methodConvert.Nip();                // Remove the duplicated input name
     }
 
     /// <summary>
@@ -562,7 +558,6 @@ internal partial class MethodConvert
             methodConvert.JumpIfNot(nextCheck);
 
             // If equal:
-            methodConvert.Drop(2);                                 // Remove the EnumType and inputString
             methodConvert.Push(t.ConstantValue);                   // Stack: [..., enumValue]
             methodConvert.AccessSlot(OpCode.STSFLD, index);        // Store enum value in out parameter
             methodConvert.Push(true);                              // Stack: [..., true]
@@ -572,12 +567,12 @@ internal partial class MethodConvert
         }
 
         // No match found
-        methodConvert.Drop(2);                                     // Remove the EumType and inputString
         methodConvert.Push(0);                                     // Default enum value
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store default value in out parameter
         methodConvert.Push(false);                                 // Success flag set to false
 
-        endTarget.Instruction = methodConvert.Nop();
+        endTarget.Instruction = methodConvert.Nip();               // Remove the EnumType and inputString
+        methodConvert.Nip();
     }
 
     /// <summary>
@@ -816,8 +811,6 @@ internal partial class MethodConvert
     private static void HandleEnumHasFlag(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
         if (instanceExpression is null)
             throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Enum.HasFlag requires an instance.");
 
@@ -836,17 +829,13 @@ internal partial class MethodConvert
     private static void HandleEnumParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
         var members = GetEnumFields(enumType);
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
-        byte resultSlot = methodConvert.AddAnonymousVariable();
         JumpTarget success = new();
-
         foreach (var member in members)
         {
             methodConvert.Dup();
@@ -855,9 +844,7 @@ internal partial class MethodConvert
 
             JumpTarget next = new();
             methodConvert.JumpIfFalse(next);
-            methodConvert.Drop();
             methodConvert.Push(member.ConstantValue);
-            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
             methodConvert.JumpAlwaysLong(success);
             next.Instruction = methodConvert.Nop();
         }
@@ -865,9 +852,7 @@ internal partial class MethodConvert
         methodConvert.Drop();
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
-
-        success.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        success.Instruction = methodConvert.Nip();
     }
 
     private static void HandleEnumParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
