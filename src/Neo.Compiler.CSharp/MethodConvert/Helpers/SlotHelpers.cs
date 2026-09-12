@@ -447,6 +447,7 @@ internal partial class MethodConvert
             return;
 
         Dictionary<IParameterSymbol, byte> slots = new(SymbolEqualityComparer.Default);
+        Dictionary<IParameterSymbol, Action> byRefArguments = new(SymbolEqualityComparer.Default);
         List<byte> anonymousSlots = [];
         int positionalIndex = 0;
 
@@ -457,6 +458,12 @@ internal partial class MethodConvert
                 expression is null)
                 continue;
 
+            if (IsByRef(parameter.RefKind))
+            {
+                byRefArguments[parameter] = CaptureByRefArgument(model, symbol, parameter, argument);
+                continue;
+            }
+
             ConvertExpression(model, expression);
             byte slot = AddAnonymousVariable();
             AccessSlot(OpCode.STLOC, slot);
@@ -466,7 +473,9 @@ internal partial class MethodConvert
 
         foreach (IParameterSymbol parameter in DetermineParameterOrder(symbol, callingConvention))
         {
-            if (slots.TryGetValue(parameter, out byte slot))
+            if (byRefArguments.TryGetValue(parameter, out var emitByRefArgument))
+                emitByRefArgument();
+            else if (slots.TryGetValue(parameter, out byte slot))
                 AccessSlot(OpCode.LDLOC, slot);
             else
                 Push(parameter.ExplicitDefaultValue);
@@ -487,6 +496,7 @@ internal partial class MethodConvert
             return false;
 
         Dictionary<IParameterSymbol, byte> regularSlots = new(SymbolEqualityComparer.Default);
+        Dictionary<IParameterSymbol, Action> byRefArguments = new(SymbolEqualityComparer.Default);
         List<(ExpressionSyntax Expression, byte Slot)> paramsSlots = [];
         List<byte> anonymousSlots = [];
         int positionalIndex = 0;
@@ -526,6 +536,12 @@ internal partial class MethodConvert
             if (parameter is null)
                 return false;
 
+            if (IsByRef(parameter.RefKind))
+            {
+                byRefArguments[parameter] = CaptureByRefArgument(model, symbol, parameter, argument);
+                continue;
+            }
+
             ConvertExpression(model, expression);
             byte slot = AddAnonymousVariable();
             AccessSlot(OpCode.STLOC, slot);
@@ -541,7 +557,9 @@ internal partial class MethodConvert
         {
             if (!parameter.IsParams)
             {
-                if (regularSlots.TryGetValue(parameter, out byte slot))
+                if (byRefArguments.TryGetValue(parameter, out var emitByRefArgument))
+                    emitByRefArgument();
+                else if (regularSlots.TryGetValue(parameter, out byte slot))
                     AccessSlot(OpCode.LDLOC, slot);
                 else
                     Push(parameter.ExplicitDefaultValue);
@@ -577,6 +595,7 @@ internal partial class MethodConvert
     private bool TryPrepareArgumentsWithStackReversal(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
     {
         if (callingConvention != CallingConvention.Cdecl ||
+            symbol.Parameters.Any(parameter => IsByRef(parameter.RefKind)) ||
             !TryMapArgumentsInParameterOrder(symbol, arguments, out ExpressionSyntax?[] orderedExpressions))
             return false;
 
@@ -653,18 +672,13 @@ internal partial class MethodConvert
         if (!hasParams && symbol.Parameters.Length <= 1)
             return false;
 
-        if (symbol.Parameters.Any(parameter => IsByRef(parameter.RefKind)))
-            return false;
-
         foreach (SyntaxNode argument in arguments)
         {
-            if (argument is ArgumentSyntax { RefKindKeyword.RawKind: not 0 })
-                return false;
             if (argument is not ArgumentSyntax and not ExpressionSyntax)
                 return false;
         }
 
-        return arguments
+        return symbol.Parameters.Any(parameter => IsByRef(parameter.RefKind)) || arguments
             .Select(ExtractExpression)
             .Any(expression => HasObservableEvaluationOrder(model, expression));
     }

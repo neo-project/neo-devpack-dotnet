@@ -68,6 +68,7 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallInstanceMethod(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
     {
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
         try
         {
@@ -117,6 +118,7 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallMethodWithInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
     {
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
         try
         {
@@ -184,6 +186,7 @@ internal partial class MethodConvert
     /// <param name="callingConvention">The calling convention to use for the method call.</param>
     private void CallMethodWithConvention(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
         try
         {
@@ -273,7 +276,7 @@ internal partial class MethodConvert
                         StLocSlot(local);
                         break;
                     case IFieldSymbol fieldSync:
-                        StoreOutFieldValue(fieldSync, sync.InstanceSlot);
+                        StoreOutFieldValue(fieldSync, sync.InstanceSlot, sync.InstanceSlotIsLocal);
                         break;
                     default:
                         throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.Symbol.GetType().Name}' for parameter synchronization. Only parameters, local variables, and fields are supported.");
@@ -306,6 +309,33 @@ internal partial class MethodConvert
                 map[targetParameter] = argument;
         }
         return map;
+    }
+
+    private Action CaptureByRefArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, SyntaxNode argument)
+    {
+        var syntax = (ArgumentSyntax)argument;
+
+        // Locals, parameters and static fields have stable locations. Delay their inbound
+        // values until every argument has run; later arguments can change those values.
+        if (model.GetSymbolInfo(syntax.Expression).Symbol is not IFieldSymbol { IsStatic: false } field)
+            return () => ProcessByRefArgument(model, methodSymbol, parameter, syntax);
+
+        // An instance field's location includes its receiver. Capture it now so that
+        // later arguments cannot redirect the reference by replacing that receiver.
+        // The enclosing call scope keeps this slot alive through writeback.
+        byte instanceSlot = AddAnonymousVariable();
+        if (syntax.Expression is MemberAccessExpressionSyntax member)
+            ConvertExpression(model, member.Expression);
+        else
+            AddInstruction(OpCode.LDARG0);
+        AddInstruction(OpCode.DUP);
+        AccessSlot(OpCode.STLOC, instanceSlot);
+        Push(GetInstanceFieldIndex(field));
+        AddInstruction(OpCode.PICKITEM);
+        AddInstruction(OpCode.DROP);
+
+        return () => ProcessByRefField(model, parameter, field, parameter.RefKind == RefKind.Ref,
+            instanceExpression: null, syntax, captureOnly: false, instanceSlot, capturedInstanceSlotIsLocal: true);
     }
 
     private void ProcessByRefArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, ArgumentSyntax argument, bool captureOnly = false)
@@ -417,7 +447,7 @@ internal partial class MethodConvert
         }
     }
 
-    private void ProcessByRefField(SemanticModel model, IParameterSymbol parameter, IFieldSymbol field, bool isRef, ExpressionSyntax? instanceExpression, SyntaxNode syntaxNode, bool captureOnly)
+    private void ProcessByRefField(SemanticModel model, IParameterSymbol parameter, IFieldSymbol field, bool isRef, ExpressionSyntax? instanceExpression, SyntaxNode syntaxNode, bool captureOnly, byte? capturedInstanceSlot = null, bool capturedInstanceSlotIsLocal = false)
     {
         if (field.IsStatic)
         {
@@ -442,16 +472,19 @@ internal partial class MethodConvert
         if (captureOnly)
             return;
 
-        byte instanceSlot = _context.AddAnonymousStaticField();
-        if (instanceExpression is null)
-            AddInstruction(OpCode.LDARG0);
-        else
-            ConvertExpression(model, instanceExpression);
-        AccessSlot(OpCode.STSFLD, instanceSlot);
+        byte instanceSlot = capturedInstanceSlot ?? _context.AddAnonymousStaticField();
+        if (capturedInstanceSlot is null)
+        {
+            if (instanceExpression is null)
+                AddInstruction(OpCode.LDARG0);
+            else
+                ConvertExpression(model, instanceExpression);
+            AccessSlot(OpCode.STSFLD, instanceSlot);
+        }
 
         if (isRef)
         {
-            AccessSlot(OpCode.LDSFLD, instanceSlot);
+            AccessSlot(capturedInstanceSlotIsLocal ? OpCode.LDLOC : OpCode.LDSFLD, instanceSlot);
             int fieldOffset = GetInstanceFieldIndex(field);
             Push(fieldOffset);
             AddInstruction(OpCode.PICKITEM);
@@ -461,7 +494,7 @@ internal partial class MethodConvert
             PushDefault(field.Type);
         }
 
-        ProcessOutSymbol(parameter, field, instanceSlot);
+        ProcessOutSymbol(parameter, field, instanceSlot, capturedInstanceSlotIsLocal);
         if (!_context.TryGetCapturedStaticField(field, out var fieldStorageIndex))
             fieldStorageIndex = _context.GetOrAddCapturedStaticField(field);
         AddInstruction(OpCode.DUP);
@@ -470,11 +503,11 @@ internal partial class MethodConvert
         AccessSlot(OpCode.STSFLD, fieldStorageIndex);
     }
 
-    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null)
+    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null, bool instanceSlotIsLocal = false)
     {
         if (symbol is IFieldSymbol fieldSymbol)
         {
-            ProcessOutFieldSymbol(parameter, fieldSymbol, instanceSlot);
+            ProcessOutFieldSymbol(parameter, fieldSymbol, instanceSlot, instanceSlotIsLocal);
             return;
         }
 
@@ -514,7 +547,7 @@ internal partial class MethodConvert
         }
     }
 
-    private void ProcessOutFieldSymbol(IParameterSymbol parameter, IFieldSymbol field, byte? instanceSlot)
+    private void ProcessOutFieldSymbol(IParameterSymbol parameter, IFieldSymbol field, byte? instanceSlot, bool instanceSlotIsLocal = false)
     {
         bool parameterCaptured = _context.TryGetCapturedStaticField(parameter, out var parameterIndex);
         byte fieldIndex = field.IsStatic
@@ -533,11 +566,11 @@ internal partial class MethodConvert
             if (!field.IsStatic && instanceSlot is null)
                 throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Missing instance context for field '{field.Name}' in out parameter synchronization.");
 
-            AddOutStaticFieldSyncTarget(parameter, new CompilationContext.OutSyncTarget(field, instanceSlot));
+            AddOutStaticFieldSyncTarget(parameter, new CompilationContext.OutSyncTarget(field, instanceSlot, instanceSlotIsLocal));
         }
     }
 
-    private void StoreOutFieldValue(IFieldSymbol field, byte? instanceSlot)
+    private void StoreOutFieldValue(IFieldSymbol field, byte? instanceSlot, bool instanceSlotIsLocal = false)
     {
         if (field.IsStatic)
         {
@@ -549,7 +582,7 @@ internal partial class MethodConvert
         if (instanceSlot is null)
             throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Missing instance context for field '{field.Name}' in out argument synchronization.");
 
-        AccessSlot(OpCode.LDSFLD, instanceSlot.Value);
+        AccessSlot(instanceSlotIsLocal ? OpCode.LDLOC : OpCode.LDSFLD, instanceSlot.Value);
         int fieldOffset = GetInstanceFieldIndex(field);
         Push(fieldOffset);
         AddInstruction(OpCode.ROT);
