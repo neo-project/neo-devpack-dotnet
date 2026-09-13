@@ -1042,61 +1042,51 @@ internal partial class MethodConvert
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <remarks>
-    /// Algorithm: Iterates through UTF-8 bytes, converting only the ASCII uppercase range.
+    /// Algorithm: Copies the UTF-8 bytes into a mutable buffer, then rewrites only the ASCII uppercase bytes.
     /// </remarks>
     private static void ConvertToLower(MethodConvert methodConvert, bool preserveInput = false)
     {
-        byte strSlot = methodConvert.AddAnonymousVariable();
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
+        byte sizeSlot = methodConvert.AddAnonymousVariable();
+        byte indexSlot = methodConvert.AddAnonymousVariable();
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
-        var charIsLower = new JumpTarget();
-        var appendAsciiByte = new JumpTarget();
-        var copyOriginalByte = new JumpTarget();
+        var skipTarget = new JumpTarget();
 
         if (preserveInput)
-            methodConvert.Dup();
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-        methodConvert.Push("");                                    // Create empty result string
+            methodConvert.Dup();                                   // stack: [string]; duplicate the input when it must be preserved
+        methodConvert.Dup();                                       // stack: [string]; keep one copy to measure and convert
+        methodConvert.Size();                                      // stack: [string, string]; get string length
+        methodConvert.Dup();                                       // stack: [string, size]; store the size
+        methodConvert.StLoc(sizeSlot);                             // stack: [string, size, size]; store the size
+        methodConvert.Left(null);                                  // stack: [string, size]; copy the string into a mutable buffer
+        methodConvert.Push0();                                     // stack: [buffer]; initialize index to 0
+        methodConvert.StLoc(indexSlot);                            // stack: [buffer, 0]
 
-        methodConvert.Push0();                                     // Initialize index to 0
-        loopStart.Instruction = methodConvert.Nop();               // Loop start marker
+        loopStart.Instruction = methodConvert.LdLoc(indexSlot);    // stack: [buffer]; loop start, load index
+        methodConvert.LdLoc(sizeSlot);                             // stack: [buffer, index]; load size
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // stack: [buffer, index, size]; exit if done
+        methodConvert.Dup();                                       // stack: [buffer]; duplicate the buffer to read one byte
+        methodConvert.LdLoc(indexSlot);                            // stack: [buffer, buffer]; load index
+        methodConvert.PickItem();                                  // stack: [buffer, buffer, index]; read the byte at index
+        methodConvert.Within('A', 'Z');                            // stack: [buffer, byte]; is it ASCII uppercase?
+        methodConvert.JumpIfNot(skipTarget);                       // stack: [buffer, isUpper]; skip when it is not uppercase
+        methodConvert.Dup();                                       // stack: [buffer]; duplicate the buffer to keep it
+        methodConvert.Dup();                                       // stack: [buffer, buffer]; duplicate again for SETITEM
+        methodConvert.LdLoc(indexSlot);                            // stack: [buffer, buffer, buffer]; load index
+        methodConvert.PickItem();                                  // stack: [buffer, buffer, buffer, index]; read the byte again
+        methodConvert.Push(32);                                    // stack: [buffer, buffer, byte]; push 32 (uppercase to lowercase delta)
+        methodConvert.Add();                                       // stack: [buffer, buffer, byte, 32]; byte + 32
+        methodConvert.LdLoc(indexSlot);                            // stack: [buffer, buffer, lower]; load index
+        methodConvert.Swap();                                      // stack: [buffer, buffer, lower, index]; order for SETITEM
+        methodConvert.SetItem();                                   // stack: [buffer, buffer, index, lower]; buffer[index] = lower
+        skipTarget.Instruction = methodConvert.LdLoc(indexSlot);   // stack: [buffer]; load index
+        methodConvert.Inc();                                       // stack: [buffer, index]; next byte
+        methodConvert.StLoc(indexSlot);                            // stack: [buffer, index + 1]
+        methodConvert.JumpAlways(loopStart);                       // stack: [buffer]; continue loop
 
-        methodConvert.Dup();                                       // Duplicate index
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
-        methodConvert.Size();                                      // Get string length
-        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
-
-        methodConvert.Dup();                                       // Duplicate index
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
-        methodConvert.Swap();                                      // Swap for PickItem
-        methodConvert.PickItem();                                  // Get character at index
-        methodConvert.Dup();                                       // Duplicate character
-        methodConvert.Within('A', 'Z');                            // Check if uppercase
-        methodConvert.JumpIfTrue(charIsLower);                     // Jump if uppercase
-        methodConvert.Dup();                                       // Integer zero converts to an empty byte string
-        methodConvert.Push0();
-        methodConvert.JumpIfLessOrEqual(copyOriginalByte);
-        methodConvert.Dup();                                       // Preserve the byte while checking whether it is ASCII
-        methodConvert.Push(0x80);
-        methodConvert.JumpIfLess(appendAsciiByte);
-        copyOriginalByte.Instruction = methodConvert.Nop();        // Copy NUL and non-ASCII bytes from the original string
-        AppendCurrentStringByte(methodConvert, strSlot);
-        methodConvert.JumpAlways(loopStart);
-
-        appendAsciiByte.Instruction = methodConvert.Nop();
-        AppendStringByte(methodConvert);
-        methodConvert.JumpAlways(loopStart);                       // Continue loop
-
-        charIsLower.Instruction = methodConvert.Nop();             // Uppercase processing
-        methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
-        methodConvert.Add();                                       // Add 32 to get lowercase for ASCII
-        AppendStringByte(methodConvert);
-        methodConvert.JumpAlways(loopStart);                       // Continue loop
-
-        loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
-        methodConvert.Drop();                                      // Drop index
-        methodConvert.ChangeType(StackItemType.ByteString);       // Convert to ByteString
-        methodConvert.RemoveAnonymousVariable(strSlot);
+        loopEnd.Instruction = methodConvert.ChangeType(StackItemType.ByteString); // stack: [buffer]; convert the buffer to a ByteString
     }
 
     /// <summary>
@@ -1195,11 +1185,12 @@ internal partial class MethodConvert
 
     private static void AppendStringByte(MethodConvert methodConvert)
     {
-        methodConvert.Rot();
-        methodConvert.Swap();
-        methodConvert.Cat();
-        methodConvert.Swap();
-        methodConvert.Inc();
+        // stack: [result, index, char]
+        methodConvert.Rot();   // [index, char, result]
+        methodConvert.Swap();  // [index, result, char]
+        methodConvert.Cat();   // [index, result']
+        methodConvert.Swap();  // [result', index]
+        methodConvert.Inc();   // [result', index+1]
     }
 
     /// <summary>
