@@ -48,6 +48,32 @@ This keeps contract execution deterministic and avoids culture-dependent behavio
 
 NeoVM stores contract strings as UTF-8 byte strings. As a result, string `Length`, indexing, and slicing use encoded byte offsets instead of the UTF-16 code-unit offsets used by .NET. For example, `"é".Length` evaluates to `2` on NeoVM instead of `1`, and `"é"[0]` returns the first encoded byte (`195`) instead of the .NET character value (`233`). Contracts that may process non-ASCII text should choose explicit byte-oriented behavior or constrain and validate their input.
 
+## Checked and unchecked integer operations
+
+NeoVM integers are arbitrary precision, so the compiler applies the declared
+C# operand width when lowering fixed-width integer operations. In an
+`unchecked` context, operations that overflow their declared width wrap as
+they do in C#. In a `checked` context, the compiler emits an overflow fault.
+
+The signed edge case `int.MinValue / -1`, `long.MinValue / -1`, and their
+remainder equivalents fault in both checked and unchecked contexts, matching
+the .NET behavior for these operations. Compound assignments and `DivRem`
+use the same rule. See [#1983](https://github.com/neo-project/neo-devpack-dotnet/pull/1983)
+and [#1984](https://github.com/neo-project/neo-devpack-dotnet/pull/1984).
+
+Unsigned bitwise complement is constrained to the declared unsigned width;
+for example, `~(uint)0` produces `uint.MaxValue` instead of the signed VM
+value `-1`. See [#2004](https://github.com/neo-project/neo-devpack-dotnet/pull/2004).
+
+## Narrowing numeric conversions
+
+Checked narrowing conversions validate the destination range before converting.
+Unchecked conversions retain the destination type's low-order bits, including
+for nullable operands when the source value is non-null. A null nullable
+operand remains null when the destination is nullable. Converting a null
+nullable value to a non-nullable destination faults. See
+[#2001](https://github.com/neo-project/neo-devpack-dotnet/pull/2001).
+
 ## `typeof`
 
 `typeof(T)` does not produce a .NET `System.Type` object in Neo contract code. The compiler lowers the expression to the simple type name string, for example `typeof(int)` becomes `"Int32"`.
