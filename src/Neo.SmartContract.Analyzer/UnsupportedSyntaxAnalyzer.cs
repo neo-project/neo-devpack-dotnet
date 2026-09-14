@@ -171,7 +171,9 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         Utf8LiteralRule,
         FileLocalTypeRule,
         RefReadonlyParameterRule,
-        UsingStatementRule);
+        UsingStatementRule)
+        .OrderBy(static descriptor => descriptor.Id, StringComparer.Ordinal)
+        .ToImmutableArray();
 
     public override void Initialize(AnalysisContext context)
     {
