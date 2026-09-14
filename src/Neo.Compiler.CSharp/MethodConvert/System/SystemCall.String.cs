@@ -174,7 +174,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (symbol.Parameters.Length == 1 && symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char)
-            NormalizeNulCharSearchArgument(methodConvert);
+            NormalizeNulChar(methodConvert);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
@@ -182,7 +182,12 @@ internal partial class MethodConvert
         methodConvert.Ge();
     }
 
-    private static void NormalizeNulCharSearchArgument(MethodConvert methodConvert)
+    /// <summary>
+    /// Replaces a NUL character on top of the stack with a single 0x00 byte, so that the value
+    /// keeps one byte of length instead of collapsing into an empty byte string.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    private static void NormalizeNulChar(MethodConvert methodConvert)
     {
         JumpTarget endTarget = new();
 
@@ -938,11 +943,11 @@ internal partial class MethodConvert
 
     private static void HandleStringPadLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => EmitStringPad(methodConvert, model, instanceExpression, arguments, padLeft: true);
+        => EmitStringPad(methodConvert, model, symbol, instanceExpression, arguments, padLeft: true);
 
     private static void HandleStringPadRight(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => EmitStringPad(methodConvert, model, instanceExpression, arguments, padLeft: false);
+        => EmitStringPad(methodConvert, model, symbol, instanceExpression, arguments, padLeft: false);
 
     /// <summary>
     /// Handles string.PadLeft / string.PadRight by prepending or appending the padding
@@ -953,77 +958,72 @@ internal partial class MethodConvert
     /// <remarks>
     /// Width is measured in bytes, consistent with how the compiler treats string length
     /// (<see cref="OpCode.SIZE"/>); for ASCII text this matches .NET's character semantics.
+    /// The padding character is an integer, so concatenating it emits its minimal little-endian
+    /// bytes and its size is exactly that byte count. That allows the padding to be doubled and
+    /// trimmed once instead of concatenating the character one byte group at a time.
+    /// A NUL character is normalized to a single 0x00 byte so that it still pads one byte per repetition.
     /// </remarks>
-    private static void EmitStringPad(MethodConvert methodConvert, SemanticModel model,
+    private static void EmitStringPad(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool padLeft)
     {
-        byte strSlot = methodConvert.AddAnonymousVariable();
-        byte widthSlot = methodConvert.AddAnonymousVariable();
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, callingConvention: CallingConvention.StdCall);
+
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
         byte fillSlot = methodConvert.AddAnonymousVariable();
-        byte countSlot = methodConvert.AddAnonymousVariable();
-        byte resultSlot = methodConvert.AddAnonymousVariable();
-
-        // Store the string to pad.
-        methodConvert.ConvertExpression(model, instanceExpression!);
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-
-        // Store the requested total width.
-        methodConvert.ConvertExpression(model, ((ArgumentSyntax)arguments![0]).Expression);
-        methodConvert.AccessSlot(OpCode.STLOC, widthSlot);
-
-        // Store the padding character (default is a space).
-        if (arguments.Count >= 2)
-            methodConvert.ConvertExpression(model, ((ArgumentSyntax)arguments[1]).Expression);
-        else
-            methodConvert.Push(' ');
-        methodConvert.AccessSlot(OpCode.STLOC, fillSlot);
-
-        // count = totalWidth - size(str)
-        methodConvert.AccessSlot(OpCode.LDLOC, widthSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Size();
-        methodConvert.Sub();
-        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
-
-        // Build the padding: count copies of the padding character (empty when count <= 0).
-        methodConvert.Push("");
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+        byte padLengthSlot = methodConvert.AddAnonymousVariable();
 
         JumpTarget loopStart = new();
         JumpTarget loopEnd = new();
-        loopStart.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
-        methodConvert.Push0();
-        methodConvert.JumpIfLessOrEqual(loopEnd);
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        JumpTarget noPaddingTarget = new();
+        JumpTarget endTarget = new();
+
+        // stack: [string, count, char]
+        // Store the padding character (default is a space).
+        if (arguments?.Count < 2) methodConvert.Push(' ');
+        NormalizeNulChar(methodConvert);                           // '\0' -> a single 0x00 byte
+        methodConvert.AccessSlot(OpCode.STLOC, fillSlot);          // stack: [string, count]
+
+        // padLength = (totalWidth - size(str)) * size(fill), keeping the string on the stack.
+        methodConvert.Over();                                      // stack: [string, count, string]
+        methodConvert.Size();
+        methodConvert.Sub();
         methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);
+        methodConvert.Size();
+        methodConvert.Mul();                                       // stack: [string, padLength]
+        methodConvert.Dup();
+        methodConvert.Push0();
+        methodConvert.JumpIfLessOrEqual(noPaddingTarget);          // Nothing to pad, return the string unchanged
+        methodConvert.AccessSlot(OpCode.STLOC, padLengthSlot);     // stack: [string]
+
+        // Double the fill until it covers padLength bytes, keeping the padding on the stack.
+        methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);          // stack: [string, pad]
+        loopStart.Instruction = methodConvert.Nop();
+        methodConvert.Dup();                                       // stack: [string, pad, pad]
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.LDLOC, padLengthSlot);
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // stack: [string, pad]
+        methodConvert.Dup();
         methodConvert.Cat();
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
-        methodConvert.Dec();
-        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
-        methodConvert.JumpAlways(loopStart);
+        methodConvert.JumpAlways(loopStart);                       // stack: [string, pad * 2]
         loopEnd.Instruction = methodConvert.Nop();
+
+        // Trim the padding to the exact number of bytes: [string, padding].
+        methodConvert.AccessSlot(OpCode.LDLOC, padLengthSlot);
+        methodConvert.Left(null);
 
         // Combine: PadLeft -> padding + str ; PadRight -> str + padding.
         if (padLeft)
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        }
-        else
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        }
+            methodConvert.Swap();                                  // stack: [padding, string]
         methodConvert.Cat();
         methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.JumpAlways(endTarget);
 
-        methodConvert.RemoveAnonymousVariable(strSlot);
-        methodConvert.RemoveAnonymousVariable(widthSlot);
-        methodConvert.RemoveAnonymousVariable(fillSlot);
-        methodConvert.RemoveAnonymousVariable(countSlot);
-        methodConvert.RemoveAnonymousVariable(resultSlot);
+        // The string is already at least as wide as requested.
+        noPaddingTarget.Instruction = methodConvert.Drop();        // stack: [string]
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -1962,7 +1962,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        NormalizeNulCharSearchArgument(methodConvert);
+        NormalizeNulChar(methodConvert);
 
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
