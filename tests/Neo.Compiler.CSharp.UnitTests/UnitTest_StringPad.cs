@@ -40,6 +40,15 @@ public class Contract : SmartContract
 
     [DisplayName(""padRightStar"")]
     public static string PadRightStar(string s, int width) => s.PadRight(width, '*');
+
+    [DisplayName(""padLeftNul"")]
+    public static string PadLeftNul(string s, int width) => s.PadLeft(width, '\0');
+
+    [DisplayName(""padRightMid"")]
+    public static string PadRightMid(string s) => s.PadRight(7, (char)0x0100);
+
+    [DisplayName(""padLeftWide"")]
+    public static string PadLeftWide(string s, int width) => s.PadLeft(width, '*');
 }";
 
         var context = TestHelper.CompileSingleContract(source);
@@ -63,6 +72,21 @@ public class Contract : SmartContract
 
         // Empty input.
         Assert.AreEqual("".PadLeft(3), contract.PadLeft("", 3));
+
+        // A NUL char is normalized to one 0x00 byte per repetition (matching .NET), while other
+        // fill chars are still emitted as their minimal little-endian bytes ("00 01" for 0x0100).
+        Assert.AreEqual("ab".PadLeft(5, '\0'), contract.PadLeftNul("ab", 5));
+        Assert.AreEqual("ab\u0000\u0001\u0000\u0001\u0000\u0001\u0000\u0001\u0000\u0001", contract.PadRightMid("ab"));
+
+        // Wide padding needs only logarithmically many concatenations.
+        Assert.AreEqual("abc".PadLeft(20, '*'), contract.PadLeftWide("abc", 20));
+
+        // A call that needs no padding returns the string directly, without CAT/CONVERT.
+        using (var watcher = engine.CreateFeeWatcher())
+        {
+            Assert.AreEqual("abc", contract.PadLeft("abc", 3));
+            Assert.AreEqual(1048590, watcher.Value);
+        }
     }
 
     public abstract class StringPadContract(SmartContractInitialize initialize)
@@ -79,5 +103,14 @@ public class Contract : SmartContract
 
         [DisplayName("padRightStar")]
         public abstract string? PadRightStar(string s, BigInteger width);
+
+        [DisplayName("padLeftNul")]
+        public abstract string? PadLeftNul(string s, BigInteger width);
+
+        [DisplayName("padRightMid")]
+        public abstract string? PadRightMid(string s);
+
+        [DisplayName("padLeftWide")]
+        public abstract string? PadLeftWide(string s, BigInteger width);
     }
 }
