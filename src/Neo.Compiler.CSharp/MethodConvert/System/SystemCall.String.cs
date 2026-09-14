@@ -649,9 +649,7 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Size();
-        methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
-        methodConvert.JumpIfFalse(trueTarget); // Zero int means false.
 
         methodConvert.Push(0);
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
@@ -664,8 +662,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.PickItem();
-
-        CheckWithinWhiteSpace(methodConvert, falseTarget);
+        CheckIsWhiteSpaceByte(methodConvert, falseTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.Inc();
@@ -1333,25 +1330,29 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Checks if character is within whitespace range and exits loop if not.
-    /// The top stack item should be a picked item from string.
+    /// Mask of the whitespace bytes: '\t' (0x09) to '\r' (0x0D) and ' ' (0x20).
+    /// </summary>
+    private const long WhiteSpaceByteMask = (1L << 9) | (1L << 10) | (1L << 11) | (1L << 12) | (1L << 13) | (1L << 32);
+
+    /// <summary>
+    /// Checks if the byte on the top of the stack is an ASCII whitespace byte and exits loop if not.
+    /// The top stack item should be a byte picked from a string, so it is always in the range [0, 255].
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="loopEnd">Jump target for loop end</param>
     /// <remarks>
-    /// Algorithm: Checks if character is tab-carriage return range or space character
+    /// Algorithm: Shifts <see cref="WhiteSpaceByteMask"/> right by the byte value, the lowest bit of the
+    /// result is set only when the byte is a whitespace byte. The shift amount is at most 255, which is
+    /// within <see cref="ExecutionEngineLimits.MaxShift"/>.
     /// </remarks>
-    private static void CheckWithinWhiteSpace(MethodConvert methodConvert, JumpTarget loopEnd)
+    private static void CheckIsWhiteSpaceByte(MethodConvert methodConvert, JumpTarget loopEnd)
     {
-        methodConvert.Dup();                                       // Duplicate character
-        methodConvert.Within('\t', '\r');                          // Check if within tab-CR range
-        methodConvert.Swap();                                      // Swap for space check
-
-        methodConvert.Push((ushort)' ');                           // Push space character
-        methodConvert.NumEqual();                                  // Check if equals space
-        methodConvert.BoolOr();                                    // Combine checks with OR
-
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not whitespace
+        methodConvert.Push(WhiteSpaceByteMask);                    // Mask of the whitespace bytes
+        methodConvert.Swap();                                      // Put the byte on the top as the shift amount
+        methodConvert.ShR();                                       // Move the bit of the byte value to the lowest bit
+        methodConvert.Push(1);                                     // Test the lowest bit
+        methodConvert.And();                                       // 1 if the byte is whitespace
+        methodConvert.JumpIfFalse(loopEnd);                        // Exit if not whitespace
     }
 
     /// <summary>
@@ -1453,7 +1454,7 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();                       // Loop start marker
         CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
         PickCharStart(methodConvert, stringIndex, startIndex);             // Pick character to check
-        CheckWithinWhiteSpace(methodConvert, loopEnd);
+        CheckIsWhiteSpaceByte(methodConvert, loopEnd);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
 
@@ -1463,7 +1464,7 @@ internal partial class MethodConvert
         loopStart2.Instruction = methodConvert.Nop();                 // Second loop start
         CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
         PickCharEnd(methodConvert, stringIndex, endIndex);            // Pick character to check
-        CheckWithinWhiteSpace(methodConvert, loopEnd2);
+        CheckIsWhiteSpaceByte(methodConvert, loopEnd2);
         MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
         loopEnd2.Instruction = methodConvert.Nop();                // Second loop end
 
@@ -1622,7 +1623,7 @@ internal partial class MethodConvert
         if (useTrimChar)
             CheckTrimChar(methodConvert, loopEnd, trimCharIndex, constantTrimChar);
         else
-            CheckWithinWhiteSpace(methodConvert, loopEnd);
+            CheckIsWhiteSpaceByte(methodConvert, loopEnd);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();
 
@@ -1690,7 +1691,7 @@ internal partial class MethodConvert
         if (useTrimChar)
             CheckTrimChar(methodConvert, loopEnd, trimCharIndex, constantTrimChar);
         else
-            CheckWithinWhiteSpace(methodConvert, loopEnd);
+            CheckIsWhiteSpaceByte(methodConvert, loopEnd);
         MoveEndIndexAndLoop(methodConvert, loopStart, endIndex);
         loopEnd.Instruction = methodConvert.Nop();
 
