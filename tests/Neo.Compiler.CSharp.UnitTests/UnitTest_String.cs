@@ -100,13 +100,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestIsNullOrWhiteSpace()
         {
             Assert.IsTrue(Contract.TestIsNullOrWhiteSpace("   "));
-            AssertGasConsumed(1058670);
+            AssertGasConsumed(1057560);
 
             Assert.IsTrue(Contract.TestIsNullOrWhiteSpace(null));
             AssertGasConsumed(1047300);
 
             Assert.IsFalse(Contract.TestIsNullOrWhiteSpace("hello world"));
-            AssertGasConsumed(1051170);
+            AssertGasConsumed(1050720);
+
+            // Every byte of the tab to carriage return range is whitespace
+            Assert.IsTrue(Contract.TestIsNullOrWhiteSpace("\t\n\v\f\r"));
+            Assert.IsTrue(Contract.TestIsNullOrWhiteSpace("\t\n\v\f\r "));
+
+            // non-ASCII is not supported yet.
+            Assert.IsFalse(Contract.TestIsNullOrWhiteSpace("\0"));
+            Assert.IsFalse(Contract.TestIsNullOrWhiteSpace("\u0001"));
+            Assert.IsFalse(Contract.TestIsNullOrWhiteSpace("\u00A0"));
+            Assert.IsFalse(Contract.TestIsNullOrWhiteSpace(" \u00A0 "));
         }
 
         [TestMethod]
@@ -243,36 +253,36 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrim()
         {
             Assert.AreEqual("Hello, World!", Contract.TestTrim("  Hello, World!  "));
-            AssertGasConsumed(1376130);
+            AssertGasConsumed(1374150);
 
             Assert.AreEqual("No Trim", Contract.TestTrim("No Trim"));
-            AssertGasConsumed(1362090);
+            AssertGasConsumed(1361430);
 
             Assert.AreEqual("", Contract.TestTrim("   "));
-            AssertGasConsumed(1366560);
+            AssertGasConsumed(1365570);
 
             // Test various whitespace characters
             Assert.AreEqual("Trim Test", Contract.TestTrim("\t\n\r Trim Test \t\n\r"));
-            AssertGasConsumed(1390170);
+            AssertGasConsumed(1386870);
 
             Assert.AreEqual("Multiple Spaces", Contract.TestTrim("   Multiple Spaces   "));
-            AssertGasConsumed(1383150);
+            AssertGasConsumed(1380510);
 
             Assert.AreEqual("Mix of Whitespace", Contract.TestTrim(" \t \n \r Mix of Whitespace \r \n \t "));
-            AssertGasConsumed(1411230);
+            AssertGasConsumed(1405950);
         }
 
         [TestMethod]
         public void Test_TestTrimStart()
         {
             Assert.AreEqual("Hello", Contract.TestTrimStart("   Hello"));
-            AssertGasConsumed(1369050);
+            AssertGasConsumed(1367730);
 
             Assert.AreEqual("Hello", Contract.TestTrimStart("Hello"));
-            AssertGasConsumed(1358520);
+            AssertGasConsumed(1358190);
 
             Assert.AreEqual("", Contract.TestTrimStart("   "));
-            AssertGasConsumed(1366020);
+            AssertGasConsumed(1365030);
         }
 
         [TestMethod]
@@ -289,13 +299,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimEnd()
         {
             Assert.AreEqual("Hello", Contract.TestTrimEnd("Hello   "));
-            AssertGasConsumed(1369020);
+            AssertGasConsumed(1367700);
 
             Assert.AreEqual("Hello", Contract.TestTrimEnd("Hello"));
-            AssertGasConsumed(1358580);
+            AssertGasConsumed(1358250);
 
             Assert.AreEqual("", Contract.TestTrimEnd("   "));
-            AssertGasConsumed(1058760);
+            AssertGasConsumed(1057770);
         }
 
         [TestMethod]
