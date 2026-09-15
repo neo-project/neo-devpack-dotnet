@@ -449,6 +449,7 @@ internal partial class MethodConvert
         RegisterHandler((string s, int totalWidth) => s.PadRight(totalWidth), HandleStringPadRight);
         RegisterHandler((string s, int totalWidth, char paddingChar) => s.PadRight(totalWidth, paddingChar), HandleStringPadRight);
         RegisterHandler((string s, char c) => s.IndexOf(c), HandleStringIndexOfChar);
+        RegisterHandler((string s, char c) => s.LastIndexOf(c), HandleStringLastIndexOfChar);
         RegisterHandler((string s) => s.ToLower(), HandleStringToLower);
         RegisterHandler((string s) => s.ToUpper(), HandleStringToUpper);
         RegisterHandler((string s) => s.Trim(), HandleStringTrim);
