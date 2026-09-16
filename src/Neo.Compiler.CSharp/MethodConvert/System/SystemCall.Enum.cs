@@ -276,31 +276,32 @@ internal partial class MethodConvert
         foreach (var t in enumMembers)
         {
             methodConvert.Dup();                                   // Stack: [..., string, string]
+
             JumpTarget lowerCaseName = new();
             JumpTarget endCase = new();
             methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot); // Stack: [..., string, string, ignoreCase]
             methodConvert.JumpIfNot(lowerCaseName);                 // Stack: [..., string, string]
             methodConvert.Push(t.Name.ToUpper());                   // Stack: [..., string, string, enumNameUpper]
             methodConvert.Jump(endCase);
+
             lowerCaseName.Instruction = methodConvert.Nop();
             methodConvert.Push(t.Name);                         // Stack: [..., string, string, enumName]
-            endCase.Instruction = methodConvert.Nop();
 
+            endCase.Instruction = methodConvert.Nop();
             methodConvert.Equal();                             // Stack: [..., string, isEqual]
 
             var nextCheck = new JumpTarget();
             methodConvert.JumpIfFalse(nextCheck);              // Stack: [..., string], If not equal, discard duplicated string and proceed to next
-            methodConvert.Push(t.ConstantValue);               // Stack: [..., enumValue]
-            methodConvert.AccessSlot(OpCode.STSFLD, index);    // Stack: [...]
             methodConvert.Push(true);                          // Stack: [..., true]
+            methodConvert.Push(t.ConstantValue);               // Stack: [..., enumValue]
             methodConvert.JumpAlways(endTarget);
             nextCheck.Instruction = methodConvert.Nop();
         }
 
-        methodConvert.Push(0);                           // Push default value (0) for the out parameter
-        methodConvert.AccessSlot(OpCode.STSFLD, index);  // Store the default value (0) in the out parameter
         methodConvert.Push(false);                       // Push false to indicate failure
-        endTarget.Instruction = methodConvert.Nip();     // Remove the string from the stack
+        methodConvert.Push(0);                           // Push default value (0) for the out parameter
+        endTarget.Instruction = methodConvert.AccessSlot(OpCode.STSFLD, index);
+        methodConvert.Nip();                             // Remove the string from the stack
     }
 
     /// <summary>
@@ -558,20 +559,17 @@ internal partial class MethodConvert
             methodConvert.JumpIfNot(nextCheck);
 
             // If equal:
-            methodConvert.Push(t.ConstantValue);                   // Stack: [..., enumValue]
-            methodConvert.AccessSlot(OpCode.STSFLD, index);        // Store enum value in out parameter
             methodConvert.Push(true);                              // Stack: [..., true]
+            methodConvert.Push(t.ConstantValue);                   // Stack: [..., enumValue]
             methodConvert.JumpAlways(endTarget);
-
             nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
-        methodConvert.Push(0);                                     // Default enum value
-        methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store default value in out parameter
-        methodConvert.Push(false);                                 // Success flag set to false
-
-        endTarget.Instruction = methodConvert.Nip();               // Remove the EnumType and inputString
+        methodConvert.Push(false);                                               // Success flag set to false
+        methodConvert.Push(0);                                                   // Default enum value
+        endTarget.Instruction = methodConvert.AccessSlot(OpCode.STSFLD, index);  // Store enum value in out parameter
+        methodConvert.Nip();                                                     // Remove the EnumType and inputString
         methodConvert.Nip();
     }
 
@@ -880,12 +878,14 @@ internal partial class MethodConvert
         foreach (var member in members)
         {
             methodConvert.Dup();
+
             JumpTarget lowerCaseName = new();
             JumpTarget endChoose = new();
             methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
             methodConvert.JumpIfFalse(lowerCaseName);
             methodConvert.Push(member.Name.ToUpper());
             methodConvert.Jump(endChoose);
+
             lowerCaseName.Instruction = methodConvert.Nop();
             methodConvert.Push(member.Name);
             endChoose.Instruction = methodConvert.Nop();
@@ -893,9 +893,7 @@ internal partial class MethodConvert
             methodConvert.Equal();
             var next = new JumpTarget();
             methodConvert.JumpIfFalse(next);
-            methodConvert.Drop();
             methodConvert.Push(member.ConstantValue);
-            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
             methodConvert.JumpAlwaysLong(success);
             next.Instruction = methodConvert.Nop();
         }
@@ -904,18 +902,14 @@ internal partial class MethodConvert
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
 
-        success.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        success.Instruction = methodConvert.Nip();  // Drop the enum string
     }
 
     private static void HandleEnumTryParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
         var members = GetEnumFields(enumType);
-
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
@@ -924,15 +918,7 @@ internal partial class MethodConvert
 
         methodConvert.Drop(); // drop out-parameter placeholder
 
-        byte resultSlot = methodConvert.AddAnonymousVariable();
-        byte successSlot = methodConvert.AddAnonymousVariable();
         var successTarget = new JumpTarget();
-
-        methodConvert.Push(0);
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
-        methodConvert.Push(false);
-        methodConvert.AccessSlot(OpCode.STLOC, successSlot);
-
         foreach (var member in members)
         {
             methodConvert.Dup();
@@ -941,21 +927,18 @@ internal partial class MethodConvert
 
             var next = new JumpTarget();
             methodConvert.JumpIfFalse(next);
-            methodConvert.Drop();
-            methodConvert.Push(member.ConstantValue);
-            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
             methodConvert.Push(true);
-            methodConvert.AccessSlot(OpCode.STLOC, successSlot);
+            methodConvert.Push(member.ConstantValue);
             methodConvert.JumpAlways(successTarget);
 
             next.Instruction = methodConvert.Nop();
         }
 
-        methodConvert.Drop();
+        methodConvert.Push(false);
+        methodConvert.Push(0);
         successTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
         methodConvert.AccessSlot(OpCode.STSFLD, index);
-        methodConvert.AccessSlot(OpCode.LDLOC, successSlot);
+        methodConvert.Nip();  // Drop the enum string
     }
 
     private static void HandleEnumTryParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -974,15 +957,8 @@ internal partial class MethodConvert
 
         methodConvert.Drop(); // drop out-parameter placeholder
 
-        byte resultSlot = methodConvert.AddAnonymousVariable();
-        byte successSlot = methodConvert.AddAnonymousVariable();
         byte ignoreSlot = methodConvert.AddAnonymousVariable();
         methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot); // store bool, keep input string
-
-        methodConvert.Push(0);
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
-        methodConvert.Push(false);
-        methodConvert.AccessSlot(OpCode.STLOC, successSlot);
 
         var skipUpper = new JumpTarget();
         var successTarget = new JumpTarget();
@@ -995,12 +971,15 @@ internal partial class MethodConvert
         foreach (var member in members)
         {
             methodConvert.Dup();
+
             JumpTarget lowerCaseName = new();
             JumpTarget endChoose = new();
+
             methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
             methodConvert.JumpIfFalse(lowerCaseName);
             methodConvert.Push(member.Name.ToUpper());
             methodConvert.Jump(endChoose);
+
             lowerCaseName.Instruction = methodConvert.Nop();
             methodConvert.Push(member.Name);
             endChoose.Instruction = methodConvert.Nop();
@@ -1008,21 +987,18 @@ internal partial class MethodConvert
             methodConvert.Equal();
             var next = new JumpTarget();
             methodConvert.JumpIfFalse(next);
-            methodConvert.Drop();
-            methodConvert.Push(member.ConstantValue);
-            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
             methodConvert.Push(true);
-            methodConvert.AccessSlot(OpCode.STLOC, successSlot);
+            methodConvert.Push(member.ConstantValue);
             methodConvert.JumpAlways(successTarget);
 
             next.Instruction = methodConvert.Nop();
         }
 
-        methodConvert.Drop();
+        methodConvert.Push(false);
+        methodConvert.Push(0);
         successTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
         methodConvert.AccessSlot(OpCode.STSFLD, index);
-        methodConvert.AccessSlot(OpCode.LDLOC, successSlot);
+        methodConvert.Nip(); // Drop the enum string
     }
 
     private static void HandleEnumGetValuesGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
