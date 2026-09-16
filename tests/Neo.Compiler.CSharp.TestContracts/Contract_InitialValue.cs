@@ -14,6 +14,12 @@ namespace Neo.Compiler.CSharp.TestContracts
         [InitialValue("18", ContractParameterType.Integer)]
         private static readonly int DefaultAge;
 
+        [InitialValue("42")]
+        private static readonly int InferredInteger;
+
+        [InitialValue("00112233")]
+        private static readonly byte[] InferredBytes;
+
         // Test dual-parameter constructor with Hash160 type
         [InitialValue("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq", ContractParameterType.Hash160)]
         private static readonly UInt160 DefaultOwner;
@@ -27,6 +33,10 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return DefaultAge;
         }
+
+        public static int GetInferredInteger() => InferredInteger;
+
+        public static byte[] GetInferredBytes() => InferredBytes;
 
         public static UInt160 GetDefaultOwner()
         {

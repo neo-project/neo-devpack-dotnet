@@ -289,7 +289,7 @@ namespace Neo.Compiler
                 {
                     nameof(InitialValueAttribute) => initialValue.ConstructorArguments.Length > 1
                         ? (ContractParameterType)initialValue.ConstructorArguments[1].Value!
-                        : ContractParameterType.String,
+                        : field.Type.GetContractParameterType(),
                     nameof(IntegerAttribute) => ContractParameterType.Integer,
                     nameof(Hash160Attribute) => ContractParameterType.Hash160,
                     nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
