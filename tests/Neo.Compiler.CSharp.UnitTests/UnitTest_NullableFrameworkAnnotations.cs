@@ -20,6 +20,20 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_NullableFrameworkAnnotations
 {
     [TestMethod]
+    public void DefaultNullableExpressionsCompile()
+    {
+        var context = TestHelper.CompileSingleContract("""
+using Neo.SmartContract.Framework;
+public class Contract : SmartContract
+{
+    public static bool Literal() => default(int?) == null;
+    public static bool Explicit() => default(int?) == null;
+}
+""");
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+    }
+
+    [TestMethod]
     public void ContractLookupWithoutNullCheck_ReportsNullableDereference()
     {
         var context = TestHelper.CompileSingleContract("""
