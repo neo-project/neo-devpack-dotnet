@@ -13,7 +13,7 @@ public class UnitTest_ContractSourceCode
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 [ContractSourceCode("https://example.invalid/source")]
-public class Contract : SmartContract { }
+public class Contract : SmartContract { public static int Get() => 1; }
 """);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
         Assert.AreEqual("https://example.invalid/source", context.CreateExecutable().Source);
