@@ -516,9 +516,6 @@ namespace Neo.Compiler
                                 throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Contract display name cannot be empty.");
                             _displayName = displayName;
                             break;
-                        case nameof(ContractSourceCodeAttribute):
-                            Source = (string)attribute.ConstructorArguments[0].Value!;
-                            break;
                         case nameof(ManifestExtraAttribute):
                             _manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
