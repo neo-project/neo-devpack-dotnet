@@ -271,7 +271,6 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Stack: [..., EnumType, string, ignoreCase, ignoreCase]
         methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);    // Stack: [..., EnumType, string, ignoreCase]
         methodConvert.JumpIfNot(ignoreCase);                       // Stack: [..., EnumType, string]
-
         ConvertToUpper(methodConvert, preserveInput: false);       // Stack: [..., EnumType, string-upper]
         ignoreCase.Instruction = methodConvert.Nip();              // Stack: [..., string or string-upper]
         foreach (var t in enumMembers)
