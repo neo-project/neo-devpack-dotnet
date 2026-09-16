@@ -498,6 +498,13 @@ namespace Neo.Compiler
                     if (attribute.AttributeClass!.IsSubclassOf(nameof(ManifestExtraAttribute)))
                     {
                         _manifestExtra[ManifestExtraAttribute.AttributeType[attribute.AttributeClass!.Name]] = (string)attribute.ConstructorArguments[0].Value!;
+
+                        // ContractSourceCodeAttribute also needs to set the Source property
+                        if (attribute.AttributeClass!.Name == nameof(ContractSourceCodeAttribute))
+                        {
+                            Source = (string)attribute.ConstructorArguments[0].Value!;
+                        }
+
                         continue;
                     }
 
