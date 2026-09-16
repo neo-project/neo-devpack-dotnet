@@ -18,6 +18,21 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_Attribute : DebugAndTestBase<Contract_AttributeChanged>
     {
         [TestMethod]
+        public void SingleParameterInitialValueInfersFieldType()
+        {
+            var context = TestHelper.CompileSingleContract("""
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+public class Contract : SmartContract
+{
+    [InitialValue("42")] private static readonly int Value;
+    public static int Get() => Value;
+}
+""");
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+        }
+
+        [TestMethod]
         public void AttributeTest()
         {
             Assert.AreEqual(Contract_AttributeChanged.Manifest.Name, "Contract_AttributeChanged");
