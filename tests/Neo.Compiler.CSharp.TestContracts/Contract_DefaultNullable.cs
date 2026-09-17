@@ -1,5 +1,13 @@
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services;
+// Copyright (C) 2015-2026 The Neo Project.
+//
+// Contract_DefaultNullable.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
@@ -13,14 +21,20 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static bool TestDefaultExpression()
         {
-            int? y = default(int?);
-            return y == null;
+            int? x = default(int?);
+            return x == null;
         }
 
         public static int TestNullCoalescing()
         {
-            int? z = default;
-            return z ?? 42;
+            int? x = default;
+            return x ?? 42;
+        }
+
+        public static int TestNullCoalescingExpression()
+        {
+            int? x = default(int?);
+            return x ?? 42;
         }
 
         public static bool TestHasValue()
@@ -29,16 +43,38 @@ namespace Neo.Compiler.CSharp.TestContracts
             return x.HasValue;
         }
 
-        public static int? TestReturnDefault()
+        public static bool TestHasValueExpression()
         {
-            return default;
+            int? x = default(int?);
+            return x.HasValue;
         }
 
-        public static bool TestComparison()
+        public static int? TestReturnDefault() => default;
+
+        public static int? TestReturnDefaultExpression() => default(int?);
+
+        public static bool TestComparison(int? other)
         {
             int? x = default;
-            int? y = null;
-            return x == y;
+            return x == other;
+        }
+
+        public static bool TestComparisonExpression(int? other)
+        {
+            int? x = default(int?);
+            return x == other;
+        }
+
+        public static bool TestNotEqualNull()
+        {
+            int? x = default;
+            return x != null;
+        }
+
+        public static bool TestNotEqualNullExpression()
+        {
+            int? x = default(int?);
+            return x != null;
         }
     }
 }
