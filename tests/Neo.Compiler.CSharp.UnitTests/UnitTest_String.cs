@@ -533,6 +533,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(0, Contract.TestLastIndexOfChar("\0abc", '\0'));
             Assert.AreEqual(1, Contract.TestLastIndexOfChar("a\0b", '\0'));
             Assert.AreEqual(2, Contract.TestLastIndexOfChar("ab\0", '\0'));
+
+            Assert.AreEqual(1, Contract.TestLastIndexOfChar("aé", 'é'));
+            Assert.AreEqual(1, Contract.TestLastIndexOfChar("aΩ", 'Ω'));
+            Assert.AreEqual(1, Contract.TestLastIndexOfChar("a中", '中'));
         }
 
         [TestMethod]
