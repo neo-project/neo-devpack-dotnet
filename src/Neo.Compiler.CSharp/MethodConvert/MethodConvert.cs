@@ -287,7 +287,9 @@ namespace Neo.Compiler
                 var attributeName = initialValue.AttributeClass!.Name;
                 ContractParameterType parameterType = attributeName switch
                 {
-                    nameof(InitialValueAttribute) => (ContractParameterType)initialValue.ConstructorArguments[1].Value!,
+                    nameof(InitialValueAttribute) => initialValue.ConstructorArguments.Length > 1
+                        ? (ContractParameterType)initialValue.ConstructorArguments[1].Value!
+                        : field.Type.GetContractParameterType(),
                     nameof(IntegerAttribute) => ContractParameterType.Integer,
                     nameof(Hash160Attribute) => ContractParameterType.Hash160,
                     nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
