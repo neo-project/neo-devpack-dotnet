@@ -965,7 +965,7 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
         methodConvert.JumpIfFalse(skipUpper);
-        ConvertToUpper(methodConvert, preserveInput: true);
+        ConvertToUpper(methodConvert);
         skipUpper.Instruction = methodConvert.Nop();
 
         foreach (var member in members)
