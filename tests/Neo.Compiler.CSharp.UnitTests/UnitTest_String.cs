@@ -527,6 +527,38 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestLastIndexOfChar()
+        {
+            var method = Contract_String.Manifest.Abi.GetMethod("testLastIndexOfChar", 2);
+            Assert.IsNotNull(method);
+
+            Assert.AreEqual("Hello".LastIndexOf('l'), Contract.TestLastIndexOfChar("Hello", 'l'));
+            AssertGasConsumed(2278830);
+
+            Assert.AreEqual(-1, Contract.TestLastIndexOfChar("World", 'x'));
+            AssertGasConsumed(2278830);
+
+            Assert.AreEqual("hello world".LastIndexOf('o'), Contract.TestLastIndexOfChar("hello world", 'o'));
+            AssertGasConsumed(2278830);
+
+            Assert.AreEqual("abc".LastIndexOf('c'), Contract.TestLastIndexOfChar("abc", 'c'));
+            Assert.AreEqual("abc".LastIndexOf('a'), Contract.TestLastIndexOfChar("abc", 'a'));
+
+            // Test with empty string
+            Assert.AreEqual(-1, Contract.TestLastIndexOfChar("", 'a'));
+
+            Assert.AreEqual(-1, Contract.TestLastIndexOfChar("", '\0'));
+            Assert.AreEqual(-1, Contract.TestLastIndexOfChar("abc", '\0'));
+            Assert.AreEqual(0, Contract.TestLastIndexOfChar("\0abc", '\0'));
+            Assert.AreEqual(1, Contract.TestLastIndexOfChar("a\0b", '\0'));
+            Assert.AreEqual(2, Contract.TestLastIndexOfChar("ab\0", '\0'));
+
+            Assert.AreEqual(1, Contract.TestLastIndexOfChar("aé", 'é'));
+            Assert.AreEqual(1, Contract.TestLastIndexOfChar("aΩ", 'Ω'));
+            Assert.AreEqual(1, Contract.TestLastIndexOfChar("a中", '中'));
+        }
+
+        [TestMethod]
         public void Test_TestToLower()
         {
             Assert.AreEqual("hello world", Contract.TestToLower("Hello World"));

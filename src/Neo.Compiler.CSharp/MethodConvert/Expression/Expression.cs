@@ -273,6 +273,10 @@ internal partial class MethodConvert
                 // Example: 42 or "Hello"
                 ConvertLiteralExpression(model, expression);
                 break;
+            case DefaultExpressionSyntax expression:
+                // Example: default(int?)
+                ConvertDefaultExpression(model, expression);
+                break;
             case TypeOfExpressionSyntax expression:
                 // Example: typeof(int)
                 // Note: Neo currently does not support the Type type of C#. The typeof operator here

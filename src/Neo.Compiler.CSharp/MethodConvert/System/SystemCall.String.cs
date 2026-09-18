@@ -1981,4 +1981,34 @@ internal partial class MethodConvert
         // Call the StdLib memorySearch method to find the index of the character
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
     }
+
+    /// <summary>
+    /// Handles the string.LastIndexOf(char) method by finding the last index of a character.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Uses StdLib memorySearch with backward = true, starting from the end of the
+    /// string, to find the last occurrence of the character.
+    /// </remarks>
+    private static void HandleStringLastIndexOfChar(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        // The native memorySearch(mem, value, start, backward) takes its parameters back to
+        // front, so the stack is built as [backward, start, value, mem].
+        methodConvert.Push(true);                                    // [true]
+        methodConvert.ConvertExpression(model, instanceExpression!); // [true, string]
+        methodConvert.Dup();                                         // [true, string, string]
+        methodConvert.Size();                                        // [true, string, size]
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments); // [true, string, size, char]
+        methodConvert.ConvertCharToUtf8();
+
+        methodConvert.Rot();                                                   // [true, size, char, string]
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);
+    }
 }

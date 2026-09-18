@@ -234,6 +234,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return s.IndexOf(c);
         }
 
+        public static int TestLastIndexOfChar(string s, char c)
+        {
+            return s.LastIndexOf(c);
+        }
+
         public static string TestToLower(string s)
         {
             return s.ToLower();
