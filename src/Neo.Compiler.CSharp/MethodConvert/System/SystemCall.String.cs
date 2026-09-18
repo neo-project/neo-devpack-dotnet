@@ -1996,7 +1996,7 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments); // [true, string, size, char]
-        NormalizeNulChar(methodConvert);
+        methodConvert.ConvertCharToUtf8();
 
         methodConvert.Rot();                                                   // [true, size, char, string]
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);

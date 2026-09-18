@@ -514,13 +514,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(method);
 
             Assert.AreEqual("Hello".LastIndexOf('l'), Contract.TestLastIndexOfChar("Hello", 'l'));
-            AssertGasConsumed(2032710);
+            AssertGasConsumed(2278830);
 
             Assert.AreEqual(-1, Contract.TestLastIndexOfChar("World", 'x'));
-            AssertGasConsumed(2032710);
+            AssertGasConsumed(2278830);
 
             Assert.AreEqual("hello world".LastIndexOf('o'), Contract.TestLastIndexOfChar("hello world", 'o'));
-            AssertGasConsumed(2032710);
+            AssertGasConsumed(2278830);
 
             Assert.AreEqual("abc".LastIndexOf('c'), Contract.TestLastIndexOfChar("abc", 'c'));
             Assert.AreEqual("abc".LastIndexOf('a'), Contract.TestLastIndexOfChar("abc", 'a'));
