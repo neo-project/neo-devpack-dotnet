@@ -28,23 +28,34 @@ jobs:
       uses: actions/checkout@v7.0.0
       with:
         fetch-depth: 0
+    - name: Test CI selection rules
+      run: python3 -m unittest discover -s scripts/ci -p 'test_*.py'
+    - name: Select validation scope
+      id: scope
+      run: python3 scripts/ci/select_tests.py
     - name: Setup .NET Core
+      if: steps.scope.outputs.dotnet == 'true'
       uses: actions/setup-dotnet@v6.0.0
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Cache NuGet packages
+      if: steps.scope.outputs.dotnet == 'true'
       uses: actions/cache@v6.1.0
       with:
         path: ${{ env.NUGET_PACKAGES }}
         key: ${{ runner.os }}-dotnet-${{ env.DOTNET_VERSION }}-nuget-${{ hashFiles('NuGet.Config', 'src/Directory.Build.props', 'tests/Directory.Build.props', '**/*.csproj') }}
     - name: Add package coverlet.msbuild
+      if: steps.scope.outputs.full == 'true'
       run: find tests -path '*UnitTests/*.csproj' | xargs -I % dotnet add % package coverlet.msbuild --version 6.0.4 --no-restore
     - name: Build Solution
+      if: steps.scope.outputs.full == 'true'
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Check format
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity minimal
     - name: Build Neo.SmartContract.Template and test templates
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug --no-build --no-restore
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
@@ -80,17 +91,20 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/solution/NeoContractSolution/NeoContractSolution.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractsolution/Artifacts/
     - name: Test Neo.Compiler.CSharp.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Analyzer.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Analyzer.UnitTests \
         --no-build \
         -l "console;verbosity=detailed"
     - name: Test Neo.SmartContract.Framework.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -98,6 +112,7 @@ jobs:
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Testing.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -105,6 +120,7 @@ jobs:
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Template.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -113,11 +129,19 @@ jobs:
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
     - name: Codecov
+      if: steps.scope.outputs.full == 'true'
       uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ${{ github.workspace }}/coverage/lcov.info
         fail_ci_if_error: false
+
+    - name: Test analyzer and documentation references
+      if: steps.scope.outputs.analyzer == 'true'
+      run: dotnet test tests/Neo.SmartContract.Analyzer.UnitTests --configuration Debug
+    - name: Test executable syntax documentation
+      if: steps.scope.outputs.syntax == 'true'
+      run: dotnet test tests/Neo.Compiler.CSharp.UnitTests --configuration Debug --filter 'FullyQualifiedName~Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests'
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'
