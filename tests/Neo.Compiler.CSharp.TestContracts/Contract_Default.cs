@@ -75,6 +75,16 @@ namespace Neo.Compiler.CSharp.TestContracts
             return a;
         }
 
+        public static int TestIntDefaultExpression()
+        {
+            return default(int);
+        }
+
+        public static TestStruct TestStructDefaultExpression()
+        {
+            return default(TestStruct);
+        }
+
 #pragma warning disable CS8600,CS8603
         public static string TestStringDefault()
         {
