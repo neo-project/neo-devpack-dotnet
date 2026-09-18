@@ -1491,7 +1491,10 @@ internal partial class MethodConvert
     /// Algorithm: Finds first and last characters that don't match the trim character
     /// </remarks>
     private static void HandleStringTrimChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, trimChar);
+    }
 
     private static void HandleStringTrimCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1509,32 +1512,26 @@ internal partial class MethodConvert
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+        if (constantTrimChar is null && arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         var stringIndex = methodConvert.AddAnonymousVariable();
         var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
-        methodConvert.StLoc(stringIndex);      // Store string
-
         var trimCharIndex = (byte)0;
         if (constantTrimChar is null)
         {
             trimCharIndex = methodConvert.AddAnonymousVariable();
-            methodConvert.StLoc(trimCharIndex);   // Store trim-char
-        }
-        else
-        {
-            methodConvert.Drop();                 // Clean up stack (remove argument from evaluation stack)
+            methodConvert.StLoc(trimCharIndex);                    // Store trim-char
         }
 
+        methodConvert.StLoc(stringIndex);                          // Store string
         InitStringLength(methodConvert, stringIndex, lengthIndex); // strLen = string.Length
         InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
         InitEndIndex(methodConvert, endIndex, lengthIndex);        // endIndex = string.Length - 1
-
 
         // Loop to trim leading characters
         var loopStart = new JumpTarget();
@@ -1571,7 +1568,10 @@ internal partial class MethodConvert
         => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
 
     private static void HandleStringTrimStartChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
 
     private static void HandleStringTrimStartCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1584,19 +1584,19 @@ internal partial class MethodConvert
         HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
     }
 
-    private static void HandleStringTrimStartInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
+    private static void HandleStringTrimStartInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+        if (useTrimChar && constantTrimChar is null && arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         var stringIndex = methodConvert.AddAnonymousVariable();
         var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
-        methodConvert.StLoc(stringIndex);       // Store string
 
         var trimCharIndex = (byte)0;
         if (useTrimChar)
@@ -1606,12 +1606,8 @@ internal partial class MethodConvert
                 trimCharIndex = methodConvert.AddAnonymousVariable();
                 methodConvert.StLoc(trimCharIndex);   // Store trim-char
             }
-            else
-            {
-                methodConvert.Drop();
-            }
         }
-
+        methodConvert.StLoc(stringIndex);       // Store string
         InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitStartIndex(methodConvert, startIndex);
 
@@ -1640,7 +1636,10 @@ internal partial class MethodConvert
         => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
 
     private static void HandleStringTrimEndChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
 
     private static void HandleStringTrimEndCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1653,20 +1652,20 @@ internal partial class MethodConvert
         HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
     }
 
-    private static void HandleStringTrimEndInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
+    private static void HandleStringTrimEndInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+        // If the trimmed char is a const value, it don't needed to prepare.
+        if (useTrimChar && constantTrimChar is null && arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         var stringIndex = methodConvert.AddAnonymousVariable();
         var lengthIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
-        methodConvert.StLoc(stringIndex);       // Store string
-
         var trimCharIndex = (byte)0;
         if (useTrimChar)
         {
@@ -1675,11 +1674,9 @@ internal partial class MethodConvert
                 trimCharIndex = methodConvert.AddAnonymousVariable();
                 methodConvert.StLoc(trimCharIndex);   // Store trim-char
             }
-            else
-            {
-                methodConvert.Drop();
-            }
         }
+
+        methodConvert.StLoc(stringIndex);
         InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitEndIndex(methodConvert, endIndex, lengthIndex);
 
@@ -1751,6 +1748,19 @@ internal partial class MethodConvert
             default:
                 return false;
         }
+    }
+
+    private static char? GetConstantCharArgument(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        // Only one char paramenter for string.Trim/TrimStart/TrimEnd
+        if (arguments is null || arguments.Count != 1) return null;
+
+        var valueExpr = arguments[0] as ArgumentSyntax;
+        if (valueExpr is null) return null;
+
+        var constant = model.GetConstantValue(valueExpr.Expression);
+        if (constant.HasValue && constant.Value is char v) return v;
+        return null;
     }
 
     /// <summary>
