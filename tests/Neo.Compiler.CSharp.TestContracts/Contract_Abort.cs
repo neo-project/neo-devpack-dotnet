@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
 using System;
 
 namespace Neo.Compiler.CSharp.TestContracts
@@ -86,6 +87,40 @@ namespace Neo.Compiler.CSharp.TestContracts
                     v = TestAbort();
             }
             return v;
+        }
+
+        private const byte GuardKey = 0x10;
+
+        private static void EnterGuard()
+        {
+            if (Storage.Get(new byte[] { GuardKey }) is not null)
+                throw new Exception("already guarded");
+            Storage.Put(new byte[] { GuardKey }, 1);
+        }
+
+        private static void ExitGuard()
+        {
+            Storage.Delete(new byte[] { GuardKey });
+        }
+
+        public static bool IsGuardSet()
+        {
+            return Storage.Get(new byte[] { GuardKey }) is not null;
+        }
+
+        public static bool GuardedCall(bool abort)
+        {
+            EnterGuard();
+            try
+            {
+                if (abort)
+                    ExecutionEngine.Abort("ABORT CALL");
+                return true;
+            }
+            finally
+            {
+                ExitGuard();
+            }
         }
     }
 }
