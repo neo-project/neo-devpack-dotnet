@@ -246,18 +246,18 @@ namespace Neo.Optimizer
         /// <param name="manifest">Manifest</param>
         /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
-        [Strategy(Priority = int.MaxValue)]
         /// <summary>
-        /// Returns true when the opcode is a conditional jump that consumes two operands from
-        /// the evaluation stack (comparison-based jumps such as JMPEQ and its long form).
-        /// JMPIF / JMPIFNOT consume a single operand and are not covered here.
+        /// Conditional jumps that consume two operands from the evaluation stack
+        /// (comparison-based jumps such as JMPEQ and their long forms).
+        /// JMPIF / JMPIFNOT consume a single operand and are not included.
         /// </summary>
-        private static bool IsTwoOperandConditionalJump(OpCode opCode)
+        private static readonly HashSet<OpCode> twoOperandConditionalJump = new()
         {
-            return opCode is OpCode.JMPEQ or OpCode.JMPNE or OpCode.JMPGT or OpCode.JMPGE or OpCode.JMPLT or OpCode.JMPLE
-                or OpCode.JMPEQ_L or OpCode.JMPNE_L or OpCode.JMPGT_L or OpCode.JMPGE_L or OpCode.JMPLT_L or OpCode.JMPLE_L;
-        }
+            OpCode.JMPEQ, OpCode.JMPNE, OpCode.JMPGT, OpCode.JMPGE, OpCode.JMPLT, OpCode.JMPLE,
+            OpCode.JMPEQ_L, OpCode.JMPNE_L, OpCode.JMPGT_L, OpCode.JMPGE_L, OpCode.JMPLT_L, OpCode.JMPLE_L,
+        };
 
+        [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveUnnecessaryJumps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             Script script = nef.Script;
@@ -299,7 +299,7 @@ namespace Neo.Optimizer
                         // branch and fall-through paths coincide. Replace it with one DROP for
                         // JMPIF/JMPIFNOT and two DROPs for comparison-based jumps, preserving the
                         // operand count each conditional consumes from the evaluation stack.
-                        int dropCount = IsTwoOperandConditionalJump(i.OpCode) ? 2 : 1;
+                        int dropCount = twoOperandConditionalJump.Contains(i.OpCode) ? 2 : 1;
                         for (int d = 0; d < dropCount; d++)
                         {
                             Instruction drop = new Script(new byte[] { (byte)OpCode.DROP }).GetInstruction(0);
