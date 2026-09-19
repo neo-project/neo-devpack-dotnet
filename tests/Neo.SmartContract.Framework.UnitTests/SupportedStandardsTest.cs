@@ -44,6 +44,9 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestStandardNEP17AttributeEnum()
         {
             CollectionAssert.AreEqual(Contract_SupportedStandard17Enum.Manifest.SupportedStandards, new string[] { "NEP-17" });
+            Assert.AreEqual(
+                Contract_SupportedStandard17Enum.Manifest.Extra!["Sourcecode"]!.AsString(),
+                Contract_SupportedStandard17Enum.Nef.Source);
         }
 
         [TestMethod]
