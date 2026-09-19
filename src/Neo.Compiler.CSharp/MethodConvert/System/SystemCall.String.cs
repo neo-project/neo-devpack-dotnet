@@ -1411,6 +1411,19 @@ internal partial class MethodConvert
     }
 
     /// <summary>
+    /// Returns true when the trim character is a compile-time constant whose UTF-8 encoding is a
+    /// single byte (i.e. an ASCII character), so the faster byte-wise trim path can be used.
+    /// </summary>
+    /// <param name="constantTrimChar">The constant trim character, if any</param>
+    /// <remarks>
+    /// Non-ASCII and runtime characters need the UTF-8 boundary comparison, which costs more gas.
+    /// </remarks>
+    private static bool IsSingleByteConstantTrimChar(char? constantTrimChar)
+    {
+        return constantTrimChar is { } c && c <= 0x7f;
+    }
+
+    /// <summary>
     /// Stores the UTF-8 byte sequence for the trim character into a slot.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
@@ -1670,28 +1683,59 @@ internal partial class MethodConvert
         var endIndex = methodConvert.AddAnonymousVariable();
         methodConvert.StLoc(stringIndex);      // Store string
 
-        EmitTrimCharUtf8(methodConvert, constantTrimChar, out byte trimBytesIndex, out byte trimLenIndex);
+        // Single-byte constant characters (ASCII) keep the cheaper byte-wise trim path; any
+        // other character requires the UTF-8 boundary comparison below.
+        if (IsSingleByteConstantTrimChar(constantTrimChar))
+        {
+            methodConvert.Drop();                 // Remove the trim-character argument from the stack
+            InitStringLength(methodConvert, stringIndex, lengthIndex);
+            InitStartIndex(methodConvert, startIndex);
+            InitEndIndex(methodConvert, endIndex, lengthIndex);
 
-        InitStringLength(methodConvert, stringIndex, lengthIndex); // strLen = string.Length
-        InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
-        InitEndIndex(methodConvert, endIndex, lengthIndex);        // endIndex = string.Length - 1
+            // Loop to trim leading characters
+            var loopStart = new JumpTarget();
+            var loopEnd = new JumpTarget();
+            loopStart.Instruction = methodConvert.Nop();
+            CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
+            PickCharStart(methodConvert, stringIndex, startIndex);
+            CheckTrimChar(methodConvert, loopEnd, 0, constantTrimChar);
+            MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
+            loopEnd.Instruction = methodConvert.Nop();
 
+            // Process trailing characters
+            var loopStart2 = new JumpTarget();
+            var loopEnd2 = new JumpTarget();
+            loopStart2.Instruction = methodConvert.Nop();
+            CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
+            PickCharEnd(methodConvert, stringIndex, endIndex);
+            CheckTrimChar(methodConvert, loopEnd2, 0, constantTrimChar);
+            MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
+            loopEnd2.Instruction = methodConvert.Nop();
+        }
+        else
+        {
+            EmitTrimCharUtf8(methodConvert, constantTrimChar, out byte trimBytesIndex, out byte trimLenIndex);
 
-        // Loop to trim leading characters
-        var loopStart = new JumpTarget();
-        var loopEnd = new JumpTarget();
-        loopStart.Instruction = methodConvert.Nop();                        // Loop start marker
-        CheckTrimCharUtf8Start(methodConvert, loopEnd, stringIndex, startIndex, trimBytesIndex, trimLenIndex, lengthIndex);
-        MoveStartIndexAndLoop(methodConvert, loopStart, startIndex, trimLenIndex);
-        loopEnd.Instruction = methodConvert.Nop();                           // Loop end marker
+            InitStringLength(methodConvert, stringIndex, lengthIndex);
+            InitStartIndex(methodConvert, startIndex);
+            InitEndIndex(methodConvert, endIndex, lengthIndex);
 
-        // Process trailing characters
-        var loopStart2 = new JumpTarget();
-        var loopEnd2 = new JumpTarget();
-        loopStart2.Instruction = methodConvert.Nop();                  // Second loop start
-        CheckTrimCharUtf8End(methodConvert, loopEnd2, stringIndex, endIndex, trimBytesIndex, trimLenIndex, startIndex);
-        MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex, trimLenIndex);
-        loopEnd2.Instruction = methodConvert.Nop();                    // Second loop end
+            // Loop to trim leading characters
+            var loopStart = new JumpTarget();
+            var loopEnd = new JumpTarget();
+            loopStart.Instruction = methodConvert.Nop();
+            CheckTrimCharUtf8Start(methodConvert, loopEnd, stringIndex, startIndex, trimBytesIndex, trimLenIndex, lengthIndex);
+            MoveStartIndexAndLoop(methodConvert, loopStart, startIndex, trimLenIndex);
+            loopEnd.Instruction = methodConvert.Nop();
+
+            // Process trailing characters
+            var loopStart2 = new JumpTarget();
+            var loopEnd2 = new JumpTarget();
+            loopStart2.Instruction = methodConvert.Nop();
+            CheckTrimCharUtf8End(methodConvert, loopEnd2, stringIndex, endIndex, trimBytesIndex, trimLenIndex, startIndex);
+            MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex, trimLenIndex);
+            loopEnd2.Instruction = methodConvert.Nop();
+        }
 
         // Extract the trimmed substring
         methodConvert.LdLoc(stringIndex);                          // Load string
@@ -1735,10 +1779,14 @@ internal partial class MethodConvert
         var startIndex = methodConvert.AddAnonymousVariable();
         methodConvert.StLoc(stringIndex);       // Store string
 
+        bool singleByteConstant = useTrimChar && IsSingleByteConstantTrimChar(constantTrimChar);
+
         byte trimBytesIndex = 0;
         byte trimLenIndex = 0;
-        if (useTrimChar)
+        if (useTrimChar && !singleByteConstant)
             EmitTrimCharUtf8(methodConvert, constantTrimChar, out trimBytesIndex, out trimLenIndex);
+        else if (useTrimChar)
+            methodConvert.Drop();               // Remove the trim-character argument from the stack
 
         InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitStartIndex(methodConvert, startIndex);
@@ -1746,15 +1794,17 @@ internal partial class MethodConvert
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.Nop();
-        if (useTrimChar)
+        if (useTrimChar && !singleByteConstant)
             CheckTrimCharUtf8Start(methodConvert, loopEnd, stringIndex, startIndex, trimBytesIndex, trimLenIndex, lengthIndex);
         else
             CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
-        if (!useTrimChar)
+        if (!useTrimChar || singleByteConstant)
             PickCharStart(methodConvert, stringIndex, startIndex);
         if (!useTrimChar)
             CheckIsWhiteSpaceByte(methodConvert, loopEnd);
-        if (useTrimChar)
+        else if (singleByteConstant)
+            CheckTrimChar(methodConvert, loopEnd, 0, constantTrimChar);
+        if (useTrimChar && !singleByteConstant)
             MoveStartIndexAndLoop(methodConvert, loopStart, startIndex, trimLenIndex);
         else
             MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
@@ -1803,11 +1853,15 @@ internal partial class MethodConvert
 
         byte trimBytesIndex = 0;
         byte trimLenIndex = 0;
-        if (useTrimChar)
+        if (useTrimChar && !IsSingleByteConstantTrimChar(constantTrimChar))
         {
             EmitTrimCharUtf8(methodConvert, constantTrimChar, out trimBytesIndex, out trimLenIndex);
             methodConvert.Push0();                               // Leading boundary is fixed at 0
             methodConvert.AccessSlot(OpCode.STLOC, startIndex);
+        }
+        else if (useTrimChar)
+        {
+            methodConvert.Drop();                                // Remove the trim-character argument
         }
         InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitEndIndex(methodConvert, endIndex, lengthIndex);
@@ -1815,15 +1869,17 @@ internal partial class MethodConvert
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.Nop();
-        if (useTrimChar)
+        if (useTrimChar && !IsSingleByteConstantTrimChar(constantTrimChar))
             CheckTrimCharUtf8End(methodConvert, loopEnd, stringIndex, endIndex, trimBytesIndex, trimLenIndex, startIndex);
         else
             CheckEndIndexNonNegative(methodConvert, loopEnd, endIndex);
-        if (!useTrimChar)
+        if (!useTrimChar || IsSingleByteConstantTrimChar(constantTrimChar))
             PickCharEnd(methodConvert, stringIndex, endIndex);
         if (!useTrimChar)
             CheckIsWhiteSpaceByte(methodConvert, loopEnd);
-        if (useTrimChar)
+        else if (IsSingleByteConstantTrimChar(constantTrimChar))
+            CheckTrimChar(methodConvert, loopEnd, 0, constantTrimChar);
+        if (useTrimChar && !IsSingleByteConstantTrimChar(constantTrimChar))
             MoveEndIndexAndLoop(methodConvert, loopStart, endIndex, trimLenIndex);
         else
             MoveEndIndexAndLoop(methodConvert, loopStart, endIndex);
