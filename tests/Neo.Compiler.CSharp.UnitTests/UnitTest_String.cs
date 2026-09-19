@@ -322,21 +322,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimArray()
         {
             Assert.AreEqual("Hello", Contract.TestTrimArray("***Hello***"));
-            AssertGasConsumed(3894180);
+            AssertGasConsumed(1437510);
         }
 
         [TestMethod]
         public void Test_TestTrimStartArray()
         {
             Assert.AreEqual("Hello***", Contract.TestTrimStartArray("***Hello***"));
-            AssertGasConsumed(2654460);
+            AssertGasConsumed(1427010);
         }
 
         [TestMethod]
         public void Test_TestTrimEndArray()
         {
             Assert.AreEqual("***Hello", Contract.TestTrimEndArray("***Hello***"));
-            AssertGasConsumed(2656800);
+            AssertGasConsumed(1426980);
         }
 
         [TestMethod]
