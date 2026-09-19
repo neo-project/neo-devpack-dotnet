@@ -289,10 +289,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimStartChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("***Hello", '*'));
-            AssertGasConsumed(1365720);
+            AssertGasConsumed(2839140);
 
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("Hello", '*'));
-            AssertGasConsumed(1357800);
+            AssertGasConsumed(1910880);
         }
 
         [TestMethod]
@@ -312,10 +312,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimEndChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello***", '*'));
-            AssertGasConsumed(1365690);
+            AssertGasConsumed(2841480);
 
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello", '*'));
-            AssertGasConsumed(1357860);
+            AssertGasConsumed(1911600);
         }
 
         [TestMethod]
@@ -574,14 +574,45 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimChar()
         {
             Assert.AreEqual("Hello World", Contract.TestTrimChar("***Hello World***", '*'));
-            AssertGasConsumed(1376340);
+            AssertGasConsumed(4078860);
 
             Assert.AreEqual("Test", Contract.TestTrimChar("Test", '*'));
-            AssertGasConsumed(1360500);
+            AssertGasConsumed(2220720);
 
             // Test with string containing only trim characters
             Assert.AreEqual("", Contract.TestTrimChar("****", '*'));
-            AssertGasConsumed(1366740);
+            AssertGasConsumed(2841060);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimChar_NonAscii()
+        {
+            // Multi-byte UTF-8 trim character (U+00E9 -> C3 A9).
+            Assert.AreEqual("caf", Contract.TestTrimChar("café", 'é'));
+            Assert.AreEqual("caaf", Contract.TestTrimChar("ééécaafééé", 'é'));
+
+            // CJK trim character (U+4E2D -> E4 B8 AD).
+            Assert.AreEqual("测试", Contract.TestTrimChar("中中测试中中", '中'));
+            Assert.AreEqual("中中测试中中", Contract.TestTrimChar("中中测试中中", '测'));
+        }
+
+        [TestMethod]
+        public void Test_TestTrimStartChar_NonAscii()
+        {
+            // Multi-byte UTF-8 leading trim character.
+            Assert.AreEqual("café", Contract.TestTrimStartChar("éééééééécafé", 'é'));
+            Assert.AreEqual("测试", Contract.TestTrimStartChar("中中测试", '中'));
+            Assert.AreEqual("中中测试", Contract.TestTrimStartChar("中中测试", '试'));
+        }
+
+        [TestMethod]
+        public void Test_TestTrimEndChar_NonAscii()
+        {
+            // Multi-byte UTF-8 trailing trim character.
+            Assert.AreEqual("caf", Contract.TestTrimEndChar("caféééé", 'é'));
+            Assert.AreEqual("中中测试", Contract.TestTrimEndChar("中中测试中中", '中'));
+            Assert.AreEqual("测试", Contract.TestTrimEndChar("测试中中", '中'));
+            Assert.AreEqual("测试中中", Contract.TestTrimEndChar("测试中中", '测'));
         }
 
         [TestMethod]
