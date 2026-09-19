@@ -247,6 +247,17 @@ namespace Neo.Optimizer
         /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = int.MaxValue)]
+        /// <summary>
+        /// Returns true when the opcode is a conditional jump that consumes two operands from
+        /// the evaluation stack (comparison-based jumps such as JMPEQ and its long form).
+        /// JMPIF / JMPIFNOT consume a single operand and are not covered here.
+        /// </summary>
+        private static bool IsTwoOperandConditionalJump(OpCode opCode)
+        {
+            return opCode is OpCode.JMPEQ or OpCode.JMPNE or OpCode.JMPGT or OpCode.JMPGE or OpCode.JMPLT or OpCode.JMPLE
+                or OpCode.JMPEQ_L or OpCode.JMPNE_L or OpCode.JMPGT_L or OpCode.JMPGE_L or OpCode.JMPLT_L or OpCode.JMPLE_L;
+        }
+
         public static (NefFile, ContractManifest, JObject?) RemoveUnnecessaryJumps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             Script script = nef.Script;
@@ -279,22 +290,29 @@ namespace Neo.Optimizer
                         continue;  // do not add this JMP into simplified instructions
                     }
                 }
-                if (i.OpCode == OpCode.JMPIF || i.OpCode == OpCode.JMPIFNOT
-                 || i.OpCode == OpCode.JMPIF_L || i.OpCode == OpCode.JMPIFNOT_L)
+                if (conditionalJump.Contains(i.OpCode) || conditionalJump_L.Contains(i.OpCode))
                 {
                     int target = ComputeJumpTarget(a, i);
                     if (target - a == i.Size)
                     {
-                        Instruction newDrop = new Script(new byte[] { (byte)OpCode.DROP }).GetInstruction(0);
-                        simplifiedInstructionsToAddress.Add(newDrop, currentAddress);
-                        oldSequencePointAddressToNew.Add(a, currentAddress);
-                        currentAddress += newDrop.Size;
+                        // The conditional jump branches to the very next instruction, so its
+                        // branch and fall-through paths coincide. Replace it with one DROP for
+                        // JMPIF/JMPIFNOT and two DROPs for comparison-based jumps, preserving the
+                        // operand count each conditional consumes from the evaluation stack.
+                        int dropCount = IsTwoOperandConditionalJump(i.OpCode) ? 2 : 1;
+                        for (int d = 0; d < dropCount; d++)
+                        {
+                            Instruction drop = new Script(new byte[] { (byte)OpCode.DROP }).GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(drop, currentAddress);
+                            currentAddress += drop.Size;
+                            if (d == 0)
+                            {
+                                oldSequencePointAddressToNew.Add(a, currentAddress);
+                                OptimizedScriptBuilder.RetargetJump(i, drop, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            }
+                        }
 
-                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
-                        // handle the reference of the deleted JMP
                         jumpSourceToTargets.Remove(i);
-                        jumpTargetToSources[nextInstruction].Remove(i);
-                        OptimizedScriptBuilder.RetargetJump(i, newDrop, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
                         continue;
                     }
                 }
