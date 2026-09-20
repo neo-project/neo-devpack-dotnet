@@ -139,6 +139,21 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.TrimEnd();
         }
 
+        public static string TestTrimConst(string str)
+        {
+            return str.Trim('*');
+        }
+
+        public static string TestTrimConstStart(string str)
+        {
+            return str.TrimStart('*');
+        }
+
+        public static string TestTrimConstEnd(string str)
+        {
+            return str.TrimEnd('*');
+        }
+
         public static string TestTrimEndChar(string str, char trimChar)
         {
             return str.TrimEnd(trimChar);
@@ -146,12 +161,12 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static string TestTrimArray(string str)
         {
-            return str.Trim(new[] { '*' });
+            return str.Trim(new char[1] { '*' });  // ArrayCreationExpressionSyntax
         }
 
         public static string TestTrimStartArray(string str)
         {
-            return str.TrimStart(new[] { '*' });
+            return str.TrimStart(new[] { '*' });  // ImplicitArrayCreationExpressionSyntax
         }
 
         public static string TestTrimEndArray(string str)
