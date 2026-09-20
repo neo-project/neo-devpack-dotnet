@@ -511,14 +511,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestIndexOfChar()
         {
             Assert.AreEqual(1, Contract.TestIndexOfChar("Hello", 'e'));
-            AssertGasConsumed(2032440);
+            AssertGasConsumed(2278560);
 
             Assert.AreEqual(-1, Contract.TestIndexOfChar("World", 'x'));
-            AssertGasConsumed(2032440);
+            AssertGasConsumed(2278560);
 
             // Test with empty string
             Assert.AreEqual(-1, Contract.TestIndexOfChar("", 'a'));
-            AssertGasConsumed(2032440);
+            AssertGasConsumed(2278560);
 
             Assert.AreEqual(-1, Contract.TestIndexOfChar("", '\0'));
             Assert.AreEqual(-1, Contract.TestIndexOfChar("abc", '\0'));

@@ -174,7 +174,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (symbol.Parameters.Length == 1 && symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char)
-            NormalizeNulChar(methodConvert);
+            methodConvert.ConvertCharToUtf8();
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
@@ -1973,7 +1973,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        NormalizeNulChar(methodConvert);
+        methodConvert.ConvertCharToUtf8();
 
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
