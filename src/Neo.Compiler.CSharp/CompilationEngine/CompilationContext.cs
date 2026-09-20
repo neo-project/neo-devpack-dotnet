@@ -498,6 +498,13 @@ namespace Neo.Compiler
                     if (attribute.AttributeClass!.IsSubclassOf(nameof(ManifestExtraAttribute)))
                     {
                         _manifestExtra[ManifestExtraAttribute.AttributeType[attribute.AttributeClass!.Name]] = (string)attribute.ConstructorArguments[0].Value!;
+
+                        // ContractSourceCodeAttribute also needs to set the Source property
+                        if (attribute.AttributeClass!.Name == nameof(ContractSourceCodeAttribute))
+                        {
+                            Source = (string)attribute.ConstructorArguments[0].Value!;
+                        }
+
                         continue;
                     }
 
@@ -508,9 +515,6 @@ namespace Neo.Compiler
                             if (string.IsNullOrEmpty(displayName))
                                 throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Contract display name cannot be empty.");
                             _displayName = displayName;
-                            break;
-                        case nameof(ContractSourceCodeAttribute):
-                            Source = (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(ManifestExtraAttribute):
                             _manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
