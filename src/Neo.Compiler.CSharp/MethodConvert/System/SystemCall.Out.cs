@@ -206,7 +206,6 @@ partial class MethodConvert
 
         // Fail target with a parsed value on the stack: drop it before storing the default out value.
         failWithValueTarget.Instruction = methodConvert.Drop();
-        methodConvert.JumpAlwaysLong(failTarget);
 
         // Fail target: set out parameter default, then push false
         failTarget.Instruction = methodConvert.PushDefault(symbol.Parameters[1].Type);
@@ -272,9 +271,9 @@ partial class MethodConvert
         byte lengthSlot = methodConvert.AddAnonymousVariable();
         byte indexSlot = methodConvert.AddAnonymousVariable();
 
+        JumpTarget negativeSignTarget = new();
         JumpTarget signTarget = new();
         JumpTarget loopTarget = new();
-        JumpTarget successTarget = new();
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.IsNull();
@@ -291,29 +290,24 @@ partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Push0();
-        methodConvert.PickItem();
+        methodConvert.PickItem();                                  // char
+        methodConvert.Dup();                                       // char char
         methodConvert.Push((ushort)'-');
-        methodConvert.JumpIfEqual(signTarget);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Push0();
-        methodConvert.PickItem();
+        methodConvert.JumpIfEqual(negativeSignTarget);             // char
         methodConvert.Push((ushort)'+');
-        methodConvert.JumpIfEqual(signTarget);
+        methodConvert.JumpIfEqual(signTarget);                     // The character is consumed
         methodConvert.JumpAlwaysLong(loopTarget);
 
+        negativeSignTarget.Instruction = methodConvert.Drop();     // The '-' comparison kept the character
         signTarget.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
         methodConvert.Push1();
-        methodConvert.JumpIfEqual(failTarget);
+        methodConvert.Jump(OpCode.JMPEQ_L, failTarget);
         methodConvert.Push1();
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
 
+        // The string is neither empty nor a single sign here, so at least one digit is left
         loopTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-        methodConvert.JumpIfGreaterOrEqual(successTarget);
-
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.PickItem();
@@ -322,10 +316,10 @@ partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.Inc();
+        methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
-        methodConvert.JumpAlwaysLong(loopTarget);
-
-        successTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Jump(OpCode.JMPLT_L, loopTarget);            // Loop while a character is left
     }
 
     /// <summary>
@@ -458,24 +452,22 @@ partial class MethodConvert
         methodConvert.JumpIfTrueLong(falseTarget);           // x
 
         // If parsing failed, clean up stack and push false
-        methodConvert.Drop();                                      // Clean up input
         methodConvert.Push(false);                                 // Return false for parsing failure
         methodConvert.Push(false);                                 // Default out value, consumed by STSFLD
         methodConvert.JumpAlwaysLong(endTarget);                  // Jump to end
 
         // True case
         trueTarget.Instruction = methodConvert.Nop();              // True target
-        methodConvert.Drop();                                      // Clean up input
         methodConvert.Push(true);                                  // Return true for successful parsing
         methodConvert.Push(true);                                  // Set out value to true, consumed by STSFLD
         methodConvert.JumpAlwaysLong(endTarget);                   // Jump to end
 
         // False case
         falseTarget.Instruction = methodConvert.Nop();             // False target
-        methodConvert.Drop();                                      // Clean up input
         methodConvert.Push(true);                                  // Return true for successful parsing
         methodConvert.Push(false);                                 // Set out value to false, consumed by STSFLD
 
         endTarget.Instruction = methodConvert.AccessSlot(OpCode.STSFLD, index);  // Store result to out parameter
+        methodConvert.Nip();   // Clean up input
     }
 }
