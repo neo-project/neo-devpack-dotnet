@@ -325,15 +325,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestEnumGetNameWithType()
         {
             Assert.AreEqual("Value1", Contract.TestEnumGetNameWithType(1));
-            AssertGasConsumed(1047960);
-            Assert.AreEqual("Value2", Contract.TestEnumGetNameWithType(2));
-            AssertGasConsumed(1048110);
-            Assert.AreEqual("Value3", Contract.TestEnumGetNameWithType(3));
             AssertGasConsumed(1048260);
+            Assert.AreEqual("Value2", Contract.TestEnumGetNameWithType(2));
+            AssertGasConsumed(1048410);
+            Assert.AreEqual("Value3", Contract.TestEnumGetNameWithType(3));
+            AssertGasConsumed(1048560);
             Assert.IsNull(Contract.TestEnumGetNameWithType(0));
-            AssertGasConsumed(1048050);
+            AssertGasConsumed(1048350);
             Assert.IsNull(Contract.TestEnumGetNameWithType(4));
-            AssertGasConsumed(1048050);
+            AssertGasConsumed(1048350);
         }
 
         [TestMethod]
