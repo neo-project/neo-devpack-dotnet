@@ -130,7 +130,7 @@ jobs:
         /p:CoverletOutputFormat=lcov
     - name: Codecov
       if: steps.scope.outputs.full == 'true'
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ${{ github.workspace }}/coverage/lcov.info
