@@ -164,12 +164,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestContainsChar()
         {
             Assert.IsTrue(Contract.TestContainsChar("hello world", 'w'));
+            AssertGasConsumed(2032980);
+
             Assert.IsTrue(Contract.TestContainsChar("hello world", ' '));
+            AssertGasConsumed(2032980);
+
             Assert.IsFalse(Contract.TestContainsChar("hello", 'z'));
+            AssertGasConsumed(2032980);
+
             Assert.IsFalse(Contract.TestContainsChar("", '\0'));
+            AssertGasConsumed(2033280);
+
             Assert.IsFalse(Contract.TestContainsChar("abc", '\0'));
+            AssertGasConsumed(2033280);
+
             Assert.IsTrue(Contract.TestContainsChar("\0abc", '\0'));
+            AssertGasConsumed(2033280);
+
             Assert.IsTrue(Contract.TestContainsChar("a\0b", '\0'));
+            AssertGasConsumed(2033280);
         }
 
         [TestMethod]
@@ -236,10 +249,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(method);
 
             Assert.AreEqual(6, Contract.TestLastIndexOf("hello world"));
+            AssertGasConsumed(3511260);
 
             Assert.AreEqual(-1, Contract.TestLastIndexOf("hello"));
+            AssertGasConsumed(2525490);
 
             Assert.AreEqual(12, Contract.TestLastIndexOf("world hello world"));
+            AssertGasConsumed(4497180);
         }
 
         [TestMethod]
@@ -511,14 +527,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestIndexOfChar()
         {
             Assert.AreEqual(1, Contract.TestIndexOfChar("Hello", 'e'));
-            AssertGasConsumed(2278560);
+            AssertGasConsumed(2032710);
 
             Assert.AreEqual(-1, Contract.TestIndexOfChar("World", 'x'));
-            AssertGasConsumed(2278560);
+            AssertGasConsumed(2032710);
 
             // Test with empty string
             Assert.AreEqual(-1, Contract.TestIndexOfChar("", 'a'));
-            AssertGasConsumed(2278560);
+            AssertGasConsumed(2032710);
 
             Assert.AreEqual(-1, Contract.TestIndexOfChar("", '\0'));
             Assert.AreEqual(-1, Contract.TestIndexOfChar("abc", '\0'));
@@ -533,13 +549,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(method);
 
             Assert.AreEqual("Hello".LastIndexOf('l'), Contract.TestLastIndexOfChar("Hello", 'l'));
-            AssertGasConsumed(2278830);
+            AssertGasConsumed(2032980);
 
             Assert.AreEqual(-1, Contract.TestLastIndexOfChar("World", 'x'));
-            AssertGasConsumed(2278830);
+            AssertGasConsumed(2032980);
 
             Assert.AreEqual("hello world".LastIndexOf('o'), Contract.TestLastIndexOfChar("hello world", 'o'));
-            AssertGasConsumed(2278830);
+            AssertGasConsumed(2032980);
 
             Assert.AreEqual("abc".LastIndexOf('c'), Contract.TestLastIndexOfChar("abc", 'c'));
             Assert.AreEqual("abc".LastIndexOf('a'), Contract.TestLastIndexOfChar("abc", 'a'));
@@ -621,10 +637,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringCharCount()
         {
             Assert.AreEqual("aaa", Contract.TestStringCharCount('a', 3));
-            AssertGasConsumed(1726110);
+            AssertGasConsumed(1480260);
 
             Assert.ThrowsException<TestException>(() => Contract.TestStringCharCount('a', -1));
-            AssertGasConsumed(1309230);
+            AssertGasConsumed(1063380);
         }
 
         [TestMethod]
