@@ -108,7 +108,7 @@ internal partial class MethodConvert
         else
         {
             ConvertExpression(model, charExpression);
-            ConvertCharToUtf8();
+            ConvertCharToUtf8(toByteString: false);
         }
         AccessSlot(OpCode.STLOC, charSlot);
 
@@ -174,7 +174,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (symbol.Parameters.Length == 1 && symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char)
-            methodConvert.ConvertCharToUtf8();
+            methodConvert.ConvertCharToUtf8(toByteString: false);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
@@ -769,7 +769,7 @@ internal partial class MethodConvert
         }
 
         methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.ConvertCharToUtf8();
+        methodConvert.ConvertCharToUtf8(toByteString: true);
     }
 
     private static char NormalizeCharForUtf8(char character)
@@ -781,20 +781,23 @@ internal partial class MethodConvert
     /// Encodes one runtime UTF-16 code unit for Neo's UTF-8 string representation.
     /// Isolated surrogate code units cannot be represented and are replaced with U+FFFD.
     /// </summary>
-    private void ConvertCharToUtf8()
+    /// <remarks>
+    /// Algorithm: The last byte of a multi-byte UTF-8 sequence is always in the range
+    /// [0x80, 0xBF], so packing the whole sequence into a little-endian integer and subtracting
+    /// 256<sup>n</sup> makes it negative, and the minimal two's complement representation used by
+    /// CONVERT is then exactly the UTF-8 sequence. ASCII characters convert directly, and only
+    /// '\0' needs a one byte string pushed because integer zero converts to an empty string.
+    /// </remarks>
+    private void ConvertCharToUtf8(bool toByteString)
     {
         byte charSlot = AddAnonymousVariable();
         AccessSlot(OpCode.STLOC, charSlot);
 
-        JumpTarget nullTarget = new();
         JumpTarget asciiTarget = new();
         JumpTarget twoByteTarget = new();
         JumpTarget replacementTarget = new();
+        JumpTarget asciiConvertTarget = new();
         JumpTarget endTarget = new();
-
-        AccessSlot(OpCode.LDLOC, charSlot);
-        Push0();
-        JumpIfEqual(nullTarget);
 
         AccessSlot(OpCode.LDLOC, charSlot);
         Push(0x7f);
@@ -808,51 +811,63 @@ internal partial class MethodConvert
         Within(0xd800, 0xdfff);
         JumpIfTrue(replacementTarget);
 
-        NewBuffer(3);
-        SetUtf8BufferByte(charSlot, 0, shift: 12, mask: 0x0f, prefix: 0xe0);
-        SetUtf8BufferByte(charSlot, 1, shift: 6, mask: 0x3f, prefix: 0x80);
-        SetUtf8BufferByte(charSlot, 2, shift: 0, mask: 0x3f, prefix: 0x80);
+        // 0xE0 | (c >> 12), 0x80 | ((c >> 6) & 0x3F) and 0x80 | (c & 0x3F) packed little-endian.
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x3f);
+        And();
+        Push(16);
+        ShL();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(6);
+        ShR();
+        Push(0x3f);
+        And();
+        Push(8);
+        ShL();
+        Add();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(12);
+        ShR();
+        Push(0x0f);
+        And();
+        Add();
+        Push(-0x7f7f20);                       // 0x8080E0 - 0x1000000
+        Add();
+        if (toByteString) ChangeType(StackItemType.ByteString);
         JumpAlways(endTarget);
 
         replacementTarget.Instruction = Push("\ufffd");
         JumpAlways(endTarget);
 
+        // 0xC0 | (c >> 6) and 0x80 | (c & 0x3F) packed little-endian.
         twoByteTarget.Instruction = Nop();
-        NewBuffer(2);
-        SetUtf8BufferByte(charSlot, 0, shift: 6, mask: 0x1f, prefix: 0xc0);
-        SetUtf8BufferByte(charSlot, 1, shift: 0, mask: 0x3f, prefix: 0x80);
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x3f);
+        And();
+        Push(8);
+        ShL();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(6);
+        ShR();
+        Add();
+        Push(-0x7f40);                         // 0x80C0 - 0x10000
+        Add();
+        if (toByteString) ChangeType(StackItemType.ByteString);
         JumpAlways(endTarget);
 
         asciiTarget.Instruction = Nop();
         AccessSlot(OpCode.LDLOC, charSlot);
+        Dup();
+        JumpIfTrue(asciiConvertTarget);
+        Drop();
+        Push([(byte)0]);                // '\0' converts to an empty string
         JumpAlways(endTarget);
 
-        nullTarget.Instruction = Nop();
-        NewBuffer(1);
-        SetUtf8BufferByte(charSlot, 0, shift: 0, mask: 0x7f, prefix: 0);
+        asciiConvertTarget.Instruction = Nop();
+        if (toByteString) ChangeType(StackItemType.ByteString);
 
-        endTarget.Instruction = ChangeType(StackItemType.ByteString);
+        endTarget.Instruction = Nop();
         RemoveAnonymousVariable(charSlot);
-    }
-
-    private void SetUtf8BufferByte(byte charSlot, int index, int shift, int mask, int prefix)
-    {
-        Dup();
-        Push(index);
-        AccessSlot(OpCode.LDLOC, charSlot);
-        if (shift != 0)
-        {
-            Push(shift);
-            ShR();
-        }
-        Push(mask);
-        And();
-        if (prefix != 0)
-        {
-            Push(prefix);
-            Or();
-        }
-        SetItem();
     }
 
     // Handler for object.ToString()
@@ -1973,7 +1988,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.ConvertCharToUtf8();
+        methodConvert.ConvertCharToUtf8(toByteString: false);
 
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
@@ -2006,7 +2021,7 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments); // [true, string, size, char]
-        methodConvert.ConvertCharToUtf8();
+        methodConvert.ConvertCharToUtf8(toByteString: false);
 
         methodConvert.Rot();                                                   // [true, size, char, string]
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);
