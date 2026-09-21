@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
     - name: Test CI selection rules
@@ -150,7 +150,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
     
@@ -254,7 +254,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
     - name: Get version
