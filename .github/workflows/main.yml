@@ -35,7 +35,7 @@ jobs:
       run: python3 scripts/ci/select_tests.py
     - name: Setup .NET Core
       if: steps.scope.outputs.dotnet == 'true'
-      uses: actions/setup-dotnet@v6.0.0
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Cache NuGet packages
@@ -170,7 +170,7 @@ jobs:
     
     - name: Setup .NET Core
       if: steps.check_release.outputs.exists != 'true'
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -278,7 +278,7 @@ jobs:
         fi
     - name: Setup .NET Core
       if: steps.check_tag.outputs.statusCode == '404'
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build nccs compiler for multiple platforms
@@ -328,7 +328,7 @@ jobs:
         fi
     - name: Setup .NET Core for NuGet release
       if: steps.check_nuget.outputs.complete != 'true'
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Run ordered release script to NuGet
