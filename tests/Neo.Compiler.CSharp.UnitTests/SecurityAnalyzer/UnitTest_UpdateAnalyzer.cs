@@ -153,10 +153,10 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             NefFile nef = CreateNefFile(script, Array.Empty<MethodToken>());
             var manifest = CreateManifest();
 
-            var updateException = Assert.ThrowsException<BadScriptException>(() => UpdateAnalyzer.AnalyzeUpdate(nef, manifest));
+            var updateException = Assert.ThrowsExactly<BadScriptException>(() => UpdateAnalyzer.AnalyzeUpdate(nef, manifest));
             StringAssert.Contains(updateException.Message, "Invalid CALLT token");
 
-            var destroyException = Assert.ThrowsException<BadScriptException>(() => UpdateAnalyzer.AnalyzeDestroy(nef, manifest));
+            var destroyException = Assert.ThrowsExactly<BadScriptException>(() => UpdateAnalyzer.AnalyzeDestroy(nef, manifest));
             StringAssert.Contains(destroyException.Message, "Invalid CALLT token");
         }
 

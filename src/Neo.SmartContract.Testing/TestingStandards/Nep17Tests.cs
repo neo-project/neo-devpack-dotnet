@@ -150,9 +150,9 @@ public class Nep17Tests<T> : TestBase<T>
     public virtual void TestBalanceOf()
     {
         Assert.AreEqual(0, Contract.BalanceOf(Bob.Account));
-        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.Null));
-        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidLength));
-        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidType));
+        Assert.ThrowsExactly<TestException>(() => Contract.BalanceOf(InvalidUInt160.Null));
+        Assert.ThrowsExactly<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidLength));
+        Assert.ThrowsExactly<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidType));
     }
 
     [TestMethod]
@@ -181,15 +181,15 @@ public class Nep17Tests<T> : TestBase<T>
 
         // Invoke invalid transfers
 
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
 
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidLength, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidType, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidLength, 0)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidType, 0)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidLength, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidType, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidLength, 0)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidType, 0)));
 
         // Invoke transfer without signature
 

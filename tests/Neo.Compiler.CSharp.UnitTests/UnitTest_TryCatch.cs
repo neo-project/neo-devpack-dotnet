@@ -80,7 +80,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1048050);
             Assert.AreEqual(new BigInteger(4), Contract.ThrowInCatch(true, false, true));
             AssertGasConsumed(1063920);
-            Assert.ThrowsException<TestException>(() => Contract.ThrowInCatch(true, true, true));
+            Assert.ThrowsExactly<TestException>(() => Contract.ThrowInCatch(true, true, true));
             AssertGasConsumed(1079250);
         }
 
@@ -91,7 +91,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047840);
             Assert.AreEqual(new BigInteger(3), Contract.TryFinally(false, true));
             AssertGasConsumed(1048470);
-            Assert.ThrowsException<TestException>(() => Contract.TryFinally(true, true));
+            Assert.ThrowsExactly<TestException>(() => Contract.TryFinally(true, true));
             AssertGasConsumed(1063890);
         }
 
@@ -102,7 +102,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047840);
             Assert.AreEqual(new BigInteger(3), Contract.TryFinallyAndRethrow(false, true));
             AssertGasConsumed(1048470);
-            Assert.ThrowsException<TestException>(() => Contract.TryFinallyAndRethrow(true, true));
+            Assert.ThrowsExactly<TestException>(() => Contract.TryFinallyAndRethrow(true, true));
             AssertGasConsumed(1079250);
         }
 
@@ -305,14 +305,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047870);
             Assert.AreEqual(new BigInteger(3), Contract.TryUncatchableException(false, false, true));
             AssertGasConsumed(1048500);
-            Assert.ThrowsException<TestException>(() => Contract.TryUncatchableException(true, true, true));
+            Assert.ThrowsExactly<TestException>(() => Contract.TryUncatchableException(true, true, true));
             AssertGasConsumed(1047450);
         }
 
         [TestMethod]
         public void Test_ThrowCall()
         {
-            Assert.ThrowsException<TestException>(Contract.ThrowCall);
+            Assert.ThrowsExactly<TestException>(Contract.ThrowCall);
         }
 
         [TestMethod]

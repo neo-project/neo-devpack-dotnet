@@ -37,7 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1052130);
             Assert.AreEqual(new Integer(21), Contract.TestEnumParseWithContinuation());
             AssertGasConsumed(2280990);
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParse("InvalidValue"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParse("InvalidValue"));
             AssertGasConsumed(1067640);
         }
 
@@ -82,7 +82,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var contract = engine.Deploy<ConstantIgnoreCaseContract>(context.CreateExecutable(), context.CreateManifest());
             Assert.AreEqual(new BigInteger(2), contract.ParseConstFalse());
             Assert.AreEqual(new BigInteger(2), contract.ParseConstTrue());
-            Assert.ThrowsException<TestException>(() => contract.ParseConstFalseWrongCase());
+            Assert.ThrowsExactly<TestException>(() => contract.ParseConstFalseWrongCase());
             Assert.AreEqual(new BigInteger(2), contract.TryParseConstFalse());
             Assert.AreEqual(new BigInteger(2), contract.TryParseConstTrue());
             Assert.AreEqual(new BigInteger(-1), contract.TryParseConstFalseUnknown());
@@ -230,9 +230,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1687350);
             Assert.AreEqual(new Integer(3), Contract.TestEnumParseIgnoreCase("VaLuE3", true));
             AssertGasConsumed(1688790);
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParseIgnoreCase("value1", false));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParseIgnoreCase("value1", false));
             AssertGasConsumed(1068270);
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParseIgnoreCase("InvalidValue", true));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParseIgnoreCase("InvalidValue", true));
             AssertGasConsumed(2093640);
         }
 
@@ -412,7 +412,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(new Integer(1), Contract.TestEnumParseGeneric("Value1"));
             Assert.AreEqual(new Integer(2), Contract.TestEnumParseGenericIgnoreCase("value2", true));
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParseGenericIgnoreCase("value1", false));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParseGenericIgnoreCase("value1", false));
         }
 
         [TestMethod]
