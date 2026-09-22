@@ -122,5 +122,44 @@ namespace Neo.Compiler.CSharp.TestContracts
                 ExitGuard();
             }
         }
+
+        public static bool CatchGuardedAbort()
+        {
+            try
+            {
+                GuardedCall(true);
+            }
+            catch
+            {
+                return IsGuardSet();
+            }
+            return IsGuardSet();
+        }
+
+        private static void GuardedThrow()
+        {
+            EnterGuard();
+            try
+            {
+                throw new Exception("THROW CALL");
+            }
+            finally
+            {
+                ExitGuard();
+            }
+        }
+
+        public static bool CatchGuardedThrow()
+        {
+            try
+            {
+                GuardedThrow();
+            }
+            catch
+            {
+                return !IsGuardSet();
+            }
+            return false;
+        }
     }
 }

@@ -113,15 +113,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_AbortCleanupWhenCaughtByCaller()
+        public void Test_AbortCannotBeCaughtByContractCaller()
         {
-            try
-            {
-                Contract.GuardedCall(true);
-            }
-            catch
-            {
-            }
+            Assert.ThrowsException<TestException>(() => Contract.CatchGuardedAbort());
+            Assert.IsFalse(Contract.IsGuardSet());
+            Assert.IsTrue(Contract.GuardedCall(false));
+        }
+
+        [TestMethod]
+        public void Test_CatchableThrowRunsGuardCleanup()
+        {
+            Assert.IsTrue(Contract.CatchGuardedThrow());
             Assert.IsFalse(Contract.IsGuardSet());
         }
     }
