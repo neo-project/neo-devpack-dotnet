@@ -226,7 +226,7 @@ internal partial class MethodConvert
                 else
                 {
                     methodConvert.ConvertExpression(model, charExpression);
-                    methodConvert.ConvertCharToUtf8();
+                    methodConvert.ConvertCharToUtf8(toByteString: false);
                 }
                 slot = methodConvert.AddAnonymousVariable();
                 methodConvert.AccessSlot(OpCode.STLOC, slot);
