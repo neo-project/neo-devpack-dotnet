@@ -162,42 +162,55 @@ internal partial class MethodConvert
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
-        var ignoreCase = new JumpTarget();
-        byte ignoreCaseSlot = methodConvert.AddAnonymousVariable();
-        methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);   // [type, string, ignoreCase]
-        methodConvert.Nip();                                      // Drop the enum type
-        methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
-        methodConvert.JumpIfNot(ignoreCase);
-        ConvertToUpper(methodConvert);                             // Convert inputString to upper case
-        ignoreCase.Instruction = methodConvert.Nop();
-        var endTarget = new JumpTarget();
-        foreach (var t in enumMembers)
+        byte ignoreCaseSlot = 0;
+        var ignoreCaseTarget = new JumpTarget();
+        bool knewIgnoreCase = TryGetConstantArgument<bool>(model, symbol, "ignoreCase", arguments, out var ignoreCase);
+        if (knewIgnoreCase)
         {
-            // Duplicate inputString
-            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
+            methodConvert.PopInstruction(); // The constant bool value is not needed at runtime
+            methodConvert.Nip();            // Drop the enum type
+        }
+        else
+        {
+            ignoreCaseSlot = methodConvert.AddAnonymousVariable();
+            methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
+            methodConvert.Nip();                                         // Drop the enum type
             methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
-            JumpTarget lowerCaseName = new();
-            methodConvert.JumpIfNot(lowerCaseName);
-            JumpTarget endCase = new JumpTarget();
-            // Push enum name
-            methodConvert.Push(t.Name.ToUpper());                  // Stack: [..., inputString, inputString, enumName]
-            methodConvert.Jump(endCase);
-            lowerCaseName.Instruction = methodConvert.Nop();
-            methodConvert.Push(t.Name);
-            endCase.Instruction = methodConvert.Nop();
+            methodConvert.JumpIfNot(ignoreCaseTarget);
+        }
+        if (!knewIgnoreCase || ignoreCase) ConvertToUpper(methodConvert); // Convert inputString to upper case
 
-            // Equal comparison
-            methodConvert.Equal();                                 // Stack: [..., inputString, isEqual]
-
+        ignoreCaseTarget.Instruction = methodConvert.Nop();
+        var endTarget = new JumpTarget();
+        foreach (var member in enumMembers)
+        {
+            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
             var nextCheck = new JumpTarget();
-            // If not equal, discard duplicated inputString and proceed to next
-            methodConvert.JumpIfFalse(nextCheck);
+            if (knewIgnoreCase)
+            {
+                methodConvert.Push(ignoreCase ? member.Name.ToUpper() : member.Name);
+            }
+            else
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
 
-            // If equal:
-            // Remove the duplicated inputString from the stack
+                JumpTarget lowerCaseName = new();
+                methodConvert.JumpIfNot(lowerCaseName);
+
+                JumpTarget endCase = new JumpTarget();
+                methodConvert.Push(member.Name.ToUpper());   // Stack: [..., inputString, inputString, enumName]
+                methodConvert.Jump(endCase);
+
+                lowerCaseName.Instruction = methodConvert.Nop();
+                methodConvert.Push(member.Name);
+                endCase.Instruction = methodConvert.Nop();
+            }
+
+            methodConvert.Equal();                  // Stack: [..., inputString, isEqual]
+            methodConvert.JumpIfFalse(nextCheck);  // If not equal, discard duplicated inputString and proceed to next
+
             methodConvert.Drop();
-            // Push enum value
-            methodConvert.Push(t.ConstantValue);
+            methodConvert.Push(member.ConstantValue);
             methodConvert.JumpAlwaysLong(endTarget);
 
             nextCheck.Instruction = methodConvert.Nop();
@@ -955,40 +968,51 @@ internal partial class MethodConvert
 
         methodConvert.Drop(); // drop out-parameter placeholder
 
-        byte ignoreSlot = methodConvert.AddAnonymousVariable();
-        methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot); // store bool, keep input string
-
+        byte ignoreSlot = 0;
         var skipUpper = new JumpTarget();
         var successTarget = new JumpTarget();
-
-        methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-        methodConvert.JumpIfFalse(skipUpper);
-        ConvertToUpper(methodConvert);
+        bool knewIgnoreCase = TryGetConstantArgument<bool>(model, symbol, "ignoreCase", arguments, out var ignoreCase);
+        if (knewIgnoreCase)
+        {
+            methodConvert.Drop(); // Drop the constant bool value, it is not needed at runtime
+            if (ignoreCase) ConvertToUpper(methodConvert);
+        }
+        else
+        {
+            ignoreSlot = methodConvert.AddAnonymousVariable();
+            methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot); // store bool, keep input string
+            methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+            methodConvert.JumpIfFalse(skipUpper);
+            ConvertToUpper(methodConvert);
+        }
         skipUpper.Instruction = methodConvert.Nop();
 
         foreach (var member in members)
         {
             methodConvert.Dup();
-
-            JumpTarget lowerCaseName = new();
-            JumpTarget endChoose = new();
-
-            methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-            methodConvert.JumpIfFalse(lowerCaseName);
-            methodConvert.Push(member.Name.ToUpper());
-            methodConvert.Jump(endChoose);
-
-            lowerCaseName.Instruction = methodConvert.Nop();
-            methodConvert.Push(member.Name);
-            endChoose.Instruction = methodConvert.Nop();
-
-            methodConvert.Equal();
             var next = new JumpTarget();
+            if (knewIgnoreCase)
+            {
+                methodConvert.Push(ignoreCase ? member.Name.ToUpper() : member.Name);
+            }
+            else
+            {
+                JumpTarget lowerCaseName = new();
+                JumpTarget endChoose = new();
+                methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+                methodConvert.JumpIfFalse(lowerCaseName);
+                methodConvert.Push(member.Name.ToUpper());
+                methodConvert.Jump(endChoose);
+
+                lowerCaseName.Instruction = methodConvert.Nop();
+                methodConvert.Push(member.Name);
+                endChoose.Instruction = methodConvert.Nop();
+            }
+            methodConvert.Equal();
             methodConvert.JumpIfFalse(next);
             methodConvert.Push(true);
             methodConvert.Push(member.ConstantValue);
             methodConvert.JumpAlways(successTarget);
-
             next.Instruction = methodConvert.Nop();
         }
 
@@ -1021,5 +1045,26 @@ internal partial class MethodConvert
             methodConvert.Push(member.Name);
 
         methodConvert.Pack(members.Length);
+    }
+
+    private static bool TryGetConstantArgument<T>(SemanticModel model, IMethodSymbol symbol,
+        string parameterName, IReadOnlyList<SyntaxNode>? arguments, out T? value)
+    {
+        value = default;
+        if (arguments is null) return false;
+
+        foreach (var item in MapArgumentsToParameters(model, symbol, arguments))
+        {
+            if (item.Key.Name != parameterName) continue;
+
+            var constant = model.GetConstantValue(item.Value.Expression);
+            if (constant.HasValue && constant.Value is T v)
+            {
+                value = v;
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }
