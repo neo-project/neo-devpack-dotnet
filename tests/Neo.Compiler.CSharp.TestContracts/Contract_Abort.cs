@@ -90,6 +90,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         private const byte GuardKey = 0x10;
+        private const byte FinallyKey = 0x11;
 
         private static void EnterGuard()
         {
@@ -106,6 +107,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static bool IsGuardSet()
         {
             return Storage.Get(new byte[] { GuardKey }) is not null;
+        }
+
+        public static bool IsFinallyMarkerSet()
+        {
+            return Storage.Get(new byte[] { FinallyKey }) is not null;
         }
 
         public static bool GuardedCall(bool abort)
@@ -146,6 +152,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             finally
             {
                 ExitGuard();
+                Storage.Put(new byte[] { FinallyKey }, 1);
             }
         }
 

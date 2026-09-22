@@ -121,10 +121,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_CatchableThrowRunsGuardCleanup()
+        public void Test_CatchableThrowPreservesFinallyStorageWrites()
         {
             Assert.IsTrue(Contract.CatchGuardedThrow());
             Assert.IsFalse(Contract.IsGuardSet());
+            Assert.IsTrue(Contract.IsFinallyMarkerSet());
         }
     }
 }
