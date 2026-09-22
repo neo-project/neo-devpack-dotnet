@@ -92,29 +92,26 @@ internal partial class MethodConvert
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
+        methodConvert.Nip();  // Drop the enum type
         var endTarget = new JumpTarget();
         foreach (var t in enumMembers)
         {
-            methodConvert.EmitIf(
-                conditionEmitter: () =>
-                {
-                    methodConvert.Dup();                           // Stack: [type, inputString,inputString]
-                    methodConvert.Push(t.Name);                    // Stack: [type, inputString,inputString, enumName]
-                    methodConvert.Equal();                         // Stack: [type,inputString, isEqual]
-                },
-                thenEmitter: () =>
-                {
-                    methodConvert.Push(t.ConstantValue);         // Stack: [enumValue]
-                    methodConvert.JumpAlwaysLong(endTarget);
-                });
+            methodConvert.Dup();                           // Stack: [type, inputString, inputString]
+            methodConvert.Push(t.Name);                    // Stack: [type, inputString,inputString, enumName]
+            methodConvert.Equal();                         // Stack: [type,inputString, isEqual]
+
+            var nextTarget = new JumpTarget();
+            methodConvert.JumpIfFalse(nextTarget);
+            methodConvert.Push(t.ConstantValue);         // Stack: [enumValue]
+            methodConvert.JumpAlwaysLong(endTarget);
+            nextTarget.Instruction = methodConvert.Nop();
         }
 
-        // No match found, Remove type and inputString from the stack
-        methodConvert.Drop(2);
+        // No match found, Remove inputString from the stack
+        methodConvert.Drop();
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
         endTarget.Instruction = methodConvert.Nip();
-        methodConvert.Nip();
     }
 
     /// <summary>
@@ -167,7 +164,8 @@ internal partial class MethodConvert
 
         var ignoreCase = new JumpTarget();
         byte ignoreCaseSlot = methodConvert.AddAnonymousVariable();
-        methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);   // [type, string, ignoreCase]
+        methodConvert.Nip();                                      // Drop the enum type
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
         methodConvert.JumpIfNot(ignoreCase);
         ConvertToUpper(methodConvert);                             // Convert inputString to upper case
@@ -197,7 +195,7 @@ internal partial class MethodConvert
 
             // If equal:
             // Remove the duplicated inputString from the stack
-            methodConvert.Drop(2);
+            methodConvert.Drop();
             // Push enum value
             methodConvert.Push(t.ConstantValue);
             methodConvert.JumpAlwaysLong(endTarget);
@@ -207,7 +205,7 @@ internal partial class MethodConvert
 
         // No match found
         // Remove the inputString from the stack
-        methodConvert.Drop(2);
+        methodConvert.Drop();
         methodConvert.Push("No such enum value");
         methodConvert.Throw();
         endTarget.Instruction = methodConvert.Nop();
