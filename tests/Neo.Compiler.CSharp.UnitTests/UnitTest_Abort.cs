@@ -111,5 +111,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.ThrowsException<TestException>(() => Contract.GuardedCall(true));
             Assert.IsTrue(Contract.GuardedCall(false));
         }
+
+        [TestMethod]
+        public void Test_AbortCleanupWhenCaughtByCaller()
+        {
+            try
+            {
+                Contract.GuardedCall(true);
+            }
+            catch
+            {
+            }
+            Assert.IsFalse(Contract.IsGuardSet());
+        }
     }
 }
