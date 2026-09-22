@@ -153,6 +153,37 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             Assert.AreEqual("Ag==", continuation[2]!.Value<string>());
         }
 
+        [DataTestMethod]
+        [DataRow("""{"results":[],"truncated":true,"next":1}""")]
+        [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true}""")]
+        [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":""}""")]
+        [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":true}""")]
+        public void RpcStoreFindRejectsInvalidContinuation(string result)
+        {
+            using var server = new RpcResponseServer("{\"result\":" + result + "}");
+            var store = new RpcStore(server.Url);
+
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
+
+            StringAssert.Contains(exception.Message, "findstorage");
+            Assert.AreEqual(2, ((JArray)server.Requests[0]["params"]!).Count);
+        }
+
+        [TestMethod]
+        public void RpcStoreFindRejectsUnchangedContinuation()
+        {
+            const string page = """{"result":{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":"Ag=="}}""";
+            using var server = new RpcResponseServer(page, page);
+            var store = new RpcStore(server.Url);
+
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
+
+            Assert.AreEqual(2, server.Requests.Count);
+            Assert.AreEqual("Ag==", ((JArray)server.Requests[1]["params"]!)[2]!.Value<string>());
+        }
+
         [TestMethod]
         public void RpcSnapshotDelegatesReadsAndTracksState()
         {
