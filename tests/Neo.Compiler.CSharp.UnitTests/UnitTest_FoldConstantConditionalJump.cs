@@ -39,7 +39,12 @@ public class UnitTest_FoldConstantConditionalJump
 
             public static int DoWhileTrue(int x)
             {
-                do { x += 2; } while (true);
+                do
+                {
+                    x += 2;
+                    if (x > 10) break;
+                } while (true);
+                return x;
             }
 
             public static int IfNever()
@@ -71,11 +76,26 @@ public class UnitTest_FoldConstantConditionalJump
         // while (true) folds to nothing at the loop head and do..while (true) folds to a
         // backward JMP, so both loop forms keep executing correctly.
         CollectionAssert.DoesNotContain(ops, "PUSHT");
-        Assert.IsTrue(ops.Contains("JMP"));
+        int doWhileStart = manifest.Abi.Methods.Single(m => m.Name == "doWhileTrue").Offset;
+        int doWhileEnd = manifest.Abi.Methods
+            .Where(m => m.Offset > doWhileStart)
+            .Select(m => m.Offset)
+            .DefaultIfEmpty(optimizedScript.Length)
+            .Min();
+        bool HasBackwardJump((int address, Neo.VM.Instruction instruction) item) => item.instruction.OpCode switch
+        {
+            OpCode.JMP or OpCode.JMP_L or OpCode.JMPIF or OpCode.JMPIF_L or OpCode.JMPIFNOT or OpCode.JMPIFNOT_L
+                => Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(item.address, item.instruction) < item.address,
+            _ => false
+        };
+        Assert.IsTrue(optimizedScript.EnumerateInstructions()
+            .Where(item => item.address >= doWhileStart && item.address < doWhileEnd)
+            .Any(HasBackwardJump));
 
         var engine = new TestEngine(true);
         var contract = engine.Deploy<FoldedContract>(nef, manifest);
         Assert.AreEqual(11, contract.WhileTrue(5));
+        Assert.AreEqual(11, contract.DoWhileTrue(5));
         Assert.AreEqual(1, contract.IfNever());
     }
 

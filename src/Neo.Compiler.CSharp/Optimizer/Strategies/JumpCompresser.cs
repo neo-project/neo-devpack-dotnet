@@ -395,10 +395,11 @@ namespace Neo.Optimizer
                         {
                             // The condition always jumps: keep an unconditional JMP with the
                             // same operand width and target.
-                            bool isLong = next.OpCode == OpCode.JMPIF_L || next.OpCode == OpCode.JMPIFNOT_L;
-                            Instruction newJump = isLong
-                                ? new Script(new byte[] { (byte)OpCode.JMP_L, 0, 0, 0, 0 }).GetInstruction(0)
-                                : new Script(new byte[] { (byte)OpCode.JMP, 0 }).GetInstruction(0);
+                            // Start with the long form. Removing the push and conditional
+                            // changes the target distance, so a short replacement can cross
+                            // the signed-byte boundary before the final compression pass.
+                            // CompressJump will shrink it when the final distance is in range.
+                            Instruction newJump = new Script(new byte[] { (byte)OpCode.JMP_L, 0, 0, 0, 0 }).GetInstruction(0);
                             jumpSourceToTargets.Remove(next);
                             jumpTargetToSources[target].Remove(next);
                             jumpSourceToTargets[newJump] = target;
@@ -436,10 +437,14 @@ namespace Neo.Optimizer
                 currentAddress += i.Size;
             }
 
-            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+            (nef, manifest, debugInfo) = AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+
+            // Folding a never-taken conditional makes its fall-through body unreachable.
+            // Recompute reachability after the fold so dead instructions are removed as well.
+            return Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
         }
 
         /// <summary>
