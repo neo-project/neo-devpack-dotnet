@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -35,8 +36,56 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new Integer(3), Contract.TestEnumParse("Value3"));
             AssertGasConsumed(1052130);
             Assert.AreEqual(new Integer(21), Contract.TestEnumParseWithContinuation());
+            AssertGasConsumed(2280990);
             Assert.ThrowsException<TestException>(() => Contract.TestEnumParse("InvalidValue"));
             AssertGasConsumed(1067640);
+        }
+
+        [TestMethod]
+        public void TestEnumParseWithConstantIgnoreCase()
+        {
+            // Regression coverage for constant `ignoreCase` arguments: a constant `false` must
+            // compare against the original member names, a constant `true` must compare against
+            // the upper-cased ones, and neither may leave the stack unbalanced.
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    private enum E { Value1 = 1, Value2 = 2 }
+
+                    [DisplayName("parseConstFalse")]
+                    public static int ParseConstFalse() => (int)Enum.Parse(typeof(E), "Value2", false);
+
+                    [DisplayName("parseConstTrue")]
+                    public static int ParseConstTrue() => (int)Enum.Parse(typeof(E), "value2", true);
+
+                    [DisplayName("parseConstFalseWrongCase")]
+                    public static int ParseConstFalseWrongCase() => (int)Enum.Parse(typeof(E), "value2", false);
+
+                    [DisplayName("tryParseConstFalse")]
+                    public static int TryParseConstFalse() => Enum.TryParse<E>("Value2", false, out var value) ? (int)value : -1;
+
+                    [DisplayName("tryParseConstTrue")]
+                    public static int TryParseConstTrue() => Enum.TryParse<E>("value2", true, out var value) ? (int)value : -1;
+
+                    [DisplayName("tryParseConstFalseUnknown")]
+                    public static int TryParseConstFalseUnknown() => Enum.TryParse<E>("unknown", false, out var value) ? (int)value : -1;
+                }
+                """;
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<ConstantIgnoreCaseContract>(context.CreateExecutable(), context.CreateManifest());
+            Assert.AreEqual(new BigInteger(2), contract.ParseConstFalse());
+            Assert.AreEqual(new BigInteger(2), contract.ParseConstTrue());
+            Assert.ThrowsException<TestException>(() => contract.ParseConstFalseWrongCase());
+            Assert.AreEqual(new BigInteger(2), contract.TryParseConstFalse());
+            Assert.AreEqual(new BigInteger(2), contract.TryParseConstTrue());
+            Assert.AreEqual(new BigInteger(-1), contract.TryParseConstFalseUnknown());
         }
 
         [TestMethod]
@@ -159,6 +208,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             [DisplayName("getUShort")] public abstract string? GetUShort();
             [DisplayName("getUInt")] public abstract string? GetUInt();
             [DisplayName("getLong")] public abstract string? GetLong();
+        }
+
+        public abstract class ConstantIgnoreCaseContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("parseConstFalse")] public abstract BigInteger? ParseConstFalse();
+            [DisplayName("parseConstTrue")] public abstract BigInteger? ParseConstTrue();
+            [DisplayName("parseConstFalseWrongCase")] public abstract BigInteger? ParseConstFalseWrongCase();
+            [DisplayName("tryParseConstFalse")] public abstract BigInteger? TryParseConstFalse();
+            [DisplayName("tryParseConstTrue")] public abstract BigInteger? TryParseConstTrue();
+            [DisplayName("tryParseConstFalseUnknown")] public abstract BigInteger? TryParseConstFalseUnknown();
         }
 
         [TestMethod]
