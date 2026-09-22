@@ -108,7 +108,7 @@ internal partial class MethodConvert
         else
         {
             ConvertExpression(model, charExpression);
-            ConvertCharToUtf8();
+            ConvertCharToUtf8(toByteString: false);
         }
         AccessSlot(OpCode.STLOC, charSlot);
 
@@ -174,7 +174,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (symbol.Parameters.Length == 1 && symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char)
-            NormalizeNulChar(methodConvert);
+            methodConvert.ConvertCharToUtf8(toByteString: false);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
@@ -769,7 +769,7 @@ internal partial class MethodConvert
         }
 
         methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.ConvertCharToUtf8();
+        methodConvert.ConvertCharToUtf8(toByteString: true);
     }
 
     private static char NormalizeCharForUtf8(char character)
@@ -781,20 +781,23 @@ internal partial class MethodConvert
     /// Encodes one runtime UTF-16 code unit for Neo's UTF-8 string representation.
     /// Isolated surrogate code units cannot be represented and are replaced with U+FFFD.
     /// </summary>
-    private void ConvertCharToUtf8()
+    /// <remarks>
+    /// Algorithm: The last byte of a multi-byte UTF-8 sequence is always in the range
+    /// [0x80, 0xBF], so packing the whole sequence into a little-endian integer and subtracting
+    /// 256<sup>n</sup> makes it negative, and the minimal two's complement representation used by
+    /// CONVERT is then exactly the UTF-8 sequence. ASCII characters convert directly, and only
+    /// '\0' needs a one byte string pushed because integer zero converts to an empty string.
+    /// </remarks>
+    private void ConvertCharToUtf8(bool toByteString)
     {
         byte charSlot = AddAnonymousVariable();
         AccessSlot(OpCode.STLOC, charSlot);
 
-        JumpTarget nullTarget = new();
         JumpTarget asciiTarget = new();
         JumpTarget twoByteTarget = new();
         JumpTarget replacementTarget = new();
+        JumpTarget asciiConvertTarget = new();
         JumpTarget endTarget = new();
-
-        AccessSlot(OpCode.LDLOC, charSlot);
-        Push0();
-        JumpIfEqual(nullTarget);
 
         AccessSlot(OpCode.LDLOC, charSlot);
         Push(0x7f);
@@ -808,51 +811,63 @@ internal partial class MethodConvert
         Within(0xd800, 0xdfff);
         JumpIfTrue(replacementTarget);
 
-        NewBuffer(3);
-        SetUtf8BufferByte(charSlot, 0, shift: 12, mask: 0x0f, prefix: 0xe0);
-        SetUtf8BufferByte(charSlot, 1, shift: 6, mask: 0x3f, prefix: 0x80);
-        SetUtf8BufferByte(charSlot, 2, shift: 0, mask: 0x3f, prefix: 0x80);
+        // 0xE0 | (c >> 12), 0x80 | ((c >> 6) & 0x3F) and 0x80 | (c & 0x3F) packed little-endian.
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x3f);
+        And();
+        Push(16);
+        ShL();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(6);
+        ShR();
+        Push(0x3f);
+        And();
+        Push(8);
+        ShL();
+        Add();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(12);
+        ShR();
+        Push(0x0f);
+        And();
+        Add();
+        Push(-0x7f7f20);                       // 0x8080E0 - 0x1000000
+        Add();
+        if (toByteString) ChangeType(StackItemType.ByteString);
         JumpAlways(endTarget);
 
         replacementTarget.Instruction = Push("\ufffd");
         JumpAlways(endTarget);
 
+        // 0xC0 | (c >> 6) and 0x80 | (c & 0x3F) packed little-endian.
         twoByteTarget.Instruction = Nop();
-        NewBuffer(2);
-        SetUtf8BufferByte(charSlot, 0, shift: 6, mask: 0x1f, prefix: 0xc0);
-        SetUtf8BufferByte(charSlot, 1, shift: 0, mask: 0x3f, prefix: 0x80);
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x3f);
+        And();
+        Push(8);
+        ShL();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(6);
+        ShR();
+        Add();
+        Push(-0x7f40);                         // 0x80C0 - 0x10000
+        Add();
+        if (toByteString) ChangeType(StackItemType.ByteString);
         JumpAlways(endTarget);
 
         asciiTarget.Instruction = Nop();
         AccessSlot(OpCode.LDLOC, charSlot);
+        Dup();
+        JumpIfTrue(asciiConvertTarget);
+        Drop();
+        Push([(byte)0]);                // '\0' converts to an empty string
         JumpAlways(endTarget);
 
-        nullTarget.Instruction = Nop();
-        NewBuffer(1);
-        SetUtf8BufferByte(charSlot, 0, shift: 0, mask: 0x7f, prefix: 0);
+        asciiConvertTarget.Instruction = Nop();
+        if (toByteString) ChangeType(StackItemType.ByteString);
 
-        endTarget.Instruction = ChangeType(StackItemType.ByteString);
+        endTarget.Instruction = Nop();
         RemoveAnonymousVariable(charSlot);
-    }
-
-    private void SetUtf8BufferByte(byte charSlot, int index, int shift, int mask, int prefix)
-    {
-        Dup();
-        Push(index);
-        AccessSlot(OpCode.LDLOC, charSlot);
-        if (shift != 0)
-        {
-            Push(shift);
-            ShR();
-        }
-        Push(mask);
-        And();
-        if (prefix != 0)
-        {
-            Push(prefix);
-            Or();
-        }
-        SetItem();
     }
 
     // Handler for object.ToString()
@@ -1441,7 +1456,6 @@ internal partial class MethodConvert
 
         if (constantTrimChar is { } character)
         {
-            methodConvert.Drop();                       // Remove the argument from the evaluation stack
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(NormalizeCharForUtf8(character).ToString());
             methodConvert.Push(bytes);
             methodConvert.AccessSlot(OpCode.STLOC, trimBytesIndex);
@@ -1450,7 +1464,7 @@ internal partial class MethodConvert
         }
         else
         {
-            methodConvert.ConvertCharToUtf8();
+            methodConvert.ConvertCharToUtf8(toByteString: true);
             methodConvert.AccessSlot(OpCode.STLOC, trimBytesIndex);
             methodConvert.AccessSlot(OpCode.LDLOC, trimBytesIndex);
             methodConvert.Size();
@@ -1469,8 +1483,7 @@ internal partial class MethodConvert
     /// <param name="trimLenIndex">Slot holding the trim character UTF-8 byte length</param>
     /// <param name="lengthIndex">Slot holding the string byte length</param>
     /// <remarks>
-    /// Loads the string, the index and the UTF-8 length, extracts the boundary slice with
-    /// <c>SUBSTR</c>, and compares it with the trim character bytes. Exits the loop when there is
+    /// Compares the leading bytes with the trim character. Exits the loop when there is
     /// not enough room or the slice does not equal the trim character.
     /// </remarks>
     private static void CheckTrimCharUtf8Start(MethodConvert methodConvert, JumpTarget loopEnd, byte stringIndex, byte indexIndex, byte trimBytesIndex, byte trimLenIndex, byte lengthIndex)
@@ -1482,15 +1495,7 @@ internal partial class MethodConvert
         GetStringLength(methodConvert, lengthIndex);
         methodConvert.JumpIfGreater(loopEnd);
 
-        // Extract string[index .. index + trimLen) and compare with the trim bytes.
-        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);
-        GetStartIndex(methodConvert, indexIndex);
-        methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
-        methodConvert.SubStr();
-        methodConvert.ChangeType(StackItemType.ByteString);   // SUBSTR returns a Buffer; convert before Equal
-        methodConvert.AccessSlot(OpCode.LDLOC, trimBytesIndex);
-        methodConvert.Equal();
-        methodConvert.JumpIfFalse(loopEnd);
+        CheckTrimCharUtf8Bytes(methodConvert, loopEnd, stringIndex, indexIndex, trimBytesIndex, trimLenIndex, fromEnd: false);
     }
 
     /// <summary>
@@ -1504,8 +1509,7 @@ internal partial class MethodConvert
     /// <param name="trimLenIndex">Slot holding the trim character UTF-8 byte length</param>
     /// <param name="startIndex">Slot holding the leading boundary (0 for a one-sided trailing trim)</param>
     /// <remarks>
-    /// Loads the string and the trailing boundary, extracts the last <c>trimLen</c> bytes with
-    /// <c>SUBSTR</c>, and compares them with the trim character bytes. Exits the loop when there is
+    /// Compares the trailing bytes with the trim character. Exits the loop when there is
     /// not enough room (the boundary slice would start below the leading boundary) or the slice does
     /// not equal the trim character.
     /// </remarks>
@@ -1520,19 +1524,43 @@ internal partial class MethodConvert
         GetStartIndex(methodConvert, startIndex);
         methodConvert.JumpIfLess(loopEnd);
 
-        // Extract string[end - trimLen + 1 .. end + 1) and compare with the trim bytes.
-        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);
-        GetEndIndex(methodConvert, endIndex);
-        methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
-        methodConvert.Sub();
-        methodConvert.Push1();
-        methodConvert.Add();
-        methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
-        methodConvert.SubStr();
-        methodConvert.ChangeType(StackItemType.ByteString);   // SUBSTR returns a Buffer; convert before Equal
-        methodConvert.AccessSlot(OpCode.LDLOC, trimBytesIndex);
-        methodConvert.Equal();
-        methodConvert.JumpIfFalse(loopEnd);
+        CheckTrimCharUtf8Bytes(methodConvert, loopEnd, stringIndex, endIndex, trimBytesIndex, trimLenIndex, fromEnd: true);
+    }
+
+    private static void CheckTrimCharUtf8Bytes(MethodConvert methodConvert, JumpTarget loopEnd,
+        byte stringIndex, byte boundaryIndex, byte trimBytesIndex, byte trimLenIndex, bool fromEnd)
+    {
+        // One UTF-16 code unit encodes as at most three UTF-8 bytes. Compare integer bytes:
+        // SUBSTR returns a Buffer, whose EQUAL operation compares identity rather than content.
+        var matched = new JumpTarget();
+        for (int offset = 0; offset < 3; offset++)
+        {
+            if (offset != 0)
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
+                methodConvert.Push(offset);
+                methodConvert.JumpIfLessOrEqual(matched);
+            }
+            methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);
+            methodConvert.AccessSlot(OpCode.LDLOC, boundaryIndex);
+            if (fromEnd)
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
+                methodConvert.Sub();
+                methodConvert.Inc();
+            }
+            if (offset != 0)
+            {
+                methodConvert.Push(offset);
+                methodConvert.Add();
+            }
+            methodConvert.PickItem();
+            methodConvert.AccessSlot(OpCode.LDLOC, trimBytesIndex);
+            methodConvert.Push(offset);
+            methodConvert.PickItem();
+            methodConvert.JumpIfNotEqual(loopEnd);
+        }
+        matched.Instruction = methodConvert.Nop();
     }
 
     /// <summary>
@@ -1654,7 +1682,10 @@ internal partial class MethodConvert
     /// Algorithm: Finds first and last characters that don't match the trim character
     /// </remarks>
     private static void HandleStringTrimChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, trimChar);
+    }
 
     private static void HandleStringTrimCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1672,8 +1703,6 @@ internal partial class MethodConvert
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
@@ -1682,12 +1711,13 @@ internal partial class MethodConvert
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
         methodConvert.StLoc(stringIndex);      // Store string
+        if (constantTrimChar is null && arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         // Single-byte constant characters (ASCII) keep the cheaper byte-wise trim path; any
         // other character requires the UTF-8 boundary comparison below.
         if (IsSingleByteConstantTrimChar(constantTrimChar))
         {
-            methodConvert.Drop();                 // Remove the trim-character argument from the stack
             InitStringLength(methodConvert, stringIndex, lengthIndex);
             InitStartIndex(methodConvert, startIndex);
             InitEndIndex(methodConvert, endIndex, lengthIndex);
@@ -1752,7 +1782,10 @@ internal partial class MethodConvert
         => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
 
     private static void HandleStringTrimStartChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
 
     private static void HandleStringTrimStartCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1769,8 +1802,6 @@ internal partial class MethodConvert
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
@@ -1778,6 +1809,8 @@ internal partial class MethodConvert
         var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         methodConvert.StLoc(stringIndex);       // Store string
+        if (useTrimChar && constantTrimChar is null && arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         bool singleByteConstant = useTrimChar && IsSingleByteConstantTrimChar(constantTrimChar);
 
@@ -1785,8 +1818,6 @@ internal partial class MethodConvert
         byte trimLenIndex = 0;
         if (useTrimChar && !singleByteConstant)
             EmitTrimCharUtf8(methodConvert, constantTrimChar, out trimBytesIndex, out trimLenIndex);
-        else if (useTrimChar)
-            methodConvert.Drop();               // Remove the trim-character argument from the stack
 
         InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitStartIndex(methodConvert, startIndex);
@@ -1823,7 +1854,10 @@ internal partial class MethodConvert
         => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
 
     private static void HandleStringTrimEndChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
 
     private static void HandleStringTrimEndCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1840,8 +1874,6 @@ internal partial class MethodConvert
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
@@ -1850,6 +1882,8 @@ internal partial class MethodConvert
         var endIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         methodConvert.StLoc(stringIndex);       // Store string
+        if (useTrimChar && constantTrimChar is null && arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         byte trimBytesIndex = 0;
         byte trimLenIndex = 0;
@@ -1858,10 +1892,6 @@ internal partial class MethodConvert
             EmitTrimCharUtf8(methodConvert, constantTrimChar, out trimBytesIndex, out trimLenIndex);
             methodConvert.Push0();                               // Leading boundary is fixed at 0
             methodConvert.AccessSlot(OpCode.STLOC, startIndex);
-        }
-        else if (useTrimChar)
-        {
-            methodConvert.Drop();                                // Remove the trim-character argument
         }
         InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitEndIndex(methodConvert, endIndex, lengthIndex);
@@ -1941,6 +1971,18 @@ internal partial class MethodConvert
             default:
                 return false;
         }
+    }
+
+    private static char? GetConstantCharArgument(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        // Only one char parameter is supported for string.Trim/TrimStart/TrimEnd.
+        if (arguments is null || arguments.Count != 1) return null;
+
+        if (arguments[0] is not ArgumentSyntax argument)
+            return null;
+
+        var constant = model.GetConstantValue(argument.Expression);
+        return constant.HasValue && constant.Value is char value ? value : null;
     }
 
     /// <summary>
@@ -2153,7 +2195,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        NormalizeNulChar(methodConvert);
+        methodConvert.ConvertCharToUtf8(toByteString: false);
 
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
@@ -2186,7 +2228,7 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments); // [true, string, size, char]
-        methodConvert.ConvertCharToUtf8();
+        methodConvert.ConvertCharToUtf8(toByteString: false);
 
         methodConvert.Rot();                                                   // [true, size, char, string]
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);
