@@ -249,13 +249,46 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(method);
 
             Assert.AreEqual(6, Contract.TestLastIndexOf("hello world"));
-            AssertGasConsumed(3511260);
+            AssertGasConsumed(2032740);
 
             Assert.AreEqual(-1, Contract.TestLastIndexOf("hello"));
-            AssertGasConsumed(2525490);
+            AssertGasConsumed(2032740);
 
             Assert.AreEqual(12, Contract.TestLastIndexOf("world hello world"));
-            AssertGasConsumed(4497180);
+            AssertGasConsumed(2032740);
+        }
+        [TestMethod]
+        public void Test_LastIndexOfString_Value()
+        {
+            Assert.AreEqual(6, Contract.TestLastIndexOfValue("hello world", "world"));
+
+            Assert.AreEqual(12, Contract.TestLastIndexOfValue("world hello world", "world"));
+
+            Assert.AreEqual(-1, Contract.TestLastIndexOfValue("hello", "world"));
+
+            Assert.AreEqual(-1, Contract.TestLastIndexOfValue("abc", "abcd"));
+
+            Assert.AreEqual(0, Contract.TestLastIndexOfValue("abc", "ab"));
+
+            Assert.AreEqual(3, Contract.TestLastIndexOfValue("abcab", "ab"));
+
+            // Overlapping matches
+            Assert.AreEqual(2, Contract.TestLastIndexOfValue("aaaa", "aa"));
+
+            // Empty search value
+            Assert.AreEqual(3, Contract.TestLastIndexOfValue("abc", ""));
+
+            Assert.AreEqual(0, Contract.TestLastIndexOfValue("abc", "ab"));
+
+            Assert.AreEqual(3, Contract.TestLastIndexOfValue("abcab", "ab"));
+
+            // Overlapping matches
+            Assert.AreEqual(2, Contract.TestLastIndexOfValue("aaaa", "aa"));
+
+            // Empty search value
+            Assert.AreEqual(3, Contract.TestLastIndexOfValue("abc", ""));
+
+            Assert.AreEqual(0, Contract.TestLastIndexOfValue("", ""));
         }
 
         [TestMethod]

@@ -219,104 +219,17 @@ internal partial class MethodConvert
 
     private static void HandleStringLastIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
+        methodConvert.Push(true);                                    // [true]
+        methodConvert.ConvertExpression(model, instanceExpression!); // [true, string]
+        methodConvert.Dup();                                         // [true, string, string]
+        methodConvert.Size();                                        // [true, string, size]
 
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        byte strSlot = methodConvert.AddAnonymousVariable();
-        byte valueSlot = methodConvert.AddAnonymousVariable();
-        byte strLenSlot = methodConvert.AddAnonymousVariable();
-        byte valueLenSlot = methodConvert.AddAnonymousVariable();
-        byte startSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.Rot(); // [true, size, value, string]
 
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Size();
-        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.Size();
-        methodConvert.Dup();
-        methodConvert.AccessSlot(OpCode.STLOC, valueLenSlot);
-
-        JumpTarget valueNotEmptyTarget = new();
-        JumpTarget canSearchTarget = new();
-        JumpTarget endTarget = new();
-
-        methodConvert.JumpIfTrue(valueNotEmptyTarget); // NonZero int means true.
-        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
-        methodConvert.JumpAlways(endTarget);
-        valueNotEmptyTarget.Instruction = methodConvert.Nop();
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
-        methodConvert.JumpIfGreaterOrEqual(canSearchTarget);
-        methodConvert.Push(-1);
-        methodConvert.JumpAlways(endTarget);
-        canSearchTarget.Instruction = methodConvert.Nop();
-
-        byte currentSlot = methodConvert.AddAnonymousVariable();
-        byte nextSlot = methodConvert.AddAnonymousVariable();
-        byte lastSlot = methodConvert.AddAnonymousVariable();
-
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
-
-        JumpTarget notFoundTarget = new();
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.Push(-1);
-        methodConvert.JumpIfEqual(notFoundTarget);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
-
-        JumpTarget loopStart = new();
-        JumpTarget loopEnd = new();
-
-        loopStart.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.Push(1);
-        methodConvert.Add();
-        methodConvert.AccessSlot(OpCode.STLOC, startSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 3, true);
-        methodConvert.AccessSlot(OpCode.STLOC, nextSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
-        methodConvert.Push(-1);
-        methodConvert.JumpIfEqual(loopEnd);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
-        methodConvert.JumpAlways(loopStart);
-
-        loopEnd.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, lastSlot);
-        methodConvert.JumpAlways(endTarget);
-
-        notFoundTarget.Instruction = methodConvert.Nop();
-        methodConvert.Push(-1);
-        endTarget.Instruction = methodConvert.Nop();
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);
     }
 
     private static void HandleStringSplit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
