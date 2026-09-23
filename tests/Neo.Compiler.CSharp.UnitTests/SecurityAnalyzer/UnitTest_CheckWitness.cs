@@ -15,6 +15,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 using Neo.VM;
 using System;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -109,7 +110,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         }
 
         [TestMethod]
-        public void Test_CheckWitness_IgnoresStoreWithoutReload()
+        public void Test_CheckWitness_DetectsStoreWithoutReload()
         {
             byte[] script =
             [
@@ -120,6 +121,44 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             ];
 
             var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_DetectsOverwrittenStoredResult()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.INITSLOT, 0x01, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC0,
+                (byte)OpCode.PUSH0,
+                (byte)OpCode.STLOC0,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_DoesNotReadPastMethodBoundary()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.INITSLOT, 0x01, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC0,
+                (byte)OpCode.LDLOC0,
+                (byte)OpCode.DROP,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(
+                CreateNefFile(script),
+                CreateManifest(0, 9),
+                null);
+
             Assert.AreEqual(0, result.droppedCheckWitnessResults.Count);
         }
 
@@ -165,8 +204,11 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             };
         }
 
-        private static SmartContract.Manifest.ContractManifest CreateManifest()
+        private static SmartContract.Manifest.ContractManifest CreateManifest(params int[] methodOffsets)
         {
+            if (methodOffsets.Length == 0)
+                methodOffsets = [0];
+
             return new SmartContract.Manifest.ContractManifest
             {
                 Name = "TestContract",
@@ -174,17 +216,15 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 SupportedStandards = Array.Empty<string>(),
                 Abi = new SmartContract.Manifest.ContractAbi
                 {
-                    Methods =
-                    [
+                    Methods = methodOffsets.Select((offset, index) =>
                         new SmartContract.Manifest.ContractMethodDescriptor
                         {
-                            Name = "main",
-                            Offset = 0,
+                            Name = index == 0 ? "main" : $"method{index}",
+                            Offset = offset,
                             Parameters = Array.Empty<SmartContract.Manifest.ContractParameterDefinition>(),
                             ReturnType = ContractParameterType.Void,
                             Safe = false
-                        }
-                    ],
+                        }).ToArray(),
                     Events = Array.Empty<SmartContract.Manifest.ContractEventDescriptor>()
                 },
                 Permissions = Array.Empty<SmartContract.Manifest.ContractPermission>(),
