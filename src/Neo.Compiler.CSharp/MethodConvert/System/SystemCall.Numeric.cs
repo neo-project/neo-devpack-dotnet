@@ -337,9 +337,8 @@ internal partial class MethodConvert
 
     private static void LoadInverseRotateOffset(MethodConvert methodConvert, byte offsetSlot, int bitWidth)
     {
-        methodConvert.Push(bitWidth);
-        LoadMaskedRotateOffset(methodConvert, offsetSlot, bitWidth);
-        methodConvert.Sub();
+        methodConvert.AccessSlot(OpCode.LDLOC, offsetSlot);
+        methodConvert.Negate();
         methodConvert.Push(bitWidth - 1);
         methodConvert.And();
     }

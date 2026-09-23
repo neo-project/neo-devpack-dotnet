@@ -1313,6 +1313,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.RotateLeft(int.MinValue, 1), Contract.RotateLeftInt(int.MinValue, 1));
             Assert.AreEqual(int.RotateLeft(0x00000001, 32), Contract.RotateLeftInt(0x00000001, 32));
             Assert.AreEqual(int.RotateLeft(0x00000001, 33), Contract.RotateLeftInt(0x00000001, 33));
+            Assert.AreEqual(int.RotateLeft(0x12345678, -1), Contract.RotateLeftInt(0x12345678, -1));
+            Assert.AreEqual(int.RotateLeft(0x12345678, -32), Contract.RotateLeftInt(0x12345678, -32));
+            Assert.AreEqual(int.RotateLeft(0x12345678, -33), Contract.RotateLeftInt(0x12345678, -33));
         }
 
         [TestMethod]
@@ -1418,6 +1421,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.RotateRight(int.MinValue, 1), Contract.RotateRightInt(int.MinValue, 1));
             Assert.AreEqual(int.RotateRight(0x00000001, 32), Contract.RotateRightInt(0x00000001, 32));
             Assert.AreEqual(int.RotateRight(0x00000001, 33), Contract.RotateRightInt(0x00000001, 33));
+            Assert.AreEqual(int.RotateRight(0x12345678, -1), Contract.RotateRightInt(0x12345678, -1));
+            Assert.AreEqual(int.RotateRight(0x12345678, -32), Contract.RotateRightInt(0x12345678, -32));
+            Assert.AreEqual(int.RotateRight(0x12345678, -33), Contract.RotateRightInt(0x12345678, -33));
         }
 
         [TestMethod]
