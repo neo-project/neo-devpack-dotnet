@@ -45,6 +45,7 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
     public const string FileLocalTypeRuleId = "NC4053";
     public const string RefReadonlyParameterRuleId = "NC4054";
     public const string UsingStatementRuleId = "NC4059";
+    public const string CompoundAssignmentOperatorRuleId = "NC4064";
 
     private static readonly DiagnosticDescriptor UnsafeCodeRule = CreateDescriptor(
         UnsafeCodeRuleId,
@@ -141,6 +142,11 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         "Using statements are not supported",
         "Using statements and using declarations are not supported because the Neo compiler does not emit deterministic Dispose calls.");
 
+    private static readonly DiagnosticDescriptor CompoundAssignmentOperatorRule = CreateDescriptor(
+        CompoundAssignmentOperatorRuleId,
+        "User-defined compound assignment operators are not supported",
+        "User-defined compound assignment operators are not supported by the Neo compiler.");
+
     private static DiagnosticDescriptor CreateDescriptor(string id, string title, string message) =>
         new(
             id,
@@ -171,7 +177,8 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         Utf8LiteralRule,
         FileLocalTypeRule,
         RefReadonlyParameterRule,
-        UsingStatementRule)
+        UsingStatementRule,
+        CompoundAssignmentOperatorRule)
         .OrderBy(static descriptor => descriptor.Id, StringComparer.Ordinal)
         .ToImmutableArray();
 
@@ -200,6 +207,7 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(AnalyzeUtf8Literal, SyntaxKind.Utf8StringLiteralExpression, SyntaxKind.StringLiteralExpression);
         context.RegisterSyntaxNodeAction(AnalyzeTypeDeclaration, SyntaxKind.ClassDeclaration, SyntaxKind.StructDeclaration, SyntaxKind.InterfaceDeclaration, SyntaxKind.RecordDeclaration, SyntaxKind.RecordStructDeclaration, SyntaxKind.EnumDeclaration);
         context.RegisterSyntaxNodeAction(AnalyzeParameter, SyntaxKind.Parameter);
+        context.RegisterSyntaxNodeAction(AnalyzeOperatorDeclaration, SyntaxKind.OperatorDeclaration);
     }
 
     private static Action<SyntaxNodeAnalysisContext> ReportSimpleDiagnostic(DiagnosticDescriptor descriptor) =>
@@ -357,6 +365,15 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
             : modifiers.First(m => m.IsKind(SyntaxKind.InKeyword)).GetLocation();
 
         context.ReportDiagnostic(Diagnostic.Create(RefReadonlyParameterRule, location));
+    }
+
+    private static void AnalyzeOperatorDeclaration(SyntaxNodeAnalysisContext context)
+    {
+        if (context.Node is OperatorDeclarationSyntax { ReturnType: PredefinedTypeSyntax returnType } declaration &&
+            returnType.Keyword.IsKind(SyntaxKind.VoidKeyword))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(CompoundAssignmentOperatorRule, declaration.OperatorToken.GetLocation()));
+        }
     }
 
     private static bool IsDelegateOrLambdaParameter(ParameterSyntax parameter)
