@@ -84,7 +84,9 @@ public sealed class UnsupportedPlatformApiAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeQualifiedName(SyntaxNodeAnalysisContext context)
     {
-        if (context.Node is not QualifiedNameSyntax qualifiedName)
+        if (context.Node is not QualifiedNameSyntax qualifiedName ||
+            qualifiedName.Parent is ObjectCreationExpressionSyntax creation &&
+            ReferenceEquals(creation.Type, qualifiedName))
         {
             return;
         }

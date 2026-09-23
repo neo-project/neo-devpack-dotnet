@@ -24,3 +24,4 @@ identify syntax that cannot be lowered safely to NeoVM instructions.
 | <a id="nc4053"></a>NC4053 | File-local types | Use a private or internal type with a unique name. |
 | <a id="nc4054"></a>NC4054 | `ref readonly` and `in` parameters | Pass the supported value type by value. |
 | <a id="nc4059"></a>NC4059 | Using statements and using declarations | Manage the supported resource explicitly without relying on `Dispose`. |
+| <a id="nc4064"></a>NC4064 | User-defined compound assignment operators | Use an ordinary method with explicit assignment. |
