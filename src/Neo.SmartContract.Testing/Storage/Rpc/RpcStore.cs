@@ -145,7 +145,8 @@ public class RpcStore : IStore
         }
 
         var skey = new StorageKey(key);
-        var start = 0;
+        JToken? next = null;
+        var keyPrefix = Convert.ToBase64String(skey.Key.ToArray());
 
         while (true)
         {
@@ -153,7 +154,9 @@ public class RpcStore : IStore
             {
                 jsonrpc = "2.0",
                 method = "findstorage",
-                @params = new string[] { skey.Id.ToString(), Convert.ToBase64String(skey.Key.ToArray()), start.ToString() },
+                @params = next is null
+                    ? new object[] { skey.Id.ToString(), keyPrefix }
+                    : new object[] { skey.Id.ToString(), keyPrefix, next },
                 id = _id = Interlocked.Increment(ref _id),
             };
 
@@ -174,15 +177,19 @@ public class RpcStore : IStore
                     }
                 }
 
-                if (result["truncated"]?.Value<bool>() == true &&
-                    result["next"]?.Value<int>() is int next)
-                {
-                    start = next;
-                }
-                else
-                {
+                if (result["truncated"]?.Value<bool>() != true)
                     yield break;
+
+                var continuation = result["next"];
+                if (results.Count == 0 ||
+                    continuation?.Type is not (JTokenType.Integer or JTokenType.String) ||
+                    continuation.Type == JTokenType.String && string.IsNullOrEmpty(continuation.Value<string>()) ||
+                    JToken.DeepEquals(next, continuation))
+                {
+                    throw UnexpectedRpcResponse("findstorage", jo);
                 }
+
+                next = continuation;
             }
             else
             {
