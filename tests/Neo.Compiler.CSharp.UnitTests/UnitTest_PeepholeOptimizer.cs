@@ -11,17 +11,67 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
+using Neo.Compiler.ControlFlow;
+using Neo.Optimizer;
 using NeoOptimizer = Neo.Optimizer.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class PeepholeOptimizerTests
     {
+        [TestMethod]
+        public void Test_UseIncDec_RewritesConstantArithmetic()
+        {
+            using ScriptBuilder sb = new();
+            sb.Emit(OpCode.PUSH1);
+            sb.Emit(OpCode.ADD);
+            sb.Emit(OpCode.RET);
+
+            var (optimizedNef, _, _) = Neo.Optimizer.Peephole.UseIncDec(CreateNefFile(sb.ToArray()), CreateManifest());
+
+            CollectionAssert.AreEqual(
+                new[] { OpCode.INC, OpCode.RET },
+                new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_UseNz_RewritesZeroNumericComparison()
+        {
+            using ScriptBuilder sb = new();
+            sb.Emit(OpCode.PUSH0);
+            sb.Emit(OpCode.NUMEQUAL);
+            sb.Emit(OpCode.RET);
+
+            var (optimizedNef, _, _) = Neo.Optimizer.Peephole.UseNz(CreateNefFile(sb.ToArray()), CreateManifest());
+
+            CollectionAssert.AreEqual(
+                new[] { OpCode.NZ, OpCode.NOT, OpCode.RET },
+                new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_RemoveDupDrop_RemovesRedundantAssignmentValue()
+        {
+            using ScriptBuilder sb = new();
+            sb.Emit(OpCode.PUSH1);
+            sb.Emit(OpCode.DUP);
+            sb.Emit(OpCode.STLOC0);
+            sb.Emit(OpCode.DROP);
+            sb.Emit(OpCode.RET);
+
+            var (optimizedNef, _, _) = Neo.Optimizer.Peephole.RemoveDupDrop(CreateNefFile(sb.ToArray()), CreateManifest());
+
+            CollectionAssert.AreEqual(
+                new[] { OpCode.PUSH1, OpCode.STLOC0, OpCode.RET },
+                new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+        }
+
         /// <summary>
         /// Test that PUSH1 ADD pattern does not crash during optimization.
         /// This tests the operator precedence fix in peephole optimization.
@@ -255,7 +305,17 @@ namespace Neo.Compiler.CSharp.UnitTests
                 SupportedStandards = Array.Empty<string>(),
                 Abi = new ContractAbi
                 {
-                    Methods = Array.Empty<ContractMethodDescriptor>(),
+                    Methods =
+                    [
+                        new ContractMethodDescriptor
+                        {
+                            Name = "main",
+                            Offset = 0,
+                            Parameters = Array.Empty<ContractParameterDefinition>(),
+                            ReturnType = ContractParameterType.Any,
+                            Safe = false
+                        }
+                    ],
                     Events = Array.Empty<ContractEventDescriptor>()
                 },
                 Permissions = Array.Empty<ContractPermission>(),

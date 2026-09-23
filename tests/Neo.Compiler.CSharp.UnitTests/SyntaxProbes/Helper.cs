@@ -56,8 +56,7 @@ internal static class Helper
         "discriminated_union_types",
         "lambda_default_parameters",
         "lambda_parameter_modifiers",
-        "partial_events_constructors",
-        "user_defined_compound_assignment"
+        "partial_events_constructors"
     };
     private static readonly Lazy<ImmutableArray<MetadataReference>> AnalyzerReferences = new(CreateAnalyzerReferences);
     private static readonly Lazy<ImmutableArray<DiagnosticAnalyzer>> SyntaxAnalyzers = new(CreateSyntaxAnalyzers);
