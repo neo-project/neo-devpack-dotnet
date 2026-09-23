@@ -257,7 +257,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(12, Contract.TestLastIndexOf("world hello world"));
             AssertGasConsumed(2032740);
         }
- 
+
         [TestMethod]
         public void Test_LastIndexOfString_Value()
         {
@@ -278,7 +278,6 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Empty search value
             Assert.AreEqual(3, Contract.TestLastIndexOfValue("abc", ""));
-
 
             Assert.AreEqual(0, Contract.TestLastIndexOfValue("", ""));
         }
