@@ -75,8 +75,8 @@ internal partial class MethodConvert
             return false;
 
         SyntaxNode syntax = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
-        ExtensionDeclarationSyntax? extension = syntax.AncestorsAndSelf()
-            .OfType<ExtensionDeclarationSyntax>()
+        ExtensionBlockDeclarationSyntax? extension = syntax.AncestorsAndSelf()
+            .OfType<ExtensionBlockDeclarationSyntax>()
             .FirstOrDefault();
         if (extension is null)
             return false;
