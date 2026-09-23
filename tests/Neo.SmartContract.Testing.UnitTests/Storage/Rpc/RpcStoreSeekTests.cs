@@ -170,7 +170,8 @@ public class RpcStoreSeekTests
                 var parameters = (JArray)request["params"]!;
                 int contractId = int.Parse(parameters[0]!.Value<string>()!);
                 byte[] prefix = Convert.FromBase64String(parameters[1]!.Value<string>()!);
-                int start = int.Parse(parameters[2]!.Value<string>()!);
+                // The first findstorage request has no cursor; subsequent pages use "next".
+                int start = parameters.Count == 2 ? 0 : int.Parse(parameters[2]!.Value<string>()!);
                 Requests.Enqueue((contractId, prefix, start));
 
                 var matches = contractId == 1
