@@ -535,6 +535,38 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_UnregisteredStaticStrategyUsesDirectDelegate()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            Assert.IsNotNull(orderedStrategies);
+            var registeredStrategies = orderedStrategies!;
+            var originalStrategies = registeredStrategies.ToList();
+
+            try
+            {
+                var method = typeof(UnregisteredOptimizationStrategy)
+                    .GetMethod(nameof(UnregisteredOptimizationStrategy.Run), BindingFlags.Public | BindingFlags.Static)!;
+                registeredStrategies.Insert(0, (method, new StrategyAttribute { Priority = int.MaxValue }));
+
+                var (optimizedNef, optimizedManifest, _) = OptimizerClass.Optimize(
+                    NefFile,
+                    Manifest,
+                    null,
+                    CompilationOptions.OptimizationType.Experimental);
+
+                Assert.IsNotNull(optimizedNef);
+                Assert.IsNotNull(optimizedManifest);
+            }
+            finally
+            {
+                registeredStrategies.Clear();
+                registeredStrategies.AddRange(originalStrategies);
+            }
+        }
+
+        [TestMethod]
         public void Test_FinalJumpCleanupRunsAfterLateStrategies()
         {
             var optimizerType = typeof(OptimizerClass);
@@ -735,6 +767,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public sealed class InvalidOptimizationStrategy
         {
             public (NefFile, ContractManifest, JObject?) InstanceFail(NefFile nef, ContractManifest manifest, JObject debugInfo)
+            {
+                return (nef, manifest, debugInfo);
+            }
+        }
+
+        public static class UnregisteredOptimizationStrategy
+        {
+            public static (NefFile, ContractManifest, JObject?) Run(NefFile nef, ContractManifest manifest, JObject debugInfo)
             {
                 return (nef, manifest, debugInfo);
             }
