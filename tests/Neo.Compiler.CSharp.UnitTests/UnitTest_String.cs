@@ -278,6 +278,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Empty search value
             Assert.AreEqual(3, Contract.TestLastIndexOfValue("abc", ""));
+            Assert.AreEqual(-1, Contract.TestLastIndexOfValue("", "abc"));
 
             Assert.AreEqual(0, Contract.TestLastIndexOfValue("", ""));
         }
