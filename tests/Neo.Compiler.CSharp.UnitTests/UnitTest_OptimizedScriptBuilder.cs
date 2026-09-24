@@ -136,7 +136,7 @@ public class UnitTest_OptimizedScriptBuilder
             [endTry] = deletedTarget
         };
 
-        var ex = Assert.ThrowsException<BadScriptException>(() => OptimizedScriptBuilder.BuildScriptWithJumpTargets(
+        var ex = Assert.ThrowsExactly<BadScriptException>(() => OptimizedScriptBuilder.BuildScriptWithJumpTargets(
             simplifiedInstructionsToAddress,
             jumpSourceToTargets,
             new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)>(),
@@ -168,7 +168,7 @@ public class UnitTest_OptimizedScriptBuilder
             [jump.Size] = deletedTarget
         };
 
-        var ex = Assert.ThrowsException<BadScriptException>(() => OptimizedScriptBuilder.BuildScriptWithJumpTargets(
+        var ex = Assert.ThrowsExactly<BadScriptException>(() => OptimizedScriptBuilder.BuildScriptWithJumpTargets(
             simplifiedInstructionsToAddress,
             jumpSourceToTargets,
             new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)>(),

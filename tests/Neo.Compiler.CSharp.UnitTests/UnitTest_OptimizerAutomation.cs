@@ -484,7 +484,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 OptimizerClass.RegisterStrategies(typeof(FailingOptimizationStrategy));
 
-                var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
                     OptimizerClass.Optimize(NefFile, Manifest, null, CompilationOptions.OptimizationType.Experimental));
 
                 StringAssert.Contains(exception.Message, nameof(FailingOptimizationStrategy.Fail));
@@ -520,7 +520,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     .GetMethod(nameof(InvalidOptimizationStrategy.InstanceFail), BindingFlags.Public | BindingFlags.Instance)!;
                 registeredStrategies.Insert(0, (method, new StrategyAttribute { Priority = int.MaxValue }));
 
-                var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
                     OptimizerClass.Optimize(NefFile, Manifest, null, CompilationOptions.OptimizationType.Experimental));
 
                 StringAssert.Contains(exception.Message, nameof(InvalidOptimizationStrategy.InstanceFail));

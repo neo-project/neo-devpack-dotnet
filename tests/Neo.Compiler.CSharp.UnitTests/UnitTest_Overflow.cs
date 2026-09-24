@@ -64,18 +64,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AddUIntChecked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MaxValue, 1));
-            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MinValue, -1));
-            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MinValue, -uint.MaxValue));
-            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MaxValue, uint.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AddUIntChecked(uint.MaxValue, 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.AddUIntChecked(uint.MinValue, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.AddUIntChecked(uint.MinValue, -uint.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AddUIntChecked(uint.MaxValue, uint.MaxValue));
         }
 
         [TestMethod]
         public void Test_MulUIntChecked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.MulUIntChecked(uint.MaxValue, 2));
-            Assert.ThrowsException<TestException>(() => Contract.MulUIntChecked(1, -2));
-            Assert.ThrowsException<TestException>(() => Contract.MulUIntChecked(uint.MaxValue, uint.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.MulUIntChecked(uint.MaxValue, 2));
+            Assert.ThrowsExactly<TestException>(() => Contract.MulUIntChecked(1, -2));
+            Assert.ThrowsExactly<TestException>(() => Contract.MulUIntChecked(uint.MaxValue, uint.MaxValue));
         }
 
         [TestMethod]
@@ -85,13 +85,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(-2147483647, Contract.NegateInt(int.MaxValue));
 
             // VMUnhandledException -int.MinValue
-            Assert.ThrowsException<TestException>(() => Contract.NegateIntChecked(int.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.NegateIntChecked(int.MinValue));
 
             Assert.AreEqual(-long.MaxValue, Contract.NegateLongChecked(long.MaxValue));
             Assert.AreEqual(-long.MaxValue, Contract.NegateLong(long.MaxValue));
 
             // VMUnhandledException -long.MinValue
-            Assert.ThrowsException<TestException>(() => Contract.NegateLongChecked(long.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.NegateLongChecked(long.MinValue));
 
             // -short -> int
             Assert.AreEqual(-32767, Contract.NegateShortChecked(32767));
@@ -109,16 +109,16 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // add and negate
             Assert.AreEqual(-2147483648, Contract.NegateAddInt(int.MaxValue, 1));
-            Assert.ThrowsException<TestException>(() => Contract.NegateAddIntChecked(int.MaxValue, 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.NegateAddIntChecked(int.MaxValue, 1));
 
             Assert.AreEqual(-9223372036854775808, Contract.NegateAddLong(long.MaxValue, 1));
-            Assert.ThrowsException<TestException>(() => Contract.NegateAddLongChecked(long.MaxValue, 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.NegateAddLongChecked(long.MaxValue, 1));
 
             Assert.AreEqual(-2147483648, Contract.NegateAddInt(-2147483647, -1));
-            Assert.ThrowsException<TestException>(() => Contract.NegateAddIntChecked(-2147483647, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.NegateAddIntChecked(-2147483647, -1));
 
             Assert.AreEqual(-9223372036854775808, Contract.NegateAddLong(-9223372036854775807, -1));
-            Assert.ThrowsException<TestException>(() => Contract.NegateAddLongChecked(-9223372036854775807, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.NegateAddLongChecked(-9223372036854775807, -1));
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(short.MaxValue, Contract.DivShort(short.MaxValue, 1));
 
             // VMUnhandledException int.MinValue / -1
-            Assert.ThrowsException<TestException>(() => Contract.DivInt(int.MinValue, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.DivInt(int.MinValue, -1));
 
             // short / -1 -> int, so no overflow
             Assert.AreEqual(32768, Contract.DivShort(short.MinValue, -1));

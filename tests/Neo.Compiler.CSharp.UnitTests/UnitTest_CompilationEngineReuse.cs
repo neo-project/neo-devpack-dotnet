@@ -47,7 +47,7 @@ public class UnitTest_CompilationEngineReuse
         var (firstClasses, firstDependencies, firstSymbols) = engine.PrepareProjectContracts(firstProject.ProjectFile);
         var (secondClasses, secondDependencies, secondSymbols) = engine.PrepareProjectContracts(secondProject.ProjectFile);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
             engine.CompileProject(firstProject.ProjectFile, firstClasses, firstDependencies, firstSymbols));
 
         StringAssert.Contains(exception.Message, firstProject.ProjectFile);
