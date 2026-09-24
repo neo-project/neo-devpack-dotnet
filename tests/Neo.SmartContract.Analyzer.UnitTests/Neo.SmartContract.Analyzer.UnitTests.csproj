@@ -11,6 +11,9 @@
 		<PackageReference Include="JsonSchema.Net" Version="9.4.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" Version="1.1.2" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" Version="1.1.2" />
+		<!-- The CodeAnalysis MSTest verifier 1.1.2 is built against the legacy MSTest assembly identity. -->
+		<PackageReference Update="MSTest.TestAdapter" Version="3.9.3" />
+		<PackageReference Update="MSTest.TestFramework" Version="3.9.3" />
 	</ItemGroup>
 
 	<ItemGroup>

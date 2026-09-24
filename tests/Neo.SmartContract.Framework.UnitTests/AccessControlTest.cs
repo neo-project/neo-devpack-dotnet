@@ -85,7 +85,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         // A second initialization must be rejected so an attacker cannot add a co-admin.
-        Assert.ThrowsException<TestException>(() => c.ReInit(Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.ReInit(Bob.Account));
         Assert.IsFalse(c.HasRole(DefaultAdmin, Bob.Account));
         Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(DefaultAdmin));
         Merge(c);
@@ -95,7 +95,7 @@ public class AccessControlTest
     public void Init_ZeroAdmin_Aborts()
     {
         var engine = CreateEngine();
-        Assert.ThrowsException<TestException>(() => Deploy(engine, UInt160.Zero));
+        Assert.ThrowsExactly<TestException>(() => Deploy(engine, UInt160.Zero));
     }
 
     // ---- Reads ----
@@ -118,7 +118,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.HasRole(new BigInteger(-1), Alice.Account));
+        Assert.ThrowsExactly<TestException>(() => c.HasRole(new BigInteger(-1), Alice.Account));
         Merge(c);
     }
 
@@ -161,7 +161,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Bob.Account, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Bob.Account, Charlie.Account));
         Assert.IsFalse(c.HasRole(Minter, Charlie.Account));
         Merge(c);
     }
@@ -175,7 +175,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
         Assert.IsFalse(c.HasRole(Minter, Charlie.Account));
         Merge(c);
     }
@@ -202,7 +202,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, UInt160.Zero));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Alice.Account, UInt160.Zero));
         Merge(c);
     }
 
@@ -256,7 +256,7 @@ public class AccessControlTest
 
         // Charlie tries to renounce Bob's role.
         engine.SetTransactionSigners(Charlie);
-        Assert.ThrowsException<TestException>(() => c.RenounceRole(Minter, Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RenounceRole(Minter, Bob.Account));
         Assert.IsTrue(c.HasRole(Minter, Bob.Account));
         Merge(c);
     }
@@ -268,7 +268,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.RenounceRole(Minter, Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RenounceRole(Minter, Bob.Account));
         Assert.IsFalse(c.HasRole(Minter, Bob.Account));
         Merge(c);
     }
@@ -281,7 +281,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.RevokeRole(DefaultAdmin, Alice.Account, Alice.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RevokeRole(DefaultAdmin, Alice.Account, Alice.Account));
         Assert.IsTrue(c.HasRole(DefaultAdmin, Alice.Account));
         Merge(c);
     }
@@ -292,7 +292,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.RenounceRole(DefaultAdmin, Alice.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RenounceRole(DefaultAdmin, Alice.Account));
         Assert.IsTrue(c.HasRole(DefaultAdmin, Alice.Account));
         Merge(c);
     }
@@ -352,7 +352,7 @@ public class AccessControlTest
         c.GrantRole(MinterAdmin, Alice.Account, Bob.Account);
 
         // Default admin (Alice) can no longer grant Minter; only MinterAdmin holders can.
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
 
         engine.SetTransactionSigners(Bob);
         c.GrantRole(Minter, Bob.Account, Charlie.Account);
@@ -367,7 +367,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.SetRoleAdmin(Minter, MinterAdmin, Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.SetRoleAdmin(Minter, MinterAdmin, Bob.Account));
         Merge(c);
     }
 
@@ -386,7 +386,7 @@ public class AccessControlTest
 
         // Non-holder fails.
         engine.SetTransactionSigners(Charlie);
-        Assert.ThrowsException<TestException>(() => c.GuardedAction(Minter, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GuardedAction(Minter, Charlie.Account));
         Merge(c);
     }
 
