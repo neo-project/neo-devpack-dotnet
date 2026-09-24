@@ -60,16 +60,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047300);
             Assert.AreEqual(0, Contract.Abs(0));
             AssertGasConsumed(1047300);
-            Assert.ThrowsException<TestException>(() => Contract.Abs(int.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.Abs(int.MinValue));
 
             Assert.AreEqual(sbyte.MaxValue, Contract.AbsSByte(sbyte.MinValue + 1));
-            Assert.ThrowsException<TestException>(() => Contract.AbsSByte(sbyte.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AbsSByte(sbyte.MinValue));
 
             Assert.AreEqual(short.MaxValue, Contract.AbsShort(short.MinValue + 1));
-            Assert.ThrowsException<TestException>(() => Contract.AbsShort(short.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AbsShort(short.MinValue));
 
             Assert.AreEqual(long.MaxValue, Contract.AbsLong(long.MinValue + 1));
-            Assert.ThrowsException<TestException>(() => Contract.AbsLong(long.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AbsLong(long.MinValue));
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047630);
             Assert.AreEqual(((long)int.MinValue) * int.MinValue, Contract.BigMul(int.MinValue, int.MinValue));
             AssertGasConsumed(1047630);
-            Assert.ThrowsException<TestException>(() => Contract.BigMul(long.MaxValue, long.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.BigMul(long.MaxValue, long.MaxValue));
             AssertGasConsumed(1063290);
         }
 
@@ -202,7 +202,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestDivRemZeroU()
         {
-            Assert.ThrowsException<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
             AssertGasConsumed(1047510);
         }
 
@@ -267,17 +267,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public void TestDivRemUlong_DivideByZero()
         {
-            Contract.DivRemUlong((ulong)10, (ulong)0);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUlong((ulong)10, (ulong)0));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public void TestDivRemUlong_BothZero()
         {
-            Contract.DivRemUlong((ulong)0, (ulong)0);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUlong((ulong)0, (ulong)0));
         }
 
         [TestMethod]
@@ -420,7 +418,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual((byte)5, Contract.ClampByte(5, 0, 10));
             AssertGasConsumed(1047930);
-            Assert.ThrowsException<TestException>(() => Contract.ClampByte(5, 10, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.ClampByte(5, 10, 0));
             AssertGasConsumed(1063170);
             Assert.AreEqual((byte)5, Contract.ClampByte(0, 5, 10));
             AssertGasConsumed(1047930);

@@ -53,7 +53,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNull(model.GetTypeInfo(expression.Type).Type);
 
             var method = typeof(MethodConvert).GetMethod("ConvertDefaultExpression", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            var invocation = Assert.ThrowsException<TargetInvocationException>(() => method.Invoke(converter, [model, expression]));
+            var invocation = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(converter, [model, expression]));
             Assert.IsInstanceOfType<CompilationException>(invocation.InnerException);
             var exception = (CompilationException)invocation.InnerException!;
             StringAssert.Contains(exception.Message, "Cannot determine type for default expression. Ensure the expression has a valid type.");

@@ -384,7 +384,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1049250);
 
             // Test invalid index
-            Assert.ThrowsException<TestException>(() => Contract.TestPickItem("Test", 5));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestPickItem("Test", 5));
         }
 
         [TestMethod]
@@ -397,7 +397,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1355010);
 
             // Test invalid start index
-            Assert.ThrowsException<TestException>(() => Contract.TestSubstringToEnd("Test", 5));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSubstringToEnd("Test", 5));
         }
 
         [TestMethod]
@@ -519,7 +519,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(6527070);
 
             // An empty oldValue throws in C#; the contract faults instead of looping forever.
-            Assert.ThrowsException<TestException>(() => Contract.TestReplace("abc", "", "x"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestReplace("abc", "", "x"));
             AssertGasConsumed(1786290);
         }
 
@@ -639,7 +639,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("aaa", Contract.TestStringCharCount('a', 3));
             AssertGasConsumed(1480260);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestStringCharCount('a', -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringCharCount('a', -1));
             AssertGasConsumed(1063380);
         }
 

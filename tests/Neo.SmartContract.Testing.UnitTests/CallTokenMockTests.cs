@@ -103,7 +103,7 @@ public class CallTokenMockTests
                 .Throws(new InvalidOperationException("token mock failure")));
         var caller = DeployTokenCaller(engine, target.Hash);
 
-        var exception = Assert.ThrowsException<TestException>(() => caller.Value());
+        var exception = Assert.ThrowsExactly<TestException>(() => caller.Value());
         StringAssert.Contains(exception.ToString(), "token mock failure");
         Assert.AreSame(storage, engine.Storage);
     }
@@ -172,7 +172,7 @@ public class CallTokenMockTests
             ? DeployTokenCaller(engine, target.Hash, "notify", true, [42])
             : DeployTokenCaller(engine, target.Hash, "combine", false, [1, 2]);
 
-        Assert.ThrowsException<TestException>(() => caller.Value());
+        Assert.ThrowsExactly<TestException>(() => caller.Value());
         mock!.Verify(c => c.Combine(It.IsAny<BigInteger?>(), It.IsAny<BigInteger?>()), Times.Never);
         mock.Verify(c => c.Notify(It.IsAny<BigInteger?>()), Times.Never);
     }
@@ -191,7 +191,7 @@ public class CallTokenMockTests
         var caller = DeployTokenCaller(engine, target.Hash);
         engine.CallFlags = CallFlags.AllowCall;
 
-        Assert.ThrowsException<TestException>(() => caller.Value());
+        Assert.ThrowsExactly<TestException>(() => caller.Value());
         mock!.Verify(c => c.Combine(It.IsAny<BigInteger?>(), It.IsAny<BigInteger?>()), Times.Never);
     }
 
@@ -208,7 +208,7 @@ public class CallTokenMockTests
         });
         var caller = DeployTokenCaller(engine, target.Hash, arguments: [1], parametersCount: 2);
 
-        Assert.ThrowsException<TestException>(() => caller.Value());
+        Assert.ThrowsExactly<TestException>(() => caller.Value());
         mock!.Verify(c => c.Combine(It.IsAny<BigInteger?>(), It.IsAny<BigInteger?>()), Times.Never);
     }
 

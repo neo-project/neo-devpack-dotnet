@@ -162,8 +162,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             arr = Contract.TestDynamicArrayInit(0);
             AssertGasConsumed(1863750);
             Assert.AreEqual(0, arr?.Count);
-            Assert.ThrowsException<TestException>(() => Contract.TestDynamicArrayInit(-1));
-            Assert.ThrowsException<TestException>(() => Contract.TestDynamicArrayInit(int.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(int.MaxValue));
         }
 
         [TestMethod]
