@@ -347,6 +347,29 @@ EndGlobal
             Assert.IsFalse(File.Exists(Path.Combine(_testOutputPath, "bin", "sc", $"{contractName}.nef")));
         }
 
+        [TestMethod]
+        public void TestDiagnosticsOnlyWritesCompilerErrorsToStdErr()
+        {
+            string sourcePath = Path.Combine(_testOutputPath, "Broken.cs");
+            File.WriteAllText(sourcePath, """
+using Neo.SmartContract.Framework;
+
+public class Broken : SmartContract
+{
+    public static int Test() => (int)default(double);
+}
+""");
+
+            var result = RunCompilerCommand($"\"{sourcePath}\" --diagnostics");
+
+            Assert.AreEqual(1, result.ExitCode);
+            Assert.AreEqual(string.Empty, result.StdOut);
+            StringAssert.Contains(result.StdErr, "Error ");
+            Assert.IsFalse(result.StdErr.Contains("Compilation failed.", StringComparison.Ordinal));
+            foreach (string line in result.StdErr.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries))
+                Assert.IsTrue(line.StartsWith("Error NC", StringComparison.Ordinal), line);
+        }
+
         private CommandResult RunCompilerCommand(string arguments)
         {
             var args = SplitArgs(arguments);

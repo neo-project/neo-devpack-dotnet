@@ -31,5 +31,6 @@ namespace Neo.Compiler
         public bool SecurityAnalysis { get; set; } = false;
         public bool GenerateContractInterface { get; set; } = false;
         public bool PrintAbi { get; set; } = false;
+        public bool DiagnosticsOnly { get; set; } = false;
     }
 }
