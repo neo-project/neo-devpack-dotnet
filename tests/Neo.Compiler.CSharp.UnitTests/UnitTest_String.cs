@@ -262,15 +262,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LastIndexOfString_Value()
         {
             Assert.AreEqual(6, Contract.TestLastIndexOfValue("hello world", "world"));
-
             Assert.AreEqual(12, Contract.TestLastIndexOfValue("world hello world", "world"));
-
             Assert.AreEqual(-1, Contract.TestLastIndexOfValue("hello", "world"));
-
             Assert.AreEqual(-1, Contract.TestLastIndexOfValue("abc", "abcd"));
-
             Assert.AreEqual(0, Contract.TestLastIndexOfValue("abc", "ab"));
-
             Assert.AreEqual(3, Contract.TestLastIndexOfValue("abcab", "ab"));
 
             // Overlapping matches
