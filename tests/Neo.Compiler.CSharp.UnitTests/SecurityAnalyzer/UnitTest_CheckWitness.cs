@@ -163,6 +163,50 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         }
 
         [TestMethod]
+        public void Test_CheckWitness_RecognizesCallTargetAsMethodBoundary()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALL_L, 0x06, 0x00, 0x00, 0x00,
+                (byte)OpCode.RET,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.DROP,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_HandlesManifestWithoutMethods()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC0,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(
+                CreateNefFile(script), CreateManifestWithoutMethods(), null);
+            Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_DetectsStoredResultWithoutConsumer()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC0
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
         public void Test_CheckWitness_IgnoresMismatchedLocalRoundTrip()
         {
             byte[] script =
@@ -231,6 +275,13 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 Trusts = SmartContract.Manifest.WildcardContainer<SmartContract.Manifest.ContractPermissionDescriptor>.Create(),
                 Extra = null
             };
+        }
+
+        private static SmartContract.Manifest.ContractManifest CreateManifestWithoutMethods()
+        {
+            var manifest = CreateManifest();
+            manifest.Abi.Methods = Array.Empty<SmartContract.Manifest.ContractMethodDescriptor>();
+            return manifest;
         }
     }
 }
