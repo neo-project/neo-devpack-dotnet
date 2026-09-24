@@ -483,9 +483,7 @@ internal partial class MethodConvert
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
         var endTarget = new JumpTarget();
-        var valueItem = methodConvert.PopInstruction(); // The second argument is the value to get the name of
-        var enumTypeItem = methodConvert.PopInstruction(); // The first argument is the enum type, It's unused when running
-        methodConvert.AddInstruction(valueItem);
+        methodConvert.Nip();                     // Drop the enum type
         foreach (var t in enumMembers)
         {
             methodConvert.Dup();                 // Duplicate input value
