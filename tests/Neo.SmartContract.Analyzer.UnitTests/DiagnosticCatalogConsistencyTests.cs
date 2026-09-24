@@ -225,7 +225,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                 NC4995 | Usage | Error | Duplicate entry
                 """));
 
-        Assert.ThrowsExactly<InvalidDataException>(() => ParseReleaseCatalogs(catalog));
+            Assert.ThrowsExactly<InvalidDataException>(() => ParseReleaseCatalogs(catalog));
         }
 
         private static IReadOnlyList<AnalyzerDiagnostic> LoadAnalyzerDiagnostics()
