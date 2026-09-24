@@ -102,14 +102,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_NullLeftFromEndRangeEvaluatesBothEndpoints()
         {
-            Assert.ThrowsException<TestException>(Contract.TestNullLeftFromEndRangeEvaluationOrder);
+            Assert.ThrowsExactly<TestException>(Contract.TestNullLeftFromEndRangeEvaluationOrder);
             AssertLogs("start", "end");
         }
 
         [TestMethod]
         public void Test_NullRightFromEndRangeEvaluatesBothEndpoints()
         {
-            Assert.ThrowsException<TestException>(Contract.TestNullRightFromEndRangeEvaluationOrder);
+            Assert.ThrowsExactly<TestException>(Contract.TestNullRightFromEndRangeEvaluationOrder);
             AssertLogs("start", "end");
         }
 
@@ -123,14 +123,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_NegativeStartSkipsEndEvaluation()
         {
-            Assert.ThrowsException<TestException>(Contract.TestNegativeStartSkipsEndEvaluation);
+            Assert.ThrowsExactly<TestException>(Contract.TestNegativeStartSkipsEndEvaluation);
             AssertLogs("receiver", "negative");
         }
 
         [TestMethod]
         public void Test_NegativeFromEndStopsAfterEndEvaluation()
         {
-            Assert.ThrowsException<TestException>(Contract.TestNegativeFromEndStopsAfterEndEvaluation);
+            Assert.ThrowsExactly<TestException>(Contract.TestNegativeFromEndStopsAfterEndEvaluation);
             AssertLogs("receiver", "start", "negative");
         }
 
@@ -247,19 +247,19 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.AreEqual(new BigInteger(3), contract.CastEndpoint(), optimization.ToString());
                 Assert.AreEqual(new BigInteger(2), contract.SuppressedEndpoint(), optimization.ToString());
                 Assert.AreEqual(new BigInteger(2), contract.ConditionalThrowEndpoint(true), optimization.ToString());
-                Assert.ThrowsException<TestException>(() => contract.ConditionalThrowEndpoint(false), optimization.ToString());
+                Assert.ThrowsExactly<TestException>(() => contract.ConditionalThrowEndpoint(false), optimization.ToString());
                 Assert.AreEqual(new BigInteger(2), contract.SwitchThrowEndpoint(0), optimization.ToString());
-                Assert.ThrowsException<TestException>(() => contract.SwitchThrowEndpoint(1), optimization.ToString());
+                Assert.ThrowsExactly<TestException>(() => contract.SwitchThrowEndpoint(1), optimization.ToString());
 
                 var logs = new Queue<string>();
                 contract.OnRuntimeLog += (_, log) => logs.Enqueue(log);
-                Assert.ThrowsException<TestException>(() => contract.NestedLeftNull(true), optimization.ToString());
+                Assert.ThrowsExactly<TestException>(() => contract.NestedLeftNull(true), optimization.ToString());
                 AssertSingleEndLog(logs, optimization);
-                Assert.ThrowsException<TestException>(() => contract.NestedLeftNull(false), optimization.ToString());
+                Assert.ThrowsExactly<TestException>(() => contract.NestedLeftNull(false), optimization.ToString());
                 AssertSingleEndLog(logs, optimization);
-                Assert.ThrowsException<TestException>(() => contract.NestedOutOfRange(true), optimization.ToString());
+                Assert.ThrowsExactly<TestException>(() => contract.NestedOutOfRange(true), optimization.ToString());
                 AssertSingleEndLog(logs, optimization);
-                Assert.ThrowsException<TestException>(() => contract.NestedOutOfRange(false), optimization.ToString());
+                Assert.ThrowsExactly<TestException>(() => contract.NestedOutOfRange(false), optimization.ToString());
                 AssertSingleEndLog(logs, optimization);
             }
         }

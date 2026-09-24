@@ -75,17 +75,17 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep11
         public void TestMintRequiresOwnerAndValidRecipient()
         {
             Engine.SetTransactionSigners(Bob);
-            Assert.ThrowsException<TestException>(() => Contract.Mint(Bob.Account, "Sword", "Rare sword", "ipfs://sword"));
+            Assert.ThrowsExactly<TestException>(() => Contract.Mint(Bob.Account, "Sword", "Rare sword", "ipfs://sword"));
 
             Engine.SetTransactionSigners(Alice);
-            Assert.ThrowsException<TestException>(() => Contract.Mint(UInt160.Zero, "Sword", "Rare sword", "ipfs://sword"));
+            Assert.ThrowsExactly<TestException>(() => Contract.Mint(UInt160.Zero, "Sword", "Rare sword", "ipfs://sword"));
         }
 
         [TestMethod]
         public void TestUpdate()
         {
             Engine.SetTransactionSigners(Bob);
-            Assert.ThrowsException<TestException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
+            Assert.ThrowsExactly<TestException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
 
             Engine.SetTransactionSigners(Alice);
             Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString());
