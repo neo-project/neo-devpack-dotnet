@@ -71,4 +71,10 @@ public class GasSnapshotTests
             if (File.Exists(path)) File.Delete(path);
         }
     }
+
+    [TestMethod]
+    public void FromJsonRejectsNullSnapshot()
+    {
+        Assert.ThrowsException<FormatException>(() => GasSnapshot.FromJson("null"));
+    }
 }
