@@ -163,7 +163,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("{\"result\":" + result + "}");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
                 store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
 
             StringAssert.Contains(exception.Message, "findstorage");
@@ -177,7 +177,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer(page, page);
             var store = new RpcStore(server.Url);
 
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.ThrowsExactly<InvalidOperationException>(() =>
                 store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
 
             Assert.AreEqual(2, server.Requests.Count);
