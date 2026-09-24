@@ -52,8 +52,8 @@ public class GasSnapshotTests
     {
         var snapshot = new GasSnapshot().Record("transfer", 10);
 
-        Assert.ThrowsException<ArgumentException>(() => snapshot.Record("transfer", 11));
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => snapshot.Record("negative", -1));
+        Assert.ThrowsExactly<ArgumentException>(() => snapshot.Record("transfer", 11));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => snapshot.Record("negative", -1));
     }
 
     [TestMethod]
@@ -75,6 +75,6 @@ public class GasSnapshotTests
     [TestMethod]
     public void FromJsonRejectsNullSnapshot()
     {
-        Assert.ThrowsException<FormatException>(() => GasSnapshot.FromJson("null"));
+        Assert.ThrowsExactly<FormatException>(() => GasSnapshot.FromJson("null"));
     }
 }
