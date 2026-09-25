@@ -34,10 +34,10 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         {
             var store = new RpcStore("http://localhost:10332");
 
-            var deleteException = Assert.ThrowsException<NotImplementedException>(() => store.Delete(new byte[] { 1 }));
+            var deleteException = Assert.ThrowsExactly<NotImplementedException>(() => store.Delete(new byte[] { 1 }));
             StringAssert.Contains(deleteException.Message, "read-only");
 
-            var putException = Assert.ThrowsException<NotImplementedException>(() => store.Put(new byte[] { 1 }, new byte[] { 2 }));
+            var putException = Assert.ThrowsExactly<NotImplementedException>(() => store.Put(new byte[] { 1 }, new byte[] { 2 }));
             StringAssert.Contains(putException.Message, "read-only");
         }
 
@@ -48,7 +48,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             var snapshot = store.GetSnapshot();
             snapshot.Put(new byte[] { 1 }, new byte[] { 2 });
 
-            var exception = Assert.ThrowsException<NotImplementedException>(() => snapshot.Commit());
+            var exception = Assert.ThrowsExactly<NotImplementedException>(() => snapshot.Commit());
 
             StringAssert.Contains(exception.Message, "read-only");
         }
@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("""{"error":{"code":-500,"message":"boom","data":"details"}}""");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
 
             StringAssert.Contains(exception.Message, "getstorage");
             StringAssert.Contains(exception.Message, "code=-500");
@@ -73,7 +73,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("""{"error":{}}""");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
 
             StringAssert.Contains(exception.Message, "code=<missing>");
             StringAssert.Contains(exception.Message, "message=<missing>");
@@ -86,7 +86,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("""{"result":{"unexpected":true}}""");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
                 store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
 
             StringAssert.Contains(exception.Message, "findstorage");
@@ -163,7 +163,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("{\"result\":" + result + "}");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
                 store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
 
             StringAssert.Contains(exception.Message, "findstorage");
@@ -177,7 +177,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer(page, page);
             var store = new RpcStore(server.Url);
 
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.ThrowsExactly<InvalidOperationException>(() =>
                 store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
 
             Assert.AreEqual(2, server.Requests.Count);
@@ -212,7 +212,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             CollectionAssert.AreEqual(new byte[] { 4 }, records[0].Value);
 
             snapshot.Delete(key);
-            var exception = Assert.ThrowsException<NotImplementedException>(() => snapshot.Commit());
+            var exception = Assert.ThrowsExactly<NotImplementedException>(() => snapshot.Commit());
             StringAssert.Contains(exception.Message, "read-only");
         }
 

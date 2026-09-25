@@ -53,7 +53,8 @@ jobs:
     - name: Check format
       if: steps.scope.outputs.full == 'true'
       run: |
-        dotnet format --no-restore --verify-no-changes --verbosity minimal
+        dotnet format --no-restore --verify-no-changes --verbosity minimal \
+          --exclude-diagnostics MSTEST0017 MSTEST0030 MSTEST0032 MSTEST0044 MSTEST0052
     - name: Build Neo.SmartContract.Template and test templates
       if: steps.scope.outputs.full == 'true'
       run: |

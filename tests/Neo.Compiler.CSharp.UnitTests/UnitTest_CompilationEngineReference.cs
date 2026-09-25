@@ -19,7 +19,7 @@ public class UnitTest_CompilationEngineReference
         var engine = new CompilationEngine(new CompilationOptions());
         var frameworkReference = MetadataReference.CreateFromFile(typeof(CompilationEngine).Assembly.Location);
 
-        var exception = Assert.ThrowsException<ArgumentException>(() =>
+        var exception = Assert.ThrowsExactly<ArgumentException>(() =>
             engine.Compile([], [], frameworkReference));
 
         Assert.AreEqual("frameworkReference", exception.ParamName);
@@ -134,7 +134,7 @@ public class BetaContract : SmartContract
         try
         {
             var engine = new CompilationEngine(new CompilationOptions());
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => engine.GetCompilation(projectFile));
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => engine.GetCompilation(projectFile));
 
             StringAssert.Contains(exception.Message, "dotnet restore failed");
             StringAssert.Contains(exception.Message, "exit code");
@@ -330,7 +330,7 @@ public class BinGenerated
         var method = typeof(CompilationEngine).GetMethod("GetReference", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.IsNotNull(method);
 
-        var exception = Assert.ThrowsException<TargetInvocationException>(() =>
+        var exception = Assert.ThrowsExactly<TargetInvocationException>(() =>
             method.Invoke(engine, new object[]
             {
                 dependencyName,

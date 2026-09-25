@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             Assert.IsNotNull(load.Invoke(null, new object[] { validStream }));
 
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes("[]"));
-            var exception = Assert.ThrowsException<TargetInvocationException>(() => load.Invoke(null, new object[] { stream }));
+            var exception = Assert.ThrowsExactly<TargetInvocationException>(() => load.Invoke(null, new object[] { stream }));
 
             Assert.IsInstanceOfType(exception.InnerException, typeof(FormatException));
             Assert.AreEqual("The debug info root must be a JSON object.", exception.InnerException!.Message);
@@ -73,7 +73,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
         {
             string json = CreateDebugInfoJson("0[0]1:1-100001:1");
 
-            var exception = Assert.ThrowsException<FormatException>(() => NeoDebugInfo.FromDebugInfoJson(json));
+            var exception = Assert.ThrowsExactly<FormatException>(() => NeoDebugInfo.FromDebugInfoJson(json));
 
             StringAssert.Contains(exception.Message, "Invalid Sequence Point line range");
         }
@@ -104,7 +104,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             var coverage = new CoveredContract(MethodDetectionMechanism.NextMethod, UInt160.Zero, null);
             var format = new CoverletJsonFormat((coverage, debugInfo));
 
-            Assert.ThrowsException<InvalidDataException>(() =>
+            Assert.ThrowsExactly<InvalidDataException>(() =>
                 format.WriteReport((_, write) => write(new MemoryStream())));
         }
 

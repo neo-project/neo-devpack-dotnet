@@ -113,7 +113,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var array = new List<object>();
 
-            var exception = Assert.ThrowsException<TestException>(() => Contract.Average(array));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.Average(array));
             AssertGasConsumed(1099470);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
@@ -140,7 +140,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AverageLong()
         {
             var array = new List<object>();
-            var exception = Assert.ThrowsException<TestException>(() => Contract.AverageLong(array));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.AverageLong(array));
             AssertGasConsumed(1099470);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
@@ -169,7 +169,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var array = new List<object>();
 
-            var exception = Assert.ThrowsException<TestException>(() => Contract.AverageTwice(array));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.AverageTwice(array));
             AssertGasConsumed(1117350);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
