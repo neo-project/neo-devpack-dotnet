@@ -49,14 +49,14 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             Assert.IsTrue(Contract.TestNumEqual(1, 1));
             Assert.IsFalse(Contract.TestNumEqual(1, 2));
-            Assert.ThrowsException<TestException>(() => Contract.TestNumEqual(null, 2));
-            Assert.ThrowsException<TestException>(() => Contract.TestNumEqual(1, null));
-            Assert.ThrowsException<TestException>(() => Contract.TestNumEqual(null, null));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestNumEqual(null, 2));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestNumEqual(1, null));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestNumEqual(null, null));
             Assert.IsFalse(Contract.TestNumNotEqual(-1, -1));
             Assert.IsTrue(Contract.TestNumNotEqual(-1, -2));
-            Assert.ThrowsException<TestException>(() => Contract.TestNumNotEqual(null, -2));
-            Assert.ThrowsException<TestException>(() => Contract.TestNumNotEqual(-1, null));
-            Assert.ThrowsException<TestException>(() => Contract.TestNumNotEqual(null, null));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestNumNotEqual(null, -2));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestNumNotEqual(-1, null));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestNumNotEqual(null, null));
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             Assert.AreEqual(2000000000000000, Contract.TestBigIntegerCast([0x00, 0x00, 0x8d, 0x49, 0xfd, 0x1a, 0x07]));
             AssertGasConsumed(1538940);
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestBigIntegerParseHexString("00008d49fd1a07"));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestBigIntegerParseHexString("00008d49fd1a07"));
             AssertGasConsumed(2032230);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
@@ -88,7 +88,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             AssertGasConsumed(1048530);
             AssertNoLogs();
 
-            var ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
+            var ex = Assert.ThrowsExactly<TestException>(() => Contract.AssertCall(false));
             AssertGasConsumed(1048560);
             AssertNoLogs();
             Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
@@ -96,7 +96,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Test without notification right
 
             Engine.CallFlags &= ~CallFlags.AllowNotify;
-            ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
+            ex = Assert.ThrowsExactly<TestException>(() => Contract.AssertCall(false));
             AssertGasConsumed(1048560);
             Engine.CallFlags = CallFlags.All;
             AssertNoLogs();
@@ -108,7 +108,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             AssertGasConsumed(1048050);
             AssertNoLogs();
 
-            ex = Assert.ThrowsException<TestException>(() => Contract.VoidAssertCall(false));
+            ex = Assert.ThrowsExactly<TestException>(() => Contract.VoidAssertCall(false));
             AssertGasConsumed(1048050);
         }
 

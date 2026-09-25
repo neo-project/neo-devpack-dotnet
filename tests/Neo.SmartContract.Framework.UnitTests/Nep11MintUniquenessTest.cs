@@ -34,7 +34,7 @@ public class Nep11MintUniquenessTest
         Assert.AreEqual(BigInteger.One, contract.BalanceOf(firstOwner));
         Assert.AreEqual(firstOwner, contract.OwnerOf(tokenId));
 
-        Assert.ThrowsException<TestException>(() => contract.Mint(tokenId, secondOwner));
+        Assert.ThrowsExactly<TestException>(() => contract.Mint(tokenId, secondOwner));
 
         Assert.AreEqual(BigInteger.One, contract.TotalSupply);
         Assert.AreEqual(BigInteger.One, contract.BalanceOf(firstOwner));
@@ -51,7 +51,7 @@ public class Nep11MintUniquenessTest
 
         var tokenId = new byte[] { 0x43 };
 
-        var exception = Assert.ThrowsException<TestException>(() => contract.Burn(tokenId));
+        var exception = Assert.ThrowsExactly<TestException>(() => contract.Burn(tokenId));
         Assert.IsTrue(exception.Message.Contains("does not exist."));
         Assert.AreEqual(BigInteger.Zero, contract.TotalSupply);
     }

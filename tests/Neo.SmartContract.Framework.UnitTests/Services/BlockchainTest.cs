@@ -136,7 +136,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Uknown property
 
-            Assert.ThrowsException<TestException>(() => method(foundArg, "¿...?"));
+            Assert.ThrowsExactly<TestException>(() => method(foundArg, "¿...?"));
         }
 
         [TestMethod]
@@ -176,7 +176,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             }
             else
             {
-                Assert.ThrowsException<TestException>(() => found(""));
+                Assert.ThrowsExactly<TestException>(() => found(""));
             }
 
             var tx = _block.Transactions[0];
@@ -264,7 +264,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Found + Uknown property
 
-            Assert.ThrowsException<TestException>(() => Contract.GetContract(Contract.Hash, "¿..?"));
+            Assert.ThrowsExactly<TestException>(() => Contract.GetContract(Contract.Hash, "¿..?"));
         }
     }
 }
