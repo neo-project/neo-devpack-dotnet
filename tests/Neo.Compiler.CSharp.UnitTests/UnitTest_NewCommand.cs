@@ -187,6 +187,11 @@ namespace Neo.Compiler.CSharp.UnitTests
                          compileResult.StdOut.Contains($"Created {Path.Combine(_testOutputPath, contractName, "bin", "sc", $"{contractName}.nef")}", StringComparison.OrdinalIgnoreCase) ||
                          compileResult.StdErr.Contains("Compilation completed successfully", StringComparison.OrdinalIgnoreCase),
                          "Expected compilation success message.");
+
+            var diagnosticsResult = RunCompilerCommand($"\"{projectPath}\" --diagnostics");
+            Assert.AreEqual(0, diagnosticsResult.ExitCode, $"Diagnostics compilation failed. Output: {diagnosticsResult.StdOut}{diagnosticsResult.StdErr}");
+            Assert.AreEqual(string.Empty, diagnosticsResult.StdOut);
+            Assert.AreEqual(string.Empty, diagnosticsResult.StdErr);
         }
 
         [TestMethod]
