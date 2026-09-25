@@ -31,7 +31,7 @@ public class RpcStoreHttpResponseTests
         using var server = new RpcResponseServer(string.Empty);
         var store = new RpcStore(server.Url);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
             store.TryGet([0, 0, 0, 1, 2], out _));
 
         StringAssert.Contains(exception.Message, "getstorage");
@@ -44,7 +44,7 @@ public class RpcStoreHttpResponseTests
         using var server = new RpcResponseServer("not-json");
         var store = new RpcStore(server.Url);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
             store.TryGet([0, 0, 0, 1, 2], out _));
 
         StringAssert.Contains(exception.Message, "getstorage");
@@ -58,7 +58,7 @@ public class RpcStoreHttpResponseTests
         using var server = new RpcResponseServer("""{"error":"temporarily unavailable"}""", "503 Service Unavailable");
         var store = new RpcStore(server.Url);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
             store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
 
         StringAssert.Contains(exception.Message, "findstorage");

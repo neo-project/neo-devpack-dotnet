@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Property_Inc_Checked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Inc_Checked());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Property_Inc_Checked());
             AssertGasConsumed(1000620);
         }
 
@@ -36,7 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Property_Dec_Checked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Dec_Checked());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Property_Dec_Checked());
             AssertGasConsumed(1000470);
         }
 
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Inc_Checked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Inc_Checked());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Local_Inc_Checked());
             AssertGasConsumed(1002540);
         }
 
@@ -64,7 +64,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Dec_Checked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Dec_Checked());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Local_Dec_Checked());
             AssertGasConsumed(1002390);
         }
 
@@ -92,19 +92,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Param_Dec_Checked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked(0));
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Param_Dec_Checked(0));
             AssertGasConsumed(1063320);
 
             Contract.UnitTest_Param_Dec_Checked(uint.MaxValue);
             AssertGasConsumed(1048890);
 
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked(uint.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Param_Dec_Checked(uint.MinValue));
             AssertGasConsumed(1063320);
 
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Param_Dec_Checked(-1));
             AssertGasConsumed(1063320);
 
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked(1));
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Param_Dec_Checked(1));
             AssertGasConsumed(1063920);
         }
 
@@ -131,7 +131,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_IntProperty_Inc_Checked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Inc_Checked_Int());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Property_Inc_Checked_Int());
             AssertGasConsumed(1000590);
         }
 
@@ -145,7 +145,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_IntProperty_Dec_Checked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Dec_Checked_Int());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Property_Dec_Checked_Int());
             AssertGasConsumed(1000590);
         }
 
@@ -160,7 +160,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Inc_Checked_Int()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Inc_Checked_Int());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Local_Inc_Checked_Int());
             AssertGasConsumed(1002510);
         }
 
@@ -174,7 +174,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Local_Dec_Checked_Int()
         {
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Dec_Checked_Int());
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Local_Dec_Checked_Int());
             AssertGasConsumed(1002510);
         }
 
@@ -192,7 +192,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(checked(0 + 2)), Contract.UnitTest_Param_Inc_Checked_Int(0));
             AssertGasConsumed(1048830);
 
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Inc_Checked_Int(int.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Param_Inc_Checked_Int(int.MaxValue));
             AssertGasConsumed(1063440);
 
             Assert.AreEqual(new BigInteger(checked(int.MinValue + 2)), Contract.UnitTest_Param_Inc_Checked_Int(int.MinValue));
@@ -233,7 +233,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.UnitTest_Param_Dec_Checked_Int(int.MaxValue);
             AssertGasConsumed(1048830);
 
-            Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked_Int(int.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Param_Dec_Checked_Int(int.MinValue));
             AssertGasConsumed(1063440);
 
             Contract.UnitTest_Param_Dec_Checked_Int(1);

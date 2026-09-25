@@ -304,13 +304,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual('A', Contract.TestCharParse("A"));
             Assert.AreEqual('0', Contract.TestCharParse("0"));
 
-            var ex = Assert.ThrowsException<TestException>(() => Contract.TestCharParse("TooLong"));
+            var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestCharParse("TooLong"));
             Assert.Contains("NotOneChar", ex.Message);
 
-            ex = Assert.ThrowsException<TestException>(() => Contract.TestCharParse(string.Empty));
+            ex = Assert.ThrowsExactly<TestException>(() => Contract.TestCharParse(string.Empty));
             Assert.Contains("NotOneChar", ex.Message);
 
-            ex = Assert.ThrowsException<TestException>(() => Contract.TestCharParse(null));
+            ex = Assert.ThrowsExactly<TestException>(() => Contract.TestCharParse(null));
             Assert.Contains("Null", ex.Message);
 
             var result = Contract.TestCharTryParse("Z");
