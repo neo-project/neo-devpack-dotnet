@@ -18,6 +18,7 @@ using System.IO;
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
     [TestClass]
+    [DoNotParallelize]
     public class SecurityAnalyzerTests
     {
         [TestMethod]

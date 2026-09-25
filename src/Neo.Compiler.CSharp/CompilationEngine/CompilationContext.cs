@@ -173,7 +173,7 @@ namespace Neo.Compiler
             foreach (SyntaxTree tree in _engine.Compilation!.SyntaxTrees)
             {
                 SemanticModel model = _engine.Compilation!.GetSemanticModel(tree);
-                _diagnostics.AddRange(model.GetDiagnostics().Where(u => u.Severity != DiagnosticSeverity.Hidden));
+                _diagnostics.AddRange(_engine.GetSemanticDiagnostics(tree));
                 if (!Success) continue;
                 try
                 {

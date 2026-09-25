@@ -9,6 +9,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer;
 
 [TestClass]
+[DoNotParallelize]
 public class TokenCallbackAuthorizationAnalyzerTests
 {
     [TestMethod]
