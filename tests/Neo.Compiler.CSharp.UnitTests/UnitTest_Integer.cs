@@ -145,7 +145,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void divRemZeroU_test()
         {
-            Assert.ThrowsException<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
             AssertGasConsumed(1047510);
         }
 
@@ -210,17 +210,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public void TestDivRemUlong_DivideByZero()
         {
-            Contract.DivRemUlong((ulong)10, (ulong)0);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUlong((ulong)10, (ulong)0));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public void TestDivRemUlong_BothZero()
         {
-            Contract.DivRemUlong((ulong)0, (ulong)0);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUlong((ulong)0, (ulong)0));
         }
 
         [TestMethod]
@@ -363,7 +361,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual((byte)5, Contract.ClampByte(5, 0, 10));
             AssertGasConsumed(1047930);
-            Assert.ThrowsException<TestException>(() => Contract.ClampByte(5, 10, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.ClampByte(5, 10, 0));
             AssertGasConsumed(1063170);
             Assert.AreEqual((byte)5, Contract.ClampByte(0, 5, 10));
             AssertGasConsumed(1047930);
@@ -490,9 +488,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BigInteger.MinusOne, Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.MinusOne, BigInteger.MinusOne));
             AssertGasConsumed(1047930);
             Assert.AreEqual(BigInteger.One, Contract.ClampBigInteger(BigInteger.One, BigInteger.MinusOne, BigInteger.One));
-            Assert.ThrowsException<TestException>(() => Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.One, BigInteger.MinusOne));
+            Assert.ThrowsExactly<TestException>(() => Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.One, BigInteger.MinusOne));
             AssertGasConsumed(1063170);
-            Assert.ThrowsException<TestException>(() => Contract.ClampBigInteger(BigInteger.One, BigInteger.One, BigInteger.MinusOne));
+            Assert.ThrowsExactly<TestException>(() => Contract.ClampBigInteger(BigInteger.One, BigInteger.One, BigInteger.MinusOne));
             AssertGasConsumed(1063170);
         }
 
@@ -515,7 +513,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047540);
             Assert.AreEqual(int.CopySign(int.MaxValue, -1), Contract.CopySignInt(int.MaxValue, -1));
             AssertGasConsumed(1047600);
-            Assert.ThrowsException<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
             AssertGasConsumed(1062900);
             Assert.AreEqual(int.CopySign(int.MinValue, -1), Contract.CopySignInt(int.MinValue, -1));
             AssertGasConsumed(1047600);
@@ -525,7 +523,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047540);
             Assert.AreEqual(-int.MaxValue, Contract.CopySignInt(int.MaxValue, -1));
             AssertGasConsumed(1047600);
-            Assert.ThrowsException<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
             AssertGasConsumed(1062900);
             Assert.AreEqual(int.MinValue, Contract.CopySignInt(int.MinValue, -1));
             AssertGasConsumed(1047600);
@@ -551,7 +549,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047540);
             Assert.AreEqual(sbyte.CopySign(sbyte.MaxValue, 0), Contract.CopySignSbyte(sbyte.MaxValue, 0));
             AssertGasConsumed(1047540);
-            Assert.ThrowsException<TestException>(() => Contract.CopySignSbyte(sbyte.MinValue, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.CopySignSbyte(sbyte.MinValue, 0));
             AssertGasConsumed(1062900);
             Assert.AreEqual(sbyte.CopySign(sbyte.MaxValue, 0), Contract.CopySignSbyte(sbyte.MaxValue, 0));
             AssertGasConsumed(1047540);
@@ -585,7 +583,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047540);
             Assert.AreEqual(short.CopySign(short.MaxValue, -1), Contract.CopySignShort(short.MaxValue, -1));
             AssertGasConsumed(1047600);
-            Assert.ThrowsException<TestException>(() => Contract.CopySignShort(short.MinValue, 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.CopySignShort(short.MinValue, 1));
             AssertGasConsumed(1062900);
             Assert.AreEqual(short.CopySign(short.MinValue, -1), Contract.CopySignShort(short.MinValue, -1));
             AssertGasConsumed(1047600);
@@ -765,7 +763,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(long.CopySign(-5L, -1L), Contract.CopySignLong(-5L, -1L));
             Assert.AreEqual(long.CopySign(long.MaxValue, 1L), Contract.CopySignLong(long.MaxValue, 1L));
             Assert.AreEqual(long.CopySign(long.MaxValue, -1L), Contract.CopySignLong(long.MaxValue, -1L));
-            Assert.ThrowsException<TestException>(() => Contract.CopySignLong(long.MinValue, 1L));
+            Assert.ThrowsExactly<TestException>(() => Contract.CopySignLong(long.MinValue, 1L));
             Assert.AreEqual(long.CopySign(long.MinValue, -1L), Contract.CopySignLong(long.MinValue, -1L));
         }
 
@@ -775,8 +773,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(byte.CreateChecked(5), Contract.CreateCheckedByte(5));
             Assert.AreEqual(byte.CreateChecked(0), Contract.CreateCheckedByte(0));
             Assert.AreEqual(byte.CreateChecked(byte.MaxValue), Contract.CreateCheckedByte(byte.MaxValue));
-            Assert.ThrowsException<TestException>(() => Contract.CreateCheckedByte(-1));
-            Assert.ThrowsException<TestException>(() => Contract.CreateCheckedByte(256));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateCheckedByte(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateCheckedByte(256));
         }
 
         [TestMethod]
@@ -795,7 +793,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(ulong.CreateChecked(5UL), Contract.CreateCheckedUlong(5UL));
             Assert.AreEqual(ulong.CreateChecked(0UL), Contract.CreateCheckedUlong(0UL));
             Assert.AreEqual(ulong.CreateChecked(ulong.MaxValue), Contract.CreateCheckedUlong(ulong.MaxValue));
-            Assert.ThrowsException<TestException>(() => Contract.CreateCheckedUlong(-1L));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateCheckedUlong(-1L));
         }
 
         [TestMethod]
@@ -814,8 +812,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(sbyte.CreateChecked(-5), Contract.CreateCheckedSbyte(-5));
             Assert.AreEqual(sbyte.CreateChecked(sbyte.MaxValue), Contract.CreateCheckedSbyte(sbyte.MaxValue));
             Assert.AreEqual(sbyte.CreateChecked(sbyte.MinValue), Contract.CreateCheckedSbyte(sbyte.MinValue));
-            Assert.ThrowsException<TestException>(() => Contract.CreateCheckedSbyte(128));
-            Assert.ThrowsException<TestException>(() => Contract.CreateCheckedSbyte(-129));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateCheckedSbyte(128));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateCheckedSbyte(-129));
         }
 
         [TestMethod]
@@ -1120,7 +1118,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(long.Log2(2L), Contract.Log2Long(2L));
             Assert.AreEqual(long.Log2(long.MaxValue), Contract.Log2Long(long.MaxValue));
             Assert.AreEqual(long.Log2(0), Contract.Log2Long(0L));
-            Assert.ThrowsException<TestException>(() => Contract.Log2Long(-1L));
+            Assert.ThrowsExactly<TestException>(() => Contract.Log2Long(-1L));
         }
 
         [TestMethod]
@@ -1130,7 +1128,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(short.Log2((short)2), Contract.Log2Short((short)2));
             Assert.AreEqual(short.Log2(short.MaxValue), Contract.Log2Short(short.MaxValue));
             Assert.AreEqual(short.Log2(0), Contract.Log2Short((short)0));
-            Assert.ThrowsException<TestException>(() => Contract.Log2Short((short)-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.Log2Short((short)-1));
         }
 
         [TestMethod]
@@ -1158,7 +1156,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(sbyte.Log2((sbyte)2), Contract.Log2Sbyte((sbyte)2));
             Assert.AreEqual(sbyte.Log2(sbyte.MaxValue), Contract.Log2Sbyte(sbyte.MaxValue));
             Assert.AreEqual(sbyte.Log2((sbyte)0), Contract.Log2Sbyte((sbyte)0));
-            Assert.ThrowsException<TestException>(() => Contract.Log2Sbyte((sbyte)-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.Log2Sbyte((sbyte)-1));
         }
 
         [TestMethod]
@@ -1558,8 +1556,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BigInteger.PopCount(BigInteger.Zero), Contract.PopCountBigInteger(BigInteger.Zero));
             Assert.AreEqual(BigInteger.PopCount(BigInteger.One), Contract.PopCountBigInteger(BigInteger.One));
             Assert.AreEqual(BigInteger.PopCount(BigInteger.MinusOne), Contract.PopCountBigInteger(BigInteger.MinusOne));
-            Assert.ThrowsException<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("123456789123456789")));
-            Assert.ThrowsException<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("-987654321987654321")));
+            Assert.ThrowsExactly<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("123456789123456789")));
+            Assert.ThrowsExactly<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("-987654321987654321")));
         }
 
         [TestMethod]

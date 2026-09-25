@@ -163,6 +163,11 @@ namespace Neo.Compiler.SecurityAnalyzer
                 if (instruction.OpCode == VM.OpCode.DROP)
                     return false;
 
+                // A caller check that occurs after a storage mutation cannot protect that
+                // mutation. Keep the callback vulnerable until validation dominates the write.
+                if (instruction.OpCode == VM.OpCode.SYSCALL && IsStorageWrite(instruction))
+                    return false;
+
                 if (instruction.OpCode is VM.OpCode.EQUAL
                     or VM.OpCode.NOTEQUAL
                     or VM.OpCode.JMPEQ
@@ -179,6 +184,12 @@ namespace Neo.Compiler.SecurityAnalyzer
 
             return false;
         }
+
+        private static bool IsStorageWrite(VM.Instruction instruction) =>
+            instruction.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
+            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash;
 
         private static int GetMethodEnd(int methodStart, int[] sortedOffsets)
         {

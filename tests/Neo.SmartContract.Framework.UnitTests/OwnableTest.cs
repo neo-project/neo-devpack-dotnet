@@ -50,7 +50,7 @@ public class OwnableTest
         Assert.IsTrue(contract.ProtectedAction()!.Value);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.ProtectedAction());
+        Assert.ThrowsExactly<TestException>(() => contract.ProtectedAction());
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
@@ -71,7 +71,7 @@ public class OwnableTest
         };
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.Owner = Bob.Account);
+        Assert.ThrowsExactly<TestException>(() => contract.Owner = Bob.Account);
 
         engine.SetTransactionSigners(Alice);
         contract.Owner = Bob.Account;
@@ -80,13 +80,13 @@ public class OwnableTest
         Assert.AreEqual(Bob.Account, newOwnerRaised);
         Assert.AreEqual(Bob.Account, contract.Owner);
 
-        Assert.ThrowsException<TestException>(() => contract.Owner = UInt160.Zero);
+        Assert.ThrowsExactly<TestException>(() => contract.Owner = UInt160.Zero);
 
         engine.SetTransactionSigners(Bob);
         Assert.IsTrue(contract.ProtectedAction()!.Value);
 
         engine.SetTransactionSigners(Alice);
-        Assert.ThrowsException<TestException>(() => contract.ProtectedAction());
+        Assert.ThrowsExactly<TestException>(() => contract.ProtectedAction());
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }

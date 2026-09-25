@@ -74,7 +74,7 @@ public class UnitTest_SlotLimits
         Assert.AreEqual((ushort)0, context.AddMethodToken(UInt160.Zero, "method0", 0, false, CallFlags.All));
         Assert.AreEqual(128, context.CreateExecutable().Tokens.Length);
 
-        var exception = Assert.ThrowsException<CompilationException>(
+        var exception = Assert.ThrowsExactly<CompilationException>(
             () => context.AddMethodToken(UInt160.Zero, "method128", 0, false, CallFlags.All));
         StringAssert.Contains(exception.Message, "limit(128) exceeded");
     }

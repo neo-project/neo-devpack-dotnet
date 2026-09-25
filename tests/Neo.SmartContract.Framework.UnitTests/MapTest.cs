@@ -82,7 +82,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestInt()
         {
             // Int cannot be used as the key for serializing Map
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestInt(1));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestInt(1));
             AssertGasConsumed(2399520);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
@@ -91,7 +91,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestBool()
         {
             // Bool cannot be used as the key for serializing Map
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestBool(true));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestBool(true));
             AssertGasConsumed(2399520);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
