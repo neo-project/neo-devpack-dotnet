@@ -7,6 +7,13 @@ namespace Neo.SmartContract.Framework.UnitTests;
 
 internal static class DynamicCoverageMergeHelper
 {
+    // Guards concurrent read-modify-write access to the shared coverage merge file.
+    // Multiple test classes/methods can run in parallel (see [assembly: Parallelize]),
+    // and CoverletJsonFormat.Write(mergeIfExists: true) reads the existing file, merges
+    // in-memory, and rewrites it without any locking, which corrupts the JSON if two
+    // threads do this at the same time.
+    private static readonly object _mergeLock = new();
+
     public static void Merge(Neo.SmartContract.Testing.SmartContract contract, NeoDebugInfo debugInfo)
     {
         if (ResolveCoverageMergePath() is not string path)
@@ -16,7 +23,10 @@ internal static class DynamicCoverageMergeHelper
         if (coverage is null)
             return;
 
-        new CoverletJsonFormat((coverage, debugInfo)).Write(path, true);
+        lock (_mergeLock)
+        {
+            new CoverletJsonFormat((coverage, debugInfo)).Write(path, true);
+        }
     }
 
     private static string? ResolveCoverageMergePath()
