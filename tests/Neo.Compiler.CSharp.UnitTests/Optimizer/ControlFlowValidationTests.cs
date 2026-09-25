@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         {
             var script = new Script(new byte[] { (byte)OpCode.JMP, 0x03, (byte)OpCode.RET });
 
-            var exception = Assert.ThrowsException<BadScriptException>(() =>
+            var exception = Assert.ThrowsExactly<BadScriptException>(() =>
                 ControlFlowJumpTarget.FindAllJumpAndTrySourceToTargets(script));
 
             StringAssert.Contains(exception.Message, "JMP");
@@ -41,7 +41,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         {
             var script = new Script(new byte[] { (byte)OpCode.TRY, 0x02, 0x00, (byte)OpCode.RET });
 
-            var exception = Assert.ThrowsException<BadScriptException>(() =>
+            var exception = Assert.ThrowsExactly<BadScriptException>(() =>
                 ControlFlowJumpTarget.FindAllJumpAndTrySourceToTargets(script));
 
             StringAssert.Contains(exception.Message, "TRY");

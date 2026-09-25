@@ -60,7 +60,7 @@ namespace Third
         CollectionAssert.AreEqual(new[] { "unique" }, unique.CreateManifest().Abi.Methods.Select(method => method.Name).ToArray());
 
         var (sortedClasses, classDependencies, allClassSymbols) = engine.PrepareProjectContracts(project.ProjectFile);
-        var exception = Assert.ThrowsException<ArgumentException>(() =>
+        var exception = Assert.ThrowsExactly<ArgumentException>(() =>
             engine.CompileProject(project.ProjectFile, sortedClasses, classDependencies, allClassSymbols, "SharedContract"));
         StringAssert.Contains(exception.Message, "First.SharedContract");
         StringAssert.Contains(exception.Message, "Second.SharedContract");

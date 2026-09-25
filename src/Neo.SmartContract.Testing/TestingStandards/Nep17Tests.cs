@@ -150,9 +150,9 @@ public class Nep17Tests<T> : TestBase<T>
     public virtual void TestBalanceOf()
     {
         Assert.AreEqual(0, Contract.BalanceOf(Bob.Account));
-        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.Null));
-        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidLength));
-        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidType));
+        Assert.ThrowsExactly<TestException>(() => Contract.BalanceOf(InvalidUInt160.Null));
+        Assert.ThrowsExactly<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidLength));
+        Assert.ThrowsExactly<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidType));
     }
 
     [TestMethod]
@@ -181,15 +181,15 @@ public class Nep17Tests<T> : TestBase<T>
 
         // Invoke invalid transfers
 
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
 
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidLength, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidType, Bob.Account, -1)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidLength, 0)));
-        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidType, 0)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidLength, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidType, Bob.Account, -1)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidLength, 0)));
+        Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidType, 0)));
 
         // Invoke transfer without signature
 
@@ -242,6 +242,7 @@ public class Nep17Tests<T> : TestBase<T>
         UInt160? calledFrom = null;
         BigInteger? calledAmount = null;
         UInt160? calledData = null;
+        var zeroCallbackCount = 0;
 
         var mock = Engine.Deploy<onNEP17PaymentContract>(NefFile, manifest, null, m =>
          {
@@ -254,6 +255,13 @@ public class Nep17Tests<T> : TestBase<T>
                  var me = new UInt160((i.Arguments[2] as ByteString)!.GetSpan().ToArray());
                  calledFrom = i.Arguments[0] as UInt160;
                  calledAmount = (BigInteger)i.Arguments[1];
+
+                 if (calledAmount == 0)
+                 {
+                     zeroCallbackCount++;
+                     AssertTransferEvent(Alice.Account, me, 0);
+                     return;
+                 }
 
                  // Ensure the balance
 
@@ -275,9 +283,16 @@ public class Nep17Tests<T> : TestBase<T>
              }));
          });
 
+        // NEP-17 requires zero-value transfers to emit the Transfer event and
+        // invoke onNEP17Payment when the receiver is a deployed contract.
+        Engine.SetTransactionSigners(Alice);
+        Assert.IsTrue(Contract.Transfer(Alice.Account, mock.Hash, 0, mock.Hash.ToArray()));
+        Assert.AreEqual(1, zeroCallbackCount);
+        Assert.AreEqual(fromBalance, Contract.BalanceOf(Alice.Account));
+        Assert.AreEqual(0, Contract.BalanceOf(mock.Hash));
+
         // Ensure that was called
 
-        Engine.SetTransactionSigners(Alice);
         Assert.IsTrue(Contract.Transfer(Alice.Account, mock.Hash, 3, mock.Hash.ToArray()));
 
         Assert.AreEqual(Alice.Account, calledFrom);

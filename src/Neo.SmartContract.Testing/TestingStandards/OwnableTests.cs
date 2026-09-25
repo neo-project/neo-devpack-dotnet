@@ -131,19 +131,19 @@ public class OwnableTests<T> : TestBase<T>
 
         Assert.AreEqual(Alice.Account, Contract.Owner);
         Engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => Contract.Owner = Bob.Account);
+        Assert.ThrowsExactly<TestException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Alice);
-        Assert.ThrowsException<TestException>(() => Contract.Owner = UInt160.Zero);
-        var exception = Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.Null);
+        Assert.ThrowsExactly<TestException>(() => Contract.Owner = UInt160.Zero);
+        var exception = Assert.ThrowsExactly<TestException>(() => Contract.Owner = InvalidUInt160.Null);
         // not InvalidOperationExcpetion, because no SIZE operation on null
         Assert.IsInstanceOfType<Exception>(exception.InnerException);
-        Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidLength);
-        Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidType);
+        Assert.ThrowsExactly<TestException>(() => Contract.Owner = InvalidUInt160.InvalidLength);
+        Assert.ThrowsExactly<TestException>(() => Contract.Owner = InvalidUInt160.InvalidType);
 
         Contract.Owner = Bob.Account;
         Assert.AreEqual(Bob.Account, Contract.Owner);
-        Assert.ThrowsException<TestException>(() => Contract.Owner = Bob.Account);
+        Assert.ThrowsExactly<TestException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Bob);
 
