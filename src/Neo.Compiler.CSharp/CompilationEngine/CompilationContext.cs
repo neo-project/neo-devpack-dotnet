@@ -210,6 +210,37 @@ namespace Neo.Compiler
                 foreach (CompilationException violation in CreateManifest().GetStandardsViolations())
                     _diagnostics.Add(violation.Diagnostic);
             }
+
+            // Diagnostics are collected from analyzers, syntax trees, and later
+            // contract validation passes. Keep the public order independent of
+            // which pass produced each item so IDE, build, and CLI consumers see
+            // the same stable sequence.
+            _diagnostics.Sort(static (left, right) =>
+            {
+                int result = string.Compare(
+                    left.Location.SourceTree?.FilePath ?? string.Empty,
+                    right.Location.SourceTree?.FilePath ?? string.Empty,
+                    StringComparison.Ordinal);
+                if (result != 0) return result;
+
+                int leftStart = left.Location.IsInSource ? left.Location.SourceSpan.Start : int.MaxValue;
+                int rightStart = right.Location.IsInSource ? right.Location.SourceSpan.Start : int.MaxValue;
+                result = leftStart.CompareTo(rightStart);
+                if (result != 0) return result;
+
+                int leftLength = left.Location.IsInSource ? left.Location.SourceSpan.Length : int.MaxValue;
+                int rightLength = right.Location.IsInSource ? right.Location.SourceSpan.Length : int.MaxValue;
+                result = leftLength.CompareTo(rightLength);
+                if (result != 0) return result;
+
+                result = string.Compare(left.Id, right.Id, StringComparison.Ordinal);
+                if (result != 0) return result;
+
+                result = left.Severity.CompareTo(right.Severity);
+                if (result != 0) return result;
+
+                return string.Compare(left.GetMessage(), right.GetMessage(), StringComparison.Ordinal);
+            });
         }
 
         public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder = "")
