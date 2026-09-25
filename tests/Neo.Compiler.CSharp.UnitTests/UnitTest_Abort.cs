@@ -36,7 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // All the ABORT instruction addresses in "testAbort" method
             List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbort", OpCode.ABORT);
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbort());
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestAbort());
             AssertGasConsumed(986040);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORT
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
@@ -48,7 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // All the ABORTMSG instruction addresses in "testAbortMsg" method
             List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbortMsg", OpCode.ABORTMSG);
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbortMsg());
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestAbortMsg());
             AssertGasConsumed(986280);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORTMSG
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
@@ -60,7 +60,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.ThrowsException<TestException>(() => Contract.TestAbortInFunction(b));
+                Assert.ThrowsExactly<TestException>(() => Contract.TestAbortInFunction(b));
             }
         }
 
@@ -69,7 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.ThrowsException<TestException>(() => Contract.TestAbortInTry(b));
+                Assert.ThrowsExactly<TestException>(() => Contract.TestAbortInTry(b));
             }
         }
 
@@ -78,7 +78,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.ThrowsException<TestException>(() => Contract.TestAbortInCatch(b));
+                Assert.ThrowsExactly<TestException>(() => Contract.TestAbortInCatch(b));
             }
         }
 
@@ -87,7 +87,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.ThrowsException<TestException>(() => Contract.TestAbortInFinally(b));
+                Assert.ThrowsExactly<TestException>(() => Contract.TestAbortInFinally(b));
             }
         }
     }
