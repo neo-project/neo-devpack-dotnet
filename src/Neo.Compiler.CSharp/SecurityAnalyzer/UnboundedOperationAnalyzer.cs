@@ -109,6 +109,10 @@ namespace Neo.Compiler.SecurityAnalyzer
                     backwardJumps.Add(addr);
             }
 
+            Dictionary<int, List<(int address, int target)>> callGraph = sortedOffsets.ToDictionary(
+                methodStart => methodStart,
+                _ => new List<(int address, int target)>());
+
             foreach (int methodStart in sortedOffsets)
             {
                 int methodEnd = GetMethodEnd(methodStart, sortedOffsets);
@@ -123,12 +127,79 @@ namespace Neo.Compiler.SecurityAnalyzer
                         continue;
 
                     int target = Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(addr, instruction);
-                    if (target == methodStart)
-                        recursiveCalls.Add(addr);
+                    if (callGraph.ContainsKey(target))
+                        callGraph[methodStart].Add((addr, target));
                 }
             }
 
+            HashSet<int> recursiveMethods = FindRecursiveMethods(callGraph);
+            foreach (int methodStart in recursiveMethods)
+            {
+                foreach ((int address, int target) in callGraph[methodStart])
+                {
+                    if (recursiveMethods.Contains(target))
+                        recursiveCalls.Add(address);
+                }
+            }
+
+            recursiveCalls.Sort();
+
             return new UnboundedOperationVulnerability(backwardJumps, recursiveCalls, debugInfo);
+        }
+
+        private static HashSet<int> FindRecursiveMethods(Dictionary<int, List<(int address, int target)>> callGraph)
+        {
+            Dictionary<int, int> indexes = new();
+            Dictionary<int, int> lowLinks = new();
+            Stack<int> stack = new();
+            HashSet<int> onStack = new();
+            HashSet<int> recursiveMethods = new();
+            int nextIndex = 0;
+
+            void Visit(int methodStart)
+            {
+                indexes[methodStart] = nextIndex;
+                lowLinks[methodStart] = nextIndex++;
+                stack.Push(methodStart);
+                onStack.Add(methodStart);
+
+                foreach ((_, int target) in callGraph[methodStart])
+                {
+                    if (!indexes.ContainsKey(target))
+                    {
+                        Visit(target);
+                        lowLinks[methodStart] = Math.Min(lowLinks[methodStart], lowLinks[target]);
+                    }
+                    else if (onStack.Contains(target))
+                    {
+                        lowLinks[methodStart] = Math.Min(lowLinks[methodStart], indexes[target]);
+                    }
+                }
+
+                if (lowLinks[methodStart] != indexes[methodStart])
+                    return;
+
+                List<int> component = new();
+                int member;
+                do
+                {
+                    member = stack.Pop();
+                    onStack.Remove(member);
+                    component.Add(member);
+                }
+                while (member != methodStart);
+
+                if (component.Count > 1 || callGraph[methodStart].Any(edge => edge.target == methodStart))
+                    recursiveMethods.UnionWith(component);
+            }
+
+            foreach (int methodStart in callGraph.Keys)
+            {
+                if (!indexes.ContainsKey(methodStart))
+                    Visit(methodStart);
+            }
+
+            return recursiveMethods;
         }
 
         private static int GetMethodEnd(int methodStart, int[] sortedOffsets)
