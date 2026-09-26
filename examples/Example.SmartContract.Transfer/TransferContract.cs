@@ -41,6 +41,6 @@ public class TransferContract : SmartContract
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(Owner));
         ExecutionEngine.Assert(NEO.Transfer(Runtime.ExecutingScriptHash, to, amount));
-        ExecutionEngine.Assert(GAS.Transfer(Runtime.ExecutingScriptHash, to, GAS.BalanceOf(Runtime.ExecutingScriptHash), true));
+        ExecutionEngine.Assert(GAS.Transfer(Runtime.ExecutingScriptHash, to, GAS.BalanceOf(Runtime.ExecutingScriptHash), null));
     }
 }
