@@ -22,7 +22,7 @@ public class UnitTest_StringConstructor
         Assert.AreEqual("bb", contract.DynamicCount(2));
         Assert.AreEqual("\0\0", contract.DynamicNullCount(2));
         Assert.AreEqual("AA", contract.DynamicChar(65));
-        Assert.ThrowsException<TestException>(() => contract.DynamicCount(-1));
+        Assert.ThrowsExactly<TestException>(() => contract.DynamicCount(-1));
     }
 
     [TestMethod]

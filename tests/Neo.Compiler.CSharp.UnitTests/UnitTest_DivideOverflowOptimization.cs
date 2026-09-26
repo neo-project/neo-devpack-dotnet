@@ -73,8 +73,8 @@ public class Contract : SmartContract
         CollectionAssert.Contains(GetMethodOpCodes(context, "Contract.MinLong("), OpCode.THROW);
 
         var contract = Deploy(context);
-        Assert.ThrowsException<TestException>(() => contract.MinInt(-1));
-        Assert.ThrowsException<TestException>(() => contract.MinLong(-1));
+        Assert.ThrowsExactly<TestException>(() => contract.MinInt(-1));
+        Assert.ThrowsExactly<TestException>(() => contract.MinLong(-1));
     }
 
     [TestMethod]
@@ -88,8 +88,8 @@ public class Contract : SmartContract
         var contract = Deploy(context);
         Assert.AreEqual(new BigInteger(20), contract.RuntimeInt(100, 5));
         Assert.AreEqual(new BigInteger(100), contract.RuntimeLong(1000, 10));
-        Assert.ThrowsException<TestException>(() => contract.RuntimeInt(int.MinValue, -1));
-        Assert.ThrowsException<TestException>(() => contract.RuntimeLong(long.MinValue, -1));
+        Assert.ThrowsExactly<TestException>(() => contract.RuntimeInt(int.MinValue, -1));
+        Assert.ThrowsExactly<TestException>(() => contract.RuntimeLong(long.MinValue, -1));
     }
 
     private static CompilationContext CompileContract()

@@ -97,6 +97,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.LastIndexOf("world");
         }
 
+        public static int TestLastIndexOfValue(string source, string value)
+        {
+            return source.LastIndexOf(value);
+        }
+
         public static string TestInterpolatedStringHandler()
         {
             const sbyte sbyteValue = -42;
@@ -172,6 +177,21 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static string TestTrimEndArray(string str)
         {
             return str.TrimEnd(new[] { '*' });
+        }
+
+        public static string TestTrimArrayNonAscii(string str)
+        {
+            return str.Trim(new[] { 'é' });
+        }
+
+        public static string TestTrimStartArrayNonAscii(string str)
+        {
+            return str.TrimStart(new[] { '中' });
+        }
+
+        public static string TestTrimEndArrayNonAscii(string str)
+        {
+            return str.TrimEnd(new[] { '中' });
         }
 
         public static char TestPickItem(string s, int index)

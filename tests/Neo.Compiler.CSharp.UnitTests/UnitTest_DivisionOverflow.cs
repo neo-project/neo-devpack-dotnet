@@ -66,7 +66,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_DivideUncheckedInt32_Overflow_ShouldThrow()
         {
-            var ex = Assert.ThrowsException<TestException>(() =>
+            var ex = Assert.ThrowsExactly<TestException>(() =>
             {
                 Contract.DivideUncheckedInt32(int.MinValue, -1);
             });

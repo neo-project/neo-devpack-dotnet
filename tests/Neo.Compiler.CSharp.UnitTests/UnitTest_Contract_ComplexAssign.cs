@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AddAssign_Checked()
         {
-            Assert.ThrowsException<TestException>(Contract.UnitTest_Add_Assign_Checked);
+            Assert.ThrowsExactly<TestException>(Contract.UnitTest_Add_Assign_Checked);
             AssertGasConsumed(1001970);
         }
 
@@ -39,7 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_SubAssign_Checked()
         {
-            Assert.ThrowsException<TestException>(Contract.UnitTest_Sub_Assign_Checked);
+            Assert.ThrowsExactly<TestException>(Contract.UnitTest_Sub_Assign_Checked);
             AssertGasConsumed(1001820);
         }
 
@@ -56,7 +56,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_MulAssign_Checked()
         {
-            Assert.ThrowsException<TestException>(Contract.UnitTest_Mul_Assign_Checked);
+            Assert.ThrowsExactly<TestException>(Contract.UnitTest_Mul_Assign_Checked);
             AssertGasConsumed(1002120);
         }
 

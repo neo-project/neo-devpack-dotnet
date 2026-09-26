@@ -146,7 +146,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
             // Put
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestPutReadOnly(key, value));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestPutReadOnly(key, value));
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 

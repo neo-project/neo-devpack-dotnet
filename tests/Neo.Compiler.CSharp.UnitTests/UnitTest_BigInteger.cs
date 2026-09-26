@@ -47,9 +47,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047660);
             Assert.AreEqual(-128, Contract.Testsbyte(-128));
             AssertGasConsumed(1047660);
-            Assert.ThrowsException<TestException>(() => Contract.Testsbyte(128));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testsbyte(128));
             AssertGasConsumed(1078440);
-            Assert.ThrowsException<TestException>(() => Contract.Testsbyte(-129));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testsbyte(-129));
             AssertGasConsumed(1078440);
         }
 
@@ -60,9 +60,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047810);
             Assert.AreEqual(255, Contract.Testbyte(255));
             AssertGasConsumed(1047810);
-            Assert.ThrowsException<TestException>(() => Contract.Testbyte(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testbyte(-1));
             AssertGasConsumed(1078590);
-            Assert.ThrowsException<TestException>(() => Contract.Testbyte(256));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testbyte(256));
             AssertGasConsumed(1078590);
         }
 
@@ -73,9 +73,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047660);
             Assert.AreEqual(-32768, Contract.Testshort(-32768));
             AssertGasConsumed(1047660);
-            Assert.ThrowsException<TestException>(() => Contract.Testshort(32768));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testshort(32768));
             AssertGasConsumed(1078440);
-            Assert.ThrowsException<TestException>(() => Contract.Testshort(-32769));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testshort(-32769));
             AssertGasConsumed(1078440);
         }
 
@@ -86,9 +86,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047810);
             Assert.AreEqual(65535, Contract.Testushort(65535));
             AssertGasConsumed(1047810);
-            Assert.ThrowsException<TestException>(() => Contract.Testushort(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testushort(-1));
             AssertGasConsumed(1078590);
-            Assert.ThrowsException<TestException>(() => Contract.Testushort(65536));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testushort(65536));
             AssertGasConsumed(1078590);
         }
 
@@ -99,9 +99,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047660);
             Assert.AreEqual(2147483647, Contract.Testint(2147483647));
             AssertGasConsumed(1047660);
-            Assert.ThrowsException<TestException>(() => Contract.Testint(-2147483649));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testint(-2147483649));
             AssertGasConsumed(1078440);
-            Assert.ThrowsException<TestException>(() => Contract.Testint(2147483648));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testint(2147483648));
             AssertGasConsumed(1078440);
         }
 
@@ -112,9 +112,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047810);
             Assert.AreEqual(4294967295, Contract.Testuint(4294967295));
             AssertGasConsumed(1047810);
-            Assert.ThrowsException<TestException>(() => Contract.Testuint(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testuint(-1));
             AssertGasConsumed(1078590);
-            Assert.ThrowsException<TestException>(() => Contract.Testuint(4294967296));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testuint(4294967296));
             AssertGasConsumed(1078590);
         }
 
@@ -125,9 +125,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047660);
             Assert.AreEqual(9223372036854775807, Contract.Testlong(9223372036854775807));
             AssertGasConsumed(1047660);
-            Assert.ThrowsException<TestException>(() => Contract.Testlong(BigInteger.Parse("-9223372036854775809")));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testlong(BigInteger.Parse("-9223372036854775809")));
             AssertGasConsumed(1078530);
-            Assert.ThrowsException<TestException>(() => Contract.Testlong(9223372036854775808));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testlong(9223372036854775808));
             AssertGasConsumed(1078530);
         }
 
@@ -138,9 +138,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047900);
             Assert.AreEqual(18446744073709551615, Contract.Testulong(18446744073709551615));
             AssertGasConsumed(1047990);
-            Assert.ThrowsException<TestException>(() => Contract.Testulong(BigInteger.Parse("18446744073709551616")));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testulong(BigInteger.Parse("18446744073709551616")));
             AssertGasConsumed(1078770);
-            Assert.ThrowsException<TestException>(() => Contract.Testulong(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testulong(-1));
             AssertGasConsumed(1078680);
         }
 
@@ -149,8 +149,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(0, Contract.Testchar(0));
             Assert.AreEqual(65535, Contract.Testchar(char.MaxValue));
-            Assert.ThrowsException<TestException>(() => Contract.Testchar(-1));
-            Assert.ThrowsException<TestException>(() => Contract.Testchar(65536));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testchar(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.Testchar(65536));
 
             Assert.AreEqual(char.MaxValue.ToString(), Contract.Testchartostring(char.MaxValue));
             Assert.AreEqual("A", Contract.Testchartostring('A'));
@@ -275,7 +275,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CharToString()
         {
             Assert.AreEqual("A", Contract.Testchartostring(65)); // 'A' has ASCII value 65
-            Assert.ThrowsException<TestException>(() => Contract.Testchartostring(65536)); // Invalid char value
+            Assert.ThrowsExactly<TestException>(() => Contract.Testchartostring(65536)); // Invalid char value
         }
 
         [TestMethod]
