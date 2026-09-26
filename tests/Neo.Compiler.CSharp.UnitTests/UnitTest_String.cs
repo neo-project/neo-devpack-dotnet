@@ -249,13 +249,33 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(method);
 
             Assert.AreEqual(6, Contract.TestLastIndexOf("hello world"));
-            AssertGasConsumed(3511260);
+            AssertGasConsumed(2032740);
 
             Assert.AreEqual(-1, Contract.TestLastIndexOf("hello"));
-            AssertGasConsumed(2525490);
+            AssertGasConsumed(2032740);
 
             Assert.AreEqual(12, Contract.TestLastIndexOf("world hello world"));
-            AssertGasConsumed(4497180);
+            AssertGasConsumed(2032740);
+        }
+
+        [TestMethod]
+        public void Test_LastIndexOfString_Value()
+        {
+            Assert.AreEqual(6, Contract.TestLastIndexOfValue("hello world", "world"));
+            Assert.AreEqual(12, Contract.TestLastIndexOfValue("world hello world", "world"));
+            Assert.AreEqual(-1, Contract.TestLastIndexOfValue("hello", "world"));
+            Assert.AreEqual(-1, Contract.TestLastIndexOfValue("abc", "abcd"));
+            Assert.AreEqual(0, Contract.TestLastIndexOfValue("abc", "ab"));
+            Assert.AreEqual(3, Contract.TestLastIndexOfValue("abcab", "ab"));
+
+            // Overlapping matches
+            Assert.AreEqual(2, Contract.TestLastIndexOfValue("aaaa", "aa"));
+
+            // Empty search value
+            Assert.AreEqual(3, Contract.TestLastIndexOfValue("abc", ""));
+            Assert.AreEqual(-1, Contract.TestLastIndexOfValue("", "abc"));
+
+            Assert.AreEqual(0, Contract.TestLastIndexOfValue("", ""));
         }
 
         [TestMethod]
@@ -305,10 +325,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimStartChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("***Hello", '*'));
-            AssertGasConsumed(1365720);
+            AssertGasConsumed(1622100);
 
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("Hello", '*'));
-            AssertGasConsumed(1357800);
+            AssertGasConsumed(1606440);
         }
 
         [TestMethod]
@@ -328,10 +348,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimEndChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello***", '*'));
-            AssertGasConsumed(1365690);
+            AssertGasConsumed(1624440);
 
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello", '*'));
-            AssertGasConsumed(1357860);
+            AssertGasConsumed(1607160);
         }
 
         [TestMethod]
@@ -609,14 +629,51 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimChar()
         {
             Assert.AreEqual("Hello World", Contract.TestTrimChar("***Hello World***", '*'));
-            AssertGasConsumed(1376340);
+            AssertGasConsumed(1644870);
 
             Assert.AreEqual("Test", Contract.TestTrimChar("Test", '*'));
-            AssertGasConsumed(1360500);
+            AssertGasConsumed(1611930);
 
             // Test with string containing only trim characters
             Assert.AreEqual("", Contract.TestTrimChar("****", '*'));
-            AssertGasConsumed(1366740);
+            AssertGasConsumed(1624170);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimChar_NonAscii()
+        {
+            Assert.AreEqual("caf", Contract.TestTrimChar("café", 'é'));
+            Assert.AreEqual("caaf", Contract.TestTrimChar("ééécaafééé", 'é'));
+            Assert.AreEqual(string.Empty, Contract.TestTrimChar("ééé", 'é'));
+
+            Assert.AreEqual("café", Contract.TestTrimStartChar("éééééééécafé", 'é'));
+            Assert.AreEqual("测试", Contract.TestTrimStartChar("中中测试", '中'));
+            Assert.AreEqual(string.Empty, Contract.TestTrimStartChar("中中", '中'));
+
+            Assert.AreEqual("caf", Contract.TestTrimEndChar("caféééé", 'é'));
+            Assert.AreEqual("测试", Contract.TestTrimEndChar("测试中中", '中'));
+            Assert.AreEqual(string.Empty, Contract.TestTrimEndChar("中中", '中'));
+
+            Assert.AreEqual("caf", Contract.TestTrimArrayNonAscii("ééécaféé"));
+            Assert.AreEqual(string.Empty, Contract.TestTrimArrayNonAscii("éé"));
+            Assert.AreEqual("测试", Contract.TestTrimStartArrayNonAscii("中中测试"));
+            Assert.AreEqual(string.Empty, Contract.TestTrimStartArrayNonAscii("中中"));
+            Assert.AreEqual("测试", Contract.TestTrimEndArrayNonAscii("测试中中"));
+            Assert.AreEqual(string.Empty, Contract.TestTrimEndArrayNonAscii("中中"));
+        }
+
+        [TestMethod]
+        public void TrimChar_Utf8BoundariesMatchDotNet()
+        {
+            foreach (char trimChar in new[] { '\0', '\u007f', '\u0080', '\u00ff', '\u0100', '\u07ff', '\u0800', '\uffff' })
+            {
+                foreach (string value in new[] { string.Empty, "a", "é", "中", new string(trimChar, 3), $"{trimChar}{trimChar}a{trimChar}", $"a{trimChar}b" })
+                {
+                    Assert.AreEqual(value.Trim(trimChar), Contract.TestTrimChar(value, trimChar));
+                    Assert.AreEqual(value.TrimStart(trimChar), Contract.TestTrimStartChar(value, trimChar));
+                    Assert.AreEqual(value.TrimEnd(trimChar), Contract.TestTrimEndChar(value, trimChar));
+                }
+            }
         }
 
         [TestMethod]
