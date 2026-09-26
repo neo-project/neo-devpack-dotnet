@@ -97,6 +97,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.LastIndexOf("world");
         }
 
+        public static int TestLastIndexOfValue(string source, string value)
+        {
+            return source.LastIndexOf(value);
+        }
+
         public static string TestInterpolatedStringHandler()
         {
             const sbyte sbyteValue = -42;
