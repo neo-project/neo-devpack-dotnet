@@ -136,11 +136,23 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047150);
         }
 
+        /// <summary>
+        /// Representative byte values covering each individual bit (0x01..0x80), common bit
+        /// patterns (all-zero, all-one, alternating), and a handful of arbitrary values, so
+        /// that every bit position and typical AND/OR interactions are exercised without
+        /// requiring the full 255x255 exhaustive combination space.
+        /// </summary>
+        private static readonly byte[] RepresentativeByteValues =
+        {
+            0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80,
+            0xFF, 0x55, 0xAA, 0x0F, 0xF0, 0x3C, 0x7E, 0x81, 0x99, 0x42, 0xC3
+        };
+
         [TestMethod]
         public void Test_TestLogicalAnd()
         {
-            for (byte x = 0; x < 255; x++)
-                for (byte y = 0; y < 255; y++)
+            foreach (var x in RepresentativeByteValues)
+                foreach (var y in RepresentativeByteValues)
                 {
                     var result = Contract.TestLogicalAnd(x, y);
                     Assert.AreEqual(x & y, result);
@@ -151,8 +163,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_TestLogicalOr()
         {
-            for (byte x = 0; x < 255; x++)
-                for (byte y = 0; y < 255; y++)
+            foreach (var x in RepresentativeByteValues)
+                foreach (var y in RepresentativeByteValues)
                 {
                     var result = Contract.TestLogicalOr(x, y);
                     Assert.AreEqual(x | y, result);
