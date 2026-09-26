@@ -1,0 +1,7 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        # Two diagnostic output lines vary between otherwise identical runs.
+        threshold: 0.02%
