@@ -17,6 +17,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
         <PackageReference Include="MSTest.TestAdapter" Version="4.4.1"/>
         <PackageReference Include="MSTest.TestFramework" Version="4.4.1"/>
+        <PackageReference Include="Neo" Version="3.10.1"/>
     </ItemGroup>
 
     <ItemGroup>
