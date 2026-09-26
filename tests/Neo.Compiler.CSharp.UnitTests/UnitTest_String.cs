@@ -305,10 +305,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimStartChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("***Hello", '*'));
-            AssertGasConsumed(1365720);
+            AssertGasConsumed(1622100);
 
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("Hello", '*'));
-            AssertGasConsumed(1357800);
+            AssertGasConsumed(1606440);
         }
 
         [TestMethod]
@@ -328,10 +328,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimEndChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello***", '*'));
-            AssertGasConsumed(1365690);
+            AssertGasConsumed(1624440);
 
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello", '*'));
-            AssertGasConsumed(1357860);
+            AssertGasConsumed(1607160);
         }
 
         [TestMethod]
@@ -384,7 +384,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1049250);
 
             // Test invalid index
-            Assert.ThrowsException<TestException>(() => Contract.TestPickItem("Test", 5));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestPickItem("Test", 5));
         }
 
         [TestMethod]
@@ -397,7 +397,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1355010);
 
             // Test invalid start index
-            Assert.ThrowsException<TestException>(() => Contract.TestSubstringToEnd("Test", 5));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSubstringToEnd("Test", 5));
         }
 
         [TestMethod]
@@ -519,7 +519,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(6527070);
 
             // An empty oldValue throws in C#; the contract faults instead of looping forever.
-            Assert.ThrowsException<TestException>(() => Contract.TestReplace("abc", "", "x"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestReplace("abc", "", "x"));
             AssertGasConsumed(1786290);
         }
 
@@ -609,14 +609,51 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimChar()
         {
             Assert.AreEqual("Hello World", Contract.TestTrimChar("***Hello World***", '*'));
-            AssertGasConsumed(1376340);
+            AssertGasConsumed(1644870);
 
             Assert.AreEqual("Test", Contract.TestTrimChar("Test", '*'));
-            AssertGasConsumed(1360500);
+            AssertGasConsumed(1611930);
 
             // Test with string containing only trim characters
             Assert.AreEqual("", Contract.TestTrimChar("****", '*'));
-            AssertGasConsumed(1366740);
+            AssertGasConsumed(1624170);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimChar_NonAscii()
+        {
+            Assert.AreEqual("caf", Contract.TestTrimChar("café", 'é'));
+            Assert.AreEqual("caaf", Contract.TestTrimChar("ééécaafééé", 'é'));
+            Assert.AreEqual(string.Empty, Contract.TestTrimChar("ééé", 'é'));
+
+            Assert.AreEqual("café", Contract.TestTrimStartChar("éééééééécafé", 'é'));
+            Assert.AreEqual("测试", Contract.TestTrimStartChar("中中测试", '中'));
+            Assert.AreEqual(string.Empty, Contract.TestTrimStartChar("中中", '中'));
+
+            Assert.AreEqual("caf", Contract.TestTrimEndChar("caféééé", 'é'));
+            Assert.AreEqual("测试", Contract.TestTrimEndChar("测试中中", '中'));
+            Assert.AreEqual(string.Empty, Contract.TestTrimEndChar("中中", '中'));
+
+            Assert.AreEqual("caf", Contract.TestTrimArrayNonAscii("ééécaféé"));
+            Assert.AreEqual(string.Empty, Contract.TestTrimArrayNonAscii("éé"));
+            Assert.AreEqual("测试", Contract.TestTrimStartArrayNonAscii("中中测试"));
+            Assert.AreEqual(string.Empty, Contract.TestTrimStartArrayNonAscii("中中"));
+            Assert.AreEqual("测试", Contract.TestTrimEndArrayNonAscii("测试中中"));
+            Assert.AreEqual(string.Empty, Contract.TestTrimEndArrayNonAscii("中中"));
+        }
+
+        [TestMethod]
+        public void TrimChar_Utf8BoundariesMatchDotNet()
+        {
+            foreach (char trimChar in new[] { '\0', '\u007f', '\u0080', '\u00ff', '\u0100', '\u07ff', '\u0800', '\uffff' })
+            {
+                foreach (string value in new[] { string.Empty, "a", "é", "中", new string(trimChar, 3), $"{trimChar}{trimChar}a{trimChar}", $"a{trimChar}b" })
+                {
+                    Assert.AreEqual(value.Trim(trimChar), Contract.TestTrimChar(value, trimChar));
+                    Assert.AreEqual(value.TrimStart(trimChar), Contract.TestTrimStartChar(value, trimChar));
+                    Assert.AreEqual(value.TrimEnd(trimChar), Contract.TestTrimEndChar(value, trimChar));
+                }
+            }
         }
 
         [TestMethod]
@@ -639,7 +676,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("aaa", Contract.TestStringCharCount('a', 3));
             AssertGasConsumed(1480260);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestStringCharCount('a', -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringCharCount('a', -1));
             AssertGasConsumed(1063380);
         }
 

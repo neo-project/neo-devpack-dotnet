@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ByteArrayAssignmentOutOfBounds()
         {
-            Assert.ThrowsException<TestException>(Contract.TestAssignmentOutOfBounds);
+            Assert.ThrowsExactly<TestException>(Contract.TestAssignmentOutOfBounds);
             AssertGasConsumed(1723770);
         }
 
@@ -43,7 +43,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ByteArrayAssignmentWrongCasting()
         {
-            var exception = Assert.ThrowsException<TestException>(Contract.TestAssignmentWrongCasting);
+            var exception = Assert.ThrowsExactly<TestException>(Contract.TestAssignmentWrongCasting);
             AssertGasConsumed(1478220);
             Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
             AssertGasConsumed(1478220);

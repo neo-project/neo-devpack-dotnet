@@ -46,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
                 "\"],\"methods\":[]}";
             byte[] archive = DumpNef.ZipDebugInfo(Encoding.UTF8.GetBytes(json), "test.debug.json");
 
-            Assert.ThrowsException<InvalidDataException>(() => DumpNef.UnzipDebugInfo(archive));
+            Assert.ThrowsExactly<InvalidDataException>(() => DumpNef.UnzipDebugInfo(archive));
         }
     }
 

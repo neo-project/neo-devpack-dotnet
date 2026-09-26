@@ -44,6 +44,18 @@ public class UnitTest_NumericBoundaryMatrix
 
             [DisplayName("subULongChecked")]
             public static ulong SubULongChecked(ulong value, ulong delta) => checked(value - delta);
+
+            [DisplayName("divideInt")]
+            public static int DivideInt(int value, int divisor) => value / divisor;
+
+            [DisplayName("remainderInt")]
+            public static int RemainderInt(int value, int divisor) => value % divisor;
+
+            [DisplayName("divideLong")]
+            public static long DivideLong(long value, long divisor) => value / divisor;
+
+            [DisplayName("remainderLong")]
+            public static long RemainderLong(long value, long divisor) => value % divisor;
         }
         """;
 
@@ -69,6 +81,15 @@ public class UnitTest_NumericBoundaryMatrix
         Assert.AreEqual(new BigInteger(ulong.MaxValue), contract.SubULongUnchecked(0, 1));
         Assert.ThrowsExactly<TestException>(() => contract.AddULongChecked(ulong.MaxValue, 1));
         Assert.ThrowsExactly<TestException>(() => contract.SubULongChecked(0, 1));
+
+        Assert.AreEqual(new BigInteger(-2), contract.DivideInt(-7, 3));
+        Assert.AreEqual(new BigInteger(-1), contract.RemainderInt(-7, 3));
+        Assert.AreEqual(new BigInteger(-2), contract.DivideInt(7, -3));
+        Assert.AreEqual(new BigInteger(1), contract.RemainderInt(7, -3));
+        Assert.AreEqual(new BigInteger(long.MinValue), contract.DivideLong(long.MinValue, 1));
+        Assert.AreEqual(BigInteger.Zero, contract.RemainderLong(long.MinValue, 1));
+        Assert.AreEqual(new BigInteger(long.MinValue + 1), contract.DivideLong(long.MinValue + 1, 1));
+        Assert.AreEqual(new BigInteger(-1), contract.RemainderLong(long.MinValue + 1, 2));
     }
 
     public abstract class NumericBoundaryContract(SmartContractInitialize initialize)
@@ -80,5 +101,9 @@ public class UnitTest_NumericBoundaryMatrix
         [DisplayName("addULongChecked")] public abstract BigInteger? AddULongChecked(BigInteger value, BigInteger delta);
         [DisplayName("subULongUnchecked")] public abstract BigInteger? SubULongUnchecked(BigInteger value, BigInteger delta);
         [DisplayName("subULongChecked")] public abstract BigInteger? SubULongChecked(BigInteger value, BigInteger delta);
+        [DisplayName("divideInt")] public abstract BigInteger? DivideInt(BigInteger value, BigInteger divisor);
+        [DisplayName("remainderInt")] public abstract BigInteger? RemainderInt(BigInteger value, BigInteger divisor);
+        [DisplayName("divideLong")] public abstract BigInteger? DivideLong(BigInteger value, BigInteger divisor);
+        [DisplayName("remainderLong")] public abstract BigInteger? RemainderLong(BigInteger value, BigInteger divisor);
     }
 }

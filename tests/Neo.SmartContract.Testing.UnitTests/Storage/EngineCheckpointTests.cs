@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         {
             using var stream = CreateStream(-1);
 
-            var exception = Assert.ThrowsException<InvalidDataException>(() => new EngineCheckpoint(stream));
+            var exception = Assert.ThrowsExactly<InvalidDataException>(() => new EngineCheckpoint(stream));
             StringAssert.Contains(exception.Message, "key");
         }
 
@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         {
             using var stream = CreateStream(MaxCheckpointKeyLength + 1);
 
-            var exception = Assert.ThrowsException<InvalidDataException>(() => new EngineCheckpoint(stream));
+            var exception = Assert.ThrowsExactly<InvalidDataException>(() => new EngineCheckpoint(stream));
             StringAssert.Contains(exception.Message, "key");
         }
 
@@ -53,7 +53,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
                 WriteLength(writer, -1);
             });
 
-            var exception = Assert.ThrowsException<InvalidDataException>(() => new EngineCheckpoint(stream));
+            var exception = Assert.ThrowsExactly<InvalidDataException>(() => new EngineCheckpoint(stream));
             StringAssert.Contains(exception.Message, "value");
         }
 
@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
                 WriteLength(writer, MaxCheckpointValueLength + 1);
             });
 
-            var exception = Assert.ThrowsException<InvalidDataException>(() => new EngineCheckpoint(stream));
+            var exception = Assert.ThrowsExactly<InvalidDataException>(() => new EngineCheckpoint(stream));
             StringAssert.Contains(exception.Message, "value");
         }
 
@@ -117,7 +117,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             store.Put(originalKey, originalValue);
             using var snapshot = new StoreCache(store);
 
-            Assert.ThrowsException<EndOfStreamException>(() => new EngineCheckpoint(truncated).Restore(snapshot));
+            Assert.ThrowsExactly<EndOfStreamException>(() => new EngineCheckpoint(truncated).Restore(snapshot));
 
             var entries = new EngineCheckpoint(snapshot).Data;
             Assert.AreEqual(1, entries.Length);

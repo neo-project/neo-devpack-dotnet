@@ -54,8 +54,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(expected, Contract.ParseUInt160(hex));
             Assert.AreEqual(expected, Contract.ParseUInt160("0x" + hex));
             Assert.AreEqual(expected, Contract.ParseUInt160(address));
-            Assert.ThrowsException<TestException>(() => Contract.ParseUInt160("0x1234"));
-            Assert.ThrowsException<TestException>(() => Contract.ParseUInt160(null));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160("0x1234"));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160(null));
         }
 
         [TestMethod]
@@ -67,11 +67,11 @@ namespace Neo.SmartContract.Framework.UnitTests
             hash.GetSpan().ToArray().CopyTo(data, 1);
             var wrongVersionAddress = Base58.Base58CheckEncode(data);
 
-            Assert.ThrowsException<TestException>(() => Contract.ParseUInt160(wrongVersionAddress));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160(wrongVersionAddress));
             Assert.IsFalse(Contract.TryParseUInt160(wrongVersionAddress));
 
             var wrongLengthAddress = Base58.Base58CheckEncode(new byte[10]);
-            Assert.ThrowsException<TestException>(() => Contract.ParseUInt160(wrongLengthAddress));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160(wrongLengthAddress));
             Assert.IsFalse(Contract.TryParseUInt160(wrongLengthAddress));
         }
 
@@ -83,9 +83,9 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             Assert.AreEqual(expected, Contract.ParseUInt256(hex));
             Assert.AreEqual(expected, Contract.ParseUInt256(hex.Substring(2)));
-            Assert.ThrowsException<TestException>(() => Contract.ParseUInt256("abcd"));
-            Assert.ThrowsException<TestException>(() => Contract.ParseUInt256("0xzz" + new string('0', 62)));
-            Assert.ThrowsException<TestException>(() => Contract.ParseUInt256(null));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256("abcd"));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256("0xzz" + new string('0', 62)));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256(null));
         }
 
         [TestMethod]
@@ -94,8 +94,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             const string publicKey = "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9";
             var expected = CryptoECPoint.Parse(publicKey, ECCurve.Secp256r1);
             Assert.AreEqual(expected, Contract.ParseECPoint(publicKey));
-            Assert.ThrowsException<TestException>(() => Contract.ParseECPoint("03deadbeef"));
-            Assert.ThrowsException<TestException>(() => Contract.ParseECPoint(null));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseECPoint("03deadbeef"));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseECPoint(null));
         }
 
         [TestMethod]
