@@ -10,10 +10,12 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using Neo.Persistence;
 using Neo.SmartContract.Testing.Storage;
 using Neo.SmartContract.Testing.Storage.Rpc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -32,10 +34,10 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         {
             var store = new RpcStore("http://localhost:10332");
 
-            var deleteException = Assert.ThrowsException<NotImplementedException>(() => store.Delete(new byte[] { 1 }));
+            var deleteException = Assert.ThrowsExactly<NotImplementedException>(() => store.Delete(new byte[] { 1 }));
             StringAssert.Contains(deleteException.Message, "read-only");
 
-            var putException = Assert.ThrowsException<NotImplementedException>(() => store.Put(new byte[] { 1 }, new byte[] { 2 }));
+            var putException = Assert.ThrowsExactly<NotImplementedException>(() => store.Put(new byte[] { 1 }, new byte[] { 2 }));
             StringAssert.Contains(putException.Message, "read-only");
         }
 
@@ -46,7 +48,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             var snapshot = store.GetSnapshot();
             snapshot.Put(new byte[] { 1 }, new byte[] { 2 });
 
-            var exception = Assert.ThrowsException<NotImplementedException>(() => snapshot.Commit());
+            var exception = Assert.ThrowsExactly<NotImplementedException>(() => snapshot.Commit());
 
             StringAssert.Contains(exception.Message, "read-only");
         }
@@ -57,7 +59,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("""{"error":{"code":-500,"message":"boom","data":"details"}}""");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
 
             StringAssert.Contains(exception.Message, "getstorage");
             StringAssert.Contains(exception.Message, "code=-500");
@@ -71,7 +73,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("""{"error":{}}""");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
 
             StringAssert.Contains(exception.Message, "code=<missing>");
             StringAssert.Contains(exception.Message, "message=<missing>");
@@ -84,7 +86,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             using var server = new RpcResponseServer("""{"result":{"unexpected":true}}""");
             var store = new RpcStore(server.Url);
 
-            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
                 store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
 
             StringAssert.Contains(exception.Message, "findstorage");
@@ -125,6 +127,61 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             Assert.AreEqual(2, backward.Length);
             CollectionAssert.AreEqual(new byte[] { 0, 0, 0, 1, 3 }, backward[0].Key);
             CollectionAssert.AreEqual(new byte[] { 0, 0, 0, 1, 2 }, backward[1].Key);
+
+            Assert.AreEqual(2, ((JArray)server.Requests[3]["params"]!).Count);
+            var legacyContinuation = (JArray)server.Requests[4]["params"]!;
+            Assert.AreEqual(JTokenType.Integer, legacyContinuation[2]!.Type);
+            Assert.AreEqual(1, legacyContinuation[2]!.Value<int>());
+        }
+
+        [TestMethod]
+        public void RpcStoreFindSupportsBase64KeyCursorPagination()
+        {
+            using var server = new RpcResponseServer(
+                """{"result":{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":"Ag=="}}""",
+                """{"result":{"results":[{"key":"AgM=","value":"BQ=="}],"truncated":false,"next":"AgM="}}""");
+            var store = new RpcStore(server.Url);
+
+            var records = store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray();
+
+            Assert.AreEqual(2, records.Length);
+            CollectionAssert.AreEqual(new byte[] { 0, 0, 0, 1, 2 }, records[0].Key);
+            CollectionAssert.AreEqual(new byte[] { 0, 0, 0, 1, 2, 3 }, records[1].Key);
+            Assert.AreEqual(2, ((JArray)server.Requests[0]["params"]!).Count);
+            var continuation = (JArray)server.Requests[1]["params"]!;
+            Assert.AreEqual(JTokenType.String, continuation[2]!.Type);
+            Assert.AreEqual("Ag==", continuation[2]!.Value<string>());
+        }
+
+        [DataTestMethod]
+        [DataRow("""{"results":[],"truncated":true,"next":1}""")]
+        [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true}""")]
+        [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":""}""")]
+        [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":true}""")]
+        public void RpcStoreFindRejectsInvalidContinuation(string result)
+        {
+            using var server = new RpcResponseServer("{\"result\":" + result + "}");
+            var store = new RpcStore(server.Url);
+
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
+                store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
+
+            StringAssert.Contains(exception.Message, "findstorage");
+            Assert.AreEqual(2, ((JArray)server.Requests[0]["params"]!).Count);
+        }
+
+        [TestMethod]
+        public void RpcStoreFindRejectsUnchangedContinuation()
+        {
+            const string page = """{"result":{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":"Ag=="}}""";
+            using var server = new RpcResponseServer(page, page);
+            var store = new RpcStore(server.Url);
+
+            Assert.ThrowsExactly<InvalidOperationException>(() =>
+                store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
+
+            Assert.AreEqual(2, server.Requests.Count);
+            Assert.AreEqual("Ag==", ((JArray)server.Requests[1]["params"]!)[2]!.Value<string>());
         }
 
         [TestMethod]
@@ -155,7 +212,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             CollectionAssert.AreEqual(new byte[] { 4 }, records[0].Value);
 
             snapshot.Delete(key);
-            var exception = Assert.ThrowsException<NotImplementedException>(() => snapshot.Commit());
+            var exception = Assert.ThrowsExactly<NotImplementedException>(() => snapshot.Commit());
             StringAssert.Contains(exception.Message, "read-only");
         }
 
@@ -199,6 +256,9 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         {
             private readonly TcpListener _listener;
             private readonly Task _requestTask;
+            private readonly List<JObject> _requests = [];
+
+            public IReadOnlyList<JObject> Requests => _requests;
 
             public RpcResponseServer(params string[] responseBodies)
             {
@@ -212,8 +272,19 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
                     {
                         using var client = await _listener.AcceptTcpClientAsync();
                         await using var stream = client.GetStream();
-                        var buffer = new byte[4096];
-                        await stream.ReadAtLeastAsync(buffer, 1, throwOnEndOfStream: false);
+                        using var reader = new System.IO.StreamReader(stream, Encoding.UTF8, leaveOpen: true);
+                        await reader.ReadLineAsync();
+                        var contentLength = 0;
+                        string? header;
+                        while (!string.IsNullOrEmpty(header = await reader.ReadLineAsync()))
+                        {
+                            if (header.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase))
+                                contentLength = int.Parse(header.Split(':', 2)[1].Trim());
+                        }
+                        var body = new char[contentLength];
+                        if (await reader.ReadBlockAsync(body, 0, body.Length) != body.Length)
+                            throw new InvalidOperationException("Incomplete RPC request body.");
+                        _requests.Add(JObject.Parse(new string(body)));
                         var bytes = Encoding.UTF8.GetBytes(responseBody);
                         var headers = Encoding.ASCII.GetBytes(
                             $"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {bytes.Length}\r\nConnection: close\r\n\r\n");

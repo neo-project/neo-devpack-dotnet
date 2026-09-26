@@ -40,19 +40,19 @@ public class SafeMathTest
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
-        var addNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedAdd(-1, 1));
+        var addNegative = Assert.ThrowsExactly<TestException>(() => contract.UnsignedAdd(-1, 1));
         StringAssert.Contains(addNegative.InnerException?.Message ?? addNegative.Message, "negative values are not supported");
 
-        var subUnderflow = Assert.ThrowsException<TestException>(() => contract.UnsignedSub(1, 2));
+        var subUnderflow = Assert.ThrowsExactly<TestException>(() => contract.UnsignedSub(1, 2));
         StringAssert.Contains(subUnderflow.InnerException?.Message ?? subUnderflow.Message, "result would be negative");
 
-        var mulNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedMul(-1, 2));
+        var mulNegative = Assert.ThrowsExactly<TestException>(() => contract.UnsignedMul(-1, 2));
         StringAssert.Contains(mulNegative.InnerException?.Message ?? mulNegative.Message, "negative values are not supported");
 
-        var divByZero = Assert.ThrowsException<TestException>(() => contract.UnsignedDiv(1, 0));
+        var divByZero = Assert.ThrowsExactly<TestException>(() => contract.UnsignedDiv(1, 0));
         StringAssert.Contains(divByZero.InnerException?.Message ?? divByZero.Message, "the divisor must be positive");
 
-        var modByZero = Assert.ThrowsException<TestException>(() => contract.UnsignedMod(1, 0));
+        var modByZero = Assert.ThrowsExactly<TestException>(() => contract.UnsignedMod(1, 0));
         StringAssert.Contains(modByZero.InnerException?.Message ?? modByZero.Message, "the divisor must be positive");
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
@@ -65,16 +65,16 @@ public class SafeMathTest
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
-        var addNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedAdd(1, -1));
+        var addNegative = Assert.ThrowsExactly<TestException>(() => contract.UnsignedAdd(1, -1));
         StringAssert.Contains(addNegative.InnerException?.Message ?? addNegative.Message, "negative values are not supported");
 
-        var mulNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedMul(2, -1));
+        var mulNegative = Assert.ThrowsExactly<TestException>(() => contract.UnsignedMul(2, -1));
         StringAssert.Contains(mulNegative.InnerException?.Message ?? mulNegative.Message, "negative values are not supported");
 
-        var divNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedDiv(2, -1));
+        var divNegative = Assert.ThrowsExactly<TestException>(() => contract.UnsignedDiv(2, -1));
         StringAssert.Contains(divNegative.InnerException?.Message ?? divNegative.Message, "the divisor must be positive");
 
-        var modNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedMod(2, -1));
+        var modNegative = Assert.ThrowsExactly<TestException>(() => contract.UnsignedMod(2, -1));
         StringAssert.Contains(modNegative.InnerException?.Message ?? modNegative.Message, "the divisor must be positive");
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);

@@ -28,19 +28,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032500);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSbyteparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSbyteparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("128"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSbyteparse("128"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("-129"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSbyteparse("-129"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSbyteparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSbyteparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestSbyteparse("@"));
             AssertGasConsumed(2032230);
         }
 
@@ -53,19 +53,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032650);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestByteparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestByteparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestByteparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("-1"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestByteparse("-1"));
             AssertGasConsumed(2048010);
-            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("256"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestByteparse("256"));
             AssertGasConsumed(2048010);
-            Assert.ThrowsException<TestException>(() => Contract.TestByteparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestByteparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestByteparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestByteparse("@"));
             AssertGasConsumed(2032230);
         }
 
@@ -78,19 +78,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032650);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUshortparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUshortparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("-1"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUshortparse("-1"));
             AssertGasConsumed(2048010);
-            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("65536"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUshortparse("65536"));
             AssertGasConsumed(2048010);
-            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUshortparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUshortparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUshortparse("@"));
             AssertGasConsumed(2032230);
         }
 
@@ -103,19 +103,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032500);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestShortparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestShortparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestShortparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("-32769"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestShortparse("-32769"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("32768"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestShortparse("32768"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestShortparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestShortparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestShortparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestShortparse("@"));
             AssertGasConsumed(2032230);
         }
 
@@ -128,19 +128,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032740);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUlongparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUlongparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("-1"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUlongparse("-1"));
             AssertGasConsumed(2048100);
-            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("18446744073709551616"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUlongparse("18446744073709551616"));
             AssertGasConsumed(2048100);
-            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUlongparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUlongparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUlongparse("@"));
             AssertGasConsumed(2032230);
         }
 
@@ -153,19 +153,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032500);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestLongparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestLongparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestLongparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("-9223372036854775809"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestLongparse("-9223372036854775809"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("9223372036854775808"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestLongparse("9223372036854775808"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestLongparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestLongparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestLongparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestLongparse("@"));
             AssertGasConsumed(2032230);
         }
 
@@ -178,19 +178,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032650);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUintparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUintparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUintparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("-1"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUintparse("-1"));
             AssertGasConsumed(2048010);
-            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("4294967296"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUintparse("4294967296"));
             AssertGasConsumed(2048010);
-            Assert.ThrowsException<TestException>(() => Contract.TestUintparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUintparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUintparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestUintparse("@"));
             AssertGasConsumed(2032230);
         }
 
@@ -203,19 +203,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2032500);
 
             //test backspace trip
-            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIntparse("20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestIntparse(" 20 "));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIntparse(" 20 "));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("-2147483649"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIntparse("-2147483649"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("2147483648"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIntparse("2147483648"));
             AssertGasConsumed(2047860);
-            Assert.ThrowsException<TestException>(() => Contract.TestIntparse(""));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIntparse(""));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("abc"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIntparse("abc"));
             AssertGasConsumed(2032230);
-            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("@"));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIntparse("@"));
             AssertGasConsumed(2032230);
         }
     }

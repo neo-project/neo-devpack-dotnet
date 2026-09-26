@@ -1,16 +1,18 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Example.SmartContract.Modifier.UnitTests
+namespace Example.SmartContract.Modifier.UnitTests;
+
+[TestClass]
+public class ModifierTests : TestBase<SampleModifier>
 {
-    [TestClass]
-    public class ModifierTests : TestBase<SampleModifier>
+    [TestMethod]
+    public void TestRejectsCallWithoutOwnerWitness()
     {
+        Engine.ClearTransactionSigners();
 
-        [TestMethod]
-        public void Test()
-        {
-
-        }
+        Assert.ThrowsException<TestException>(() => Contract.Test());
     }
 }

@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Empty Serialize
 
-            var exception = Assert.ThrowsException<TestException>(() => Contract.Deserialize(null));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.Deserialize(null));
             Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
 
             // Serialize

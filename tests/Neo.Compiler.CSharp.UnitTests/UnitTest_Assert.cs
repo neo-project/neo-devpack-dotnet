@@ -43,7 +43,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AssertFalse()
         {
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertFalse());
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestAssertFalse());
             AssertGasConsumed(986250);
             AssertsInFalse(exception);
         }
@@ -51,7 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AssertInFunction()
         {
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFunction());
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestAssertInFunction());
             AssertGasConsumed(1003620);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
@@ -60,7 +60,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AssertInTry()
         {
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInTry());
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestAssertInTry());
             AssertGasConsumed(1003740);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
@@ -69,7 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AssertInCatch()
         {
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInCatch());
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestAssertInCatch());
             AssertGasConsumed(1019490);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
@@ -78,7 +78,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AssertInFinally()
         {
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFinally());
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestAssertInFinally());
             AssertGasConsumed(1003950);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1

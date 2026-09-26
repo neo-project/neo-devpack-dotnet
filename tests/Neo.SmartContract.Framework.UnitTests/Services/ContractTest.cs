@@ -47,7 +47,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Check again for failures
 
-            var exception = Assert.ThrowsException<TestException>(() => created.GetCallFlags());
+            var exception = Assert.ThrowsExactly<TestException>(() => created.GetCallFlags());
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
             Engine.Storage.Rollback();
         }
@@ -134,11 +134,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Wrong pubKey
 
-            var exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(null));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.CreateStandardAccount(null));
             Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
-            exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
+            exception = Assert.ThrowsExactly<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
             Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
-            exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
+            exception = Assert.ThrowsExactly<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
             Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
 
             // Good pubKey (compressed)
