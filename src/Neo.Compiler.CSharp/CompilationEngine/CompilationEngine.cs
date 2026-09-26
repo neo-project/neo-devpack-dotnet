@@ -51,8 +51,23 @@ namespace Neo.Compiler
         private string? ProjectVersionPrefix;
         private string? ProjectVersionSuffix;
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
+        // Semantic diagnostics for a given SyntaxTree only depend on the shared Compilation, not
+        // on which contract is currently being compiled. CompilationContext.Compile() used to call
+        // GetSemanticModel(tree).GetDiagnostics() once per tree for every contract in the project,
+        // recomputing the exact same diagnostics N times (N = number of contracts). Caching them
+        // here means each tree's diagnostics are computed once per Compilation and shared across
+        // every CompilationContext.
+        private readonly ConcurrentDictionary<SyntaxTree, ImmutableArray<Diagnostic>> _semanticDiagnosticsCache = new();
         private readonly Lock tempProjectLock = new();
         private readonly TemporaryProjectWorkspace _temporaryProjectWorkspace = new();
+
+        internal ImmutableArray<Diagnostic> GetSemanticDiagnostics(SyntaxTree tree)
+        {
+            return _semanticDiagnosticsCache.GetOrAdd(tree, t =>
+                Compilation!.GetSemanticModel(t).GetDiagnostics()
+                    .Where(d => d.Severity != DiagnosticSeverity.Hidden)
+                    .ToImmutableArray());
+        }
 
         /// <summary>
         /// Gets the version that was extracted from the project
@@ -247,6 +262,7 @@ namespace Neo.Compiler
             ProjectVersionPrefix = null;
             ProjectVersionSuffix = null;
             Contexts.Clear();
+            _semanticDiagnosticsCache.Clear();
         }
 
         private MetadataReference? ResolveProjectFrameworkReference(Compilation compilation)

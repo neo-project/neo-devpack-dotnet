@@ -13,6 +13,7 @@ using Moq;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
 using Neo.Persistence.Providers;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
@@ -44,6 +45,16 @@ namespace Neo.SmartContract.Testing
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = [];
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = [];
         private NativeContracts? _native;
+
+        // Cache of the already-initialized native contracts data, keyed by ProtocolSettings
+        // reference. Initializing native contracts executes real OnPersist/PostPersist VM runs
+        // for ContractManagement, Ledger, NEO and GAS, which is expensive and identical for every
+        // TestEngine created with the same settings. We run that work once and store a fully
+        // materialized copy of the resulting data (an EngineCheckpoint) instead of a DataCache
+        // overlay, so subsequent engines can restore an independent copy of the data into their
+        // own storage without ever sharing a live parent snapshot (which would allow one engine's
+        // writes/commits to leak into another engine's storage).
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<ProtocolSettings, (Storage.EngineCheckpoint Checkpoint, Block Genesis)> _nativeInitCache = new();
 
         public delegate void OnRuntimeLogDelegate(UInt160 sender, string message);
         public event OnRuntimeLogDelegate? OnRuntimeLog;
@@ -327,7 +338,23 @@ namespace Neo.SmartContract.Testing
 
             if (initializeNativeContracts)
             {
-                PersistingBlock = new PersistingBlock(this, Native.Initialize(false));
+                var (checkpoint, genesis) = _nativeInitCache.GetOrAdd(settings, static (_, engine) =>
+                {
+                    var block = engine.Native.Initialize(false);
+                    // Materialize the resulting data into a fully independent copy (an
+                    // EngineCheckpoint just enumerates key/value pairs into plain arrays).
+                    // Unlike CloneCache(), this copy shares no live reference with the engine's
+                    // own snapshot, so later commits performed by this engine (or any other) can
+                    // never leak into the cached data.
+                    return (new Storage.EngineCheckpoint(engine.Storage.Snapshot), block);
+                }, this);
+
+                // Restore the cached, frozen data into this engine's own (already empty) snapshot.
+                // Every engine, including the one that just performed the real initialization,
+                // gets an independent copy this way, so no engine can ever observe another
+                // engine's writes.
+                checkpoint.Restore(Storage.Snapshot);
+                PersistingBlock = new PersistingBlock(this, genesis);
             }
             else
             {
