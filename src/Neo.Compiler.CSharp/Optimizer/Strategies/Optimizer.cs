@@ -27,6 +27,7 @@ namespace Neo.Optimizer
         public static readonly Dictionary<string, Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> strategies = new();
         private static readonly List<(MethodInfo method, StrategyAttribute attribute)> orderedStrategies = new();
         private static readonly Dictionary<(Guid moduleVersionId, int metadataToken), MethodInfo> registeredStrategyMethods = new();
+        private static readonly Dictionary<(Guid moduleVersionId, int metadataToken), Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> registeredStrategyDelegates = new();
 
         static Optimizer()
         {
@@ -55,11 +56,12 @@ namespace Neo.Optimizer
                     if (attribute is null || !HasValidStrategySignature(method))
                         continue;
 
-                    if (!RegisterStrategyMethod(method, attribute))
+                    var strategy = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
+                    if (!RegisterStrategyMethod(method, attribute, strategy))
                         continue;
 
                     string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
-                    strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
+                    strategies[name] = strategy;
                     registeredAny = true;
                 }
             }
@@ -78,18 +80,33 @@ namespace Neo.Optimizer
                 parameters[2].ParameterType == typeof(JObject);
         }
 
-        private static bool RegisterStrategyMethod(MethodInfo method, StrategyAttribute attribute)
+        private static bool RegisterStrategyMethod(
+            MethodInfo method,
+            StrategyAttribute attribute,
+            Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)> strategy)
         {
             var methodId = GetStrategyMethodId(method);
             if (!registeredStrategyMethods.TryAdd(methodId, method))
                 return false;
 
+            registeredStrategyDelegates[methodId] = strategy;
             orderedStrategies.Add((method, attribute));
             return true;
         }
 
         private static (Guid moduleVersionId, int metadataToken) GetStrategyMethodId(MethodInfo method) =>
             (method.Module.ModuleVersionId, method.MetadataToken);
+
+        private static Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)> GetStrategyDelegate(MethodInfo method)
+        {
+            if (registeredStrategyDelegates.TryGetValue(GetStrategyMethodId(method), out var strategy))
+                return strategy;
+
+            if (!method.IsStatic)
+                throw new TargetException("Non-static method requires a target");
+
+            return method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
+        }
 
         private static int CompareStrategies(
             (MethodInfo method, StrategyAttribute attribute) left,
@@ -121,7 +138,7 @@ namespace Neo.Optimizer
             {
                 try
                 {
-                    var result = method.Invoke(null, new object?[] { nef, manifest, debugInfo });
+                    var result = GetStrategyDelegate(method)(nef, manifest, debugInfo!);
                     if (result is ValueTuple<NefFile, ContractManifest, JObject?> tuple)
                     {
                         (nef, manifest, debugInfo) = tuple;
