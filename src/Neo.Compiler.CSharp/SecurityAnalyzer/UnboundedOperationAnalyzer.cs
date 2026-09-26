@@ -136,8 +136,10 @@ namespace Neo.Compiler.SecurityAnalyzer
             foreach (int methodStart in recursiveMethods)
             {
                 foreach ((int address, int target) in callGraph[methodStart])
+                {
                     if (recursiveMethods.Contains(target))
                         recursiveCalls.Add(address);
+                }
             }
 
             recursiveCalls.Sort();
@@ -192,8 +194,10 @@ namespace Neo.Compiler.SecurityAnalyzer
             }
 
             foreach (int methodStart in callGraph.Keys)
+            {
                 if (!indexes.ContainsKey(methodStart))
                     Visit(methodStart);
+            }
 
             return recursiveMethods;
         }
