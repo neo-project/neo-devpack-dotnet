@@ -90,5 +90,42 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.ThrowsExactly<TestException>(() => Contract.TestAbortInFinally(b));
             }
         }
+
+        [TestMethod]
+        public void Test_GuardCleanedAfterNormalReturn()
+        {
+            Assert.IsTrue(Contract.GuardedCall(false));
+            Assert.IsFalse(Contract.IsGuardSet());
+        }
+
+        [TestMethod]
+        public void Test_AbortDoesNotLeaveGuardSet()
+        {
+            Assert.ThrowsException<TestException>(() => Contract.GuardedCall(true));
+            Assert.IsFalse(Contract.IsGuardSet());
+        }
+
+        [TestMethod]
+        public void Test_AbortDoesNotBlockSubsequentCalls()
+        {
+            Assert.ThrowsException<TestException>(() => Contract.GuardedCall(true));
+            Assert.IsTrue(Contract.GuardedCall(false));
+        }
+
+        [TestMethod]
+        public void Test_AbortCannotBeCaughtByContractCaller()
+        {
+            Assert.ThrowsException<TestException>(() => Contract.CatchGuardedAbort());
+            Assert.IsFalse(Contract.IsGuardSet());
+            Assert.IsTrue(Contract.GuardedCall(false));
+        }
+
+        [TestMethod]
+        public void Test_CatchableThrowPreservesFinallyStorageWrites()
+        {
+            Assert.IsTrue(Contract.CatchGuardedThrow());
+            Assert.IsFalse(Contract.IsGuardSet());
+            Assert.IsTrue(Contract.IsFinallyMarkerSet());
+        }
     }
 }
