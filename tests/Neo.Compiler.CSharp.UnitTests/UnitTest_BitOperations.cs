@@ -87,7 +87,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BitOperations.RotateLeft(1U, 31), Contract.RotateLeftUInt(1U, 31));
             Assert.AreEqual(BitOperations.RotateLeft(uint.MaxValue, 5), Contract.RotateLeftUInt(uint.MaxValue, 5));
             Assert.AreEqual(BitOperations.RotateLeft(0x80000001U, 1), Contract.RotateLeftUInt(0x80000001U, 1));
-            AssertGasConsumed(1050360);
+            AssertGasConsumed(1049940);
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BitOperations.RotateLeft(0x123456789ABCDEF0UL, 16), Contract.RotateLeftULong(0x123456789ABCDEF0UL, 16));
             Assert.AreEqual(BitOperations.RotateLeft(1UL, 63), Contract.RotateLeftULong(1UL, 63));
             Assert.AreEqual(BitOperations.RotateLeft(ulong.MaxValue, 7), Contract.RotateLeftULong(ulong.MaxValue, 7));
-            AssertGasConsumed(1050810);
+            AssertGasConsumed(1050390);
         }
 
         [TestMethod]
@@ -106,7 +106,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BitOperations.RotateRight(1U, 1), Contract.RotateRightUInt(1U, 1));
             Assert.AreEqual(BitOperations.RotateRight(uint.MaxValue, 5), Contract.RotateRightUInt(uint.MaxValue, 5));
             Assert.AreEqual(BitOperations.RotateRight(0x80000001U, 1), Contract.RotateRightUInt(0x80000001U, 1));
-            AssertGasConsumed(1050090);
+            AssertGasConsumed(1049670);
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BitOperations.RotateRight(0x123456789ABCDEF0UL, 16), Contract.RotateRightULong(0x123456789ABCDEF0UL, 16));
             Assert.AreEqual(BitOperations.RotateRight(1UL, 1), Contract.RotateRightULong(1UL, 1));
             Assert.AreEqual(BitOperations.RotateRight(ulong.MaxValue, 7), Contract.RotateRightULong(ulong.MaxValue, 7));
-            AssertGasConsumed(1050450);
+            AssertGasConsumed(1050030);
         }
     }
 }
