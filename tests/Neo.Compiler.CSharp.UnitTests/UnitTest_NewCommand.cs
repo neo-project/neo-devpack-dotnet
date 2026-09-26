@@ -187,6 +187,11 @@ namespace Neo.Compiler.CSharp.UnitTests
                          compileResult.StdOut.Contains($"Created {Path.Combine(_testOutputPath, contractName, "bin", "sc", $"{contractName}.nef")}", StringComparison.OrdinalIgnoreCase) ||
                          compileResult.StdErr.Contains("Compilation completed successfully", StringComparison.OrdinalIgnoreCase),
                          "Expected compilation success message.");
+
+            var diagnosticsResult = RunCompilerCommand($"\"{projectPath}\" --diagnostics");
+            Assert.AreEqual(0, diagnosticsResult.ExitCode, $"Diagnostics compilation failed. Output: {diagnosticsResult.StdOut}{diagnosticsResult.StdErr}");
+            Assert.AreEqual(string.Empty, diagnosticsResult.StdOut);
+            Assert.AreEqual(string.Empty, diagnosticsResult.StdErr);
         }
 
         [TestMethod]
@@ -345,6 +350,29 @@ EndGlobal
             Assert.AreEqual(1, result.ExitCode, $"Expected a project compilation failure to fail the solution. Output: {result.StdOut}{result.StdErr}");
             StringAssert.Contains(result.StdErr, "Error compiling project Broken.csproj:");
             Assert.IsFalse(File.Exists(Path.Combine(_testOutputPath, "bin", "sc", $"{contractName}.nef")));
+        }
+
+        [TestMethod]
+        public void TestDiagnosticsOnlyWritesCompilerErrorsToStdErr()
+        {
+            string sourcePath = Path.Combine(_testOutputPath, "Broken.cs");
+            File.WriteAllText(sourcePath, """
+using Neo.SmartContract.Framework;
+
+public class Broken : SmartContract
+{
+    public static int Test() => (int)default(double);
+}
+""");
+
+            var result = RunCompilerCommand($"\"{sourcePath}\" --diagnostics");
+
+            Assert.AreEqual(1, result.ExitCode);
+            Assert.AreEqual(string.Empty, result.StdOut);
+            StringAssert.Contains(result.StdErr, "Error ");
+            Assert.IsFalse(result.StdErr.Contains("Compilation failed.", StringComparison.Ordinal));
+            foreach (string line in result.StdErr.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries))
+                Assert.IsTrue(line.StartsWith("Error NC", StringComparison.Ordinal), line);
         }
 
         private CommandResult RunCompilerCommand(string arguments)
