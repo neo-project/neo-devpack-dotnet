@@ -54,7 +54,11 @@ namespace Neo.SmartContract.Testing
         // overlay, so subsequent engines can restore an independent copy of the data into their
         // own storage without ever sharing a live parent snapshot (which would allow one engine's
         // writes/commits to leak into another engine's storage).
-        private static readonly System.Collections.Concurrent.ConcurrentDictionary<ProtocolSettings, (Storage.EngineCheckpoint Checkpoint, Block Genesis)> _nativeInitCache = new();
+        // ConcurrentDictionary.GetOrAdd does not guarantee its value factory runs only once; caching
+        // Lazy<T> instances (with ExecutionAndPublication) ensures the expensive
+        // Native.Initialize(false) VM run happens exactly once per ProtocolSettings key even when
+        // multiple engines request the same settings concurrently (e.g. class-level parallel tests).
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<ProtocolSettings, Lazy<(Storage.EngineCheckpoint Checkpoint, Block Genesis)>> _nativeInitCache = new();
 
         public delegate void OnRuntimeLogDelegate(UInt160 sender, string message);
         public event OnRuntimeLogDelegate? OnRuntimeLog;
@@ -339,21 +343,25 @@ namespace Neo.SmartContract.Testing
             if (initializeNativeContracts)
             {
                 var (checkpoint, genesis) = _nativeInitCache.GetOrAdd(settings, static (_, engine) =>
-                {
-                    var block = engine.Native.Initialize(false);
-                    // Materialize the resulting data into a fully independent copy (an
-                    // EngineCheckpoint just enumerates key/value pairs into plain arrays).
-                    // Unlike CloneCache(), this copy shares no live reference with the engine's
-                    // own snapshot, so later commits performed by this engine (or any other) can
-                    // never leak into the cached data.
-                    return (new Storage.EngineCheckpoint(engine.Storage.Snapshot), block);
-                }, this);
+                    new Lazy<(Storage.EngineCheckpoint, Block)>(() =>
+                    {
+                        var block = engine.Native.Initialize(false);
+                        // Materialize the resulting data into a fully independent copy (an
+                        // EngineCheckpoint just enumerates key/value pairs into plain arrays).
+                        // Unlike CloneCache(), this copy shares no live reference with the engine's
+                        // own snapshot, so later commits performed by this engine (or any other) can
+                        // never leak into the cached data.
+                        return (new Storage.EngineCheckpoint(engine.Storage.Snapshot), block);
+                    }, System.Threading.LazyThreadSafetyMode.ExecutionAndPublication), this).Value;
 
-                // Restore the cached, frozen data into this engine's own (already empty) snapshot.
-                // Every engine, including the one that just performed the real initialization,
-                // gets an independent copy this way, so no engine can ever observe another
-                // engine's writes.
-                checkpoint.Restore(Storage.Snapshot);
+                // Merge the cached, frozen native-contract data into this engine's snapshot. The
+                // storage passed to the constructor is caller-supplied and may already contain
+                // application data (e.g. TestEngine(EngineStorage, ...) overloads), so we must only
+                // add the cached entries here instead of using Restore(...), which would first wipe
+                // out any pre-existing entries in the destination snapshot. Every engine, including
+                // the one that just performed the real initialization, gets an independent copy this
+                // way, so no engine can ever observe another engine's writes.
+                checkpoint.MergeInto(Storage.Snapshot);
                 PersistingBlock = new PersistingBlock(this, genesis);
             }
             else

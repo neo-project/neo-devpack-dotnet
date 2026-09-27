@@ -19,4 +19,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 //    test classes (distinct T) never share the same Coverage instance.
 //  - Methods of the same test class execute on the same worker thread, so per-class static
 //    state (e.g. Coverage.Join in OnCleanup) is never accessed concurrently.
-[assembly: Parallelize(Workers = 0, Scope = ExecutionScope.ClassLevel)]
+// Workers = 0 lets MSTest pick one worker per processor, which oversubscribes CPU/disk I/O on
+// high-core machines given that compiling test contracts spawns external dotnet restore/msbuild
+// processes (see CompilationEngine). Capping at 4 workers, like Neo.Compiler.CSharp.UnitTests,
+// avoids that contention while still parallelizing test classes.
+[assembly: Parallelize(Workers = 4, Scope = ExecutionScope.ClassLevel)]

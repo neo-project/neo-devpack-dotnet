@@ -57,7 +57,10 @@ namespace Neo.Compiler
         // recomputing the exact same diagnostics N times (N = number of contracts). Caching them
         // here means each tree's diagnostics are computed once per Compilation and shared across
         // every CompilationContext.
-        private readonly ConcurrentDictionary<SyntaxTree, ImmutableArray<Diagnostic>> _semanticDiagnosticsCache = new();
+        // ConcurrentDictionary.GetOrAdd does not guarantee that its value factory runs only once;
+        // caching Lazy<T> instances (with ExecutionAndPublication) ensures GetDiagnostics() is
+        // computed exactly once per tree even when multiple threads race on the same key.
+        private readonly ConcurrentDictionary<SyntaxTree, Lazy<ImmutableArray<Diagnostic>>> _semanticDiagnosticsCache = new();
         private readonly Lock tempProjectLock = new();
         private readonly TemporaryProjectWorkspace _temporaryProjectWorkspace = new();
         // dotnet restore/msbuild spawn MSBuild/NuGet processes that contend heavily for CPU, disk I/O,
@@ -70,10 +73,11 @@ namespace Neo.Compiler
 
         internal ImmutableArray<Diagnostic> GetSemanticDiagnostics(SyntaxTree tree)
         {
-            return _semanticDiagnosticsCache.GetOrAdd(tree, t =>
+            var lazy = _semanticDiagnosticsCache.GetOrAdd(tree, t => new Lazy<ImmutableArray<Diagnostic>>(() =>
                 Compilation!.GetSemanticModel(t).GetDiagnostics()
                     .Where(d => d.Severity != DiagnosticSeverity.Hidden)
-                    .ToImmutableArray());
+                    .ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication));
+            return lazy.Value;
         }
 
         /// <summary>
