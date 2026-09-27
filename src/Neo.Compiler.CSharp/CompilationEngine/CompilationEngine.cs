@@ -64,12 +64,13 @@ namespace Neo.Compiler
         private readonly Lock tempProjectLock = new();
         private readonly TemporaryProjectWorkspace _temporaryProjectWorkspace = new();
         // dotnet restore/msbuild spawn MSBuild/NuGet processes that contend heavily for CPU, disk I/O,
-        // and the shared NuGet package cache. Running several of these concurrently (e.g. when
+        // and the shared NuGet package cache. Running many of these concurrently (e.g. when
         // multiple test classes compile projects in parallel) causes flaky failures such as
-        // partially-read csproj files. Serializing all external dotnet/MSBuild invocations across
-        // the process avoids that contention without affecting the rest of the (parallel-safe)
-        // compilation pipeline.
-        private static readonly SemaphoreSlim DotnetProcessSemaphore = new(1, 1);
+        // partially-read csproj files. Limiting (rather than fully serializing) concurrent external
+        // dotnet/MSBuild invocations avoids that contention while still letting the 4-worker test
+        // parallelization make progress instead of funneling every restore/evaluate through a single
+        // permit, which turned total suite time into the sum of every invocation.
+        private static readonly SemaphoreSlim DotnetProcessSemaphore = new(2, 2);
 
         internal ImmutableArray<Diagnostic> GetSemanticDiagnostics(SyntaxTree tree)
         {
