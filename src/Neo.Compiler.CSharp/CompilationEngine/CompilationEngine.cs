@@ -60,6 +60,13 @@ namespace Neo.Compiler
         private readonly ConcurrentDictionary<SyntaxTree, ImmutableArray<Diagnostic>> _semanticDiagnosticsCache = new();
         private readonly Lock tempProjectLock = new();
         private readonly TemporaryProjectWorkspace _temporaryProjectWorkspace = new();
+        // dotnet restore/msbuild spawn MSBuild/NuGet processes that contend heavily for CPU, disk I/O,
+        // and the shared NuGet package cache. Running several of these concurrently (e.g. when
+        // multiple test classes compile projects in parallel) causes flaky failures such as
+        // partially-read csproj files. Serializing all external dotnet/MSBuild invocations across
+        // the process avoids that contention without affecting the rest of the (parallel-safe)
+        // compilation pipeline.
+        private static readonly SemaphoreSlim DotnetProcessSemaphore = new(1, 1);
 
         internal ImmutableArray<Diagnostic> GetSemanticDiagnostics(SyntaxTree tree)
         {
@@ -549,16 +556,24 @@ namespace Neo.Compiler
 
             if (!shouldSkipRestore)
             {
-                using var process = Process.Start(new ProcessStartInfo
+                DotnetProcessSemaphore.Wait();
+                try
                 {
-                    FileName = "dotnet",
-                    Arguments = $"restore \"{csproj}\"",
-                    WorkingDirectory = folder
-                });
-                ArgumentNullException.ThrowIfNull(process);
-                process.WaitForExit();
-                if (process.ExitCode != 0)
-                    throw new InvalidOperationException($"dotnet restore failed with exit code {process.ExitCode} for '{csproj}'.");
+                    using var process = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "dotnet",
+                        Arguments = $"restore \"{csproj}\"",
+                        WorkingDirectory = folder
+                    });
+                    ArgumentNullException.ThrowIfNull(process);
+                    process.WaitForExit();
+                    if (process.ExitCode != 0)
+                        throw new InvalidOperationException($"dotnet restore failed with exit code {process.ExitCode} for '{csproj}'.");
+                }
+                finally
+                {
+                    DotnetProcessSemaphore.Release();
+                }
             }
 
             if (!File.Exists(assetsPath))
@@ -606,17 +621,30 @@ namespace Neo.Compiler
             startInfo.ArgumentList.Add("-getItem:Compile");
             startInfo.ArgumentList.Add("-getProperty:DefineConstants");
 
-            using var process = Process.Start(startInfo);
-            ArgumentNullException.ThrowIfNull(process);
-            Task<string> standardOutput = process.StandardOutput.ReadToEndAsync();
-            Task<string> standardError = process.StandardError.ReadToEndAsync();
-            process.WaitForExit();
-
-            string output = standardOutput.GetAwaiter().GetResult();
-            string error = standardError.GetAwaiter().GetResult();
-            if (process.ExitCode != 0)
+            DotnetProcessSemaphore.Wait();
+            string output;
+            string error;
+            int exitCode;
+            try
             {
-                throw new InvalidOperationException($"dotnet msbuild project evaluation failed with exit code {process.ExitCode} for '{csproj}': {error.Trim()}");
+                using var process = Process.Start(startInfo);
+                ArgumentNullException.ThrowIfNull(process);
+                Task<string> standardOutput = process.StandardOutput.ReadToEndAsync();
+                Task<string> standardError = process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+
+                output = standardOutput.GetAwaiter().GetResult();
+                error = standardError.GetAwaiter().GetResult();
+                exitCode = process.ExitCode;
+            }
+            finally
+            {
+                DotnetProcessSemaphore.Release();
+            }
+
+            if (exitCode != 0)
+            {
+                throw new InvalidOperationException($"dotnet msbuild project evaluation failed with exit code {exitCode} for '{csproj}': {error.Trim()}");
             }
 
             using JsonDocument evaluation = JsonDocument.Parse(output);
