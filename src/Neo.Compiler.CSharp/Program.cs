@@ -583,8 +583,7 @@ namespace Neo.Compiler
             if (options.DiagnosticsOnly)
             {
                 foreach (Diagnostic diagnostic in context.Diagnostics.Where(diagnostic =>
-                    diagnostic.Severity == DiagnosticSeverity.Error &&
-                    diagnostic.Id.StartsWith("NC", StringComparison.Ordinal)))
+                    diagnostic.Severity == DiagnosticSeverity.Error))
                     Console.Error.WriteLine($"Error {diagnostic.Id}: {diagnostic.GetMessage()}");
 
                 if (!context.Success)
