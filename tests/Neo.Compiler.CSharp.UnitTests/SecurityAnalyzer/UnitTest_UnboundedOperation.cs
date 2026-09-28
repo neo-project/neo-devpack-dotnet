@@ -15,6 +15,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 using Neo.VM;
 using System;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -54,6 +55,25 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         }
 
         [TestMethod]
+        public void Test_UnboundedOperation_DetectsMutualRecursion()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALL_L, 0x06, 0x00, 0x00, 0x00,
+                (byte)OpCode.RET,
+                (byte)OpCode.CALL_L, 0xFA, 0xFF, 0xFF, 0xFF,
+                (byte)OpCode.RET
+            ];
+
+            var result = UnboundedOperationAnalyzer.AnalyzeUnboundedOperations(
+                CreateNefFile(script),
+                CreateManifest(0, 6),
+                null);
+
+            CollectionAssert.AreEqual(new[] { 0, 6 }, result.recursiveCallAddresses.ToArray());
+        }
+
+        [TestMethod]
         public void Test_UnboundedOperationVulnerability_BackwardJumpOnlyCtor_RemainsCompatible()
         {
             var result = new UnboundedOperationAnalyzer.UnboundedOperationVulnerability(new[] { 7 }, null);
@@ -72,8 +92,11 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             };
         }
 
-        private static SmartContract.Manifest.ContractManifest CreateManifest()
+        private static SmartContract.Manifest.ContractManifest CreateManifest(params int[] methodOffsets)
         {
+            if (methodOffsets.Length == 0)
+                methodOffsets = [0];
+
             return new SmartContract.Manifest.ContractManifest
             {
                 Name = "TestContract",
@@ -81,17 +104,15 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 SupportedStandards = Array.Empty<string>(),
                 Abi = new SmartContract.Manifest.ContractAbi
                 {
-                    Methods =
-                    [
+                    Methods = methodOffsets.Select((offset, index) =>
                         new SmartContract.Manifest.ContractMethodDescriptor
                         {
-                            Name = "main",
-                            Offset = 0,
+                            Name = index == 0 ? "main" : $"method{index}",
+                            Offset = offset,
                             Parameters = Array.Empty<SmartContract.Manifest.ContractParameterDefinition>(),
                             ReturnType = ContractParameterType.Void,
                             Safe = false
-                        }
-                    ],
+                        }).ToArray(),
                     Events = Array.Empty<SmartContract.Manifest.ContractEventDescriptor>()
                 },
                 Permissions = Array.Empty<SmartContract.Manifest.ContractPermission>(),

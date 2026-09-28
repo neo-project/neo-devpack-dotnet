@@ -150,6 +150,37 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
+        public void PlatformApiDiagnostics_ShouldLinkToDocumentedAnchors()
+        {
+            const string helpLinkBase =
+                "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/unsupported-platform-api.md#";
+            var analyzerDirectory = FindAnalyzerDirectory();
+            var documentationPath = Path.GetFullPath(Path.Combine(
+                analyzerDirectory,
+                "..",
+                "..",
+                "docs",
+                "diagnostics",
+                "unsupported-platform-api.md"));
+            var documentation = File.ReadAllText(documentationPath);
+            var descriptors = new DiagnosticAnalyzer[]
+            {
+                new UnsupportedPlatformApiAnalyzer(),
+                new SystemDiagnosticsUsageAnalyzer()
+            };
+
+            foreach (var descriptor in descriptors.SelectMany(analyzer => analyzer.SupportedDiagnostics))
+            {
+                var anchor = descriptor.Id.ToLowerInvariant();
+                Assert.AreEqual(helpLinkBase + anchor, descriptor.HelpLinkUri, descriptor.Id);
+                StringAssert.Contains(
+                    documentation,
+                    $"<a id=\"{anchor}\"></a>",
+                    $"Missing documentation anchor for {descriptor.Id}.");
+            }
+        }
+
+        [TestMethod]
         public void RemovedRule_ShouldNotRequireALiveDescriptor()
         {
             var events = ParseReleaseCatalogs(

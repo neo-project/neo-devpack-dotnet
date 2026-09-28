@@ -81,7 +81,7 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
-    public void CompileProject_ReportsAnalyzerWarningsWithoutBlockingOutput()
+    public void CompileProject_ReportsUnsupportedTypedCatchAsAnError()
     {
         using var project = TempContractProject.Create("""
 using Neo.SmartContract.Framework;
@@ -105,8 +105,8 @@ public class Contract : SmartContract
         var result = CreateEngine().CompileProject(project.ProjectFile).Single();
         var diagnostic = result.Diagnostics.Single(item => item.Id == "NC4027");
 
-        Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
-        Assert.AreEqual(DiagnosticSeverity.Warning, diagnostic.Severity);
+        Assert.IsFalse(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+        Assert.AreEqual(DiagnosticSeverity.Error, diagnostic.Severity);
     }
 
     [TestMethod]
