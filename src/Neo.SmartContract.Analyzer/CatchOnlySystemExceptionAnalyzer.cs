@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Analyzer
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId, Title, MessageFormat, Category,
-            DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
+            DiagnosticSeverity.Error, isEnabledByDefault: true, description: Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(Rule);
