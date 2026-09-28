@@ -101,21 +101,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AbortDoesNotLeaveGuardSet()
         {
-            Assert.ThrowsException<TestException>(() => Contract.GuardedCall(true));
+            Assert.ThrowsExactly<TestException>(() => Contract.GuardedCall(true));
             Assert.IsFalse(Contract.IsGuardSet());
         }
 
         [TestMethod]
         public void Test_AbortDoesNotBlockSubsequentCalls()
         {
-            Assert.ThrowsException<TestException>(() => Contract.GuardedCall(true));
+            Assert.ThrowsExactly<TestException>(() => Contract.GuardedCall(true));
             Assert.IsTrue(Contract.GuardedCall(false));
         }
 
         [TestMethod]
         public void Test_AbortCannotBeCaughtByContractCaller()
         {
-            Assert.ThrowsException<TestException>(() => Contract.CatchGuardedAbort());
+            Assert.ThrowsExactly<TestException>(() => Contract.CatchGuardedAbort());
             Assert.IsFalse(Contract.IsGuardSet());
             Assert.IsTrue(Contract.GuardedCall(false));
         }
