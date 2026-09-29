@@ -188,7 +188,8 @@ namespace Neo.Compiler.CSharp.UnitTests
                          compileResult.StdErr.Contains("Compilation completed successfully", StringComparison.OrdinalIgnoreCase),
                          "Expected compilation success message.");
 
-            var diagnosticsResult = RunCompilerCommand($"\"{projectPath}\" --diagnostics");
+            var diagnosticsResult = RunCompilerCommand(
+                $"\"{projectPath}\" --diagnostics --generate-artifacts All --debug --assembly --generate-interface --print-abi");
             Assert.AreEqual(0, diagnosticsResult.ExitCode, $"Diagnostics compilation failed. Output: {diagnosticsResult.StdOut}{diagnosticsResult.StdErr}");
             Assert.AreEqual(string.Empty, diagnosticsResult.StdOut);
             Assert.AreEqual(string.Empty, diagnosticsResult.StdErr);
@@ -255,6 +256,52 @@ public class {{contractName}} : SmartContract
             StringAssert.Contains(result.StdErr, "Artifacts compilation error");
             StringAssert.Contains(result.StdErr, "CS");
             Assert.IsFalse(File.Exists(Path.Combine(projectDirectory, "bin", "sc", $"{contractName}.artifacts.dll")));
+        }
+
+        [TestMethod]
+        public void TestNefOptimizationAndSecurityAnalysisOutput()
+        {
+            string contractName = "AnalysisContract";
+            var generateResult = RunCompilerCommand($"new {contractName} -t Basic --output \"{_testOutputPath}\"");
+            Assert.AreEqual(0, generateResult.ExitCode);
+
+            string projectPath = Path.Combine(_testOutputPath, contractName, $"{contractName}.csproj");
+            UseLocalFrameworkReference(projectPath);
+
+            var compileResult = RunCompilerCommand($"\"{projectPath}\"");
+            Assert.AreEqual(0, compileResult.ExitCode, $"Compilation failed. Output: {compileResult.StdOut}{compileResult.StdErr}");
+
+            string nefPath = Path.Combine(_testOutputPath, contractName, "bin", "sc", $"{contractName}.nef");
+            var optimizeResult = RunCompilerCommand($"\"{nefPath}\" --diagnostics --optimize Experimental");
+            Assert.AreEqual(0, optimizeResult.ExitCode, $"Optimization failed. Output: {optimizeResult.StdOut}{optimizeResult.StdErr}");
+            Assert.AreEqual(string.Empty, optimizeResult.StdOut);
+            Assert.AreEqual(string.Empty, optimizeResult.StdErr);
+            Assert.IsTrue(File.Exists(Path.Combine(_testOutputPath, contractName, "bin", "sc", $"{contractName}.optimized.nef")));
+
+            var securityResult = RunCompilerCommand($"\"{projectPath}\" --security-analysis");
+            Assert.AreEqual(0, securityResult.ExitCode, $"Security analysis failed. Output: {securityResult.StdOut}{securityResult.StdErr}");
+            StringAssert.Contains(securityResult.StdOut, "Performing security analysis...");
+            StringAssert.Contains(securityResult.StdOut, "Finished security analysis.");
+        }
+
+        [TestMethod]
+        public void TestCompilerWarningsRemainOnStandardOutput()
+        {
+            string sourcePath = Path.Combine(_testOutputPath, "WarningContract.cs");
+            File.WriteAllText(sourcePath, """
+#warning TEST_WARNING
+using Neo.SmartContract.Framework;
+
+public class WarningContract : SmartContract
+{
+    public static int Test() => 1;
+}
+""");
+
+            var result = RunCompilerCommand($"\"{sourcePath}\"");
+
+            Assert.AreEqual(0, result.ExitCode, $"Compilation failed. Output: {result.StdOut}{result.StdErr}");
+            StringAssert.Contains(result.StdOut, "TEST_WARNING");
         }
 
         [TestMethod]
