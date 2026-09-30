@@ -58,37 +58,6 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAhUZXN0RW51bQwGVmFsdWUzDAZWYWx1ZTIMBlZhbHVlMRPAQA==
-    /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
-    /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
-    /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
-    /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
-    /// PUSH3 [1 datoshi]
-    /// PACK [2048 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testEnumGetNames")]
-    public abstract IList<object>? TestEnumGetNames();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: DAZWYWx1ZTMMBlZhbHVlMgwGVmFsdWUxE8BA
-    /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
-    /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
-    /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
-    /// PUSH3 [1 datoshi]
-    /// PACK [2048 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testEnumGetNamesGeneric")]
-    public abstract IList<object>? TestEnumGetNamesGeneric();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: VwABDAhUZXN0RW51bXhGShEqDEUMBlZhbHVlMUBKEioMRQwGVmFsdWUyQEoTKgxFDAZWYWx1ZTNARQtA
     /// INITSLOT 0001 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
@@ -118,6 +87,37 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </remarks>
     [DisplayName("testEnumGetNameWithType")]
     public abstract string? TestEnumGetNameWithType(object? value = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: DAhUZXN0RW51bQwGVmFsdWUzDAZWYWx1ZTIMBlZhbHVlMRPAQA==
+    /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
+    /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
+    /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
+    /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testEnumGetNames")]
+    public abstract IList<object>? TestEnumGetNames();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: DAZWYWx1ZTMMBlZhbHVlMgwGVmFsdWUxE8BA
+    /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
+    /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
+    /// PUSHDATA1 56616C756531 'Value1' [8 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testEnumGetNamesGeneric")]
+    public abstract IList<object>? TestEnumGetNamesGeneric();
 
     /// <summary>
     /// Unsafe method
