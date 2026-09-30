@@ -176,7 +176,7 @@ namespace Neo.Compiler
                     NoInline = parseResult.GetValue(noInlineOption),
                     AddressVersion = parseResult.GetValue(addressVersionOption),
                     PrintAbi = parseResult.GetValue(printAbiOption),
-                    DiagnosticErrorOnly = parseResult.GetValue(diagnosticsOption),
+                    DiagnosticOnly = parseResult.GetValue(diagnosticsOption) ? DiagnosticSeverity.Error : null,
                     Debug = parseResult.GetValue(debugOption),
                     RunAnalyzers = true
                 };
@@ -580,10 +580,10 @@ namespace Neo.Compiler
 
         private static int ProcessOutput(Options options, string folder, CompilationContext context)
         {
-            if (options.DiagnosticErrorOnly)
+            if (options.DiagnosticOnly is DiagnosticSeverity diagnosticSeverity)
             {
                 foreach (Diagnostic diagnostic in context.Diagnostics.Where(diagnostic =>
-                    diagnostic.Severity == DiagnosticSeverity.Error))
+                    diagnostic.Severity == diagnosticSeverity))
                     Console.Error.WriteLine($"Error {diagnostic.Id}: {diagnostic.GetMessage()}");
 
                 if (!context.Success)
@@ -810,7 +810,7 @@ namespace Neo.Compiler
                     }
                 }
 
-                if (options.PrintAbi && !options.DiagnosticErrorOnly)
+                if (options.PrintAbi && options.DiagnosticOnly is null)
                 {
                     try
                     {
@@ -833,7 +833,7 @@ namespace Neo.Compiler
 
         private static void WriteInfo(Options options, string message)
         {
-            if (!options.DiagnosticErrorOnly)
+            if (options.DiagnosticOnly is null)
                 Console.WriteLine(message);
         }
 
