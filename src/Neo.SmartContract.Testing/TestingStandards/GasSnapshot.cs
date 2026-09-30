@@ -84,6 +84,24 @@ public sealed class GasSnapshot
     }
 
     /// <summary>
+    /// Asserts that this snapshot matches a baseline within an absolute tolerance.
+    /// </summary>
+    /// <param name="baseline">Expected measurements.</param>
+    /// <param name="tolerance">Allowed absolute difference in datoshi.</param>
+    /// <exception cref="InvalidOperationException">Thrown when a measurement is missing, added, or outside the tolerance.</exception>
+    public void AssertGasWithin(GasSnapshot baseline, long tolerance = 0)
+    {
+        var differences = Compare(baseline, tolerance);
+        if (differences.Count == 0) return;
+
+        var details = string.Join(", ", differences.Select(difference =>
+            $"{difference.Name} (expected {FormatValue(difference.Expected)}, actual {FormatValue(difference.Actual)})"));
+        throw new InvalidOperationException($"Gas snapshot is outside the allowed tolerance: {details}.");
+    }
+
+    private static string FormatValue(long? value) => value?.ToString() ?? "missing";
+
+    /// <summary>
     /// Serializes the snapshot with stable property ordering.
     /// </summary>
     public string ToJson() => System.Text.Json.JsonSerializer.Serialize(_measurements, JsonOptions);
