@@ -48,6 +48,36 @@ public class GasSnapshotTests
     }
 
     [TestMethod]
+    public void AssertGasWithinAcceptsMeasurementsInsideTolerance()
+    {
+        var baseline = GasSnapshot.Capture([
+            ("transfer", 100L),
+            ("mint", 250L)
+        ]);
+        var current = GasSnapshot.Capture([
+            ("transfer", 105L),
+            ("mint", 245L)
+        ]);
+
+        current.AssertGasWithin(baseline, tolerance: 5);
+    }
+
+    [TestMethod]
+    public void AssertGasWithinReportsEveryDifference()
+    {
+        var baseline = new GasSnapshot().Record("transfer", 100);
+        var current = new GasSnapshot()
+            .Record("transfer", 130)
+            .Record("mint", 20);
+
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => current.AssertGasWithin(baseline, tolerance: 5));
+
+        StringAssert.Contains(exception.Message, "mint (expected missing, actual 20)");
+        StringAssert.Contains(exception.Message, "transfer (expected 100, actual 130)");
+    }
+
+    [TestMethod]
     public void RecordRejectsDuplicateAndNegativeMeasurements()
     {
         var snapshot = new GasSnapshot().Record("transfer", 10);
