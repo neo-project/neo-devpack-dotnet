@@ -28,6 +28,34 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeNsoNwEA2zBA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0100 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    public abstract byte[]? RIPEMD160(byte[]? value);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeNsoNwAA2zBA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    public abstract byte[]? SHA256(byte[]? value);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
     /// Script: VwACeXg3CQBA
     /// INITSLOT 0002 [64 datoshi]
     /// LDARG1 [2 datoshi]
@@ -143,20 +171,6 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeNsoNwEA2zBA
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
-    /// CALLT 0100 [32768 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    public abstract byte[]? RIPEMD160(byte[]? value);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: VwADAHp62yh5eNsoNwMAQA==
     /// INITSLOT 0003 [64 datoshi]
     /// PUSHINT8 7A [1 datoshi]
@@ -224,20 +238,6 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </remarks>
     [DisplayName("secp256r1VerifySignatureWithMessage")]
     public abstract bool? Secp256r1VerifySignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeNsoNwAA2zBA
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// CONVERT 28 'ByteString' [8192 datoshi]
-    /// CALLT 0000 [32768 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    public abstract byte[]? SHA256(byte[]? value);
 
     /// <summary>
     /// Unsafe method

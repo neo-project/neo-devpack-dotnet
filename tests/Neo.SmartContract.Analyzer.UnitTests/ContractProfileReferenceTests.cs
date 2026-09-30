@@ -58,7 +58,8 @@ public class ContractProfileReferenceTests
 
     private static void AssertRepositoryPath(string repositoryRoot, string reference, string capabilityId, string field)
     {
-        var pathPart = reference.Split('#', 2)[0];
+        var parts = reference.Split('#', 2);
+        var pathPart = parts[0];
         if (!pathPart.StartsWith("src/", StringComparison.Ordinal) &&
             !pathPart.StartsWith("tests/", StringComparison.Ordinal) &&
             !pathPart.StartsWith("docs/", StringComparison.Ordinal))
@@ -70,6 +71,17 @@ public class ContractProfileReferenceTests
         Assert.IsTrue(
             File.Exists(fullPath) || Directory.Exists(fullPath),
             $"Profile capability '{capabilityId}' has a missing {field} reference: '{reference}'.");
+
+        if (parts.Length == 2 && File.Exists(fullPath) &&
+            string.Equals(Path.GetExtension(fullPath), ".md", StringComparison.OrdinalIgnoreCase))
+        {
+            var anchor = parts[1];
+            var marker = $"<a id=\"{anchor}\"></a>";
+            StringAssert.Contains(
+                File.ReadAllText(fullPath),
+                marker,
+                $"Profile capability '{capabilityId}' has a missing Markdown anchor for {field}: '{reference}'.");
+        }
     }
 
     private static string FindRepositoryRoot()

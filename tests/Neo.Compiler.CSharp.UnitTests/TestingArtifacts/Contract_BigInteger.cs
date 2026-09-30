@@ -53,6 +53,234 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHlLS7dTt59A
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// GT [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// GT [8 datoshi]
+    /// SUB [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testCompare")]
+    public abstract BigInteger? TestCompare(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmhQA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// DIV [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testDivide")]
+    public abstract BigInteger? TestDivide(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmzQA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// NUMEQUAL [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testEquals")]
+    public abstract bool? TestEquals(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHlKJghQS6JKJPxFmkA=
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// JMPIFNOT 08 [2 datoshi]
+    /// SWAP [2 datoshi]
+    /// OVER [2 datoshi]
+    /// MOD [8 datoshi]
+    /// DUP [2 datoshi]
+    /// JMPIF FC [2 datoshi]
+    /// DROP [2 datoshi]
+    /// ABS [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testGreatestCommonDivisor")]
+    public abstract BigInteger? TestGreatestCommonDivisor(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeBKiqkA=
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// MOD [8 datoshi]
+    /// NOT [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testIsEven")]
+    public abstract bool? TestIsEven(BigInteger? input);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeBGzQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// NUMEQUAL [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testIsOne")]
+    public abstract bool? TestIsOne(BigInteger? input);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeLGqQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// NZ [4 datoshi]
+    /// NOT [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testIsZero")]
+    public abstract bool? TestIsZero(BigInteger? input);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwMAGnATcQAecmhpaqZA
+    /// INITSLOT 0300 [64 datoshi]
+    /// PUSH10 [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// PUSHINT8 1E [1 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// MODPOW [2048 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testModPow")]
+    public abstract BigInteger? TestModPow();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmgQA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// MUL [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testMultiply")]
+    public abstract BigInteger? TestMultiply(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeJtA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// NEGATE [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testNegate")]
+    public abstract BigInteger? TestNegate(BigInteger? x);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmjQA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// POW [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testPow")]
+    public abstract BigInteger? TestPow(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmiQA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testRemainder")]
+    public abstract BigInteger? TestRemainder(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeJlA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SIGN [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testSign")]
+    public abstract BigInteger? TestSign(BigInteger? input);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeKRA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SQRT [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testSqrt")]
+    public abstract BigInteger? TestSqrt(BigInteger? x);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmfQA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// SUB [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testSubtract")]
+    public abstract BigInteger? TestSubtract(BigInteger? x, BigInteger? y);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
     /// Script: VwEBOxEAeEoQAQABuyQDOnBoPQ9wDAlleGNlcHRpb246QA==
     /// INITSLOT 0101 [64 datoshi]
     /// TRY 1100 [4 datoshi]
@@ -180,75 +408,6 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeHlLS7dTt59A
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// OVER [2 datoshi]
-    /// OVER [2 datoshi]
-    /// GT [8 datoshi]
-    /// REVERSE3 [2 datoshi]
-    /// GT [8 datoshi]
-    /// SUB [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testCompare")]
-    public abstract BigInteger? TestCompare(BigInteger? x, BigInteger? y);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwACeHmhQA==
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// DIV [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testDivide")]
-    public abstract BigInteger? TestDivide(BigInteger? x, BigInteger? y);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwACeHmzQA==
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// NUMEQUAL [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testEquals")]
-    public abstract bool? TestEquals(BigInteger? x, BigInteger? y);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwACeHlKJghQS6JKJPxFmkA=
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// DUP [2 datoshi]
-    /// JMPIFNOT 08 [2 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
-    /// MOD [8 datoshi]
-    /// DUP [2 datoshi]
-    /// JMPIF FC [2 datoshi]
-    /// DROP [2 datoshi]
-    /// ABS [4 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testGreatestCommonDivisor")]
-    public abstract BigInteger? TestGreatestCommonDivisor(BigInteger? x, BigInteger? y);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: VwEBOw4AeErKFDIDOnBoPQ9wDAlleGNlcHRpb246QA==
     /// INITSLOT 0101 [64 datoshi]
     /// TRY 0E00 [4 datoshi]
@@ -273,49 +432,6 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
-    /// NOT [4 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testIsEven")]
-    public abstract bool? TestIsEven(BigInteger? input);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeBGzQA==
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// PUSH1 [1 datoshi]
-    /// NUMEQUAL [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testIsOne")]
-    public abstract bool? TestIsOne(BigInteger? input);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeLGqQA==
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// NZ [4 datoshi]
-    /// NOT [4 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testIsZero")]
-    public abstract bool? TestIsZero(BigInteger? input);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: VwEBOw4AeErKGDIDOnBoPQ9wDAlleGNlcHRpb246QA==
     /// INITSLOT 0101 [64 datoshi]
     /// TRY 0E00 [4 datoshi]
@@ -335,82 +451,6 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </remarks>
     [DisplayName("testlong")]
     public abstract BigInteger? Testlong(BigInteger? input);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwMAGnATcQAecmhpaqZA
-    /// INITSLOT 0300 [64 datoshi]
-    /// PUSH10 [1 datoshi]
-    /// STLOC0 [2 datoshi]
-    /// PUSH3 [1 datoshi]
-    /// STLOC1 [2 datoshi]
-    /// PUSHINT8 1E [1 datoshi]
-    /// STLOC2 [2 datoshi]
-    /// LDLOC0 [2 datoshi]
-    /// LDLOC1 [2 datoshi]
-    /// LDLOC2 [2 datoshi]
-    /// MODPOW [2048 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testModPow")]
-    public abstract BigInteger? TestModPow();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwACeHmgQA==
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// MUL [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testMultiply")]
-    public abstract BigInteger? TestMultiply(BigInteger? x, BigInteger? y);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeJtA
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// NEGATE [4 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testNegate")]
-    public abstract BigInteger? TestNegate(BigInteger? x);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwACeHmjQA==
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// POW [64 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testPow")]
-    public abstract BigInteger? TestPow(BigInteger? x, BigInteger? y);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwACeHmiQA==
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// MOD [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testRemainder")]
-    public abstract BigInteger? TestRemainder(BigInteger? x, BigInteger? y);
 
     /// <summary>
     /// Unsafe method
@@ -459,46 +499,6 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </remarks>
     [DisplayName("testshort")]
     public abstract BigInteger? Testshort(BigInteger? input);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeJlA
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// SIGN [4 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testSign")]
-    public abstract BigInteger? TestSign(BigInteger? input);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeKRA
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// SQRT [64 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testSqrt")]
-    public abstract BigInteger? TestSqrt(BigInteger? x);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwACeHmfQA==
-    /// INITSLOT 0002 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// LDARG1 [2 datoshi]
-    /// SUB [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testSubtract")]
-    public abstract BigInteger? TestSubtract(BigInteger? x, BigInteger? y);
 
     /// <summary>
     /// Unsafe method

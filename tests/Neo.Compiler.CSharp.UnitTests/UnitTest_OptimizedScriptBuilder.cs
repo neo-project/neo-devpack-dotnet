@@ -177,4 +177,26 @@ public class UnitTest_OptimizedScriptBuilder
         StringAssert.Contains(ex.Message, "JMP_L");
         StringAssert.Contains(ex.Message, "deleted");
     }
+
+    [TestMethod]
+    public void BuildScriptWithJumpTargets_ThrowsBadScriptForShortJumpOverflow()
+    {
+        Neo.VM.Instruction jump = new Script(new byte[] { (byte)OpCode.JMP, 0 }).GetInstruction(0);
+        Neo.VM.Instruction target = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
+        var instructions = new OrderedDictionary { { jump, 0 } };
+        for (int index = 0; index < 128; index++)
+        {
+            var filler = new Script(new byte[] { (byte)OpCode.NOP }).GetInstruction(0);
+            instructions.Add(filler, jump.Size + index);
+        }
+        instructions.Add(target, 130);
+
+        var ex = Assert.ThrowsExactly<BadScriptException>(() => OptimizedScriptBuilder.BuildScriptWithJumpTargets(
+            instructions,
+            new Dictionary<Neo.VM.Instruction, Neo.VM.Instruction> { [jump] = target },
+            new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)>()));
+
+        StringAssert.Contains(ex.Message, "JMP");
+        StringAssert.Contains(ex.Message, "delta=130");
+    }
 }

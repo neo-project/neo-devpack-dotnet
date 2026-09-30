@@ -158,6 +158,35 @@ internal static class Helper
         var (compilerDiagnostics, analyzerDiagnostics) = AnalyzeSource(sourceCode);
         var compilerErrors = compilerDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         var analyzerErrors = analyzerDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+
+        if (!expectSuccess)
+        {
+            if (expectedErrorIds is not null)
+            {
+                var actualErrorIds = compilerErrors
+                    .Concat(analyzerErrors)
+                    .Select(static diagnostic => diagnostic.Id)
+                    .ToHashSet(StringComparer.Ordinal);
+                var missingErrorIds = expectedErrorIds
+                    .Where(expectedId => !actualErrorIds.Contains(expectedId))
+                    .ToArray();
+                if (missingErrorIds.Length != 0)
+                {
+                    Assert.Fail(
+                        $"{message}{Environment.NewLine}" +
+                        $"Expected diagnostic IDs: {string.Join(", ", expectedErrorIds)}{Environment.NewLine}" +
+                        $"Actual diagnostic IDs: {string.Join(", ", actualErrorIds.OrderBy(static id => id, StringComparer.Ordinal))}");
+                }
+            }
+
+            // The Neo analyzer already rejected this source; the full compiler pipeline
+            // does not need to run since its result is never consulted in this path.
+            if (analyzerErrors.Length != 0)
+            {
+                return;
+            }
+        }
+
         CompilationContext? result = null;
         Exception? compileException = null;
 
@@ -198,29 +227,6 @@ internal static class Helper
 
         if (!expectSuccess)
         {
-            if (expectedErrorIds is not null)
-            {
-                var actualErrorIds = compilerErrors
-                    .Concat(analyzerErrors)
-                    .Select(static diagnostic => diagnostic.Id)
-                    .ToHashSet(StringComparer.Ordinal);
-                var missingErrorIds = expectedErrorIds
-                    .Where(expectedId => !actualErrorIds.Contains(expectedId))
-                    .ToArray();
-                if (missingErrorIds.Length != 0)
-                {
-                    Assert.Fail(
-                        $"{message}{Environment.NewLine}" +
-                        $"Expected diagnostic IDs: {string.Join(", ", expectedErrorIds)}{Environment.NewLine}" +
-                        $"Actual diagnostic IDs: {string.Join(", ", actualErrorIds.OrderBy(static id => id, StringComparer.Ordinal))}");
-                }
-            }
-
-            if (analyzerErrors.Length != 0)
-            {
-                return;
-            }
-
             if (requireAnalyzerError)
             {
                 if (allowCompilerErrors && compilerErrors.Length != 0)

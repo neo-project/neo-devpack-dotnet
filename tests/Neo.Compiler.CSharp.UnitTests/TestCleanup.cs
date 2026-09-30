@@ -49,6 +49,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static List<INamedTypeSymbol?> _allClassSymbols;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private static readonly ConcurrentSet<string> UpdatedArtifactNames = new();
+        // Serializes first-time compilation of a contract so that class-level test
+        // parallelization cannot race on the shared _compilationEngine instance.
+        private static readonly object _compileLock = new();
 
         [AssemblyInitialize]
 #pragma warning disable IDE0060 // Remove unused parameter
@@ -73,7 +76,15 @@ namespace Neo.Compiler.CSharp.UnitTests
                     return data.Context;
                 }
 
-                return EnsureArtifactUpToDateInternal(contract.Name);
+                lock (_compileLock)
+                {
+                    if (CachedContracts.TryGetValue(contract, out data))
+                    {
+                        return data.Context;
+                    }
+
+                    return EnsureArtifactUpToDateInternal(contract.Name);
+                }
             }
             catch (Exception e)
             {

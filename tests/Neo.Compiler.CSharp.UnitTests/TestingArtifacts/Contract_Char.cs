@@ -225,21 +225,6 @@ public abstract class Contract_Char(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeABhAHu7QA==
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// PUSHINT8 61 [1 datoshi]
-    /// PUSHINT8 7B [1 datoshi]
-    /// WITHIN [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testCharIsLower")]
-    public abstract bool? TestCharIsLower(BigInteger? c);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: VwABeAIA3AAAAgDgAAC7QA==
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
@@ -250,6 +235,21 @@ public abstract class Contract_Char(Neo.SmartContract.Testing.SmartContractIniti
     /// </remarks>
     [DisplayName("testCharIsLowSurrogate")]
     public abstract bool? TestCharIsLowSurrogate(BigInteger? c);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeABhAHu7QA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSHINT8 61 [1 datoshi]
+    /// PUSHINT8 7B [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testCharIsLower")]
+    public abstract bool? TestCharIsLower(BigInteger? c);
 
     /// <summary>
     /// Unsafe method

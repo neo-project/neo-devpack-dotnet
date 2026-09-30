@@ -48,8 +48,8 @@ namespace Neo.Compiler.ControlFlow
             {
                 JMP or CALL or ENDTRY => addr + instruction.TokenI8,
                 PUSHA or JMP_L or CALL_L or ENDTRY_L => addr + instruction.TokenI32,
-                CALLA => throw new NotImplementedException("CALLA is dynamic; not supported"),
-                _ => throw new NotImplementedException($"Unknown instruction {instruction.OpCode}"),
+                CALLA => throw new BadScriptException("CALLA is dynamic; control-flow target is unavailable"),
+                _ => throw new BadScriptException($"Unknown instruction {instruction.OpCode}"),
             };
         }
 
@@ -63,7 +63,7 @@ namespace Neo.Compiler.ControlFlow
                 TRY_L =>
                     (instruction.TokenI32 == 0 ? -1 : addr + instruction.TokenI32,
                         instruction.TokenI32_1 == 0 ? -1 : addr + instruction.TokenI32_1),
-                _ => throw new NotImplementedException($"Unknown instruction {instruction.OpCode}"),
+                _ => throw new BadScriptException($"Unknown instruction {instruction.OpCode}"),
             };
         }
 

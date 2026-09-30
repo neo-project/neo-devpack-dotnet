@@ -147,6 +147,39 @@ public class BetaContract : SmartContract
     }
 
     [TestMethod]
+    public void GetCompilation_ReportsProjectEvaluationFailureExitCode()
+    {
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Path.Combine(tempFolder, "obj"));
+        var projectFile = Path.Combine(tempFolder, "BadEvaluation.csproj");
+        File.WriteAllText(projectFile, """
+<Project Sdk="Neo.Missing.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>
+""");
+        File.WriteAllText(Path.Combine(tempFolder, "obj", "project.assets.json"), "{}");
+
+        try
+        {
+            var engine = new CompilationEngine(new CompilationOptions
+            {
+                SkipRestoreIfAssetsPresent = true
+            });
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => engine.GetCompilation(projectFile));
+
+            StringAssert.Contains(exception.Message, "dotnet msbuild project evaluation failed");
+            StringAssert.Contains(exception.Message, "exit code");
+            StringAssert.Contains(exception.Message, projectFile);
+        }
+        finally
+        {
+            Directory.Delete(tempFolder, recursive: true);
+        }
+    }
+
+    [TestMethod]
     public void GetCompilation_HonorsRelativeCompileRemove()
     {
         using var project = TempContractProject.Create("""

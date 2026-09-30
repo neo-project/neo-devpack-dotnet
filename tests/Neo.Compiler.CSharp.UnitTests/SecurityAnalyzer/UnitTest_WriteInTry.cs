@@ -26,6 +26,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
     [TestClass]
+    [DoNotParallelize]
     public class WriteInTryAnalyzeTryCatchTests : DebugAndTestBase<Contract_TryCatch>
     {
         [TestMethod]
