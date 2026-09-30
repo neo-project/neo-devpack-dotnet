@@ -71,5 +71,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             // This sanity check makes sure future refactors do not accidentally drop registrations.
             Assert.IsTrue(Handlers.Count >= 500, $"Expected at least 500 DSL handlers, but found {Handlers.Count}.");
         }
+
+        [TestMethod]
+        public void Dsl_Should_Initialize_Without_Duplicate_Registrations()
+        {
+            Assert.IsTrue(Handlers.Contains("System.Math.Clamp(int, int, int)"));
+            Assert.IsTrue(Handlers.Contains("string.Contains(string)"));
+        }
     }
 }
