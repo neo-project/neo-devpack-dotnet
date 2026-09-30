@@ -90,6 +90,16 @@ internal partial class MethodConvert
 
     private static void AddHandler(string key, SystemCallHandler handler)
     {
+        // Several CLR signatures intentionally share one compiler implementation (for example
+        // nullable/params aliases for string.Trim and string.Split). Keep those idempotent aliases
+        // while rejecting a duplicate key that would replace a different handler.
+        if (SystemCallHandlers.TryGetValue(key, out var existing))
+        {
+            if (existing == handler && handler is not null)
+                return;
+            throw new InvalidOperationException($"Duplicate system call handler registration: {key}");
+        }
+
         if (!SystemCallHandlers.TryAdd(key, handler))
             throw new InvalidOperationException($"Duplicate system call handler registration: {key}");
     }
