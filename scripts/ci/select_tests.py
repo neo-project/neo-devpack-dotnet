@@ -14,6 +14,14 @@ def select(paths):
         elif path.startswith('docs/diagnostics/') and path.endswith('.md'):
             # Diagnostic links are validated by analyzer tests.
             selected.add('analyzer')
+        elif path == 'docs/NeoCSharpContractProfile.md':
+            # The profile guide is checked by profile schema and reference tests.
+            selected.add('analyzer')
+        elif path.startswith('profiles/') and path.endswith('.json'):
+            # Profile schema changes are checked by analyzer profile tests.
+            selected.add('analyzer')
+        elif path.startswith('tests/Neo.SmartContract.Analyzer.UnitTests/Fixtures/'):
+            selected.add('analyzer')
         elif path.startswith('docs/') and path.endswith('.md'):
             # Ordinary prose documentation is independent of the executable
             # tree. Machine-checked docs were handled above.
