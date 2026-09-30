@@ -26,6 +26,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 //    SecurityAnalyzer.UpdateAnalyzerTests, SecurityAnalyzer.TokenCallbackAuthorizationAnalyzerTests.
 //  - Classes that invoke Program.Main against shared/relative output paths or the current
 //    working directory: Peripheral.UnitTest_Parameters, Peripheral.UnitTest_OutputNameSecurity.
+//  - UnitTest_OptimizerAutomation, which deliberately mutates the optimizer's process-wide
+//    strategy registry to exercise registration and failure paths.
 // Workers is capped (rather than 0/auto) because this project's tests are heavier than
 // Neo.SmartContract.Framework.UnitTests: each test constructs a full TestEngine (which
 // initializes native contracts) and/or spawns dotnet/MSBuild subprocesses (UnitTest_NewCommand,
