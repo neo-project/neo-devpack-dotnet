@@ -78,5 +78,20 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Handlers.Contains("System.Math.Clamp(int, int, int)"));
             Assert.IsTrue(Handlers.Contains("string.Contains(string)"));
         }
+
+        [TestMethod]
+        public void Dsl_Should_Reject_Duplicate_Handler_Registration()
+        {
+            var methodConvertType = typeof(Program).Assembly.GetType("Neo.Compiler.MethodConvert", throwOnError: true)!;
+            var addHandler = methodConvertType.GetMethod("AddHandler", BindingFlags.NonPublic | BindingFlags.Static)!;
+            var key = "test.duplicate.handler";
+            var arguments = new object?[] { key, null };
+
+            addHandler.Invoke(null, arguments);
+            var exception = Assert.ThrowsExactly<TargetInvocationException>(() => addHandler.Invoke(null, arguments));
+
+            Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
+            StringAssert.Contains(exception.InnerException!.Message, key);
+        }
     }
 }
