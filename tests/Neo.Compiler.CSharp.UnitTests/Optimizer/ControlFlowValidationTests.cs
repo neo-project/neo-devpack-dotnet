@@ -60,6 +60,17 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         }
 
         [TestMethod]
+        public void ComputeJumpTarget_ThrowsBadScriptForNonJumpInstruction()
+        {
+            var instruction = new Script(new byte[] { (byte)OpCode.NOP }).GetInstruction(0);
+
+            var exception = Assert.ThrowsExactly<BadScriptException>(() =>
+                ControlFlowJumpTarget.ComputeJumpTarget(0, instruction));
+
+            StringAssert.Contains(exception.Message, "NOP");
+        }
+
+        [TestMethod]
         public void ComputeTryTarget_ThrowsBadScriptForNonTryInstruction()
         {
             var instruction = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
