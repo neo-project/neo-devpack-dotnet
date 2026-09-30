@@ -23,6 +23,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
+    [DoNotParallelize]
     public class UnitTest_ArtifactDiff
     {
         [TestMethod]

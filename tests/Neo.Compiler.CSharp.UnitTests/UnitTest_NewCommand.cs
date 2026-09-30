@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
+    [DoNotParallelize]
     public class UnitTest_NewCommand
     {
         private static readonly object ConsoleLock = new();

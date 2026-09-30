@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Testing.TestingStandards;
 /// </summary>
 public sealed class GasSnapshot
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, NewLine = "\n" };
     private readonly SortedDictionary<string, long> _measurements = new(StringComparer.Ordinal);
 
     /// <summary>

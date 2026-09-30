@@ -29,6 +29,7 @@ using StrategyAttribute = Neo.Optimizer.StrategyAttribute;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
+    [DoNotParallelize]
     public class UnitTest_OptimizerAutomation : DebugAndTestBase<Contract_Array>
     {
         [TestMethod]

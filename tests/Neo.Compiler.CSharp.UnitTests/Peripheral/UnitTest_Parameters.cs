@@ -15,6 +15,7 @@ using System.IO;
 namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
     [TestClass]
+    [DoNotParallelize]
     public class UnitTest_Parameters
     {
         static readonly string TestContractRoot = Path.GetFullPath("../../../../Neo.Compiler.CSharp.TestContracts/") + "/";
