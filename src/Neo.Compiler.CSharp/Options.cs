@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System;
+using Microsoft.CodeAnalysis;
 
 namespace Neo.Compiler
 {
@@ -31,5 +32,9 @@ namespace Neo.Compiler
         public bool SecurityAnalysis { get; set; } = false;
         public bool GenerateContractInterface { get; set; } = false;
         public bool PrintAbi { get; set; } = false;
+        /// <summary>
+        /// Emits only diagnostics with the specified severity when diagnostics mode is enabled.
+        /// </summary>
+        public DiagnosticSeverity? DiagnosticOnly { get; set; }
     }
 }
