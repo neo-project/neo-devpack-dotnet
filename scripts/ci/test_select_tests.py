@@ -16,6 +16,15 @@ class SelectionTests(unittest.TestCase):
     def test_executable_markdown_keeps_syntax_checks(self):
         self.assertEqual({'syntax', 'analyzer'}, select(['docs/csharp-syntax/csharp-14.md']))
 
+    def test_profile_files_keep_profile_checks(self):
+        for path in [
+            'docs/NeoCSharpContractProfile.md',
+            'profiles/neo-csharp-profile.schema.json',
+            'tests/Neo.SmartContract.Analyzer.UnitTests/Fixtures/ContractProfile.valid.json',
+        ]:
+            with self.subTest(path=path):
+                self.assertEqual({'analyzer'}, select([path]))
+
     def test_analyzer_test_only(self):
         self.assertEqual({'analyzer'}, select(['tests/Neo.SmartContract.Analyzer.UnitTests/Test.cs']))
 
@@ -23,7 +32,7 @@ class SelectionTests(unittest.TestCase):
         for path in ['src/Neo.Compiler.CSharp/Test.cs', 'src/Neo.SmartContract.Analyzer/Test.cs',
                      'src/Neo.SmartContract.Analyzer/AnalyzerReleases.Shipped.md',
                      'tests/Directory.Build.props', 'global.json', 'NuGet.Config',
-                     '.github/workflows/main.yml', 'profiles/schema.json',
+                     '.github/workflows/main.yml', 'profiles/notes.txt',
                      'tests/Neo.Compiler.CSharp.UnitTests/Test.cs', 'new-module/file']:
             with self.subTest(path=path):
                 self.assertEqual({'full'}, select(['README.md', path]))
