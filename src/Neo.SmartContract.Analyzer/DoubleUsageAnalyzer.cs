@@ -22,6 +22,8 @@ namespace Neo.SmartContract.Analyzer
     public class DoubleUsageAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NC4004";
+        private const string HelpLink =
+            "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/NC4004.md";
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
@@ -30,7 +32,8 @@ namespace Neo.SmartContract.Analyzer
             "Type",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "Use an integer or BigInteger with an explicit application-defined scale for fixed-point arithmetic.");
+            description: "Use an integer or BigInteger with an explicit application-defined scale for fixed-point arithmetic.",
+            helpLinkUri: HelpLink);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
