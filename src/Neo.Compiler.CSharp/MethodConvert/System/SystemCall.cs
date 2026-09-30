@@ -38,54 +38,77 @@ internal partial class MethodConvert
     private static void RegisterHandler<TResult>(Expression<Func<TResult>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression);
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static void RegisterHandler<T, TResult>(Expression<Func<T, TResult>> expression, SystemCallHandler handler, string? key = null)
     {
         key ??= GetKeyFromExpression(expression, typeof(T));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static void RegisterHandler<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> expression, SystemCallHandler handler, string? key = null)
     {
         key ??= GetKeyFromExpression(expression, typeof(T1), typeof(T2));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static void RegisterHandler<T1, T2, T3, TResult>(Expression<Func<T1, T2, T3, TResult>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
     private static void RegisterHandler<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, bool>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3), typeof(T4));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static void RegisterHandler<T1, T2, T3, T4, T5, TResult>(Expression<Func<T1, T2, T3, T4, T5, TResult>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static void RegisterHandler<T>(Expression<Action<T>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static void RegisterHandler<T1, T2>(Expression<Action<T1, T2>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static void RegisterHandler<T1, T2, T3>(Expression<Action<T1, T2, T3>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3));
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
+    }
+
+    private static void AddHandler(string key, SystemCallHandler handler)
+    {
+        // Several CLR signatures intentionally share one compiler implementation (for example
+        // nullable/params aliases for string.Trim and string.Split). Keep those idempotent aliases
+        // while rejecting a duplicate key that would replace a different handler.
+        if (SystemCallHandlers.TryGetValue(key, out var existing))
+        {
+            if (existing == handler && handler is not null)
+                return;
+            throw new InvalidOperationException($"Duplicate system call handler registration: {key}");
+        }
+
+        if (!SystemCallHandlers.TryAdd(key, handler))
+            throw new InvalidOperationException($"Duplicate system call handler registration: {key}");
+    }
+
+    private static void AddAlias(string key, SystemCallHandler handler)
+    {
+        if (SystemCallHandlers.TryAdd(key, handler)) return;
+        if (!SystemCallHandlers[key].Equals(handler))
+            throw new InvalidOperationException($"Conflicting system call handler alias: {key}");
     }
 
     private static string GetKeyFromExpression(LambdaExpression expression, params Type[] argumentTypes)

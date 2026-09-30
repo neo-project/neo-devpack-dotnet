@@ -24,8 +24,13 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class TestExtensions
     {
-        private static readonly Dictionary<Type, Dictionary<int, PropertyInfo>> _propertyCache = new();
-        private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new();
+        // These caches are populated by CreateObject(...)/CreateValueType(...), which run every time a
+        // StackItem is converted back into a .NET object/struct while executing a contract test. Under
+        // MSTest class-level parallelization several test classes can hit these caches concurrently, so a
+        // plain Dictionary<> is not safe here (concurrent TryGetValue/indexer writes can corrupt the
+        // internal bucket table and surface as flaky, non-deterministic test failures).
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<int, PropertyInfo>> _propertyCache = new();
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, FieldInfo[]> _fieldCache = new();
 
         /// <summary>
         /// Convert Array stack item to dotnet array

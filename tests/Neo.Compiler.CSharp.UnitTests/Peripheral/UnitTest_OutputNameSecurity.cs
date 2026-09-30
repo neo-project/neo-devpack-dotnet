@@ -17,6 +17,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
     [TestClass]
+    [DoNotParallelize]
     public class UnitTest_OutputNameSecurity
     {
         [TestMethod]
