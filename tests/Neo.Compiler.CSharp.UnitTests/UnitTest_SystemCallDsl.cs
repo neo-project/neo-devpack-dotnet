@@ -93,5 +93,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
             StringAssert.Contains(exception.InnerException!.Message, key);
         }
+
+        [TestMethod]
+        public void Dsl_Should_Reject_Conflicting_Handler_Alias()
+        {
+            var methodConvertType = typeof(Program).Assembly.GetType("Neo.Compiler.MethodConvert", throwOnError: true)!;
+            var addAlias = methodConvertType.GetMethod("AddAlias", BindingFlags.NonPublic | BindingFlags.Static)!;
+            var arguments = new object?[] { "string.Contains(string)", null };
+
+            var exception = Assert.ThrowsExactly<TargetInvocationException>(() => addAlias.Invoke(null, arguments));
+
+            Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
+            StringAssert.Contains(exception.InnerException!.Message, "string.Contains(string)");
+        }
     }
 }

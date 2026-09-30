@@ -104,6 +104,13 @@ internal partial class MethodConvert
             throw new InvalidOperationException($"Duplicate system call handler registration: {key}");
     }
 
+    private static void AddAlias(string key, SystemCallHandler handler)
+    {
+        if (SystemCallHandlers.TryAdd(key, handler)) return;
+        if (!SystemCallHandlers[key].Equals(handler))
+            throw new InvalidOperationException($"Conflicting system call handler alias: {key}");
+    }
+
     private static string GetKeyFromExpression(LambdaExpression expression, params Type[] argumentTypes)
     {
         return expression.Body switch
