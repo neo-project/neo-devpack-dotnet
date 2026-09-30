@@ -101,6 +101,29 @@ namespace Neo.SmartContract.Testing.Storage
         }
 
         /// <summary>
+        /// Merge the checkpoint's data into the destination snapshot without clearing any
+        /// pre-existing entries first. Use this instead of <see cref="Restore(DataCache)"/> when the
+        /// destination snapshot may already contain data (e.g. caller-supplied storage) that must be
+        /// preserved, such as when only seeding native contract state.
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        public void MergeInto(DataCache snapshot)
+        {
+            foreach (var entry in Data)
+            {
+                var key = new StorageKey(entry.key);
+
+                // Skip entries that are already present so this is safe to call on a snapshot
+                // that already contains the cached data (e.g. the engine that produced the
+                // checkpoint), while still seeding any pre-existing caller-supplied storage that
+                // doesn't overlap with the cached keys.
+                if (snapshot.TryGet(key) is not null) continue;
+
+                snapshot.Add(key, new StorageItem(entry.value));
+            }
+        }
+
+        /// <summary>
         /// Save checkpoint to file
         /// </summary>
         /// <param name="path">File path</param>

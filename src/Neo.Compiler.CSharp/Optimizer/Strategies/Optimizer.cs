@@ -28,6 +28,11 @@ namespace Neo.Optimizer
         private static readonly List<(MethodInfo method, StrategyAttribute attribute)> orderedStrategies = new();
         private static readonly Dictionary<(Guid moduleVersionId, int metadataToken), MethodInfo> registeredStrategyMethods = new();
         private static readonly Dictionary<(Guid moduleVersionId, int metadataToken), Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> registeredStrategyDelegates = new();
+        // RegisterStrategies(...) can be invoked at runtime (e.g. by tests registering extra strategies)
+        // while Optimize(...) is enumerating orderedStrategies from another thread. Under MSTest
+        // class-level parallelization both can happen concurrently, so all reads/writes of these shared,
+        // non-thread-safe collections must be serialized with this lock.
+        private static readonly object strategiesLock = new();
 
         static Optimizer()
         {
@@ -47,27 +52,30 @@ namespace Neo.Optimizer
 
         private static void RegisterStrategies(IEnumerable<Type> types)
         {
-            bool registeredAny = false;
-            foreach (Type type in types)
+            lock (strategiesLock)
             {
-                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                bool registeredAny = false;
+                foreach (Type type in types)
                 {
-                    StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
-                    if (attribute is null || !HasValidStrategySignature(method))
-                        continue;
+                    foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                    {
+                        StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
+                        if (attribute is null || !HasValidStrategySignature(method))
+                            continue;
 
-                    var strategy = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
-                    if (!RegisterStrategyMethod(method, attribute, strategy))
-                        continue;
+                        var strategy = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
+                        if (!RegisterStrategyMethod(method, attribute, strategy))
+                            continue;
 
-                    string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
-                    strategies[name] = strategy;
-                    registeredAny = true;
+                        string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
+                        strategies[name] = strategy;
+                        registeredAny = true;
+                    }
                 }
-            }
 
-            if (registeredAny)
-                orderedStrategies.Sort(CompareStrategies);
+                if (registeredAny)
+                    orderedStrategies.Sort(CompareStrategies);
+            }
         }
 
         private static bool HasValidStrategySignature(MethodInfo method)
@@ -99,8 +107,11 @@ namespace Neo.Optimizer
 
         private static Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)> GetStrategyDelegate(MethodInfo method)
         {
-            if (registeredStrategyDelegates.TryGetValue(GetStrategyMethodId(method), out var strategy))
-                return strategy;
+            lock (strategiesLock)
+            {
+                if (registeredStrategyDelegates.TryGetValue(GetStrategyMethodId(method), out var strategy))
+                    return strategy;
+            }
 
             if (!method.IsStatic)
                 throw new TargetException("Non-static method requires a target");
@@ -133,8 +144,17 @@ namespace Neo.Optimizer
             manifest.Extra ??= new JObject();
             manifest.Extra["nef"] = new JObject();
             manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
-            // Execute optimization strategies in priority order (attribute-driven)
-            foreach (var (method, attribute) in orderedStrategies)
+            // Execute optimization strategies in priority order (attribute-driven).
+            // Snapshot the list under the lock: RegisterStrategies(...) can mutate orderedStrategies
+            // concurrently from another test class, and enumerating it directly here would throw
+            // InvalidOperationException ("Collection was modified").
+            (MethodInfo method, StrategyAttribute attribute)[] strategiesSnapshot;
+            lock (strategiesLock)
+            {
+                strategiesSnapshot = orderedStrategies.ToArray();
+            }
+
+            foreach (var (method, attribute) in strategiesSnapshot)
             {
                 try
                 {

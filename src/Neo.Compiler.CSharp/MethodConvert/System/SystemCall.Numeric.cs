@@ -309,7 +309,7 @@ internal partial class MethodConvert
     {
         var parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
         var key = GetMethodKey(method, parameterTypes);
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static (byte valueSlot, byte offsetSlot) StoreRotateOperands(MethodConvert methodConvert)
