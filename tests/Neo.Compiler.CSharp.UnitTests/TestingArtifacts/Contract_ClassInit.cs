@@ -28,6 +28,20 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EBASv0A=
+    /// PUSH0 [1 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testInitInt")]
+    public abstract IList<object>? TestInitInt();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
     /// Script: VwUACRAQDAFzEBASvwsLCxAQCRbAFlUWwHBoaBXOUBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
     /// INITSLOT 0500 [64 datoshi]
     /// PUSHF [1 datoshi]
@@ -127,20 +141,6 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// </remarks>
     [DisplayName("testInitializationExpression")]
     public abstract object? TestInitializationExpression();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: EBASv0A=
-    /// PUSH0 [1 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// PACKSTRUCT [2048 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testInitInt")]
-    public abstract IList<object>? TestInitInt();
 
     #endregion
 }

@@ -56,7 +56,7 @@ namespace Neo.Compiler
             output.WriteLine($"{"Method",-ColumnWidth}{"Safe",-9}{"Return",-12}{"Parameters"}");
             output.WriteLine(Separator);
 
-            foreach (var method in manifest.Abi.Methods.OrderBy(m => m.Name))
+            foreach (var method in manifest.Abi.Methods.OrderBy(m => m.Name, StringComparer.Ordinal))
             {
                 string safe = method.Safe ? "yes" : "no";
                 string returnType = method.ReturnType.ToString();
@@ -72,7 +72,7 @@ namespace Neo.Compiler
                 output.WriteLine();
                 output.WriteLine($"{"Event",-ColumnWidth}{"Parameters"}");
                 output.WriteLine(Separator);
-                foreach (var ev in manifest.Abi.Events.OrderBy(e => e.Name))
+                foreach (var ev in manifest.Abi.Events.OrderBy(e => e.Name, StringComparer.Ordinal))
                 {
                     string parameters = ev.Parameters.Length == 0
                         ? "-"

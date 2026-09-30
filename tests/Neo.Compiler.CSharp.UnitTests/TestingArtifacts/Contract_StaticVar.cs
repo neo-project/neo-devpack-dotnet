@@ -87,17 +87,6 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAtoZWxsbyB3b3JsZEA=
-    /// PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testinitalvalue")]
-    public abstract string? Testinitalvalue();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: NAY0KllA
     /// CALL 06 [512 datoshi]
     /// CALL 2A [512 datoshi]
@@ -106,6 +95,17 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: DAtoZWxsbyB3b3JsZEA=
+    /// PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testinitalvalue")]
+    public abstract string? Testinitalvalue();
 
     #endregion
 }

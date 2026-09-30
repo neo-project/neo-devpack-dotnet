@@ -850,21 +850,6 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
-    [DisplayName("isEventUInt")]
-    public abstract bool? IsEventUInt(BigInteger? value);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeBKiqkA=
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
-    /// NOT [4 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
     [DisplayName("isEvenUlong")]
     public abstract bool? IsEvenUlong(BigInteger? value);
 
@@ -882,6 +867,21 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// </remarks>
     [DisplayName("isEvenUshort")]
     public abstract bool? IsEvenUshort(BigInteger? value);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeBKiqkA=
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// MOD [8 datoshi]
+    /// NOT [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("isEventUInt")]
+    public abstract bool? IsEventUInt(BigInteger? value);
 
     /// <summary>
     /// Unsafe method

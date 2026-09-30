@@ -210,32 +210,6 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMAyHAMFAAAAAAAAAAAAAAAAAAAAAAAAAAAcWhpEVNT0Gg3AAByajcBAEA=
-    /// INITSLOT 0300 [64 datoshi]
-    /// NEWMAP [8 datoshi]
-    /// STLOC0 [2 datoshi]
-    /// PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
-    /// STLOC1 [2 datoshi]
-    /// LDLOC0 [2 datoshi]
-    /// LDLOC1 [2 datoshi]
-    /// PUSH1 [1 datoshi]
-    /// REVERSE3 [2 datoshi]
-    /// REVERSE3 [2 datoshi]
-    /// SETITEM [8192 datoshi]
-    /// LDLOC0 [2 datoshi]
-    /// CALLT 0000 [32768 datoshi]
-    /// STLOC2 [2 datoshi]
-    /// LDLOC2 [2 datoshi]
-    /// CALLT 0100 [32768 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testuint160Key")]
-    public abstract object? Testuint160Key();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: VwEByHBoeAwSMTI5ODQwdGVzdDEwMDIyOTM5U1PQaDcAAEA=
     /// INITSLOT 0101 [64 datoshi]
     /// NEWMAP [8 datoshi]
@@ -294,6 +268,32 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </remarks>
     [DisplayName("testUnicodeValue")]
     public abstract string? TestUnicodeValue(string? value);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwMAyHAMFAAAAAAAAAAAAAAAAAAAAAAAAAAAcWhpEVNT0Gg3AAByajcBAEA=
+    /// INITSLOT 0300 [64 datoshi]
+    /// NEWMAP [8 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// CALLT 0100 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testuint160Key")]
+    public abstract object? Testuint160Key();
 
     #endregion
 }

@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Neo.Extensions;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -67,7 +68,7 @@ namespace Neo.Compiler
             // Add properties
             if (properties.Any())
             {
-                foreach (var property in properties.OrderBy(p => p.getter.Name))
+                foreach (var property in properties.OrderBy(p => p.getter.Name, StringComparer.Ordinal))
                 {
                     string returnType = ConvertTypeToString(property.getter.ReturnType);
                     string propertyName = GetPropertyName(property.getter.Name);
@@ -92,7 +93,7 @@ namespace Neo.Compiler
             }
 
             // Add methods
-            foreach (var method in methods.OrderBy(m => m.Name))
+            foreach (var method in methods.OrderBy(m => m.Name, StringComparer.Ordinal))
             {
                 // Skip internal methods
                 if (method.Name.StartsWith('_'))
