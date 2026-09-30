@@ -2,6 +2,8 @@
 
 This page records intentional or currently accepted behavior differences between Neo C# contract compilation and standard .NET semantics.
 
+<a id="booltryparse"></a>
+
 ## `bool.TryParse`
 
 The compiler currently preserves an extended NeoVM-oriented bool parsing policy.
