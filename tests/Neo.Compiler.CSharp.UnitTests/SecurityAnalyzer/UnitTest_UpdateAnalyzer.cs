@@ -23,6 +23,7 @@ using System.Text;
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
     [TestClass]
+    [DoNotParallelize]
     public class UpdateAnalyzerTests
     {
         /// <summary>

@@ -50,6 +50,52 @@ jobs:
     - name: Build Solution
       if: steps.scope.outputs.full == 'true'
       run: dotnet build ./neo-devpack-dotnet.sln
+    - name: Validate packaged analyzer with external consumer
+      if: steps.scope.outputs.full == 'true'
+      run: |
+        ANALYZER_VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+        mkdir -p ./out/analyzer-package ./out/analyzer-consumer
+        dotnet pack ./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj \
+          --configuration Debug \
+          --output ./out/analyzer-package \
+          --no-build \
+          --no-restore
+        cat > ./out/analyzer-consumer/AnalyzerConsumer.csproj <<EOF
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <TargetFramework>net10.0</TargetFramework>
+            <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+          </PropertyGroup>
+          <ItemGroup>
+            <Compile Include="Contract.cs" />
+            <PackageReference Include="Neo.SmartContract.Analyzer" Version="${ANALYZER_VERSION}" />
+            <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="5.9.0" PrivateAssets="all" />
+          </ItemGroup>
+        </Project>
+        EOF
+        cat > ./out/analyzer-consumer/Contract.cs <<'EOF'
+        using System;
+
+        public class Contract
+        {
+            public DateTime ReadClock() => DateTime.Now;
+        }
+        EOF
+        dotnet restore ./out/analyzer-consumer/AnalyzerConsumer.csproj \
+          --source ./out/analyzer-package \
+          --source https://api.nuget.org/v3/index.json
+        set +e
+        dotnet build ./out/analyzer-consumer/AnalyzerConsumer.csproj \
+          --no-restore \
+          --no-incremental > ./out/analyzer-consumer/build.log 2>&1
+        build_exit=$?
+        set -e
+        cat ./out/analyzer-consumer/build.log
+        if [ "$build_exit" -eq 0 ]; then
+          echo "The external consumer build unexpectedly succeeded."
+          exit 1
+        fi
+        grep -q "NC4058" ./out/analyzer-consumer/build.log
     - name: Check format
       if: steps.scope.outputs.full == 'true'
       run: |

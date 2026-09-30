@@ -41,15 +41,12 @@ public class UnitTest_NullableNumericCasts
         ];
         foreach (var optimization in new[] { CompilationOptions.OptimizationType.None, CompilationOptions.OptimizationType.All })
             foreach (var (source, target) in pairs)
-                foreach (bool checkedConversion in new[] { false, true })
-                    foreach (var (nullableSource, nullableTarget) in new[] { (true, true), (false, true), (true, false) })
-                        yield return [optimization, source, target, checkedConversion, nullableSource, nullableTarget];
+                yield return [optimization, source, target];
     }
 
     [DataTestMethod]
     [DynamicData(nameof(ConversionCases))]
-    public void NullableIntegralCastsMatchClr(CompilationOptions.OptimizationType optimization, Type source, Type target,
-        bool checkedConversion, bool nullableSource, bool nullableTarget)
+    public void NullableIntegralCastsMatchClr(CompilationOptions.OptimizationType optimization, Type source, Type target)
     {
         var options = TestHelper.CreateDefaultOptions();
         options.Optimize = optimization;
@@ -78,8 +75,7 @@ public class UnitTest_NullableNumericCasts
             (false, false, true, contract.UncheckedValue), (true, false, true, contract.CheckedValue),
             (false, true, false, contract.UncheckedUnwrap), (true, true, false, contract.CheckedUnwrap)
         ];
-        foreach (var conversion in conversions.Where(conversion => conversion.Checked == checkedConversion
-            && conversion.NullableSource == nullableSource && conversion.NullableTarget == nullableTarget))
+        foreach (var conversion in conversions)
         {
             Type inputType = conversion.NullableSource ? typeof(Nullable<>).MakeGenericType(source) : source;
             Type outputType = conversion.NullableTarget ? typeof(Nullable<>).MakeGenericType(target) : target;
