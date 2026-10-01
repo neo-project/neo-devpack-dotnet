@@ -2104,11 +2104,19 @@ internal partial class MethodConvert
     /// <remarks>
     /// Algorithm: Uses StdLib memorySearch to find the character position
     /// </remarks>
-    private static void HandleStringIndexOfChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleStringIndexOfChar(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.ConvertCharToUtf8(toByteString: false);
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out char value))
+        {
+            methodConvert.Push(NormalizeCharForUtf8(value).ToString());
+        }
+        else
+        {
+            if (arguments is not null)
+                methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.ConvertCharToUtf8(toByteString: false);
+        }
 
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
@@ -2139,9 +2147,16 @@ internal partial class MethodConvert
         methodConvert.Dup();                                         // [true, string, string]
         methodConvert.Size();                                        // [true, string, size]
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments); // [true, string, size, char]
-        methodConvert.ConvertCharToUtf8(toByteString: false);
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out char value))
+        {
+            methodConvert.Push(NormalizeCharForUtf8(value).ToString());
+        }
+        else
+        {
+            if (arguments is not null)
+                methodConvert.PrepareArgumentsForMethod(model, symbol, arguments); // [true, string, size, char]
+            methodConvert.ConvertCharToUtf8(toByteString: false);
+        }
 
         methodConvert.Rot();                                                   // [true, size, char, string]
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);
