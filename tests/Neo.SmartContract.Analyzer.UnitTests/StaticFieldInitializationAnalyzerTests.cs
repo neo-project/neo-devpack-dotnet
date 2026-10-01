@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("UInt160", "null")]
         [DataRow("UInt160", "default")]
         [DataRow("UInt160", "default(UInt160)")]

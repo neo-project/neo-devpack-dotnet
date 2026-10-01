@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             yield return ["neocontractsolution/NeoContractSolution/NeoContractSolution.csproj"];
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(ContractProjects), DynamicDataSourceType.Method)]
         public void ContractTemplateIncludesPrivateAnalyzerPackage(string relativeProjectPath)
         {
