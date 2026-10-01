@@ -31,7 +31,7 @@ public class MalformedSyntaxTests
         yield return ["public class Contract : Neo.SmartContract.Framework.SmartContract { public static int Test() { switch (1) { case: return 1; } } }"];
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(IncompleteContractSources), DynamicDataSourceType.Method)]
     public void IncompleteSource_ProducesDiagnosticsWithoutCompilerException(string source)
     {

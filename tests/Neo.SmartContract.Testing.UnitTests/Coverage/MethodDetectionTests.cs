@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
     [TestClass]
     public class MethodDetectionTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public void NextMethodDetectsLocalCallTargets(bool longCall)
@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
             CollectionAssert.AreEqual(new[] { 2, 4 }, coverage.Methods[1].Lines.Select(l => l.Offset).ToArray());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow((byte)0)]
         [DataRow((byte)1)]
         public void NextMethodDoesNotTreatMethodTokensAsLocalCalls(byte tokenIndex)

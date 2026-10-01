@@ -35,7 +35,7 @@ public class UnitTest_NonAsciiCharSearch
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]
@@ -61,7 +61,7 @@ public class UnitTest_NonAsciiCharSearch
         Assert.AreEqual(new BigInteger(9), contract.IndexOf("中文测试", '试'));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]

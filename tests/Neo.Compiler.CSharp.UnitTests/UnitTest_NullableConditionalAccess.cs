@@ -62,7 +62,7 @@ public class Contract : SmartContract
 }
 """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void ConditionalAccessAndCoalescingMatchCSharp(CompilationOptions.OptimizationType optimization)

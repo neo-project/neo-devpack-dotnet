@@ -91,7 +91,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             CollectionAssert.AreEqual(value, checkpoint.Data[0].value);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(1)]
         [DataRow(2)]
         [DataRow(3)]

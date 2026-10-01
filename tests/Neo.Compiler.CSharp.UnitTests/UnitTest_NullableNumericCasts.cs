@@ -44,7 +44,7 @@ public class UnitTest_NullableNumericCasts
                 yield return [optimization, source, target];
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(ConversionCases))]
     public void NullableIntegralCastsMatchClr(CompilationOptions.OptimizationType optimization, Type source, Type target)
     {
@@ -114,7 +114,7 @@ public class UnitTest_NullableNumericCasts
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void NullableOperandIsEvaluatedOnce(CompilationOptions.OptimizationType optimization)

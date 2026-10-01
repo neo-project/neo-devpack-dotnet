@@ -236,7 +236,7 @@ public class Contract : SmartContract
 }
 """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void NullableIntegralOperatorsPropagateNull(CompilationOptions.OptimizationType optimization)
@@ -280,7 +280,7 @@ public class Contract : SmartContract
         Assert.AreEqual(BigInteger.One, contract.NullRightEvaluationCount());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void NullableIntegralCompoundAssignmentsPropagateNull(CompilationOptions.OptimizationType optimization)
@@ -309,7 +309,7 @@ public class Contract : SmartContract
         Assert.AreEqual(BigInteger.One, contract.NullCompoundEvaluationCount());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void NullableRelationalOperatorsReturnFalseForNull(CompilationOptions.OptimizationType optimization)
@@ -333,7 +333,7 @@ public class Contract : SmartContract
         Assert.IsFalse(contract.NotEqual(null, null));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void NullableBooleanBitwiseOperatorsUseThreeValuedLogic(CompilationOptions.OptimizationType optimization)

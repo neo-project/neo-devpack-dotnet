@@ -38,7 +38,7 @@ public class RpcStoreSeekTests
         [0xff, 0x00], [0xff, 0x00, 0x01], [0xff, 0xff]
     ];
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("00", SeekDirection.Forward)]
     [DataRow("00", SeekDirection.Backward)]
     [DataRow("00FF", SeekDirection.Forward)]
@@ -99,7 +99,7 @@ public class RpcStoreSeekTests
             server.Requests.Select(request => request.Start).ToArray());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("00")]
     [DataRow("1000")]

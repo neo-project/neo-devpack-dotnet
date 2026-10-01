@@ -31,7 +31,7 @@ public class SyntaxTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DynamicData(nameof(GetSyntaxProbes), DynamicDataSourceType.Method)]
     public void Syntax_Feature_Probe(SyntaxProbeCase probe)
     {

@@ -75,7 +75,7 @@ public class NepStandardImplementationAnalyzerUnitTest
                                          }
                                          """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("public static string Symbol() => \"TST\";")]
     [DataRow("public static string symbol() => \"TST\";")]
     [DataRow("[System.ComponentModel.DisplayName(\"symbol\")] public static string Ticker() => \"TST\";")]
@@ -87,7 +87,7 @@ public class NepStandardImplementationAnalyzerUnitTest
         await Verifier.VerifyAnalyzerAsync(CreateNep17Source(symbolMember));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("[System.ComponentModel.DisplayName(\"ticker\")] public static string Symbol() => \"TST\";")]
     [DataRow("[System.ComponentModel.DisplayName(\"Symbol\")] public static string Ticker() => \"TST\";")]
     [DataRow("public static string SYmbol() => \"TST\";")]
@@ -131,7 +131,7 @@ public class NepStandardImplementationAnalyzerUnitTest
         await Verifier.VerifyAnalyzerAsync(source);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("override")]
     [DataRow("new")]
     public async Task Nep17_HiddenBaseAbi_ShouldReportDiagnostic(string modifier)
@@ -216,7 +216,7 @@ public class NepStandardImplementationAnalyzerUnitTest
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("[System.ComponentModel.DisplayName(\"ticker\")] public static string Symbol() => \"TST\";", "Symbol1", "Token")]
     [DataRow("public static string Symbol { [System.ComponentModel.DisplayName(\"ticker\")] get => \"TST\"; }", "Symbol1", "Token")]
     [DataRow("private const string Symbol = \"TST\";", "Symbol1", "Token")]
