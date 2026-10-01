@@ -41,7 +41,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var instruction = instructions[0].instruction;
             Assert.AreEqual(OpCode.PUSHDATA1, instruction.OpCode);
             // Operand should contain the data (with 1-byte length prefix)
-            Assert.IsNotNull(instruction.Operand);
             Assert.IsTrue(instruction.Operand.Length > 1);
         }
 
@@ -68,7 +67,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var instruction = instructions[0].instruction;
             Assert.AreEqual(OpCode.PUSHDATA2, instruction.OpCode);
             // Operand should contain the data (VM Instruction.Operand contains just the data)
-            Assert.IsNotNull(instruction.Operand);
             Assert.AreEqual(data.Length, instruction.Operand.Length);
         }
 
@@ -97,7 +95,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var instruction = instructions[0].instruction;
             Assert.AreEqual(OpCode.PUSHDATA4, instruction.OpCode);
             // Operand should contain the data (with 4-byte length prefix)
-            Assert.IsNotNull(instruction.Operand);
             Assert.IsTrue(instruction.Operand.Length > 4);
         }
 
@@ -186,7 +183,6 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Verify operand contains the data
             // Note: The VM's Instruction.Operand contains just the data, not the length prefix
-            Assert.IsNotNull(instruction.Operand);
             Assert.AreEqual(data.Length, instruction.Operand.Length);
             // Verify first data byte is 0x02
             Assert.AreEqual(0x02, instruction.Operand.Span[0]);

@@ -68,7 +68,7 @@ public class Contract : SmartContract
         [TestMethod]
         public void AttributeTest()
         {
-            Assert.AreEqual(Contract_AttributeChanged.Manifest.Name, "Contract_AttributeChanged");
+            Assert.AreEqual("Contract_AttributeChanged", Contract_AttributeChanged.Manifest.Name);
             Assert.IsTrue(Contract.Test());
             AssertGasConsumed(984060);
         }

@@ -27,7 +27,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Literal00ToFF()
         {
             byte[] result = Contract.Literal00ToFF()!;
-            Assert.AreEqual(result.Length, 256);
+            Assert.AreEqual(256, result.Length);
             for (int i = 0; i <= 255; ++i)
                 Assert.AreEqual(i, result[i]);
         }
@@ -52,7 +52,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var value = Encoding.UTF8.GetBytes("Hello,World!");
             var result = Contract.Split(value, Encoding.UTF8.GetBytes(","), false);
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.Count, 2);
+            Assert.AreEqual(2, result.Count);
             Assert.AreEqual(result[0], new ByteString(Encoding.UTF8.GetBytes("Hello")));
             Assert.AreEqual(result[1], new ByteString(Encoding.UTF8.GetBytes("World!")));
         }
@@ -63,7 +63,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var value = Encoding.UTF8.GetBytes("Hello,,World!");
             var result = Contract.Split(value, Encoding.UTF8.GetBytes(","), true);
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.Count, 2);
+            Assert.AreEqual(2, result.Count);
             Assert.AreEqual(result[0], new ByteString(Encoding.UTF8.GetBytes("Hello")));
             Assert.AreEqual(result[1], new ByteString(Encoding.UTF8.GetBytes("World!")));
         }

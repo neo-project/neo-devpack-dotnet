@@ -25,35 +25,35 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
         [TestMethod]
         public void TestNoParameter()
         {
-            Assert.AreEqual(Program.Main([]), 2);
+            Assert.AreEqual(2, Program.Main([]));
         }
 
         [TestMethod]
         public void TestOutput()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            Assert.AreEqual(Program.Main([path, "-o", "output"]), 0);
+            Assert.AreEqual(0, Program.Main([path, "-o", "output"]));
         }
 
         [TestMethod]
         public void TestBaseName()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            Assert.AreEqual(Program.Main([path, "--base-name", "MyContract"]), 0);
+            Assert.AreEqual(0, Program.Main([path, "--base-name", "MyContract"]));
         }
 
         [TestMethod]
         public void TestNotCSharpFile()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.txt");
-            Assert.AreEqual(Program.Main([path]), 1);
+            Assert.AreEqual(1, Program.Main([path]));
         }
 
         [TestMethod]
         public void TestNotExist()
         {
             var path = Path.Combine(csFileDir, "Contract_NotExist.cs");
-            Assert.AreEqual(Program.Main([path]), 1);
+            Assert.AreEqual(1, Program.Main([path]));
         }
 
         [TestMethod]
@@ -61,28 +61,28 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
             var path2 = Path.Combine(csFileDir, "Contract_Math.cs");
-            Assert.AreEqual(Program.Main([path, path2]), 0);
+            Assert.AreEqual(0, Program.Main([path, path2]));
         }
 
         [TestMethod]
         public void TestNullAble()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            Assert.AreEqual(Program.Main([path, "--nullable", "Enable"]), 0);
+            Assert.AreEqual(0, Program.Main([path, "--nullable", "Enable"]));
         }
 
         [TestMethod]
         public void TestDebug()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            Assert.AreEqual(Program.Main([path, "--debug"]), 0);
+            Assert.AreEqual(0, Program.Main([path, "--debug"]));
         }
 
         [TestMethod]
         public void TestAssembly()
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
-            Assert.AreEqual(Program.Main([path, "--assembly"]), 0);
+            Assert.AreEqual(0, Program.Main([path, "--assembly"]));
         }
     }
 }

@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var methods = Contract_Types.Manifest.Abi.Methods;
             var checkEnumArg = methods.First(u => u.Name == "checkEnumArg");
-            Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray<JToken?>()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
+            Assert.AreEqual(@"[{""name"":""arg"",""type"":""Integer""}]", new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray<JToken?>()).ToString(false));
 
             Contract.CheckEnumArg(5);
             AssertGasConsumed(1046970);
