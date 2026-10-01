@@ -26,7 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         public void Test_CheckWitness()
         {
             var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(NefFile, Manifest, null);
-            Assert.AreEqual(result.droppedCheckWitnessResults.Count, 1);
+            Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
         }
 
         [TestMethod]

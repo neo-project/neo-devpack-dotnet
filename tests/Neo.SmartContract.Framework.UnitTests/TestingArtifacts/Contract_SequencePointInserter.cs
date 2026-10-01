@@ -18,7 +18,7 @@ public abstract class Contract_SequencePointInserter(Neo.SmartContract.Testing.S
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5XAAF4EZcmBQAXQAAtQHtjWxg=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5XAAF4EbMmBQAXQAAtQMZTYEg=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,11 +28,11 @@ public abstract class Contract_SequencePointInserter(Neo.SmartContract.Testing.S
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBGXJgUAF0AALUA=
+    /// Script: VwABeBGzJgUAF0AALUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// PUSH1 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NUMEQUAL [8 datoshi]
     /// JMPIFNOT 05 [2 datoshi]
     /// PUSHINT8 17 [1 datoshi]
     /// RET [0 datoshi]

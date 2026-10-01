@@ -18,7 +18,7 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0CAlcAAnh5nkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAJ4eZ9KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwECQ3B4eUoPKhxLAgAAAIAqFENoMgVFIvsMCE92ZXJmbG93OqF4eUoPKhxLAgAAAIAqFENoMgVFIvsMCE92ZXJmbG93OqJQEr9AVwICeXg0sMFFcHFpaDSAQFcAAnh5i9soQFcCARBwDAEADAEAQTkM4wo8AAAAAL0AAAA7OWZ4Jg4MCWV4Y2VwdGlvbjponErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0pwPSpxaJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KcD0CPpAAAAAMAQBB1Y1e6AwBAJc5DAEBDAEAQTkM4wpoSpxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRXgmDgwJZXhjZXB0aW9uOj8MAQBB1Y1e6AwBAZc5DAECDAEAQTkM4wponErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3A/QFcBABBwCTXv/v//cGgRlzkMAQBB1Y1e6AwBApc5aJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KcEBbZ06R").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0CAlcAAnh5nkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAJ4eZ9KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwECQ3B4eUoPKhxLAgAAAIAqFENoMgVFIvsMCE92ZXJmbG93OqF4eUoPKhxLAgAAAIAqFENoMgVFIvsMCE92ZXJmbG93OqJQEr9AVwICeXg0sMFFcHFpaDSAQFcAAnh5i9soQFcCARBwDAEADAEAQTkM4wo8AAAAAL0AAAA7OWZ4Jg4MCWV4Y2VwdGlvbjponErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0pwPSpxaJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KcD0CPpAAAAAMAQBB1Y1e6AwBAJc5DAEBDAEAQTkM4wpoSpxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRXgmDgwJZXhjZXB0aW9uOj8MAQBB1Y1e6AwBAZc5DAECDAEAQTkM4wponErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3A/QFcBABBwCTXv/v//cGgRszkMAQBB1Y1e6AwBApc5aJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KcECDEN9K").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -162,7 +162,7 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEHAJNe/+//9waBGXOQwBAEHVjV7oDAEClzlonErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0pwQA==
+    /// Script: VwEAEHAJNe/+//9waBGzOQwBAEHVjV7oDAEClzlonErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0pwQA==
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
@@ -171,7 +171,7 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH1 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NUMEQUAL [8 datoshi]
     /// ASSERT [1 datoshi]
     /// PUSHDATA1 00 [8 datoshi]
     /// SYSCALL D58D5EE8 'System.Storage.Local.Get' [32768 datoshi]

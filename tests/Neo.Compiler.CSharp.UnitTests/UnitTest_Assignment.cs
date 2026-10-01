@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Assignment()
         {
             Contract.TestAssignment();
-            AssertGasConsumed(989490);
+            AssertGasConsumed(987330);
         }
 
         [TestMethod]

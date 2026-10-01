@@ -34,11 +34,11 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ContractInBasicBlocks contractInBasicBlocks = new(NefFile, Manifest);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
-            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 23);
+            Assert.AreEqual(23, tryCatchFinallyCoverage.allTry.Count);
 
             WriteInTryAnalyzer.WriteInTryVulnerability v =
                 WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest);
-            Assert.AreEqual(v.Vulnerabilities.Count, 0);
+            Assert.AreEqual(0, v.Vulnerabilities.Count);
             v.GetWarningInfo(print: false);
         }
     }
@@ -51,12 +51,12 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ContractInBasicBlocks contractInBasicBlocks = new(NefFile, Manifest);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
-            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 14);
+            Assert.AreEqual(14, tryCatchFinallyCoverage.allTry.Count);
 
             WriteInTryAnalyzer.WriteInTryVulnerability v =
                 WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest);
             // because most try throws or aborts in catch, or has no catch, or throws or aborts in finally
-            Assert.AreEqual(v.Vulnerabilities.Count, 2);
+            Assert.AreEqual(2, v.Vulnerabilities.Count);
             v.GetWarningInfo(print: false);
         }
 
@@ -66,7 +66,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             // Test enhanced diagnostic messages without debug info (fallback behavior)
             WriteInTryAnalyzer.WriteInTryVulnerability v =
                 WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest, null);
-            Assert.AreEqual(v.Vulnerabilities.Count, 2);
+            Assert.AreEqual(2, v.Vulnerabilities.Count);
 
             // Test that warning message contains enhanced diagnostic information
             string warningInfo = v.GetWarningInfo(print: false);

@@ -37,7 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             List<int> assertAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Assert.Nef, _debugInfo, "testAssertFalse", OpCode.ASSERT);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, assertAddresses[1]);  // stops at the 2nd ASSERT
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 1);  // v==1
-            Assert.AreEqual(exception.State, VMState.FAULT);
+            Assert.AreEqual(VMState.FAULT, exception.State);
         }
 
         [TestMethod]

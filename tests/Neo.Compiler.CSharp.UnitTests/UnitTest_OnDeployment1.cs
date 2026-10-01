@@ -51,17 +51,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_OnDeployment1()
         {
             Assert.AreEqual(1, Contract_OnDeployment1.Manifest.Abi.Methods.Length);
-            Assert.AreEqual(Contract_OnDeployment1.Manifest.Abi.Methods[0].Name, "_deploy");
-            Assert.AreEqual(Contract_OnDeployment1.Manifest.Abi.Methods[0].Offset, 0);
-            Assert.AreEqual(Contract_OnDeployment1.Manifest.Abi.Methods[0].ReturnType, ContractParameterType.Void);
+            Assert.AreEqual("_deploy", Contract_OnDeployment1.Manifest.Abi.Methods[0].Name);
+            Assert.AreEqual(0, Contract_OnDeployment1.Manifest.Abi.Methods[0].Offset);
+            Assert.AreEqual(ContractParameterType.Void, Contract_OnDeployment1.Manifest.Abi.Methods[0].ReturnType);
 
             var args = Contract_OnDeployment1.Manifest.Abi.Methods[0].Parameters;
 
             Assert.AreEqual(2, args.Length);
-            Assert.AreEqual(args[0].Name, "data");
-            Assert.AreEqual(args[0].Type, ContractParameterType.Any);
-            Assert.AreEqual(args[1].Name, "update");
-            Assert.AreEqual(args[1].Type, ContractParameterType.Boolean);
+            Assert.AreEqual("data", args[0].Name);
+            Assert.AreEqual(ContractParameterType.Any, args[0].Type);
+            Assert.AreEqual("update", args[1].Name);
+            Assert.AreEqual(ContractParameterType.Boolean, args[1].Type);
         }
     }
 }

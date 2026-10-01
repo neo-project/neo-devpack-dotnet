@@ -40,7 +40,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(986040);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORT
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
-            Assert.AreEqual(exception.State, VMState.FAULT);
+            Assert.AreEqual(VMState.FAULT, exception.State);
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(986280);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORTMSG
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
-            Assert.AreEqual(exception.State, VMState.FAULT);
+            Assert.AreEqual(VMState.FAULT, exception.State);
         }
 
         [TestMethod]

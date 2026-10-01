@@ -39,8 +39,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             int src = 100, aux = 200, dst = 300;
             var result = Contract.HanoiTower(1, src, aux, dst)!;
-            AssertGasConsumed(1357080);
-            Assert.AreEqual(result.Count, 1);
+            AssertGasConsumed(1356360);
+            Assert.AreEqual(1, result.Count);
+
             List<(BigInteger rodId, BigInteger src, BigInteger dst)> expectedResult = [(1, src, dst)];
             for (int i = 0; i < expectedResult.Count; ++i)
             {
@@ -73,15 +74,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MutualRecursion()
         {
             Assert.IsTrue(Contract.Odd(7));
-            AssertGasConsumed(1180830);
+            AssertGasConsumed(1173870);
             Assert.IsFalse(Contract.Even(9));
-            AssertGasConsumed(1218750);
+            AssertGasConsumed(1210050);
             Assert.IsTrue(Contract.Odd(-11));
-            AssertGasConsumed(1257330);
+            AssertGasConsumed(1246890);
             Assert.IsTrue(Contract.Even(-10));
-            AssertGasConsumed(1238310);
+            AssertGasConsumed(1228740);
             Assert.IsFalse(Contract.Even(-9));
-            AssertGasConsumed(1219290);
+            AssertGasConsumed(1210590);
         }
     }
 }
