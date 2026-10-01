@@ -560,6 +560,15 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(-1, Contract.TestIndexOfChar("abc", '\0'));
             Assert.AreEqual(0, Contract.TestIndexOfChar("\0abc", '\0'));
             Assert.AreEqual(1, Contract.TestIndexOfChar("a\0b", '\0'));
+
+            Assert.AreEqual(-1, Contract.TestIndexOfConstChar(""));
+            AssertGasConsumed(2032470);
+
+            Assert.AreEqual(1, Contract.TestIndexOfConstChar("H*llo"));
+            AssertGasConsumed(2032470);
+
+            Assert.AreEqual(-1, Contract.TestIndexOfConstChar("Hello"));
+            AssertGasConsumed(2032470);
         }
 
         [TestMethod]
@@ -592,6 +601,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1, Contract.TestLastIndexOfChar("aé", 'é'));
             Assert.AreEqual(1, Contract.TestLastIndexOfChar("aΩ", 'Ω'));
             Assert.AreEqual(1, Contract.TestLastIndexOfChar("a中", '中'));
+
+            Assert.AreEqual("He**o".LastIndexOf('*'), Contract.TestLastIndexOfConstChar("He**o"));
+            AssertGasConsumed(2032740);
+
+            Assert.AreEqual("hell* w*rld".LastIndexOf('*'), Contract.TestLastIndexOfConstChar("hell* w*rld"));
+            AssertGasConsumed(2032740);
         }
 
         [TestMethod]
