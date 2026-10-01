@@ -38,14 +38,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ComplexAssignment()
         {
             Contract.TestComplexAssignment();
-            AssertGasConsumed(2964210);
+            AssertGasConsumed(2962020);
         }
 
         [TestMethod]
         public void Test_StaticComplexAssignment()
         {
             Contract.TestStaticComplexAssignment();
-            AssertGasConsumed(991590);
+            AssertGasConsumed(990120);
         }
     }
 }
