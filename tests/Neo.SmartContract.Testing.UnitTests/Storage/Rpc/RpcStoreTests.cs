@@ -153,7 +153,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             Assert.AreEqual("Ag==", continuation[2]!.Value<string>());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("""{"results":[],"truncated":true,"next":1}""")]
         [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true}""")]
         [DataRow("""{"results":[{"key":"Ag==","value":"BA=="}],"truncated":true,"next":""}""")]

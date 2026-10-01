@@ -110,7 +110,7 @@ public class Contract : SmartContract
 }
 """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void SafeConstantsSkipOverflowGuard(CompilationOptions.OptimizationType optimization)
@@ -123,7 +123,7 @@ public class Contract : SmartContract
         CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeMathLong("), OpCode.THROW);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void RuntimeArgumentsKeepOverflowGuard(CompilationOptions.OptimizationType optimization)
@@ -134,7 +134,7 @@ public class Contract : SmartContract
         CollectionAssert.Contains(GetMethodOpCodes(context, "Contract.RuntimeLong("), OpCode.THROW);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void CatchPathsPreserveCallerOwnedValues(CompilationOptions.OptimizationType optimization)

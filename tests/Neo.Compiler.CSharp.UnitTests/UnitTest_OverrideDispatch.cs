@@ -171,7 +171,7 @@ public class UnitTest_OverrideDispatch
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None, "NoFields", 12)]
     [DataRow(CompilationOptions.OptimizationType.All, "NoFields", 12)]
     [DataRow(CompilationOptions.OptimizationType.None, "SealedOverride", 19)]
@@ -226,7 +226,7 @@ public class UnitTest_OverrideDispatch
         Assert.AreEqual(new BigInteger(expected), actual);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void StructOverridesPreserveFieldLayout(CompilationOptions.OptimizationType optimization)

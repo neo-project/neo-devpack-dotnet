@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(true, "Storage.CurrentContext, (byte)0x2A")]
         [DataRow(false, "Storage.CurrentContext, (byte)0x2A")]
         [DataRow(true, "context: Storage.CurrentContext, prefix: (byte)0x2A")]
@@ -96,7 +96,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public async Task ReorderedNamedArguments_DifferentPrefixes_NoDiagnostic(bool explicitType)
