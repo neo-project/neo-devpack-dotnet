@@ -49,40 +49,40 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestNumberOnly()
         {
             Assert.IsTrue(Contract.TestNumberOnly());
-            AssertGasConsumed(1043970);
+            AssertGasConsumed(1041270);
 
             Assert.IsFalse(Contract.TestNumberRejectsNonDigit());
-            AssertGasConsumed(1046970);
+            AssertGasConsumed(1044270);
         }
 
         [TestMethod]
         public void TestAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestAlphabetOnly());
-            AssertGasConsumed(1237050);
+            AssertGasConsumed(1223010);
 
             Assert.IsFalse(Contract.TestAlphabetRejectsNumber());
-            AssertGasConsumed(1032540);
+            AssertGasConsumed(1030920);
         }
 
         [TestMethod]
         public void TestLowerAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestLowerAlphabetOnly());
-            AssertGasConsumed(1110690);
+            AssertGasConsumed(1103670);
 
             Assert.IsFalse(Contract.TestLowerAlphabetRejectsUpper());
-            AssertGasConsumed(1017540);
+            AssertGasConsumed(1016730);
         }
 
         [TestMethod]
         public void TestUpperAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestUpperAlphabetOnly());
-            AssertGasConsumed(1110690);
+            AssertGasConsumed(1103670);
 
             Assert.IsFalse(Contract.TestUpperAlphabetRejectsLower());
-            AssertGasConsumed(1017780);
+            AssertGasConsumed(1016970);
         }
     }
 }
