@@ -9,9 +9,13 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Text.Json.Nodes;
 
 namespace Neo.SmartContract.Analyzer.UnitTests;
@@ -56,6 +60,55 @@ public class ContractProfileReferenceTests
         }
     }
 
+    [TestMethod]
+    public void ProfileDiagnosticIds_ShouldBeKnownAndWellFormed()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var profilePath = Path.Combine(
+            repositoryRoot,
+            "tests",
+            "Neo.SmartContract.Analyzer.UnitTests",
+            "Fixtures",
+            "ContractProfile.valid.json");
+        var profile = JsonNode.Parse(File.ReadAllText(profilePath))!.AsObject();
+        var profileDiagnosticIds = new List<string>();
+
+        foreach (var capability in profile["capabilities"]!.AsObject())
+        {
+            if (capability.Value?["diagnostic"] is JsonObject diagnostic)
+            {
+                profileDiagnosticIds.Add(diagnostic["id"]!.GetValue<string>());
+            }
+        }
+
+        var knownAnalyzerIds = NeoAnalyzerSuite.Create()
+            .SelectMany(analyzer => analyzer.SupportedDiagnostics)
+            .Select(descriptor => descriptor.Id);
+        var knownCompilerIds = LoadCompilerDiagnosticIds(repositoryRoot);
+        var knownIds = knownAnalyzerIds
+            .Concat(knownCompilerIds)
+            .ToHashSet(StringComparer.Ordinal);
+        var unknownIds = profileDiagnosticIds
+            .Where(id => !knownIds.Contains(id))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToArray();
+        var malformedIds = profileDiagnosticIds
+            .Where(id => !Regex.IsMatch(id, "^NC[0-9]{4}$", RegexOptions.CultureInvariant))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.AreEqual(
+            0,
+            unknownIds.Length,
+            "Profile diagnostics are missing from the compiler or analyzer catalog: " + string.Join(", ", unknownIds));
+        Assert.AreEqual(
+            0,
+            malformedIds.Length,
+            "Profile diagnostics do not use the NC#### format: " + string.Join(", ", malformedIds));
+    }
+
     private static void AssertRepositoryPath(string repositoryRoot, string reference, string capabilityId, string field)
     {
         var parts = reference.Split('#', 2);
@@ -82,6 +135,23 @@ public class ContractProfileReferenceTests
                 marker,
                 $"Profile capability '{capabilityId}' has a missing Markdown anchor for {field}: '{reference}'.");
         }
+    }
+
+    private static IEnumerable<string> LoadCompilerDiagnosticIds(string repositoryRoot)
+    {
+        var sourcePath = Path.Combine(
+            repositoryRoot,
+            "src",
+            "Neo.Compiler.CSharp",
+            "Diagnostic",
+            "DiagnosticId.cs");
+        var source = File.ReadAllText(sourcePath);
+        return Regex.Matches(
+                source,
+                @"\bconst\s+string\s+\w+\s*=\s*""(NC[0-9]{4})""",
+                RegexOptions.CultureInvariant)
+            .Cast<Match>()
+            .Select(match => match.Groups[1].Value);
     }
 
     private static string FindRepositoryRoot()
