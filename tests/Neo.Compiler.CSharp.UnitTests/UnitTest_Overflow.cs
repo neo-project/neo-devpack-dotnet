@@ -97,16 +97,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(-32767, Contract.NegateShortChecked(32767));
             Assert.AreEqual(32768, Contract.NegateShort(short.MinValue));
 
-            // unchecked(-int.MinValue) == int.MinValue
-            Assert.AreEqual(int.MinValue, unchecked(-int.MinValue));
-
-            // unchecked(-long.MinValue) == long.MinValue
-            Assert.AreEqual(long.MinValue, unchecked(-long.MinValue));
-
-            // it is different for short.MinValue, because `-short` is an int
-            Assert.AreEqual(32768, unchecked(-short.MinValue));
-
-
             // add and negate
             Assert.AreEqual(-2147483648, Contract.NegateAddInt(int.MaxValue, 1));
             Assert.ThrowsExactly<TestException>(() => Contract.NegateAddIntChecked(int.MaxValue, 1));
