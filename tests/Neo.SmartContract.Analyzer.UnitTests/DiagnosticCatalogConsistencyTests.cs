@@ -215,6 +215,31 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
+        public void RangeDiagnostics_ShouldLinkToDocumentedGuidance()
+        {
+            var analyzerDirectory = FindAnalyzerDirectory();
+            var descriptor = new ArrayRangeUsageAnalyzer().SupportedDiagnostics.Single();
+            var fileName = $"{descriptor.Id}.md";
+            var documentationPath = Path.GetFullPath(Path.Combine(
+                analyzerDirectory,
+                "..",
+                "..",
+                "docs",
+                "diagnostics",
+                fileName));
+
+            Assert.IsTrue(File.Exists(documentationPath), $"Missing documentation for {descriptor.Id}.");
+            Assert.AreEqual(
+                $"https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/{fileName}",
+                descriptor.HelpLinkUri,
+                descriptor.Id);
+            StringAssert.Contains(
+                File.ReadAllText(documentationPath),
+                $"<a id=\"{descriptor.Id.ToLowerInvariant()}\"></a>",
+                $"Missing documentation anchor for {descriptor.Id}.");
+        }
+
+        [TestMethod]
         public void RemovedRule_ShouldNotRequireALiveDescriptor()
         {
             var events = ParseReleaseCatalogs(
