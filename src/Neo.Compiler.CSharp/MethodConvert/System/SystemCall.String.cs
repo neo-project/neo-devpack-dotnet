@@ -460,6 +460,12 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringEndsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? value))
+        {
+            HandleStringEndsWithConstant(methodConvert, model, instanceExpression, value!);
+            return;
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
@@ -491,6 +497,40 @@ internal partial class MethodConvert
         methodConvert.ChangeType(StackItemType.ByteString);       // [value, suffix]
         methodConvert.Equal();                                    // [bool]
 
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static void HandleStringEndsWithConstant(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, string value)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        if (value.Length == 0)
+        {
+            methodConvert.Drop();                                 // Any string ends with an empty value.
+            methodConvert.Push(true);
+            return;
+        }
+
+        var valueBytes = Utility.StrictUTF8.GetBytes(value);
+        JumpTarget validCountTarget = new();
+        JumpTarget endTarget = new();
+
+        // The stack is [source].
+        methodConvert.Dup();                                      // [source, source]
+        methodConvert.Size();                                     // [source, sourceSize]
+        methodConvert.Push(valueBytes.Length);                    // [source, sourceSize, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);     // [source]
+        methodConvert.Drop();                                     // []
+        methodConvert.PushF();                                    // source shorter than value.
+        methodConvert.JumpAlways(endTarget);
+
+        validCountTarget.Instruction = methodConvert.Nop();
+        methodConvert.Push(valueBytes.Length);                    // [source, valueSize]
+        methodConvert.Right(null);                                // [source, suffix]
+        methodConvert.ChangeType(StackItemType.ByteString);       // [source, suffix]
+        methodConvert.Push(valueBytes);                           // [source, suffix, value]
+        methodConvert.Equal();                                    // [bool]
         endTarget.Instruction = methodConvert.Nop();
     }
 
