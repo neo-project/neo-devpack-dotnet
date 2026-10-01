@@ -32,9 +32,11 @@ internal partial class MethodConvert
     /// The result of x && y is true if both x and y evaluate to true.
     /// Otherwise, the result is false. If x evaluates to false, y isn't evaluated.
     ///
-    /// The is operator checks if the run-time type of an expression result is compatible with a given type. The is operator also tests an expression result against a pattern.
+    /// The is operator checks if the run-time type of an expression result is compatible with a given type.
+    /// The is operator also tests an expression result against a pattern.
     ///
-    /// The as operator explicitly converts the result of an expression to a given reference or nullable value type. If the conversion isn't possible, the as operator returns null. Unlike a cast expression, the as operator never throws an exception.
+    /// The as operator explicitly converts the result of an expression to a given reference or nullable value type.
+    /// If the conversion isn't possible, the as operator returns null. Unlike a cast expression, the as operator never throws an exception.
     ///
     /// The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null;
     /// otherwise, it evaluates the right-hand operand and returns its result.
@@ -69,6 +71,7 @@ internal partial class MethodConvert
                 ConvertCoalesceExpression(model, expression.Left, expression.Right);
                 return;
         }
+
         IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
         if (symbol is not null && TryProcessSystemOperators(model, symbol, expression.Left, expression.Right))
             return;
@@ -101,6 +104,7 @@ internal partial class MethodConvert
     {
         type = GetNonNullableValueType(type);
         bool isBoolean = type.GetStackItemType() == StackItemType.Boolean;
+        bool intOperator = IsIntegerBinaryOperator(model, expression);
         var (opcode, checkResult) = expression.OperatorToken.ValueText switch
         {
             "+" => (OpCode.ADD, true),
@@ -110,16 +114,17 @@ internal partial class MethodConvert
             "%" => (OpCode.MOD, false),
             "<<" => (OpCode.SHL, true),
             ">>" => (OpCode.SHR, false),
-            "|" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, false),
-            "&" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, false),
+            "|" => (isBoolean ? OpCode.BOOLOR : OpCode.OR, false),
+            "&" => (isBoolean ? OpCode.BOOLAND : OpCode.AND, false),
             "^" => (OpCode.XOR, false),
-            "==" => (OpCode.EQUAL, false),
-            "!=" => (OpCode.NOTEQUAL, false),
+            "==" => (intOperator ? OpCode.NUMEQUAL : OpCode.EQUAL, false),
+            "!=" => (intOperator ? OpCode.NUMNOTEQUAL : OpCode.NOTEQUAL, false),
             "<" => (OpCode.LT, false),
             "<=" => (OpCode.LE, false),
             ">" => (OpCode.GT, false),
             ">=" => (OpCode.GE, false),
-            _ => throw CompilationException.UnsupportedSyntax(expression.OperatorToken, $"Unsupported binary operator '{expression.OperatorToken.ValueText}'. Supported operators: +, -, *, /, %, <<, >>, |, &, ^, ==, !=, <, <=, >, >=, &&, ||")
+            _ => throw CompilationException.UnsupportedSyntax(expression.OperatorToken,
+                $"Unsupported binary operator '{expression.OperatorToken.ValueText}'. Supported operators: +, -, *, /, %, <<, >>, |, &, ^, ==, !=, <, <=, >, >=, &&, ||")
         };
 
         if (expression.OperatorToken.ValueText is "/" or "%")
@@ -138,10 +143,7 @@ internal partial class MethodConvert
         }
         AddInstruction(opcode);
 
-        // XOR of two booleans produces an integer (0 or 1).
-        // NZ (4 units = 120 datoshi) converts 0 -> false, nonzero -> true,
-        // which is correct for boolean results and 2048× cheaper than
-        // convert Boolean (8192 units = 245,760 datoshi).
+        // XOR of two booleans produces an integer (0 or 1). NZ is cheaper then CONVERT
         if (expression.OperatorToken.ValueText == "^" && type.GetStackItemType() == StackItemType.Boolean)
         {
             Nz();
@@ -156,21 +158,22 @@ internal partial class MethodConvert
         }
     }
 
+    private static bool IsIntegerBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        return !HasNullableOperand(model, expression) &&
+            model.GetTypeInfo(expression.Left).Type?.GetStackItemType() == StackItemType.Integer &&
+            model.GetTypeInfo(expression.Right).Type?.GetStackItemType() == StackItemType.Integer;
+    }
+
     private static bool HasNullableOperand(SemanticModel model, BinaryExpressionSyntax expression) =>
         IsNullableValueType(model.GetTypeInfo(expression.Left).Type) ||
         IsNullableValueType(model.GetTypeInfo(expression.Right).Type);
 
     private static bool IsNullableValueType(ITypeSymbol? type) =>
-        type is INamedTypeSymbol
-        {
-            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-        };
+        type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T };
 
     private static ITypeSymbol GetNonNullableValueType(ITypeSymbol type) =>
-        type is INamedTypeSymbol
-        {
-            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-        } nullableType
+        type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullableType
             ? nullableType.TypeArguments[0]
             : type;
 

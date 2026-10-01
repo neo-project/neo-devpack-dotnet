@@ -169,15 +169,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CheckZero()
         {
             var result = Contract.CheckZero(0);
-            AssertGasConsumed(1065960);
+            AssertGasConsumed(1065240);
             Assert.AreEqual(true, result);
 
             result = Contract.CheckZero(1);
-            AssertGasConsumed(1065960);
+            AssertGasConsumed(1065240);
             Assert.AreEqual(false, result);
 
             result = Contract.CheckZero(-1);
-            AssertGasConsumed(1065960);
+            AssertGasConsumed(1065240);
             Assert.AreEqual(false, result);
         }
 
@@ -185,15 +185,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CheckZero2()
         {
             var result = Contract.CheckZero2(0);
-            AssertGasConsumed(1083360);
+            AssertGasConsumed(1082640);
             Assert.AreEqual(true, result);
 
             result = Contract.CheckZero2(1);
-            AssertGasConsumed(1083360);
+            AssertGasConsumed(1082640);
             Assert.AreEqual(false, result);
 
             result = Contract.CheckZero2(-1);
-            AssertGasConsumed(1083360);
+            AssertGasConsumed(1082640);
             Assert.AreEqual(false, result);
         }
 
@@ -201,15 +201,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CheckZero3()
         {
             var result = Contract.CheckZero3(0);
-            AssertGasConsumed(1083600);
+            AssertGasConsumed(1082880);
             Assert.AreEqual(true, result);
 
             result = Contract.CheckZero3(1);
-            AssertGasConsumed(1083600);
+            AssertGasConsumed(1082880);
             Assert.AreEqual(false, result);
 
             result = Contract.CheckZero3(-1);
-            AssertGasConsumed(1083600);
+            AssertGasConsumed(1082880);
             Assert.AreEqual(false, result);
         }
 
@@ -217,7 +217,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CheckPositiveOdd()
         {
             var result = Contract.CheckPositiveOdd(3);
-            AssertGasConsumed(1066620);
+            AssertGasConsumed(1065900);
             Assert.AreEqual(true, result);
 
             result = Contract.CheckPositiveOdd(0);
@@ -225,7 +225,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(false, result);
 
             result = Contract.CheckPositiveOdd(2);
-            AssertGasConsumed(1066620);
+            AssertGasConsumed(1065900);
             Assert.AreEqual(false, result);
 
             result = Contract.CheckPositiveOdd(-1);
