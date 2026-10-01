@@ -343,7 +343,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
         /// <returns> An collection that contains the elements that occur after the specified index in the input sequence.</returns>
         /// <exception cref="ArgumentNullException">source is null.</exception>
-        public static IEnumerable<T> Skip<T>(this IEnumerable<T> source, int count)
+        public static IEnumerable<T> Skip<T>(this IEnumerable<T> source, BigInteger count)
         {
             AssertSourceNotNull(source);
             var list = new List<T>();
@@ -476,7 +476,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="count">The number of elements to return.</param>
         /// <returns>An collection that contains the specified number of elements from the start of the input sequence.</returns>
         /// <exception cref="ArgumentNullException">source is null.</exception>
-        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
+        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, BigInteger count)
         {
             AssertSourceNotNull(source);
             var list = new List<T>();

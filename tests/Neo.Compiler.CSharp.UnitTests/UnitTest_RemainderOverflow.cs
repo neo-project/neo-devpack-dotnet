@@ -195,7 +195,7 @@ public class Contract : SmartContract
 }
 """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void SignedRemainderOverflowThrowsInAllContexts(CompilationOptions.OptimizationType optimization)
@@ -230,7 +230,7 @@ public class Contract : SmartContract
         Assert.AreEqual(new BigInteger(1101), contract.InlineThenMethodOverflow(10, 3, int.MinValue, -1));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void OrdinaryRemaindersPreserveCSharpSemantics(CompilationOptions.OptimizationType optimization)
@@ -248,7 +248,7 @@ public class Contract : SmartContract
         Assert.ThrowsExactly<TestException>(() => contract.CheckedInt(1, 0));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void SafeConstantsSkipOverflowGuard(CompilationOptions.OptimizationType optimization)

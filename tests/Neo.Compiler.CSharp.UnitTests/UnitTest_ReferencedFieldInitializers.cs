@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests;
 [TestClass]
 public class UnitTest_ReferencedFieldInitializers
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void InheritedFieldsUseTheirDeclaringProjectSemanticModel(CompilationOptions.OptimizationType optimization)
@@ -102,7 +102,7 @@ public class UnitTest_ReferencedFieldInitializers
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Example.SmartContract.NFT")]
     [DataRow("Example.SmartContract.SampleRoyaltyNEP11Token")]
     public void CliCompilesExamplesWithInheritedFieldInitializers(string projectName)

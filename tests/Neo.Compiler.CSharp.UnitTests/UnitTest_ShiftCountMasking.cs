@@ -103,7 +103,7 @@ public class UnitTest_ShiftCountMasking
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]
@@ -144,7 +144,7 @@ public class UnitTest_ShiftCountMasking
         Assert.AreEqual(BigInteger.One << 33, contract.CompoundBigInteger(1, 33), optimization.ToString());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]

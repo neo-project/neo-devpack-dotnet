@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System;
+using System.Numerics;
 using Neo.SmartContract.Framework.Native;
 namespace Neo.SmartContract.Framework;
 
@@ -22,7 +23,7 @@ public static class ByteStringExtension
     /// <returns>True if is number</returns>
     public static bool IsNumber(this ByteString byteString)
     {
-        for (int i = 0; i < byteString.Length; i++)
+        for (BigInteger i = 0; i < byteString.Length; i++)
         {
             byte value = byteString[i];
             if (value is < 48 or > 57)
@@ -38,7 +39,7 @@ public static class ByteStringExtension
     /// <returns>True if is Alpha character</returns>
     public static bool IsLowerAlphabet(this ByteString byteString)
     {
-        for (int i = 0; i < byteString.Length; i++)
+        for (BigInteger i = 0; i < byteString.Length; i++)
         {
             byte value = byteString[i];
             if (value is < 97 or > 122)
@@ -54,7 +55,7 @@ public static class ByteStringExtension
     /// <returns>True if is Alpha character</returns>
     public static bool IsUpperAlphabet(this ByteString byteString)
     {
-        for (int i = 0; i < byteString.Length; i++)
+        for (BigInteger i = 0; i < byteString.Length; i++)
         {
             byte value = byteString[i];
             if (value is < 65 or > 90)
@@ -70,7 +71,7 @@ public static class ByteStringExtension
     /// <returns>True if is Alpha character</returns>
     public static bool IsAlphabet(this ByteString byteString)
     {
-        for (int i = 0; i < byteString.Length; i++)
+        for (BigInteger i = 0; i < byteString.Length; i++)
         {
             byte value = byteString[i];
             if (!((value >= 65 && value <= 90) || (value >= 97 && value <= 122)))

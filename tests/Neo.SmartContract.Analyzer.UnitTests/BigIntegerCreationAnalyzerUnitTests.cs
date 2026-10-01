@@ -199,7 +199,7 @@ class TestClass
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixedSource);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("uint")]
         [DataRow("long")]
         [DataRow("ulong")]

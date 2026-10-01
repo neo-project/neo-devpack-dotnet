@@ -136,7 +136,7 @@ public class UnitTest_InstanceReceiverEvaluationOrder
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None, 0, 12)]
     [DataRow(CompilationOptions.OptimizationType.All, 0, 12)]
     [DataRow(CompilationOptions.OptimizationType.None, 1, 12)]

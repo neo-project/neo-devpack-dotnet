@@ -59,7 +59,7 @@ public class UnitTest_NumericBoundaryMatrix
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void SignedAndUnsigned64BitArithmeticMatchCSharpBoundaries(CompilationOptions.OptimizationType optimization)

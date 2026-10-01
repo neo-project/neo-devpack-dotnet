@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             Assert.IsTrue(result.IsValid, FormatResult(result));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(InvalidProfileMutations), DynamicDataSourceType.Method)]
         public void IncompleteOrUnknownProfileData_ShouldFailSchema(string mutation)
         {
@@ -92,7 +92,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             Assert.IsFalse(result.IsValid, $"Mutation '{mutation}' unexpectedly satisfied the schema.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(ValidSemanticVersions), DynamicDataSourceType.Method)]
         public void ValidSemanticVersion_ShouldSatisfySchema(string semanticVersion)
         {
@@ -104,7 +104,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             Assert.IsTrue(result.IsValid, $"Semantic version '{semanticVersion}' was rejected.\n{FormatResult(result)}");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(InvalidSemanticVersions), DynamicDataSourceType.Method)]
         public void InvalidSemanticVersion_ShouldFailSchema(string semanticVersion)
         {
