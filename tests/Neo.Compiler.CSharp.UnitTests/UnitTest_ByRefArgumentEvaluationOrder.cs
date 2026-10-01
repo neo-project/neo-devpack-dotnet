@@ -123,7 +123,7 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         "var first = new Box { Value = 1 }; tail = new Box { Value = 2 }; Walk(first, 2); return first.Value * 10 + tail.Value;"
     ];
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None, 0, 21)]
     [DataRow(CompilationOptions.OptimizationType.All, 0, 21)]
     [DataRow(CompilationOptions.OptimizationType.None, 1, 120)]
@@ -182,7 +182,7 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         Assert.AreEqual(new BigInteger(expected), contract.Run());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.Basic, "ref")]
     [DataRow(CompilationOptions.OptimizationType.All, "ref")]
     [DataRow(CompilationOptions.OptimizationType.Basic, "out")]
@@ -218,7 +218,7 @@ public class UnitTest_ByRefArgumentEvaluationOrder
         AssertExecution(source, optimization, callCount);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]

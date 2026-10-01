@@ -51,7 +51,7 @@ public class UnitTest_BitwiseComplement
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None, false)]
     [DataRow(CompilationOptions.OptimizationType.None, true)]
     [DataRow(CompilationOptions.OptimizationType.All, false)]
@@ -63,7 +63,7 @@ public class UnitTest_BitwiseComplement
             Assert.AreEqual(new BigInteger(~value), contract.UInt(value, check), $"value={value}, checked={check}");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None, false)]
     [DataRow(CompilationOptions.OptimizationType.None, true)]
     [DataRow(CompilationOptions.OptimizationType.All, false)]
@@ -75,7 +75,7 @@ public class UnitTest_BitwiseComplement
             Assert.AreEqual(new BigInteger(~value), contract.ULong(value, check), $"value={value}, checked={check}");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void SignedComplementMatchesClr(CompilationOptions.OptimizationType optimization)
@@ -90,7 +90,7 @@ public class UnitTest_BitwiseComplement
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void SmallIntegerComplementUsesIntPromotion(CompilationOptions.OptimizationType optimization)
@@ -108,7 +108,7 @@ public class UnitTest_BitwiseComplement
             Assert.AreEqual(new BigInteger(~value), contract.Char(value));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void BigIntegerComplementPreservesWideSignedValues(CompilationOptions.OptimizationType optimization)
@@ -120,7 +120,7 @@ public class UnitTest_BitwiseComplement
                 Assert.AreEqual(~value, contract.Big(value, check));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void NonNullLiftedComplementUsesUnsignedWidth(CompilationOptions.OptimizationType optimization)
@@ -132,7 +132,7 @@ public class UnitTest_BitwiseComplement
             Assert.AreEqual(new BigInteger(~value), contract.NullableULong(value));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void ComplementEvaluatesOperandOnce(CompilationOptions.OptimizationType optimization)

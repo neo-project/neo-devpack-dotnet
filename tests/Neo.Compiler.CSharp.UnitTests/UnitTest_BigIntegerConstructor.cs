@@ -39,7 +39,7 @@ public class UnitTest_BigIntegerConstructor
         Assert.IsFalse(context.Diagnostics.Any(diagnostic => diagnostic.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("int")]
     [DataRow("uint")]
     [DataRow("long")]
