@@ -30,6 +30,18 @@ public class UnitTest_StringEndsWith
         Assert.IsTrue(contract.EmptySuffix());
     }
 
+    [TestMethod]
+    public void StringEndsWith_ConstantSuffix()
+    {
+        var contract = DeployContract();
+
+        Assert.IsTrue(contract.Utf8Suffix());
+        Assert.IsFalse(contract.Utf8SuffixMismatch());
+        Assert.IsTrue(contract.SingleByteSuffix());
+        Assert.IsFalse(contract.SingleByteSuffixMismatch());
+        Assert.IsFalse(contract.SuffixLongerThanSource());
+    }
+
     private static StringEndsWithBoundaryContract DeployContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
@@ -45,6 +57,21 @@ public class Contract : SmartContract
 
     [DisplayName(""mismatch"")]
     public static bool Mismatch() => ""Hello"".EndsWith(""Hell"");
+
+    [DisplayName(""utf8Suffix"")]
+    public static bool Utf8Suffix() => ""Hello 😊😭"".EndsWith(""😭"");
+
+    [DisplayName(""utf8SuffixMismatch"")]
+    public static bool Utf8SuffixMismatch() => ""Hello 😊😭"".EndsWith(""😊"");
+
+    [DisplayName(""singleByteSuffix"")]
+    public static bool SingleByteSuffix() => ""hello"".EndsWith(""o"");
+
+    [DisplayName(""singleByteSuffixMismatch"")]
+    public static bool SingleByteSuffixMismatch() => ""hello"".EndsWith(""O"");
+
+    [DisplayName(""suffixLongerThanSource"")]
+    public static bool SuffixLongerThanSource() => ""hi"".EndsWith(""hello"");
 }";
 
         var context = TestHelper.CompileSingleContract(source);
@@ -65,5 +92,20 @@ public class Contract : SmartContract
 
         [DisplayName("mismatch")]
         public abstract bool? Mismatch();
+
+        [DisplayName("utf8Suffix")]
+        public abstract bool? Utf8Suffix();
+
+        [DisplayName("utf8SuffixMismatch")]
+        public abstract bool? Utf8SuffixMismatch();
+
+        [DisplayName("singleByteSuffix")]
+        public abstract bool? SingleByteSuffix();
+
+        [DisplayName("singleByteSuffixMismatch")]
+        public abstract bool? SingleByteSuffixMismatch();
+
+        [DisplayName("suffixLongerThanSource")]
+        public abstract bool? SuffixLongerThanSource();
     }
 }
