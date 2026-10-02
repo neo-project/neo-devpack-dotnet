@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var cs = new IntInit();
 
-            using var fee = Engine.CreateGasWatcher();
+            using var fee = Engine.CreateFeeWatcher();
             var result = Contract.TestInitInt();
             AssertGasConsumed(1045560);
             Assert.IsNotNull(result);
