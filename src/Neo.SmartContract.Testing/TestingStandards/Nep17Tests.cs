@@ -18,12 +18,14 @@ using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.VM.Types;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public abstract class Nep17Tests<T> : TestBase<T>
+[SuppressMessage("Usage", "MSTEST0030:Type with test methods should be marked with the test class attribute", Justification = "This is a generic base class meant to be inherited by concrete test classes, not run directly.")]
+public class Nep17Tests<T> : TestBase<T>
     where T : SmartContract, INep17Standard, IContractInfo
 {
     public abstract class onNEP17PaymentContract : SmartContract

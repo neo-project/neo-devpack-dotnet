@@ -17,11 +17,13 @@ using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public abstract class OwnableTests<T> : TestBase<T>
+[SuppressMessage("Usage", "MSTEST0030:Type with test methods should be marked with the test class attribute", Justification = "This is a generic base class meant to be inherited by concrete test classes, not run directly.")]
+public class OwnableTests<T> : TestBase<T>
     where T : SmartContract, IOwnable, IContractInfo
 {
     #region Transfer event checks
