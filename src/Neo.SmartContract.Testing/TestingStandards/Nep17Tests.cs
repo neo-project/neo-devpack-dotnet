@@ -23,7 +23,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public class Nep17Tests<T> : TestBase<T>
+public abstract class Nep17Tests<T> : TestBase<T>
     where T : SmartContract, INep17Standard, IContractInfo
 {
     public abstract class onNEP17PaymentContract : SmartContract
