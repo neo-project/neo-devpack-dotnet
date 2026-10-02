@@ -32,7 +32,7 @@ public class SyntaxTests
     }
 
     [TestMethod]
-    [DynamicData(nameof(GetSyntaxProbes), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(GetSyntaxProbes))]
     public void Syntax_Feature_Probe(SyntaxProbeCase probe)
     {
         Helper.AssertProbe(probe);
