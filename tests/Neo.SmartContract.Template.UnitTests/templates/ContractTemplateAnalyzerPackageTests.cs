@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         }
 
         [TestMethod]
-        [DynamicData(nameof(ContractProjects), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(ContractProjects))]
         public void ContractTemplateIncludesPrivateAnalyzerPackage(string relativeProjectPath)
         {
             var project = XDocument.Load(Path.Combine(TemplateRoot, relativeProjectPath));

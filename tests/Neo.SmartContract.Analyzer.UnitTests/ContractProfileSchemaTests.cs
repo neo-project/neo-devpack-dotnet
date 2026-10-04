@@ -81,7 +81,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(InvalidProfileMutations), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(InvalidProfileMutations))]
         public void IncompleteOrUnknownProfileData_ShouldFailSchema(string mutation)
         {
             var profile = JsonNode.Parse(ValidProfile)!.AsObject();
@@ -93,7 +93,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(ValidSemanticVersions), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(ValidSemanticVersions))]
         public void ValidSemanticVersion_ShouldSatisfySchema(string semanticVersion)
         {
             var profile = JsonNode.Parse(ValidProfile)!.AsObject();
@@ -105,7 +105,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(InvalidSemanticVersions), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(InvalidSemanticVersions))]
         public void InvalidSemanticVersion_ShouldFailSchema(string semanticVersion)
         {
             var profile = JsonNode.Parse(ValidProfile)!.AsObject();
