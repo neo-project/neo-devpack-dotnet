@@ -156,7 +156,7 @@ public class UnitTest_IndexConstructor
     }
 
     [TestMethod]
-    [DynamicData(nameof(GetUnsupportedConstructionCases), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(GetUnsupportedConstructionCases))]
     public void FrameworkIndexConstruction_ReportsSingleLocatedDiagnostic(string expression, string member)
     {
         string source = $$"""

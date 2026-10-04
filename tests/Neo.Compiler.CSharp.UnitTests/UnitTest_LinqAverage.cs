@@ -48,7 +48,7 @@ public class UnitTest_LinqAverage
     }
 
     [TestMethod]
-    [DynamicData(nameof(AverageCases), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(AverageCases))]
     public void AveragePreservesIntegerRangeAndTruncation(
         bool useLong, bool useSelector, long[] values, long expected)
     {

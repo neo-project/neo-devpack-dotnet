@@ -32,7 +32,7 @@ public class MalformedSyntaxTests
     }
 
     [TestMethod]
-    [DynamicData(nameof(IncompleteContractSources), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(IncompleteContractSources))]
     public void IncompleteSource_ProducesDiagnosticsWithoutCompilerException(string source)
     {
         Helper.AssertRawCompilationFails(source, "Incomplete contract source must fail with diagnostics.");
