@@ -789,13 +789,21 @@ internal partial class MethodConvert
         if (instanceExpression is null)
             throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Enum.ToString requires an instance.");
 
-        methodConvert.ConvertExpression(model, instanceExpression);
         var enumType = model.GetTypeInfo(instanceExpression).Type as INamedTypeSymbol
                        ?? throw new CompilationException(symbol, DiagnosticId.InvalidType, "Unable to determine enum type for ToString.");
         if (enumType.TypeKind != TypeKind.Enum)
             throw new CompilationException(symbol, DiagnosticId.InvalidType, "Enum.ToString is only supported on enum values.");
 
         var enumMembers = GetEnumFields(enumType);
+        if (TryGetIntegerConstant(model, instanceExpression, out BigInteger value))
+        {
+            var member = enumMembers.FirstOrDefault(m => value.Equals(ToBigIntegerConstant(m.ConstantValue)));
+            methodConvert.Push(member is not null ? member.Name : value.ToString("d"));
+            return;
+        }
+
+        methodConvert.ConvertExpression(model, instanceExpression);
+
         var endTarget = new JumpTarget();
         foreach (var member in enumMembers)
         {
