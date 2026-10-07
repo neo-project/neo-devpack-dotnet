@@ -44,12 +44,12 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.ObjectCreationExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);
         }
 
         private void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
         {
-            var objectCreationExpression = (ObjectCreationExpressionSyntax)context.Node;
+            var objectCreationExpression = (BaseObjectCreationExpressionSyntax)context.Node;
             var constructor = context.SemanticModel
                 .GetSymbolInfo(objectCreationExpression, context.CancellationToken)
                 .Symbol as IMethodSymbol;
@@ -90,7 +90,7 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().FirstOrDefault();
+            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<BaseObjectCreationExpressionSyntax>().FirstOrDefault();
             if (declaration is null || !await CanReplaceWithIntegralConversionAsync(context.Document, declaration, context.CancellationToken).ConfigureAwait(false)) return;
 
             context.RegisterCodeFix(
@@ -103,7 +103,7 @@ namespace Neo.SmartContract.Analyzer
 
         private static async Task<bool> CanReplaceWithIntegralConversionAsync(
             Document document,
-            ObjectCreationExpressionSyntax objectCreation,
+            BaseObjectCreationExpressionSyntax objectCreation,
             CancellationToken cancellationToken)
         {
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Analyzer
                 SpecialType.System_UInt64;
         }
 
-        private static async Task<Document> ReplaceWithExplicitConversion(Document document, ObjectCreationExpressionSyntax objectCreation, CancellationToken cancellationToken)
+        private static async Task<Document> ReplaceWithExplicitConversion(Document document, BaseObjectCreationExpressionSyntax objectCreation, CancellationToken cancellationToken)
         {
             var argumentList = objectCreation.ArgumentList;
             if (argumentList is null || argumentList.Arguments.Count != 1) return document;
@@ -132,7 +132,9 @@ namespace Neo.SmartContract.Analyzer
                 argument.Expression,
                 argumentList.CloseParenToken);
             var newExpression = SyntaxFactory.CastExpression(
-                    objectCreation.Type.WithoutTrivia(),
+                    objectCreation is ObjectCreationExpressionSyntax explicitCreation
+                        ? explicitCreation.Type.WithoutTrivia()
+                        : SyntaxFactory.ParseTypeName("global::System.Numerics.BigInteger"),
                     parenthesizedArgument)
                 .WithTriviaFrom(objectCreation);
 
