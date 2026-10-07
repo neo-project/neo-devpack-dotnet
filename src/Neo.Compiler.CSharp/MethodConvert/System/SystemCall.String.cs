@@ -198,8 +198,37 @@ internal partial class MethodConvert
         endTarget.Instruction = methodConvert.Nop();
     }
 
-    private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? value))
+        {
+            var valueBytes = Utility.StrictUTF8.GetBytes(value!);
+            if (valueBytes.Length == 1)
+            {
+                if (instanceExpression is not null)
+                    methodConvert.ConvertExpression(model, instanceExpression);
+
+                JumpTarget nonEmptyTarget = new();
+                JumpTarget endTarget = new();
+
+                methodConvert.Dup();                                      // [source, source]
+                methodConvert.Size();                                     // [source, sourceSize]
+                methodConvert.JumpIfTrue(nonEmptyTarget);                 // [source]
+                methodConvert.Drop();                                     // []
+                methodConvert.PushF();                                    // An empty source can not start with the value.
+                methodConvert.JumpAlways(endTarget);
+
+                nonEmptyTarget.Instruction = methodConvert.Nop();
+                methodConvert.PickItem(0);                                // [source[0]]
+                methodConvert.Push(valueBytes[0]);                        // [source[0], value]
+                methodConvert.NumEqual();                                 // [bool]
+
+                endTarget.Instruction = methodConvert.Nop();
+                return;
+            }
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
