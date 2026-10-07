@@ -247,43 +247,35 @@ internal partial class MethodConvert
     private void EmitLiftedNullableBooleanOperator(byte leftSlot, byte rightSlot, bool isAnd)
     {
         var decisiveTarget = new JumpTarget();
-        var checkRightTarget = new JumpTarget();
-        var checkNullTarget = new JumpTarget();
+        var leftNullTarget = new JumpTarget();
         var nullTarget = new JumpTarget();
         var endTarget = new JumpTarget();
 
+        // The left operand decides the result unless it is null:
+        //   true  & y == y      (identity)      false & y == false (absorbing)
+        //   false | y == y      (identity)      true  | y == true  (absorbing)
         LdLoc(leftSlot);
         IsNull();
-        JumpIfTrue(checkRightTarget);
+        JumpIfTrue(leftNullTarget);
         LdLoc(leftSlot);
         if (isAnd)
             JumpIfFalse(decisiveTarget);
         else
             JumpIfTrue(decisiveTarget);
 
-        checkRightTarget.Instruction = Nop();
         LdLoc(rightSlot);
-        IsNull();
-        JumpIfTrue(checkNullTarget);
-        LdLoc(rightSlot);
-        if (isAnd)
-            JumpIfFalse(decisiveTarget);
-        else
-            JumpIfTrue(decisiveTarget);
-
-        checkNullTarget.Instruction = Nop();
-        LdLoc(leftSlot);
-        IsNull();
-        JumpIfTrue(nullTarget);
-        LdLoc(rightSlot);
-        IsNull();
-        JumpIfTrue(nullTarget);
-
-        if (isAnd)
-            PushT();
-        else
-            PushF();
         Jump(OpCode.JMP_L, endTarget);
+
+        // The left operand is null, so the result is null unless the right operand is decisive.
+        leftNullTarget.Instruction = LdLoc(rightSlot);
+        IsNull();
+        JumpIfTrue(nullTarget);
+        LdLoc(rightSlot);
+        if (isAnd)
+            JumpIfFalse(decisiveTarget);
+        else
+            JumpIfTrue(decisiveTarget);
+        Jump(OpCode.JMP_L, nullTarget);
 
         decisiveTarget.Instruction = isAnd ? PushF() : PushT();
         Jump(OpCode.JMP_L, endTarget);
