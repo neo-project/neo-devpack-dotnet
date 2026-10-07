@@ -151,6 +151,8 @@ namespace Neo.Compiler
             rootCommand.Options.Add(addressVersionOption);
             rootCommand.Options.Add(printAbiOption);
             rootCommand.Options.Add(diagnosticsOption);
+            var sarifOption = new Option<string>("--sarif") { Description = "Write compiler and analyzer diagnostics to a SARIF 2.1.0 file." };
+            rootCommand.Options.Add(sarifOption);
 
             var debugOption = new Option<CompilationOptions.DebugType>("--debug", "-d")
             {
@@ -177,10 +179,25 @@ namespace Neo.Compiler
                     AddressVersion = parseResult.GetValue(addressVersionOption),
                     PrintAbi = parseResult.GetValue(printAbiOption),
                     DiagnosticOnly = parseResult.GetValue(diagnosticsOption) ? DiagnosticSeverity.Error : null,
+                    Sarif = parseResult.GetValue(sarifOption),
                     Debug = parseResult.GetValue(debugOption),
                     RunAnalyzers = true
                 };
-                return Handle(rootCommand, options, parseResult.GetValue(pathsArgument));
+                int result;
+                try
+                {
+                    result = Handle(rootCommand, options, parseResult.GetValue(pathsArgument));
+                }
+                catch (CompilationException exception) when (options.Sarif is not null)
+                {
+                    options.SarifDiagnostics.Add(exception.Diagnostic);
+                    Console.Error.WriteLine(exception.Diagnostic);
+                    result = 1;
+                }
+                if (options.Sarif is not null && !TryFileOperation("write SARIF report", options.Sarif,
+                    () => File.WriteAllBytes(options.Sarif, SarifDiagnosticWriter.Serialize(options.SarifDiagnostics))))
+                    return 1;
+                return result;
             });
             return rootCommand.Parse(args).Invoke();
         }
@@ -514,6 +531,7 @@ namespace Neo.Compiler
             {
                 var compEx = CompilationException.Unexpected($"processing solution '{Path.GetFileName(path)}'", ex);
                 Console.Error.WriteLine(compEx.Diagnostic);
+                if (options.Sarif is not null) options.SarifDiagnostics.Add(compEx.Diagnostic);
                 if (compEx.InnerException != null)
                 {
                     Console.Error.WriteLine(compEx.InnerException);
@@ -547,6 +565,8 @@ namespace Neo.Compiler
                 return 1;
             }
 
+            if (options.Sarif is not null)
+                options.SarifDiagnostics.AddRange(contexts.SelectMany(context => context.Diagnostics));
             int result = 0;
             List<CompilationException> exceptions = new();
             foreach (CompilationContext context in contexts)
@@ -569,6 +589,7 @@ namespace Neo.Compiler
             foreach (CompilationException exception in exceptions)
             {
                 Console.Error.WriteLine(exception.Diagnostic);
+                if (options.Sarif is not null) options.SarifDiagnostics.Add(exception.Diagnostic);
 
                 if (exception.Diagnostic.Id == DiagnosticId.UnexpectedCompilerError && exception.InnerException != null)
                 {
@@ -620,6 +641,7 @@ namespace Neo.Compiler
                 catch (CompilationException ex)
                 {
                     Console.Error.WriteLine(ex.Diagnostic);
+                    if (options.Sarif is not null) options.SarifDiagnostics.Add(ex.Diagnostic);
                     return -1;
                 }
 
@@ -776,6 +798,7 @@ namespace Neo.Compiler
                     {
                         var compEx = CompilationException.Unexpected("running security analysis", ex);
                         Console.Error.WriteLine(compEx.Diagnostic);
+                        if (options.Sarif is not null) options.SarifDiagnostics.Add(compEx.Diagnostic);
                         Console.Error.WriteLine(ex);
                     }
                     WriteInfo(options, "Finished security analysis.");
@@ -801,6 +824,7 @@ namespace Neo.Compiler
                         {
                             var compEx = CompilationException.Unexpected($"generating interface for contract '{baseName}'", ex);
                             Console.Error.WriteLine(compEx.Diagnostic);
+                            if (options.Sarif is not null) options.SarifDiagnostics.Add(compEx.Diagnostic);
                             Console.Error.WriteLine(ex);
                         }
                     }
