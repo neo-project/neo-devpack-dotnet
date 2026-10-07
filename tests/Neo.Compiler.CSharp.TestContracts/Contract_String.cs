@@ -62,6 +62,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.EndsWith("world");
         }
 
+        public static bool TestEndsWithOneByte(string str)
+        {
+            return str.EndsWith("/");
+        }
+
         public static bool TestEndWith(string strA, string strB)
         {
             return strA.EndsWith(strB);

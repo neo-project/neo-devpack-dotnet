@@ -512,25 +512,42 @@ internal partial class MethodConvert
             return;
         }
 
-        var valueBytes = Utility.StrictUTF8.GetBytes(value);
-        JumpTarget validCountTarget = new();
         JumpTarget endTarget = new();
-
-        // The stack is [source].
         methodConvert.Dup();                                      // [source, source]
         methodConvert.Size();                                     // [source, sourceSize]
-        methodConvert.Push(valueBytes.Length);                    // [source, sourceSize, valueSize]
-        methodConvert.JumpIfGreaterOrEqual(validCountTarget);     // [source]
-        methodConvert.Drop();                                     // []
-        methodConvert.PushF();                                    // source shorter than value.
-        methodConvert.JumpAlways(endTarget);
 
-        validCountTarget.Instruction = methodConvert.Nop();
-        methodConvert.Push(valueBytes.Length);                    // [source, valueSize]
-        methodConvert.Right(null);                                // [source, suffix]
-        methodConvert.ChangeType(StackItemType.ByteString);       // [source, suffix]
-        methodConvert.Push(valueBytes);                           // [source, suffix, value]
-        methodConvert.Equal();                                    // [bool]
+        var valueBytes = Utility.StrictUTF8.GetBytes(value);
+        if (valueBytes.Length == 1)
+        {
+            JumpTarget nonEmptyTarget = new();
+            methodConvert.Dup();                                      // [source, sourceSize, sourceSize]
+            methodConvert.JumpIfTrue(nonEmptyTarget);                 // [source, sourceSize]
+            methodConvert.Drop(2);                                    // []
+            methodConvert.PushF();                                    // An empty source can not end with the value.
+            methodConvert.JumpAlways(endTarget);
+
+            nonEmptyTarget.Instruction = methodConvert.Nop();
+            methodConvert.Dec();                                      // [source, sourceSize - 1]
+            methodConvert.PickItem();                                 // [source[^1]]
+            methodConvert.Push(valueBytes[0]);                        // [source[^1], value]
+            methodConvert.NumEqual();                                 // [bool]
+        }
+        else
+        {
+            JumpTarget validCountTarget = new();
+            methodConvert.Push(valueBytes.Length);                    // [source, sourceSize, valueSize]
+            methodConvert.JumpIfGreaterOrEqual(validCountTarget);     // [source]
+            methodConvert.Drop();                                     // []
+            methodConvert.PushF();                                    // source shorter than value.
+            methodConvert.JumpAlways(endTarget);
+
+            validCountTarget.Instruction = methodConvert.Nop();
+            methodConvert.Push(valueBytes.Length);                    // [source, valueSize]
+            methodConvert.Right(null);                                // [source, suffix]
+            methodConvert.ChangeType(StackItemType.ByteString);       // [source, suffix]
+            methodConvert.Push(valueBytes);                           // [source, suffix, value]
+            methodConvert.Equal();                                    // [bool]
+        }
         endTarget.Instruction = methodConvert.Nop();
     }
 
