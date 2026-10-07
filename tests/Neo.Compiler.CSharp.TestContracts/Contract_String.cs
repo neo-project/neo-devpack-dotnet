@@ -87,6 +87,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.StartsWith("world");
         }
 
+        public static bool TestStartsWithOneByte(string str)
+        {
+            return str.StartsWith("/");
+        }
+
         public static int TestCompare(string left, string right)
         {
             return string.Compare(left, right);
