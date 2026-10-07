@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
+using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
@@ -76,6 +77,62 @@ public class AccessControlTest
 
         Assert.AreEqual(BigInteger.Zero, c.DEFAULT_ADMIN_ROLE());
         Merge(c);
+    }
+
+    [TestMethod]
+    public void Init_UsesLegacySingleBytePrefix()
+    {
+        var engine = CreateEngine();
+        var c = Deploy(engine);
+
+        Assert.IsTrue(c.Storage.Contains(new byte[] { 0xFB, 0x00 }));
+        Assert.IsFalse(c.Storage.Contains(new byte[] { 0xC3, 0xBB, 0x00 }));
+        Merge(c);
+    }
+
+    [TestMethod]
+    [DataRow(1)]
+    [DataRow(128)]
+    public void LegacyStorage_PreservesRoleReadsAndWrites(int roleValue)
+    {
+        var engine = CreateEngine();
+        var c = Deploy(engine);
+        var role = new BigInteger(roleValue);
+        var memberKey = LegacyRoleKey(0x01, role, Charlie.Account);
+        var countKey = LegacyRoleKey(0x03, role);
+        var adminKey = LegacyRoleKey(0x02, role);
+
+        // Simulate the persisted state inherited from a legacy deployment.
+        c.Storage.Put(memberKey, BigInteger.One);
+        c.Storage.Put(countKey, BigInteger.One);
+        c.Storage.Put(adminKey, MinterAdmin);
+        c.Storage.Put(LegacyRoleKey(0x01, MinterAdmin, Bob.Account), BigInteger.One);
+        c.Storage.Put(LegacyRoleKey(0x03, MinterAdmin), BigInteger.One);
+
+        Assert.IsTrue(c.HasRole(role, Charlie.Account));
+        Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(role));
+        Assert.AreEqual(MinterAdmin, c.GetRoleAdmin(role));
+
+        engine.SetTransactionSigners(Bob);
+        c.RevokeRole(role, Bob.Account, Charlie.Account);
+        Assert.IsFalse(c.Storage.Contains(memberKey));
+        Assert.AreEqual(BigInteger.Zero, c.Storage.GetInteger(countKey));
+
+        c.GrantRole(role, Bob.Account, Alice.Account);
+        Assert.IsTrue(c.Storage.Contains(LegacyRoleKey(0x01, role, Alice.Account)));
+        Assert.AreEqual(BigInteger.One, c.Storage.GetInteger(countKey));
+        Assert.IsTrue(c.HasRole(role, Alice.Account));
+
+        c.SetRoleAdmin(role, DefaultAdmin, Bob.Account);
+        Assert.IsFalse(c.Storage.Contains(adminKey));
+        Assert.AreEqual(DefaultAdmin, c.GetRoleAdmin(role));
+        Merge(c);
+    }
+
+    private static byte[] LegacyRoleKey(byte tag, BigInteger role, UInt160? account = null)
+    {
+        var key = new byte[] { 0xFB, tag }.Concat(role.ToByteArray());
+        return (account is null ? key : key.Concat(account.ToArray())).ToArray();
     }
 
     [TestMethod]
