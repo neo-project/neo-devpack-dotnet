@@ -39,6 +39,7 @@ public class UnitTest_StringEndsWith
         Assert.IsFalse(contract.Utf8SuffixMismatch());
         Assert.IsTrue(contract.SingleByteSuffix());
         Assert.IsFalse(contract.SingleByteSuffixMismatch());
+        Assert.IsFalse(contract.EmptySourceSingleByteSuffix());
         Assert.IsFalse(contract.SuffixLongerThanSource());
     }
 
@@ -69,6 +70,9 @@ public class Contract : SmartContract
 
     [DisplayName(""singleByteSuffixMismatch"")]
     public static bool SingleByteSuffixMismatch() => ""hello"".EndsWith(""O"");
+
+    [DisplayName(""emptySourceSingleByteSuffix"")]
+    public static bool EmptySourceSingleByteSuffix() => """".EndsWith(""a"");
 
     [DisplayName(""suffixLongerThanSource"")]
     public static bool SuffixLongerThanSource() => ""hi"".EndsWith(""hello"");
@@ -104,6 +108,9 @@ public class Contract : SmartContract
 
         [DisplayName("singleByteSuffixMismatch")]
         public abstract bool? SingleByteSuffixMismatch();
+
+        [DisplayName("emptySourceSingleByteSuffix")]
+        public abstract bool? EmptySourceSingleByteSuffix();
 
         [DisplayName("suffixLongerThanSource")]
         public abstract bool? SuffixLongerThanSource();
