@@ -300,6 +300,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestEnumTryParseIgnoreCaseFromExpression()
         {
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCaseFromExpression("value1", false));
+            AssertGasConsumed(1703670);
         }
 
         [TestMethod]
@@ -417,47 +418,70 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Regression test: HandleEnumGetName must not narrow enum constants through
             // Convert.ToInt64, since a ulong-backed enum member can exceed long.MaxValue.
             Assert.AreEqual("Value1", Contract.TestUlongEnumGetName(1));
-            Assert.AreEqual("MaxValue", Contract.TestUlongEnumGetName((System.Numerics.BigInteger)ulong.MaxValue));
+            AssertGasConsumed(1047960);
+            Assert.AreEqual("MaxValue", Contract.TestUlongEnumGetName((BigInteger)ulong.MaxValue));
+            AssertGasConsumed(1048290);
         }
 
         [TestMethod]
         public void TestEnumHasFlagAndToString()
         {
             Assert.IsTrue(Contract.TestEnumHasFlag(3, 1));
+            AssertGasConsumed(1048140);
             Assert.IsTrue(Contract.TestEnumHasFlag(3, 2));
+            AssertGasConsumed(1048140);
             Assert.IsFalse(Contract.TestEnumHasFlag(2, 1));
+            AssertGasConsumed(1048140);
 
             Assert.AreEqual("Value1", Contract.TestEnumToString(1));
+            AssertGasConsumed(1047960);
             Assert.AreEqual("Value2", Contract.TestEnumToString(2));
+            AssertGasConsumed(1048110);
             Assert.AreEqual("Value3", Contract.TestEnumToString(3));
+            AssertGasConsumed(1048260);
             Assert.AreEqual("99", Contract.TestEnumToStringUnknown(99));
+            AssertGasConsumed(2153910);
+
+            Assert.AreEqual("Value1", Contract.TestConstEnumToString());
+            AssertGasConsumed(984750);
+            Assert.AreEqual("99", Contract.TestConstEnumToStringUnknown());
+            AssertGasConsumed(984750);
         }
 
         [TestMethod]
         public void TestEnumGenericParse()
         {
             Assert.AreEqual(new Integer(1), Contract.TestEnumParseGeneric("Value1"));
+            AssertGasConsumed(1066620);
             Assert.AreEqual(new Integer(2), Contract.TestEnumParseGenericIgnoreCase("value2", true));
+            AssertGasConsumed(1703940);
             Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParseGenericIgnoreCase("value1", false));
+            AssertGasConsumed(1088970);
         }
 
         [TestMethod]
         public void TestEnumGenericTryParse()
         {
             Assert.IsTrue(Contract.TestEnumTryParseGeneric("Value3"));
+            AssertGasConsumed(1069260);
             Assert.IsTrue(Contract.TestEnumTryParseGenericIgnoreCase("value2", true));
+            AssertGasConsumed(1703940);
             Assert.IsFalse(Contract.TestEnumTryParseGeneric("Unknown"));
+            AssertGasConsumed(1069260);
             Assert.IsFalse(Contract.TestEnumTryParseGenericIgnoreCase("unknown", false));
+            AssertGasConsumed(1073400);
         }
 
         [TestMethod]
         public void TestEnumGenericGetValuesAndNames()
         {
             var names = Contract.TestEnumGetNamesGeneric()!;
-            CollectionAssert.AreEqual(new[] { "Value1", "Value2", "Value3" }, names.Select(n => ((Neo.VM.Types.ByteString)n!).GetString()).ToArray());
+            CollectionAssert.AreEqual(new[] { "Value1", "Value2", "Value3" }, names.Select(n => ((ByteString)n!).GetString()).ToArray());
+            AssertGasConsumed(1046700);
 
             var values = Contract.TestEnumGetValuesGeneric()!;
-            CollectionAssert.AreEqual(new[] { new Neo.VM.Types.Integer(1), new Neo.VM.Types.Integer(2), new Neo.VM.Types.Integer(3) }, values.Select(v => new Neo.VM.Types.Integer((System.Numerics.BigInteger)v!)).ToArray());
+            CollectionAssert.AreEqual(new[] { new Integer(1), new Integer(2), new Integer(3) }, values.Select(v => new Integer((BigInteger)v!)).ToArray());
+            AssertGasConsumed(1046070);
         }
     }
 }

@@ -130,6 +130,16 @@ namespace Neo.Compiler.CSharp.TestContracts
             return value.ToString();
         }
 
+        public static string TestConstEnumToString()
+        {
+            return TestEnum.Value1.ToString();
+        }
+
+        public static string TestConstEnumToStringUnknown()
+        {
+            return ((TestEnum)99).ToString();
+        }
+
         public static string TestEnumToStringUnknown(int value)
         {
             return ((TestEnum)value).ToString();
