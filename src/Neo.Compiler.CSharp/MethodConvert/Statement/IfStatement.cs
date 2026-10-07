@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 
@@ -51,9 +52,16 @@ namespace Neo.Compiler
 
             using (InsertSequencePoint(syntax))
             {
-                ConvertExpression(model, syntax.Condition);
+                if (!IsZeroCondition(model, syntax.Condition))
+                {
+                    ConvertExpression(model, syntax.Condition);
+                    Jump(OpCode.JMPIFNOT_L, elseTarget);
+                }
+                else
+                {
+                    Jump(OpCode.JMPIF_L, elseTarget);
+                }
 
-                Jump(OpCode.JMPIFNOT_L, elseTarget);
                 ConvertStatement(model, syntax.Statement);
 
                 if (syntax.Else is null)
@@ -74,6 +82,23 @@ namespace Neo.Compiler
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
                 }
             }
+        }
+
+        private bool IsZeroCondition(SemanticModel model, ExpressionSyntax syntax)
+        {
+            if (!IsPreEvaluatedInstanceExpression(syntax, out var _) &&
+                syntax is BinaryExpressionSyntax expr && expr.Kind() == SyntaxKind.EqualsExpression)
+            {
+                if (HasNullableOperand(model, expr)) return false;
+                var leftIs0 = TryGetIntegerConstant(model, expr.Left, out var left) && left.IsZero;
+                var rightIs0 = TryGetIntegerConstant(model, expr.Right, out var right) && right.IsZero;
+                if (leftIs0 || rightIs0)
+                {
+                    ConvertExpression(model, leftIs0 ? expr.Right : expr.Left);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

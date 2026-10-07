@@ -170,7 +170,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DefaultArray()
         {
             var arr = Contract.TestDefaultArray();
-            AssertGasConsumed(1804290);
+            AssertGasConsumed(1804170);
             Assert.IsTrue(arr!.Value);
         }
 

@@ -27,6 +27,19 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private bool IsPreEvaluatedInstanceExpression(ExpressionSyntax syntax, out byte instanceSlot)
+    {
+        instanceSlot = 0;
+        if (_preEvaluatedInstanceExpression is not null
+            && ReferenceEquals(_preEvaluatedInstanceExpression, syntax)
+            && _preEvaluatedInstanceSlot is byte slot)
+        {
+            instanceSlot = slot;
+            return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Converts an expression to NeoVM instructions.
     /// </summary>
@@ -35,9 +48,7 @@ internal partial class MethodConvert
     /// <param name="syntaxNode">Optional parent syntax node for context.</param>
     private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode = null)
     {
-        if (_preEvaluatedInstanceExpression is not null
-            && ReferenceEquals(_preEvaluatedInstanceExpression, syntax)
-            && _preEvaluatedInstanceSlot is byte instanceSlot)
+        if (IsPreEvaluatedInstanceExpression(syntax, out byte instanceSlot))
         {
             AccessSlot(OpCode.LDLOC, instanceSlot);
             return;
