@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -798,7 +799,7 @@ internal partial class MethodConvert
         if (TryGetIntegerConstant(model, instanceExpression, out BigInteger value))
         {
             var member = enumMembers.FirstOrDefault(m => value.Equals(ToBigIntegerConstant(m.ConstantValue)));
-            methodConvert.Push(member is not null ? member.Name : value.ToString("d"));
+            methodConvert.Push(member is not null ? member.Name : value.ToString("d", CultureInfo.InvariantCulture));
             return;
         }
 
