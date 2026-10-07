@@ -8,8 +8,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
@@ -22,10 +25,17 @@ public sealed class GasSnapshot
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, NewLine = "\n" };
     private readonly SortedDictionary<string, long> _measurements = new(StringComparer.Ordinal);
 
+    private readonly ReadOnlyDictionary<string, long> _readOnlyMeasurements;
+
+    /// <summary>
+    /// Creates an empty snapshot.
+    /// </summary>
+    public GasSnapshot() => _readOnlyMeasurements = new(_measurements);
+
     /// <summary>
     /// Gets the measurements in ordinal name order.
     /// </summary>
-    public IReadOnlyDictionary<string, long> Measurements => _measurements;
+    public IReadOnlyDictionary<string, long> Measurements => _readOnlyMeasurements;
 
     /// <summary>
     /// Records a gas measurement.
@@ -99,7 +109,43 @@ public sealed class GasSnapshot
         throw new InvalidOperationException($"Gas snapshot is outside the allowed tolerance: {details}.");
     }
 
-    private static string FormatValue(long? value) => value?.ToString() ?? "missing";
+    private static string FormatValue(long? value) => value?.ToString(CultureInfo.InvariantCulture) ?? "missing";
+
+    /// <summary>
+    /// Renders missing, added, or out-of-tolerance measurements as a Markdown table.
+    /// </summary>
+    /// <param name="baseline">Expected measurements.</param>
+    /// <param name="tolerance">Allowed absolute difference in datoshi.</param>
+    /// <returns>A table in ordinal name order, using invariant numbers and LF line endings.</returns>
+    public string ToMarkdown(GasSnapshot baseline, long tolerance = 0)
+    {
+        var differences = Compare(baseline, tolerance);
+        var report = new StringBuilder("| Operation | Baseline (datoshi) | Current (datoshi) | Change (datoshi) |\n| --- | ---: | ---: | ---: |\n");
+        foreach (var difference in differences)
+        {
+            var change = difference.Expected is null ? "added"
+                : difference.Actual is null ? "removed"
+                : (difference.Actual.Value - difference.Expected.Value).ToString("+0;-0;0", CultureInfo.InvariantCulture);
+            report.Append("| ").Append(EscapeMarkdown(difference.Name))
+                .Append(" | ").Append(FormatValue(difference.Expected))
+                .Append(" | ").Append(FormatValue(difference.Actual))
+                .Append(" | ").Append(change).Append(" |\n");
+        }
+        return report.ToString();
+    }
+
+    private static string EscapeMarkdown(string name)
+    {
+        var escaped = name.Replace("&", "&amp;", StringComparison.Ordinal)
+            .Replace("<", "&lt;", StringComparison.Ordinal)
+            .Replace(">", "&gt;", StringComparison.Ordinal)
+            .Replace("|", "&#124;", StringComparison.Ordinal)
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace("\r", "\n", StringComparison.Ordinal);
+        foreach (var character in new[] { '\\', '`', '*', '_', '[', ']' })
+            escaped = escaped.Replace(character.ToString(), "\\" + character, StringComparison.Ordinal);
+        return escaped.Replace("\n", "<br>", StringComparison.Ordinal);
+    }
 
     /// <summary>
     /// Serializes the snapshot with stable property ordering.
@@ -121,9 +167,16 @@ public sealed class GasSnapshot
     public static GasSnapshot FromJson(string json)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(json);
-        var values = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, long>>(json)
-            ?? throw new FormatException("Gas snapshot JSON must contain an object.");
-        return Capture(values.Select(pair => (pair.Key, pair.Value)));
+        using var document = JsonDocument.Parse(json);
+        if (document.RootElement.ValueKind == JsonValueKind.Null)
+            throw new FormatException("Gas snapshot JSON must contain an object.");
+        if (document.RootElement.ValueKind != JsonValueKind.Object)
+            throw new JsonException("Gas snapshot JSON must contain an object.");
+
+        var snapshot = new GasSnapshot();
+        foreach (var measurement in document.RootElement.EnumerateObject())
+            snapshot.Record(measurement.Name, measurement.Value.Deserialize<long>());
+        return snapshot;
     }
 
     /// <summary>
