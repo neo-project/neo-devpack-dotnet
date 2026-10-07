@@ -208,31 +208,25 @@ internal partial class MethodConvert
     /// </summary>
     private void ConvertLiftedBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
-        using var tempScope = PreserveAnonymousVariables();
-        byte leftSlot = AddAnonymousVariable();
-        byte rightSlot = AddAnonymousVariable();
-
         ConvertExpression(model, expression.Left);
-        StLoc(leftSlot);
         ConvertExpression(model, expression.Right);
-        StLoc(rightSlot);
 
         var nullTarget = new JumpTarget();
         var endTarget = new JumpTarget();
 
-        LdLoc(leftSlot);
+        Over();    // left is null?
         IsNull();
         JumpIfTrue(nullTarget);
-        LdLoc(rightSlot);
+        Dup();   // right is null?
         IsNull();
         JumpIfTrue(nullTarget);
 
-        LdLoc(leftSlot);
-        LdLoc(rightSlot);
         EmitBinaryOperator(model, expression, model.GetTypeInfo(expression).Type!);
         Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget.Instruction = PushNull();
+        nullTarget.Instruction = Nop();
+        Drop(2);
+        PushNull();
         endTarget.Instruction = Nop();
     }
 

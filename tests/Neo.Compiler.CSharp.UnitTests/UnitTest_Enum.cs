@@ -73,6 +73,18 @@ namespace Neo.Compiler.CSharp.UnitTests
 
                     [DisplayName("tryParseConstFalseUnknown")]
                     public static int TryParseConstFalseUnknown() => Enum.TryParse<E>("unknown", false, out var value) ? (int)value : -1;
+
+                    [DisplayName("tryParseTypeConstFalse")]
+                    public static bool TryParseTypeConstFalse() => Enum.TryParse(typeof(E), "Value2", false, out object value);
+
+                    [DisplayName("tryParseTypeConstTrue")]
+                    public static bool TryParseTypeConstTrue() => Enum.TryParse(typeof(E), "value2", true, out object value);
+
+                    [DisplayName("tryParseTypeConstFalseWrongCase")]
+                    public static bool TryParseTypeConstFalseWrongCase() => Enum.TryParse(typeof(E), "value2", false, out object value);
+
+                    [DisplayName("tryParseTypeConstTrueUnknown")]
+                    public static bool TryParseTypeConstTrueUnknown() => Enum.TryParse(typeof(E), "unknown", true, out object value);
                 }
                 """;
             var context = TestHelper.CompileSingleContract(source);
@@ -86,6 +98,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(2), contract.TryParseConstFalse());
             Assert.AreEqual(new BigInteger(2), contract.TryParseConstTrue());
             Assert.AreEqual(new BigInteger(-1), contract.TryParseConstFalseUnknown());
+            Assert.IsTrue(contract.TryParseTypeConstFalse());
+            Assert.IsTrue(contract.TryParseTypeConstTrue());
+            Assert.IsFalse(contract.TryParseTypeConstFalseWrongCase());
+            Assert.IsFalse(contract.TryParseTypeConstTrueUnknown());
         }
 
         [TestMethod]
@@ -219,6 +235,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             [DisplayName("tryParseConstFalse")] public abstract BigInteger? TryParseConstFalse();
             [DisplayName("tryParseConstTrue")] public abstract BigInteger? TryParseConstTrue();
             [DisplayName("tryParseConstFalseUnknown")] public abstract BigInteger? TryParseConstFalseUnknown();
+            [DisplayName("tryParseTypeConstFalse")] public abstract bool TryParseTypeConstFalse();
+            [DisplayName("tryParseTypeConstTrue")] public abstract bool TryParseTypeConstTrue();
+            [DisplayName("tryParseTypeConstFalseWrongCase")] public abstract bool TryParseTypeConstFalseWrongCase();
+            [DisplayName("tryParseTypeConstTrueUnknown")] public abstract bool TryParseTypeConstTrueUnknown();
         }
 
         [TestMethod]
@@ -260,10 +280,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("value1", true));
             AssertGasConsumed(1686060);
+            Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("value1"));
+            AssertGasConsumed(1685700);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VALUE2", true));
             AssertGasConsumed(1687710);
+            Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("VALUE2"));
+            AssertGasConsumed(1687170);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VaLuE3", true));
             AssertGasConsumed(1689150);
+            Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("VaLuE3"));
+            AssertGasConsumed(1688430);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("value1", false));
             AssertGasConsumed(1053000);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("InvalidValue", true));
