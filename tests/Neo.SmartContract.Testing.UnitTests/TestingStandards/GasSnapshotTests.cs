@@ -3,7 +3,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
+using System.Text.Json;
 using System.Linq;
 
 namespace Neo.SmartContract.Testing.UnitTests.TestingStandards;
@@ -107,4 +110,63 @@ public class GasSnapshotTests
     {
         Assert.ThrowsExactly<FormatException>(() => GasSnapshot.FromJson("null"));
     }
+    [TestMethod]
+    [DataRow("{\"transfer\":10,\"transfer\":20}")]
+    [DataRow("{\"transfer\":10,\"\\u0074ransfer\":20}")]
+    public void FromJsonRejectsDuplicateNames(string json)
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => GasSnapshot.FromJson(json));
+    }
+
+    [TestMethod]
+    public void MeasurementsCannotBypassRecordValidation()
+    {
+        var snapshot = new GasSnapshot().Record("transfer", 10);
+        var dictionary = (IDictionary<string, long>)snapshot.Measurements;
+        Assert.ThrowsExactly<NotSupportedException>(() => dictionary.Add("negative", -1));
+        Assert.AreEqual(10L, snapshot.Measurements["transfer"]);
+        snapshot.Record("mint", 20);
+        Assert.AreEqual(20L, dictionary["mint"]);
+    }
+
+    [TestMethod]
+    public void MarkdownReportIsDeterministicAndEscapesOperationNames()
+    {
+        var baseline = GasSnapshot.Capture([("removed", 1L), ("same", 10L), ("cost|<x>\r\n`call`", 50L), ("lower", long.MaxValue)]);
+        var current = GasSnapshot.Capture([("same", 11L), ("cost|<x>\r\n`call`", 75L), ("added", 0L), ("lower", 0L)]);
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("tr-TR");
+            Assert.AreEqual(
+                "| Operation | Baseline (datoshi) | Current (datoshi) | Change (datoshi) |\n| --- | ---: | ---: | ---: |\n"
+                + "| added | missing | 0 | added |\n"
+                + "| cost&#124;&lt;x&gt;<br>\\`call\\` | 50 | 75 | +25 |\n"
+                + "| lower | 9223372036854775807 | 0 | -9223372036854775807 |\n"
+                + "| removed | 1 | missing | removed |\n",
+                current.ToMarkdown(baseline, tolerance: 1));
+        }
+        finally { CultureInfo.CurrentCulture = culture; }
+    }
+
+    [TestMethod]
+    public void EmptyReportHasHeadersAndChecksComparisonArguments()
+    {
+        var snapshot = new GasSnapshot();
+        Assert.AreEqual("| Operation | Baseline (datoshi) | Current (datoshi) | Change (datoshi) |\n| --- | ---: | ---: | ---: |\n", snapshot.ToMarkdown(snapshot));
+        Assert.ThrowsExactly<ArgumentNullException>(() => snapshot.ToMarkdown(null!));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => snapshot.ToMarkdown(snapshot, -1));
+    }
+
+    [TestMethod]
+    public void JsonStillRejectsInvalidValuesAndPreservesDistinctNames()
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => GasSnapshot.FromJson("{\"negative\":-1}"));
+        Assert.ThrowsExactly<JsonException>(() => GasSnapshot.FromJson("[]"));
+        Assert.ThrowsExactly<JsonException>(() => GasSnapshot.FromJson("{\"text\":\"1\"}"));
+        var snapshot = GasSnapshot.FromJson("{\"a\":0,\"A\":9223372036854775807}");
+        Assert.AreEqual(2, snapshot.Measurements.Count);
+        Assert.AreEqual(long.MaxValue, snapshot.Measurements["A"]);
+    }
+
 }
