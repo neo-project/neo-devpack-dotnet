@@ -188,7 +188,7 @@ internal partial class MethodConvert
             var nextCheck = new JumpTarget();
             if (knewIgnoreCase)
             {
-                methodConvert.Push(ignoreCase ? member.Name.ToUpper() : member.Name);
+                methodConvert.Push(ignoreCase ? member.Name.ToUpperInvariant() : member.Name);
             }
             else
             {
@@ -198,7 +198,7 @@ internal partial class MethodConvert
                 methodConvert.JumpIfNot(lowerCaseName);
 
                 JumpTarget endCase = new JumpTarget();
-                methodConvert.Push(member.Name.ToUpper());   // Stack: [..., inputString, inputString, enumName]
+                methodConvert.Push(member.Name.ToUpperInvariant());   // Stack: [..., inputString, inputString, enumName]
                 methodConvert.Jump(endCase);
 
                 lowerCaseName.Instruction = methodConvert.Nop();
@@ -301,7 +301,7 @@ internal partial class MethodConvert
 
             if (knewIgnoreCase)
             {
-                methodConvert.Push(ignoreCase ? t.Name.ToUpper() : t.Name); // Stack: [..., string, string, enumName]
+                methodConvert.Push(ignoreCase ? t.Name.ToUpperInvariant() : t.Name); // Stack: [..., string, string, enumName]
             }
             else
             {
@@ -309,7 +309,7 @@ internal partial class MethodConvert
                 JumpTarget endCase = new();
                 methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot); // Stack: [..., string, string, ignoreCase]
                 methodConvert.JumpIfNot(lowerCaseName);                 // Stack: [..., string, string]
-                methodConvert.Push(t.Name.ToUpper());                   // Stack: [..., string, string, enumNameUpper]
+                methodConvert.Push(t.Name.ToUpperInvariant());                   // Stack: [..., string, string, enumNameUpper]
                 methodConvert.Jump(endCase);
 
                 lowerCaseName.Instruction = methodConvert.Nop();
@@ -910,7 +910,7 @@ internal partial class MethodConvert
             JumpTarget endChoose = new();
             methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
             methodConvert.JumpIfFalse(lowerCaseName);
-            methodConvert.Push(member.Name.ToUpper());
+            methodConvert.Push(member.Name.ToUpperInvariant());
             methodConvert.Jump(endChoose);
 
             lowerCaseName.Instruction = methodConvert.Nop();
@@ -1009,7 +1009,7 @@ internal partial class MethodConvert
             var next = new JumpTarget();
             if (knewIgnoreCase)
             {
-                methodConvert.Push(ignoreCase ? member.Name.ToUpper() : member.Name);
+                methodConvert.Push(ignoreCase ? member.Name.ToUpperInvariant() : member.Name);
             }
             else
             {
@@ -1017,7 +1017,7 @@ internal partial class MethodConvert
                 JumpTarget endChoose = new();
                 methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
                 methodConvert.JumpIfFalse(lowerCaseName);
-                methodConvert.Push(member.Name.ToUpper());
+                methodConvert.Push(member.Name.ToUpperInvariant());
                 methodConvert.Jump(endChoose);
 
                 lowerCaseName.Instruction = methodConvert.Nop();
