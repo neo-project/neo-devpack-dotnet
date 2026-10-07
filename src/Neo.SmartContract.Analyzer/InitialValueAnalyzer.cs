@@ -117,9 +117,6 @@ namespace Neo.SmartContract.Analyzer
                 return;
 
             var initializer = variable.Initializer.Value;
-            if (IsParseInvocation(initializer))
-                return;
-
             var initType = semanticModel.GetTypeInfo(initializer, context.CancellationToken).Type;
             if (initType is null)
                 return;
@@ -131,18 +128,6 @@ namespace Neo.SmartContract.Analyzer
                 var diagnostic = Diagnostic.Create(ParseRule, initializer.GetLocation(), parseTarget);
                 context.ReportDiagnostic(diagnostic);
             }
-        }
-
-        private static bool IsParseInvocation(ExpressionSyntax initializer)
-        {
-            if (initializer is InvocationExpressionSyntax invocation &&
-                invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
-                memberAccess.Name.Identifier.Text == "Parse")
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private bool IsTargetAttribute(string attributeName)
@@ -265,10 +250,10 @@ namespace Neo.SmartContract.Analyzer
         {
             string? parseTarget = fieldType?.ToString() switch
             {
-                "Neo.SmartContract.Framework.UInt160" => "Neo.SmartContract.Framework.UInt160.Parse",
-                "Neo.SmartContract.Framework.UInt256" => "Neo.SmartContract.Framework.UInt256.Parse",
-                "Neo.SmartContract.Framework.ECPoint" => "Neo.SmartContract.Framework.ECPoint.Parse",
-                "System.Numerics.BigInteger" => "System.Numerics.BigInteger.Parse",
+                "Neo.SmartContract.Framework.UInt160" => "global::Neo.SmartContract.Framework.UInt160.Parse",
+                "Neo.SmartContract.Framework.UInt256" => "global::Neo.SmartContract.Framework.UInt256.Parse",
+                "Neo.SmartContract.Framework.ECPoint" => "global::Neo.SmartContract.Framework.ECPoint.Parse",
+                "System.Numerics.BigInteger" => "global::System.Numerics.BigInteger.Parse",
                 "string" => null,
                 _ => null
             };
