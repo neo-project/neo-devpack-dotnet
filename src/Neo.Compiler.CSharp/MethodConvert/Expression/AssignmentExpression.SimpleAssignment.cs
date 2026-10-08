@@ -419,7 +419,7 @@ internal partial class MethodConvert
             cursor = next;
         }
 
-        JumpTarget skipTarget = new();
+        JumpTarget nullSkipTarget = new();
         JumpTarget endTarget = new();
 
         ConvertExpression(model, chain[0].Expression);
@@ -430,22 +430,16 @@ internal partial class MethodConvert
             bool isLast = i == chain.Count - 1;
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, skipTarget);
-
-            // Each hop stores the current receiver in its own anonymous slot so the downstream
-            // binding (either another ?. or the final member binding) can safely consume it.
-            byte stageSlot = AddAnonymousVariable();
-            AccessSlot(OpCode.STLOC, stageSlot);
+            Jump(OpCode.JMPIF_L, nullSkipTarget);
 
             if (!isLast)
             {
-                AccessSlot(OpCode.LDLOC, stageSlot);
-                RemoveAnonymousVariable(stageSlot);
                 ConvertConditionalBindingExpression(model, chain[i + 1].Expression);
                 continue;
             }
 
-            receiverSlot = stageSlot;
+            receiverSlot = AddAnonymousVariable();
+            AccessSlot(OpCode.STLOC, receiverSlot);
         }
 
         switch (assignment.Left)
@@ -471,13 +465,10 @@ internal partial class MethodConvert
         }
 
         RemoveAnonymousVariable(receiverSlot);
-
         Jump(OpCode.JMP_L, endTarget);
 
-        skipTarget.Instruction = AddInstruction(OpCode.DROP);
-        AddInstruction(OpCode.PUSHNULL);
-
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        nullSkipTarget.Instruction = Nop(); // the value is null
+        endTarget.Instruction = Nop();
     }
 
     // Conditional access nodes can expose either ?.Member or ?[index] shapes. This helper keeps the
