@@ -245,3 +245,16 @@ The current repository already contains useful compatibility information:
 Migration proceeds by inventorying those sources, assigning stable profile IDs, reconciling conflicts, and then generating documentation and validation from the profile. Existing `supported` and `unsupported` probe values remain valid input states, while context-specific probes represent partial support until the schema can encode it directly.
 
 The migration is complete only when maintainers can determine support from the profile, all user entry points enforce it consistently, and every published claim has the required evidence.
+
+## Repository evidence references
+
+The schema fixture uses canonical repository-relative file paths for implementation,
+evidence and diagnostic help links. Use forward slashes without `.` or `..` segments.
+Implementation references may name a directory; evidence and documentation must
+name an existing file. Opaque symbol labels are insufficient for repository validation.
+
+A C# evidence fragment names a declared method, for example
+`tests/Neo.Compiler.CSharp.UnitTests/UnitTest_IndexOrRange.cs#Test_Main`.
+Markdown fragments name explicit anchors. CI checks these references alongside
+schema and diagnostic-catalog validation. Existence checks do not prove the
+capability's behavior; the referenced tests must still run in their normal suites.
