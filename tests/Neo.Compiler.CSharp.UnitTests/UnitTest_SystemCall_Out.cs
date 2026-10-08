@@ -462,6 +462,20 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        [DataRow("yes", true)]
+        [DataRow("no", false)]
+        [DataRow("1", true)]
+        [DataRow("0", false)]
+        public void TestBoolTryParse_DiffersFromDotNetForExtendedLiterals(string value, bool expected)
+        {
+            Assert.IsFalse(bool.TryParse(value, out _));
+            var result = Contract.TestBoolTryParse(value);
+            Assert.IsNotNull(result);
+            Assert.IsTrue((bool)result[0]);
+            Assert.AreEqual(expected, (bool)result[1]);
+        }
+
+        [TestMethod]
         public void TestBoolTryParse_InvalidInputsRemainRejected()
         {
             var res = Contract.TestBoolTryParse(" true ");
