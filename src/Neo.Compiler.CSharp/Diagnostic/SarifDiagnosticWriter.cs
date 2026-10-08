@@ -89,7 +89,8 @@ internal static class SarifDiagnosticWriter
         writer.WriteStartObject();
         writer.WriteStartObject("physicalLocation");
         writer.WriteStartObject("artifactLocation");
-        var sourceDirectory = Path.GetDirectoryName(location.SourceTree?.FilePath);
+        // Only #line paths are relative to the containing source file.
+        var sourceDirectory = span.HasMappedPath ? Path.GetDirectoryName(location.SourceTree?.FilePath) : null;
         var path = Path.GetFullPath(span.Path, string.IsNullOrEmpty(sourceDirectory) ? Environment.CurrentDirectory : Path.GetFullPath(sourceDirectory));
         writer.WriteString("uri", new Uri(path).AbsoluteUri);
         writer.WriteEndObject();

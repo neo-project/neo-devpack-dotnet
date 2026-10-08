@@ -96,6 +96,33 @@ public class UnitTest_Sarif
     }
 
     [TestMethod]
+    [DataRow("Contract.cs")]
+    [DataRow("src/Contract.cs")]
+    [DataRow("src/nested/Contract.cs")]
+    public void SerializationResolvesUnmappedRelativePathsFromWorkingDirectory(string sourcePath)
+    {
+        var tree = CSharpSyntaxTree.ParseText("class Contract {}", path: sourcePath);
+        var diagnostic = Diagnostic.Create(new DiagnosticDescriptor("NC9990", "Test", "Test", "Test", DiagnosticSeverity.Error, true), Location.Create(tree, new TextSpan(0, 5)));
+        using var json = JsonDocument.Parse(SarifDiagnosticWriter.Serialize([diagnostic]));
+        var location = json.RootElement.GetProperty("runs")[0].GetProperty("results")[0].GetProperty("locations")[0].GetProperty("physicalLocation");
+        Assert.AreEqual(new Uri(Path.GetFullPath(sourcePath)).AbsoluteUri, location.GetProperty("artifactLocation").GetProperty("uri").GetString());
+    }
+
+    [TestMethod]
+    [DataRow("mapped.cs")]
+    [DataRow("src/Contract.cs")]
+    public void SerializationResolvesMappedPathsFromRelativeSourceDirectory(string mappedPath)
+    {
+        var sourcePath = Path.Combine("src", "Contract.cs");
+        var tree = CSharpSyntaxTree.ParseText($"#line 42 \"{mappedPath}\"\nclass Contract {{}}", path: sourcePath);
+        var diagnostic = Diagnostic.Create(new DiagnosticDescriptor("NC9990", "Test", "Test", "Test", DiagnosticSeverity.Error, true), Location.Create(tree, new TextSpan(tree.GetText().ToString().IndexOf("class", StringComparison.Ordinal), 5)));
+        using var json = JsonDocument.Parse(SarifDiagnosticWriter.Serialize([diagnostic]));
+        var location = json.RootElement.GetProperty("runs")[0].GetProperty("results")[0].GetProperty("locations")[0].GetProperty("physicalLocation");
+        Assert.AreEqual(new Uri(Path.GetFullPath(Path.Combine("src", mappedPath))).AbsoluteUri, location.GetProperty("artifactLocation").GetProperty("uri").GetString());
+        Assert.AreEqual(42, location.GetProperty("region").GetProperty("startLine").GetInt32());
+    }
+
+    [TestMethod]
     public void SuccessfulCompilationWritesAnEmptyReportAndReadbackIsIndependent()
     {
         var directory = Path.Combine(Path.GetTempPath(), "neo-sarif-" + Guid.NewGuid().ToString("N"));
