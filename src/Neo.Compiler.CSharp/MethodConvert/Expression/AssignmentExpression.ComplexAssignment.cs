@@ -287,36 +287,30 @@ internal partial class MethodConvert
 
     private void EmitLiftedComplexAssignmentOperator(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)
     {
-        using var tempScope = PreserveAnonymousVariables();
-        byte leftSlot = AddAnonymousVariable();
-        byte rightSlot = AddAnonymousVariable();
-
-        StLoc(leftSlot);
         ConvertExpression(model, right);
-        StLoc(rightSlot);
 
         if (operatorToken.ValueText is "&=" or "|=" && IsNullableBoolean(type))
         {
-            EmitLiftedNullableBooleanOperator(leftSlot, rightSlot, operatorToken.ValueText == "&=");
+            EmitLiftedNullableBooleanOperator(operatorToken.ValueText == "&=");
             return;
         }
 
         var nullTarget = new JumpTarget();
         var endTarget = new JumpTarget();
 
-        LdLoc(leftSlot);
+        Over();
         IsNull();
         JumpIfTrue(nullTarget);
-        LdLoc(rightSlot);
+        Dup();
         IsNull();
         JumpIfTrue(nullTarget);
 
-        LdLoc(leftSlot);
-        LdLoc(rightSlot);
         EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
         Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget.Instruction = PushNull();
+        nullTarget.Instruction = Nop();
+        Drop(2);
+        PushNull();
         endTarget.Instruction = Nop();
     }
 
