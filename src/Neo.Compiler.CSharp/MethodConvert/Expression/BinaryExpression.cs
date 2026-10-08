@@ -259,13 +259,19 @@ internal partial class MethodConvert
         Jump(OpCode.JMP_L, endTarget);  // [right]
 
         // The left operand is null, so the result is null unless the right operand is decisive.
-        leftNullTarget.Instruction = Dup(); // [null, right, right]
-        IsNull();
-        JumpIfTrue(rightNullTarget);        // [null, right]
         if (isAnd)
-            JumpIfFalse(decisiveTarget);
+        {
+            // `null` and `false` both coerce to false, so they must be told apart here.
+            leftNullTarget.Instruction = Dup(); // [null, right, right]
+            IsNull();
+            JumpIfTrue(rightNullTarget);        // [null, right]
+            JumpIfFalse(decisiveTarget);        // null & false == false
+        }
         else
-            JumpIfTrue(decisiveTarget);
+        {
+            // For `|` both `false` and `null` keep the left operand, so the coercion is enough.
+            leftNullTarget.Instruction = Jump(OpCode.JMPIF, decisiveTarget); // null | true == true
+        }
         Jump(OpCode.JMP_L, endTarget);   // [null]
 
         decisiveTarget.Instruction = isAnd ? PushF() : PushT();  // [left or right, false or true]
