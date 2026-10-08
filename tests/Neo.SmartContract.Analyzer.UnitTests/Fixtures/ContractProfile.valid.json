@@ -20,15 +20,15 @@
       "evidence": [
         {
           "kind": "analyzer-positive",
-          "reference": "docs/csharp-syntax/csharp-6.md#expression_bodied_members"
+          "reference": "tests/Neo.SmartContract.Analyzer.UnitTests/UnsupportedSyntaxAnalyzerUnitTests.cs#ExpressionBodiedDefaultInterfaceMethod_IsAllowed"
         },
         {
           "kind": "compiler",
-          "reference": "Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/UnitTest_DefaultInterfaceImplementation.cs#Contract_Uses_ExpressionBodied_Interface_Default_Implementation"
         },
         {
           "kind": "runtime",
-          "reference": "Neo.Compiler.CSharp.UnitTests"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/UnitTest_DefaultInterfaceImplementation.cs#Contract_Uses_ExpressionBodied_Interface_Default_Implementation"
         }
       ]
     },
@@ -51,11 +51,11 @@
       "evidence": [
         {
           "kind": "analyzer-negative",
-          "reference": "FloatUsageAnalyzerUnitTest"
+          "reference": "tests/Neo.SmartContract.Analyzer.UnitTests/FloatUsageAnalyzerUnitTest.cs#FloatUsageAnalyzer_MethodSignature_ShouldReportDiagnostic"
         },
         {
           "kind": "compiler",
-          "reference": "DiagnosticId.FloatingPointNumber"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/SyntaxProbes/SyntaxTests.cs#Syntax_Feature_Probe"
         }
       ]
     },
@@ -77,7 +77,7 @@
         ]
       },
       "implementation": [
-        "MethodConvert.Expression.RangeExpression"
+        "src/Neo.Compiler.CSharp/MethodConvert/Expression/ElementExpression.cs"
       ],
       "diagnostic": {
         "id": "NC2010",
@@ -89,19 +89,19 @@
       "evidence": [
         {
           "kind": "analyzer-positive",
-          "reference": "range_receiver_positive"
+          "reference": "tests/Neo.SmartContract.Analyzer.UnitTests/ArrayRangeUsageAnalyzerUnitTests.cs#ByteArrayAndStringRanges_ShouldNotReportDiagnostic"
         },
         {
           "kind": "analyzer-negative",
-          "reference": "range_receiver_negative"
+          "reference": "tests/Neo.SmartContract.Analyzer.UnitTests/ArrayRangeUsageAnalyzerUnitTests.cs#GeneralArrayRange_ShouldReportDiagnostic"
         },
         {
           "kind": "compiler",
-          "reference": "DiagnosticId.ArrayRange"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/UnitTest_ArrayRangeDiagnostic.cs#GeneralArrayRange_ShouldReportTheProfileDiagnostic"
         },
         {
           "kind": "runtime",
-          "reference": "UnitTest_Range"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/UnitTest_IndexOrRange.cs#Test_Main"
         }
       ]
     },
@@ -115,7 +115,7 @@
         ]
       },
       "implementation": [
-        "MethodConvert.System.SystemCall.Boolean"
+        "src/Neo.Compiler.CSharp/MethodConvert/System/SystemCall.Out.cs"
       ],
       "semanticDifference": {
         "summary": "Neo accepts additional true and false literals.",
@@ -126,19 +126,19 @@
       "evidence": [
         {
           "kind": "analyzer-positive",
-          "reference": "bool_try_parse_analyzer"
+          "reference": "tests/Neo.SmartContract.Analyzer.UnitTests/SupportedBooleanApiTests.cs#BoolTryParseIsAcceptedByTheAnalyzerSuite"
         },
         {
           "kind": "compiler",
-          "reference": "SystemCall.Boolean"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/UnitTest_SystemCall_Out.cs#TestBoolTryParse_DotNetStyleLiterals"
         },
         {
           "kind": "runtime",
-          "reference": "UnitTest_Boolean.TryParse"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/UnitTest_SystemCall_Out.cs#TestBoolTryParse_ExtendedNeoVmLiterals"
         },
         {
           "kind": "differential",
-          "reference": "UnitTest_Boolean.TryParseSemanticDifference"
+          "reference": "tests/Neo.Compiler.CSharp.UnitTests/UnitTest_SystemCall_Out.cs#TestBoolTryParse_DiffersFromDotNetForExtendedLiterals"
         }
       ]
     }
