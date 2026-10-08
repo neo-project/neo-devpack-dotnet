@@ -9,7 +9,8 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -48,6 +49,9 @@ public class ContractProfileReferenceTests
                 var reference = evidence!.AsObject()["reference"]!.GetValue<string>();
                 AssertRepositoryPath(repositoryRoot, reference, capability.Key, "evidence");
             }
+
+            if (value["diagnostic"] is JsonObject diagnostic)
+                AssertRepositoryPath(repositoryRoot, diagnostic["helpLink"]!.GetValue<string>(), capability.Key, "diagnostic.helpLink");
 
             if (value["semanticDifference"] is JsonObject semanticDifference)
             {
@@ -109,21 +113,57 @@ public class ContractProfileReferenceTests
             "Profile diagnostics do not use the NC#### format: " + string.Join(", ", malformedIds));
     }
 
+    [TestMethod]
+    [DataRow("profiles/missing.json")]
+    [DataRow("MissingEvidenceLabel")]
+    [DataRow("tests/Neo.SmartContract.Analyzer.UnitTests")]
+    [DataRow("docs/diagnostics/NC4002.md#missing-anchor")]
+    [DataRow("src/../README.md")]
+    [DataRow("tests/Neo.SmartContract.Analyzer.UnitTests/ContractProfileReferenceTests.cs#MissingEvidenceMethod")]
+    public void InvalidFileReferencesMustFail(string reference)
+    {
+        Assert.ThrowsException<AssertFailedException>(() => AssertRepositoryPath(FindRepositoryRoot(), reference, "test", "evidence"));
+    }
+
+    [TestMethod]
+    public void AbsoluteFileReferencesMustFail()
+    {
+        var root = FindRepositoryRoot();
+        Assert.ThrowsException<AssertFailedException>(() => AssertRepositoryPath(root, Path.Combine(root, "README.md"), "test", "evidence"));
+    }
+
+    [TestMethod]
+    public void ExistingCSharpEvidenceMethodIsAccepted()
+    {
+        AssertRepositoryPath(FindRepositoryRoot(), "tests/Neo.SmartContract.Analyzer.UnitTests/ContractProfileReferenceTests.cs#ProfileDiagnosticIds_ShouldBeKnownAndWellFormed", "test", "evidence");
+    }
+
     private static void AssertRepositoryPath(string repositoryRoot, string reference, string capabilityId, string field)
     {
         var parts = reference.Split('#', 2);
         var pathPart = parts[0];
-        if (!pathPart.StartsWith("src/", StringComparison.Ordinal) &&
-            !pathPart.StartsWith("tests/", StringComparison.Ordinal) &&
-            !pathPart.StartsWith("docs/", StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var fullPath = Path.Combine(repositoryRoot, pathPart.Replace('/', Path.DirectorySeparatorChar));
+        Assert.IsFalse(Path.IsPathRooted(pathPart), $"Profile references must be repository-relative: '{reference}'.");
+        Assert.IsFalse(pathPart.Contains('\\'), $"Profile references must use forward slashes: '{reference}'.");
+        Assert.IsFalse(pathPart.Split('/').Any(part => part is ".." or "." or ""), $"Profile references must use canonical paths: '{reference}'.");
+        var fullPath = Path.GetFullPath(Path.Combine(repositoryRoot, pathPart.Replace('/', Path.DirectorySeparatorChar)));
+        var relativePath = Path.GetRelativePath(repositoryRoot, fullPath);
+        Assert.IsFalse(relativePath.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) || Path.IsPathRooted(relativePath),
+            $"Profile references must stay inside the repository: '{reference}'.");
         Assert.IsTrue(
-            File.Exists(fullPath) || Directory.Exists(fullPath),
+            File.Exists(fullPath) || (field == "implementation" && Directory.Exists(fullPath)),
             $"Profile capability '{capabilityId}' has a missing {field} reference: '{reference}'.");
+
+        if (parts.Length == 2 && string.Equals(Path.GetExtension(fullPath), ".cs", StringComparison.OrdinalIgnoreCase))
+        {
+            var methods = CSharpSyntaxTree.ParseText(File.ReadAllText(fullPath)).GetRoot()
+                .DescendantNodes().OfType<MethodDeclarationSyntax>();
+            Assert.IsTrue(methods.Any(method => method.Identifier.ValueText == parts[1]),
+                $"Profile capability '{capabilityId}' has a missing C# method for {field}: '{reference}'.");
+        }
+        else if (parts.Length == 2 && !string.Equals(Path.GetExtension(fullPath), ".md", StringComparison.OrdinalIgnoreCase))
+        {
+            Assert.Fail($"Profile fragments must reference a C# method or Markdown anchor: '{reference}'.");
+        }
 
         if (parts.Length == 2 && File.Exists(fullPath) &&
             string.Equals(Path.GetExtension(fullPath), ".md", StringComparison.OrdinalIgnoreCase))
