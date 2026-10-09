@@ -295,22 +295,20 @@ internal partial class MethodConvert
             return;
         }
 
-        var nullTarget = new JumpTarget();
-        var endTarget = new JumpTarget();
+        JumpTarget leftNullTarget = new(), rightNullTarget = new(), endTarget = new();
 
         Over();
         IsNull();
-        JumpIfTrue(nullTarget);
+        JumpIfTrue(leftNullTarget);
         Dup();
         IsNull();
-        JumpIfTrue(nullTarget);
+        JumpIfTrue(rightNullTarget);
 
         EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
         Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget.Instruction = Nop();
-        Drop(2);
-        PushNull();
+        rightNullTarget.Instruction = Swap();
+        leftNullTarget.Instruction = Drop();
         endTarget.Instruction = Nop();
     }
 
