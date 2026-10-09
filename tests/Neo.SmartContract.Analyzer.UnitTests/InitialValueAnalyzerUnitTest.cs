@@ -132,7 +132,7 @@ class TestClass
                               {
                                   private static readonly Neo.SmartContract.Framework.UInt160
                                       first = Neo.SmartContract.Framework.UInt160.Parse("first"),
-                                      second = Neo.SmartContract.Framework.UInt160.Parse("second");
+                                      second = global::Neo.SmartContract.Framework.UInt160.Parse("second");
                               }
                               """;
 
