@@ -50,6 +50,7 @@ namespace Neo.Compiler
                 .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
                 .ToArray();
             foreach (ExpressionSyntax expression in syntax.Initializers)
+            {
                 using (InsertSequencePoint(expression))
                 {
                     ITypeSymbol type = model.GetTypeInfo(expression).Type!;
@@ -57,6 +58,8 @@ namespace Neo.Compiler
                     if (type.SpecialType != SpecialType.System_Void)
                         AddInstruction(OpCode.DROP);
                 }
+            }
+
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
@@ -65,21 +68,27 @@ namespace Neo.Compiler
             PushBreakTarget(breakTarget);
             StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
             _generalStatementStack.Push(sc);
+
             foreach (var (variable, symbol) in variables)
             {
                 byte variableIndex = AddLocalVariable(symbol);
                 if (variable.Initializer is not null)
+                {
                     using (InsertSequencePoint(variable))
                     {
                         ConvertExpression(model, variable.Initializer.Value);
                         AccessSlot(OpCode.STLOC, variableIndex);
                     }
+                }
             }
+
             Jump(OpCode.JMP_L, conditionTarget);
             startTarget.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(model, syntax.Statement);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
+
             foreach (ExpressionSyntax expression in syntax.Incrementors)
+            {
                 using (InsertSequencePoint(expression))
                 {
                     ITypeSymbol type = model.GetTypeInfo(expression).Type!;
@@ -87,23 +96,59 @@ namespace Neo.Compiler
                     if (type.SpecialType != SpecialType.System_Void)
                         AddInstruction(OpCode.DROP);
                 }
+            }
             conditionTarget.Instruction = AddInstruction(OpCode.NOP);
             if (syntax.Condition is null)
             {
                 Jump(OpCode.JMP_L, startTarget);
             }
-            else
+            else if (!TryProcessIntegerCompareCondition(model, syntax.Condition, startTarget))
             {
                 ConvertExpression(model, syntax.Condition);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
+
             foreach (var (_, symbol) in variables)
+            {
                 RemoveLocalVariable(symbol);
+            }
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
                 throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in for statement handling. This is a compiler bug that should be reported.");
+        }
+
+        private bool TryProcessIntegerCompareCondition(SemanticModel model, ExpressionSyntax syntax, JumpTarget startTarget)
+        {
+            if (!IsPreEvaluatedInstanceExpression(syntax, out var _) && syntax is BinaryExpressionSyntax expr)
+            {
+                if (IsLiftedNullPropagatingBinaryOperator(model, expr) ||
+                    HasNullableOperand(model, expr) ||
+                    !IsIntegerBinaryOperator(model, expr))
+                {
+                    return false;
+                }
+
+                var opcode = expr.OperatorToken.ValueText switch
+                {
+                    "==" => OpCode.JMPEQ_L,
+                    "!=" => OpCode.JMPNE_L,
+                    "<" => OpCode.JMPLT_L,
+                    "<=" => OpCode.JMPLE_L,
+                    ">" => OpCode.JMPGT_L,
+                    ">=" => OpCode.JMPGE_L,
+                    _ => OpCode.NOP,
+                };
+                if (opcode == OpCode.NOP) return false;
+
+                ConvertExpression(model, expr.Left);
+                ConvertExpression(model, expr.Right);
+                Jump(opcode, startTarget);
+                return true;
+            }
+
+            return false;
         }
     }
 }
