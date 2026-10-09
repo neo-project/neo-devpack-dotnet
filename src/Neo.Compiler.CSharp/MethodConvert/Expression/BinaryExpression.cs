@@ -211,22 +211,20 @@ internal partial class MethodConvert
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
 
-        var nullTarget = new JumpTarget();
-        var endTarget = new JumpTarget();
+        JumpTarget leftNullTarget = new(), rightNullTarget = new(), endTarget = new();
 
         Over();    // left is null?
         IsNull();
-        JumpIfTrue(nullTarget);
-        Dup();   // right is null?
+        JumpIfTrue(leftNullTarget);
+        Dup();    // right is null?
         IsNull();
-        JumpIfTrue(nullTarget);
+        JumpIfTrue(rightNullTarget);
 
         EmitBinaryOperator(model, expression, model.GetTypeInfo(expression).Type!);
         Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget.Instruction = Nop();
-        Drop(2);
-        PushNull();
+        rightNullTarget.Instruction = Swap();
+        leftNullTarget.Instruction = Drop();
         endTarget.Instruction = Nop();
     }
 
