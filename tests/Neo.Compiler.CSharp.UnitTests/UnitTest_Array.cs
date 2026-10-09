@@ -152,7 +152,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayInit()
         {
             var arr = Contract.TestDynamicArrayInit(3);
-            AssertGasConsumed(2604720);
+            AssertGasConsumed(2603760);
 
             Assert.AreEqual(3, arr?.Count);
             Assert.AreEqual(new BigInteger(0), arr?[0]);
@@ -160,7 +160,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(2), arr?[2]);
 
             arr = Contract.TestDynamicArrayInit(0);
-            AssertGasConsumed(1863750);
+            AssertGasConsumed(1863510);
             Assert.AreEqual(0, arr?.Count);
             Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(-1));
             Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(int.MaxValue));

@@ -31,10 +31,20 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void IntForloopTest()
+        public void IntForLoopTest()
         {
-            Assert.AreEqual(10, Contract.IntForloop());
-            AssertGasConsumed(1063800);
+            Assert.AreEqual(10, Contract.IntForLoopLt());
+            AssertGasConsumed(1062600);
+            Assert.AreEqual(10, Contract.IntForLoopLe());
+            AssertGasConsumed(1064550);
+            Assert.AreEqual(10, Contract.IntForLoopEq());
+            AssertGasConsumed(1063200);
+            Assert.AreEqual(10, Contract.IntForLoopNe());
+            AssertGasConsumed(1062600);
+            Assert.AreEqual(10, Contract.IntForLoopGe());
+            AssertGasConsumed(1062390);
+            Assert.AreEqual(9, Contract.IntForLoopGt());
+            AssertGasConsumed(1058940);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
             AssertGasConsumed(1125030);
         }

@@ -266,7 +266,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Not_DeadLoop()
         {
             Contract.UnitTest_Not_DeadLoop(); // No error
-            AssertGasConsumed(993270);
+            AssertGasConsumed(991590);
         }
     }
 }
