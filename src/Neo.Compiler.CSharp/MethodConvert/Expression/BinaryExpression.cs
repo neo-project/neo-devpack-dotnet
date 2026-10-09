@@ -211,22 +211,20 @@ internal partial class MethodConvert
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
 
-        var nullTarget = new JumpTarget();
-        var endTarget = new JumpTarget();
+        JumpTarget leftNullTarget = new(), rightNullTarget = new(), endTarget = new();
 
         Over();    // left is null?
         IsNull();
-        JumpIfTrue(nullTarget);
-        Dup();   // right is null?
+        JumpIfTrue(leftNullTarget);
+        Dup();    // right is null?
         IsNull();
-        JumpIfTrue(nullTarget);
+        JumpIfTrue(rightNullTarget);
 
         EmitBinaryOperator(model, expression, model.GetTypeInfo(expression).Type!);
         Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget.Instruction = Nop();
-        Drop(2);
-        PushNull();
+        rightNullTarget.Instruction = Swap();
+        leftNullTarget.Instruction = Drop();
         endTarget.Instruction = Nop();
     }
 
@@ -259,13 +257,19 @@ internal partial class MethodConvert
         Jump(OpCode.JMP_L, endTarget);  // [right]
 
         // The left operand is null, so the result is null unless the right operand is decisive.
-        leftNullTarget.Instruction = Dup(); // [null, right, right]
-        IsNull();
-        JumpIfTrue(rightNullTarget);        // [null, right]
         if (isAnd)
-            JumpIfFalse(decisiveTarget);
+        {
+            // `null` and `false` both coerce to false, so they must be told apart here.
+            leftNullTarget.Instruction = Dup(); // [null, right, right]
+            IsNull();
+            JumpIfTrue(rightNullTarget);        // [null, right]
+            JumpIfFalse(decisiveTarget);        // null & false == false
+        }
         else
-            JumpIfTrue(decisiveTarget);
+        {
+            // For `|` both `false` and `null` keep the left operand, so the coercion is enough.
+            leftNullTarget.Instruction = Jump(OpCode.JMPIF, decisiveTarget); // null | true == true
+        }
         Jump(OpCode.JMP_L, endTarget);   // [null]
 
         decisiveTarget.Instruction = isAnd ? PushF() : PushT();  // [left or right, false or true]
