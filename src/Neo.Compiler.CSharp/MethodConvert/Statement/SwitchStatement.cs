@@ -308,5 +308,14 @@ namespace Neo.Compiler
                     return false;
             }
         }
+
+        private static bool TryGetBoolConstant(SemanticModel model, ExpressionSyntax valueExpression, out bool value)
+        {
+            value = default;
+            var constant = model.GetConstantValue(valueExpression);
+            if (!constant.HasValue || constant.Value is not bool v) return false;
+            value = v;
+            return true;
+        }
     }
 }
