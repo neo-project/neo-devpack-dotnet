@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         [TestMethod]
         public void LoadCheckpointReadsValidData()
         {
-            byte[] key = [0x01, 0x02, 0x03];
+            byte[] key = [0x01, 0x02, 0x03, 0x04];
             byte[] value = [0x04, 0x05];
             using var stream = CreateStream(writer =>
             {
@@ -142,12 +142,61 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         [TestMethod]
         public void CheckpointSupportsZeroLengthFields()
         {
-            using var stream = new MemoryStream(new byte[8]);
+            using var stream = CreateStream(writer =>
+            {
+                WriteLength(writer, 4);
+                writer.Write(new byte[] { 1, 0, 0, 0 });
+                WriteLength(writer, 0);
+            });
             var checkpoint = new EngineCheckpoint(stream);
 
             Assert.AreEqual(1, checkpoint.Data.Length);
-            Assert.AreEqual(0, checkpoint.Data[0].key.Length);
+            Assert.AreEqual(4, checkpoint.Data[0].key.Length);
             Assert.AreEqual(0, checkpoint.Data[0].value.Length);
+        }
+
+        [TestMethod]
+        public void DuplicateKeysAreRejectedBeforeRestore()
+        {
+            using var stream = CreateStream(writer =>
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    WriteLength(writer, 4);
+                    writer.Write(new byte[] { 1, 0, 0, 0 });
+                    WriteLength(writer, 1);
+                    writer.WriteByte((byte)i);
+                }
+            });
+
+            Assert.ThrowsExactly<InvalidDataException>(() => new EngineCheckpoint(stream));
+        }
+
+        [TestMethod]
+        public void MutatedInvalidKeyPreservesDestination()
+        {
+            using var stream = CreateStream(writer =>
+            {
+                WriteLength(writer, 4);
+                writer.Write(new byte[] { 1, 0, 0, 0 });
+                WriteLength(writer, 1);
+                writer.WriteByte(0x01);
+            });
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[0] = (Array.Empty<byte>(), checkpoint.Data[0].value);
+
+            using var store = new MemoryStore();
+            byte[] originalKey = [1, 0, 0, 0];
+            byte[] originalValue = [0x42];
+            store.Put(originalKey, originalValue);
+            using var snapshot = new StoreCache(store);
+
+            Assert.ThrowsExactly<InvalidDataException>(() => checkpoint.Restore(snapshot));
+
+            var entries = new EngineCheckpoint(snapshot).Data;
+            Assert.AreEqual(1, entries.Length);
+            CollectionAssert.AreEqual(originalKey, entries[0].key);
+            CollectionAssert.AreEqual(originalValue, entries[0].value);
         }
 
         [TestMethod]
