@@ -43,6 +43,14 @@ public sealed class StringBuilderUsageAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         context.RegisterSyntaxNodeAction(AnalyzeAssignment, SyntaxKind.SimpleAssignmentExpression);
+        context.RegisterSyntaxNodeAction(AnalyzeWrite, SyntaxKind.AddAssignmentExpression,
+            SyntaxKind.SubtractAssignmentExpression, SyntaxKind.MultiplyAssignmentExpression,
+            SyntaxKind.DivideAssignmentExpression, SyntaxKind.ModuloAssignmentExpression,
+            SyntaxKind.LeftShiftAssignmentExpression, SyntaxKind.RightShiftAssignmentExpression,
+            SyntaxKind.AndAssignmentExpression, SyntaxKind.OrAssignmentExpression,
+            SyntaxKind.ExclusiveOrAssignmentExpression, SyntaxKind.PreIncrementExpression,
+            SyntaxKind.PreDecrementExpression, SyntaxKind.PostIncrementExpression,
+            SyntaxKind.PostDecrementExpression);
         context.RegisterOperationAction(AnalyzeObjectCreation, OperationKind.ObjectCreation);
     }
 
@@ -93,17 +101,36 @@ public sealed class StringBuilderUsageAnalyzer : DiagnosticAnalyzer
         if (context.Node is not AssignmentExpressionSyntax assignment)
             return;
 
-        var symbol = context.SemanticModel.GetSymbolInfo(assignment.Left).Symbol as IPropertySymbol;
+        ReportUnsupportedWrite(context, assignment.Left);
+    }
+
+    private static void AnalyzeWrite(SyntaxNodeAnalysisContext context)
+    {
+        var target = context.Node switch
+        {
+            AssignmentExpressionSyntax assignment => assignment.Left,
+            PrefixUnaryExpressionSyntax prefix => prefix.Operand,
+            PostfixUnaryExpressionSyntax postfix => postfix.Operand,
+            _ => null
+        };
+
+        if (target is not null)
+            ReportUnsupportedWrite(context, target);
+    }
+
+    private static void ReportUnsupportedWrite(SyntaxNodeAnalysisContext context, ExpressionSyntax target)
+    {
+        var symbol = context.SemanticModel.GetSymbolInfo(target).Symbol as IPropertySymbol;
         if (symbol is null || !IsStringBuilder(symbol.ContainingType))
             return;
 
-        if (symbol.Name != "Length")
+        if (symbol.SetMethod is null)
             return;
 
         var diagnostic = Diagnostic.Create(
             Rule,
-            assignment.GetLocation(),
-            $"{symbol.Name} (set)");
+            target.Parent?.GetLocation() ?? target.GetLocation(),
+            symbol.IsIndexer ? "Item (set)" : $"{symbol.Name} (set)");
 
         context.ReportDiagnostic(diagnostic);
     }
