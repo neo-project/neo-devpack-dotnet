@@ -13,12 +13,12 @@ public abstract class Contract_SupportedStandards(Neo.SmartContract.Testing.Smar
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_SupportedStandards"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-17"",""NEP-9""],""abi"":{""methods"":[{""name"":""symbol"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":true},{""name"":""decimals"",""parameters"":[],""returntype"":""Integer"",""offset"":12,""safe"":true},{""name"":""totalSupply"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":true},{""name"":""balanceOf"",""parameters"":[{""name"":""owner"",""type"":""Hash160""}],""returntype"":""Integer"",""offset"":34,""safe"":true},{""name"":""transfer"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""to"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""data"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":196,""safe"":false},{""name"":""testStandard"",""parameters"":[],""returntype"":""Boolean"",""offset"":446,""safe"":false}],""events"":[{""name"":""Transfer"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""to"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""}]}]},""permissions"":[{""contract"":""0xfffdc93764dbaddd97c48f252a53ea4643faa3fd"",""methods"":[""isContract""]},{""contract"":""*"",""methods"":[""onNEP17Payment""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_SupportedStandards"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-17"",""NEP-9""],""abi"":{""methods"":[{""name"":""symbol"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":true},{""name"":""decimals"",""parameters"":[],""returntype"":""Integer"",""offset"":12,""safe"":true},{""name"":""totalSupply"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":true},{""name"":""balanceOf"",""parameters"":[{""name"":""owner"",""type"":""Hash160""}],""returntype"":""Integer"",""offset"":34,""safe"":true},{""name"":""transfer"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""to"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""data"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":196,""safe"":false},{""name"":""testStandard"",""parameters"":[],""returntype"":""Boolean"",""offset"":445,""safe"":false}],""events"":[{""name"":""Transfer"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""to"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""}]}]},""permissions"":[{""contract"":""0xfffdc93764dbaddd97c48f252a53ea4643faa3fd"",""methods"":[""isContract""]},{""contract"":""*"",""methods"":[""onNEP17Payment""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH9o/pDRupTKiWPxJfdrdtkN8n9/wppc0NvbnRyYWN0AQABBQAA/cABDAlUZXN0VG9rZW5AGEAMAQBB9rRr4kGSXegxStgmBEUQQFcBAXhK2SgkBkUJIgbKABSzJCUMIFRoZSBhcmd1bWVudCAib3duZXIiIGlzIGludmFsaWQuOhERiE4QUdARwHB4aMFFUItB1Y1e6ErYJgVFEEDbIUBXAgIREYhOEFHQEcBweGjBRVCLQdWNXuhK2CYGRRAiBNshcWl5nnFpELUmBAlAabEkD3howUVQi0F1VPWUIg5peGjBRVCLQTkM4woIQFcABHhK2SgkBkUJIgbKABSzJCQMH1RoZSBhcmd1bWVudCAiZnJvbSIgaXMgaW52YWxpZC46eUrZKCQGRQkiBsoAFLMkIgwdVGhlIGFyZ3VtZW50ICJ0byIgaXMgaW52YWxpZC46ehC1JiMMHlRoZSBhbW91bnQgY2Fubm90IGJlIG5lZ2F0aXZlLjp4Qfgn7IwkBAlAerEmFnqbeDUX////JAQJQHp5NQz///9Fe3p5eDQECEBXAQR4eXpTE8AMCFRyYW5zZmVyQZUBb2F5cGjYJgUJIgZ5NwAAJh97engTwB8MDm9uTkVQMTdQYXltZW50eUFifVtSRUAIQE51LD8=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH9o/pDRupTKiWPxJfdrdtkN8n9/wppc0NvbnRyYWN0AQABBQAA/b8BDAlUZXN0VG9rZW5AGEAMAQBB9rRr4kGSXegxStgmBEUQQFcBAXhK2SgkBkUJIgbKABSzJCUMIFRoZSBhcmd1bWVudCAib3duZXIiIGlzIGludmFsaWQuOhERiE4QUdARwHB4aMFFUItB1Y1e6ErYJgVFEEDbIUBXAgIREYhOEFHQEcBweGjBRVCLQdWNXuhK2CYGRRAiBNshcWl5nnFpELUmBAlAabEkD3howUVQi0F1VPWUIg5peGjBRVCLQTkM4woIQFcABHhK2SgkBkUJIgbKABSzJCQMH1RoZSBhcmd1bWVudCAiZnJvbSIgaXMgaW52YWxpZC46eUrZKCQGRQkiBsoAFLMkIgwdVGhlIGFyZ3VtZW50ICJ0byIgaXMgaW52YWxpZC46ehC1JiMMHlRoZSBhbW91bnQgY2Fubm90IGJlIG5lZ2F0aXZlLjp4Qfgn7IwkBAlAeiYWept4NRj///8kBAlAenk1Df///0V7enl4NAQIQFcBBHh5elMTwAwIVHJhbnNmZXJBlQFvYXlwaNgmBQkiBnk3AAAmH3t6eBPAHwwOb25ORVAxN1BheW1lbnR5QWJ9W1JFQAhAjW8NUw==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -117,7 +117,7 @@ public abstract class Contract_SupportedStandards(Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwAEeErZKCQGRQkiBsoAFLMkJAwfVGhlIGFyZ3VtZW50ICJmcm9tIiBpcyBpbnZhbGlkLjp5StkoJAZFCSIGygAUsyQiDB1UaGUgYXJndW1lbnQgInRvIiBpcyBpbnZhbGlkLjp6ELUmIwweVGhlIGFtb3VudCBjYW5ub3QgYmUgbmVnYXRpdmUuOnhB+CfsjCQECUB6sSYWept4NRf///8kBAlAenk1DP///0V7enl4NAQIQA==
+    /// Script: VwAEeErZKCQGRQkiBsoAFLMkJAwfVGhlIGFyZ3VtZW50ICJmcm9tIiBpcyBpbnZhbGlkLjp5StkoJAZFCSIGygAUsyQiDB1UaGUgYXJndW1lbnQgInRvIiBpcyBpbnZhbGlkLjp6ELUmIwweVGhlIGFtb3VudCBjYW5ub3QgYmUgbmVnYXRpdmUuOnhB+CfsjCQECUB6JhZ6m3g1GP///yQECUB6eTUN////RXt6eXg0BAhA
     /// INITSLOT 0004 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// DUP [2 datoshi]
@@ -157,18 +157,17 @@ public abstract class Contract_SupportedStandards(Neo.SmartContract.Testing.Smar
     /// PUSHF [1 datoshi]
     /// RET [0 datoshi]
     /// LDARG2 [2 datoshi]
-    /// NZ [4 datoshi]
     /// JMPIFNOT 16 [2 datoshi]
     /// LDARG2 [2 datoshi]
     /// NEGATE [4 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL_L 17FFFFFF [512 datoshi]
+    /// CALL_L 18FFFFFF [512 datoshi]
     /// JMPIF 04 [2 datoshi]
     /// PUSHF [1 datoshi]
     /// RET [0 datoshi]
     /// LDARG2 [2 datoshi]
     /// LDARG1 [2 datoshi]
-    /// CALL_L 0CFFFFFF [512 datoshi]
+    /// CALL_L 0DFFFFFF [512 datoshi]
     /// DROP [2 datoshi]
     /// LDARG3 [2 datoshi]
     /// LDARG2 [2 datoshi]

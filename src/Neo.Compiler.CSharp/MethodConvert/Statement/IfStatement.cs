@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler
 {
@@ -52,14 +53,18 @@ namespace Neo.Compiler
 
             using (InsertSequencePoint(syntax))
             {
-                if (!IsZeroCondition(model, syntax.Condition))
+                if (TryProcessZeroOrFalseCondition(model, syntax.Condition, SyntaxKind.EqualsExpression))
                 {
-                    ConvertExpression(model, syntax.Condition);
+                    Jump(OpCode.JMPIF_L, elseTarget);
+                }
+                else if (TryProcessZeroOrFalseCondition(model, syntax.Condition, SyntaxKind.NotEqualsExpression))
+                {
                     Jump(OpCode.JMPIFNOT_L, elseTarget);
                 }
                 else
                 {
-                    Jump(OpCode.JMPIF_L, elseTarget);
+                    ConvertExpression(model, syntax.Condition);
+                    Jump(OpCode.JMPIFNOT_L, elseTarget);
                 }
 
                 ConvertStatement(model, syntax.Statement);
@@ -84,17 +89,29 @@ namespace Neo.Compiler
             }
         }
 
-        private bool IsZeroCondition(SemanticModel model, ExpressionSyntax syntax)
+        private bool TryProcessZeroOrFalseCondition(SemanticModel model, ExpressionSyntax syntax, SyntaxKind syntaxKind)
         {
             if (!IsPreEvaluatedInstanceExpression(syntax, out var _) &&
-                syntax is BinaryExpressionSyntax expr && expr.Kind() == SyntaxKind.EqualsExpression)
+                syntax is BinaryExpressionSyntax expr && expr.Kind() == syntaxKind)
             {
                 if (HasNullableOperand(model, expr)) return false;
+
+                var type = model.GetTypeInfo(expr).Type!.GetStackItemType();
+                if (type != StackItemType.Integer && type != StackItemType.Boolean) return false;
+
                 var leftIs0 = TryGetIntegerConstant(model, expr.Left, out var left) && left.IsZero;
                 var rightIs0 = TryGetIntegerConstant(model, expr.Right, out var right) && right.IsZero;
                 if (leftIs0 || rightIs0)
                 {
                     ConvertExpression(model, leftIs0 ? expr.Right : expr.Left);
+                    return true;
+                }
+
+                var leftIsFalse = TryGetBoolConstant(model, expr.Left, out bool leftBool) && !leftBool;
+                var rightIsFalse = TryGetBoolConstant(model, expr.Right, out bool rightBool) && !rightBool;
+                if (leftIsFalse || rightIsFalse)
+                {
+                    ConvertExpression(model, leftIsFalse ? expr.Right : expr.Left);
                     return true;
                 }
             }
