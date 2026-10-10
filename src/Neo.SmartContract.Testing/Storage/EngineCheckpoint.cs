@@ -44,6 +44,7 @@ namespace Neo.SmartContract.Testing.Storage
             }
 
             Data = list.ToArray();
+            ValidateData(Data);
         }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace Neo.SmartContract.Testing.Storage
             }
 
             Data = list.ToArray();
+            ValidateData(Data);
         }
 
         /// <summary>
@@ -85,6 +87,8 @@ namespace Neo.SmartContract.Testing.Storage
         /// <param name="snapshot">Snapshot</param>
         public void Restore(DataCache snapshot)
         {
+            ValidateData(Data);
+
             // Clean snapshot
 
             foreach (var entry in snapshot.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray())
@@ -109,6 +113,8 @@ namespace Neo.SmartContract.Testing.Storage
         /// <param name="snapshot">Snapshot</param>
         public void MergeInto(DataCache snapshot)
         {
+            ValidateData(Data);
+
             foreach (var entry in Data)
             {
                 var key = new StorageKey(entry.key);
@@ -172,6 +178,21 @@ namespace Neo.SmartContract.Testing.Storage
             var data = new byte[length];
             stream.ReadExactly(data);
             return data;
+        }
+
+        private static void ValidateData((byte[] key, byte[] value)[] data)
+        {
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var (key, value) in data)
+            {
+                if (key is null || key.Length < sizeof(int) || key.Length > MaxCheckpointKeyLength)
+                    throw new InvalidDataException("Invalid checkpoint storage key.");
+                if (value is null || value.Length > MaxCheckpointValueLength)
+                    throw new InvalidDataException("Invalid checkpoint storage value.");
+
+                if (!keys.Add(Convert.ToBase64String(key)))
+                    throw new InvalidDataException("Duplicate checkpoint storage key.");
+            }
         }
 
         private static bool TryReadExactly(Stream stream, Span<byte> buffer)
