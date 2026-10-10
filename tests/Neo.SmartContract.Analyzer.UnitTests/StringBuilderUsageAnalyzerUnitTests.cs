@@ -189,4 +189,36 @@ public class StringBuilderUsageAnalyzerUnitTests
 
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
+
+    [TestMethod]
+    public async Task PropertyAndIndexerWrites_ShouldReportDiagnostics()
+    {
+        var test = """
+                   using System.Text;
+
+                   class TestClass
+                   {
+                       void Test()
+                       {
+                           var sb = new StringBuilder();
+                           {|#0:sb.Length += 1|};
+                           {|#1:sb.Length++|};
+                           {|#2:--sb.Length|};
+                           {|#3:sb.Capacity = 16|};
+                           {|#4:sb[0] = 'n'|};
+                       }
+                   }
+                   """;
+
+        var expected = new[]
+        {
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId).WithLocation(0).WithArguments("Length (set)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId).WithLocation(1).WithArguments("Length (set)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId).WithLocation(2).WithArguments("Length (set)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId).WithLocation(3).WithArguments("Capacity (set)"),
+            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId).WithLocation(4).WithArguments("Item (set)")
+        };
+
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
 }
