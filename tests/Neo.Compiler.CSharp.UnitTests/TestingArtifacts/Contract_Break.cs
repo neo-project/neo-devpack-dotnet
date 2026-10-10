@@ -18,7 +18,7 @@ public abstract class Contract_Break(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP1wAVcGAQwBAAwC/wBBOQzjChAMAf9BB3ZS83AiG2hB81S/HXE7AAU9FwwBAQwC/wBBOQzjCj9oQZwI7Zwk4QwC/wBB1Y1e6AwBAZc5EAwB/0EHdlLzcCJqaEHzVL8dcTsaLxByIg4MCWV4Y2VwdGlvbjpqE7Uk8T1JcjsABz0CPUkMAQAMAv8AQTkM4wo/DAL/AEHVjV7oDAEAlzkSERATwEpyynMQdCIUamzOdQwBAgwC/wBBOQzjCiIGbGsw7D9oQZwI7ZwkkgwC/wBB1Y1e6AwBApc5EAwB/0EHdlLzcCJ7aEHzVL8dcTsaVxByahO1RXgmDgwJZXhjZXB0aW9uOj1achBzaxO1JgJrsao5OxEWDAEDDAL/AEE5DOMKajp0PQI9QAwC/wBB1Y1e6AwBA5c5DAECDAL/AEE5DOMKPwwC/wBB1Y1e6AwBApc5DAEDDAL/AEE5DOMKP2hBnAjtnCSBDAL/AEHVjV7oDAEDlzlAQOCVjw==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP1vAVcGAQwBAAwC/wBBOQzjChAMAf9BB3ZS83AiG2hB81S/HXE7AAU9FwwBAQwC/wBBOQzjCj9oQZwI7Zwk4QwC/wBB1Y1e6AwBAZc5EAwB/0EHdlLzcCJpaEHzVL8dcTsZLhByIg4MCWV4Y2VwdGlvbjpqEzDyPUlyOwAHPQI9SQwBAAwC/wBBOQzjCj8MAv8AQdWNXugMAQCXORIREBPASnLKcxB0IhRqbM51DAECDAL/AEE5DOMKIgZsazDsP2hBnAjtnCSTDAL/AEHVjV7oDAEClzkQDAH/QQd2UvNwIntoQfNUvx1xOxpXEHJqE0VFeCYODAlleGNlcHRpb246PVpyEHNrE7UmAmuxqjk7ERYMAQMMAv8AQTkM4wpqOnQ9Aj1ADAL/AEHVjV7oDAEDlzkMAQIMAv8AQTkM4wo/DAL/AEHVjV7oDAEClzkMAQMMAv8AQTkM4wo/aEGcCO2cJIEMAv8AQdWNXugMAQOXOUC4i0pV").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class Contract_Break(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYBDAEADAL/AEE5DOMKEAwB/0EHdlLzcCIbaEHzVL8dcTsABT0XDAEBDAL/AEE5DOMKP2hBnAjtnCThDAL/AEHVjV7oDAEBlzkQDAH/QQd2UvNwImpoQfNUvx1xOxovEHIiDgwJZXhjZXB0aW9uOmoTtSTxPUlyOwAHPQI9SQwBAAwC/wBBOQzjCj8MAv8AQdWNXugMAQCXORIREBPASnLKcxB0IhRqbM51DAECDAL/AEE5DOMKIgZsazDsP2hBnAjtnCSSDAL/AEHVjV7oDAEClzkQDAH/QQd2UvNwIntoQfNUvx1xOxpXEHJqE7VFeCYODAlleGNlcHRpb246PVpyEHNrE7UmAmuxqjk7ERYMAQMMAv8AQTkM4wpqOnQ9Aj1ADAL/AEHVjV7oDAEDlzkMAQIMAv8AQTkM4wo/DAL/AEHVjV7oDAEClzkMAQMMAv8AQTkM4wo/aEGcCO2cJIEMAv8AQdWNXugMAQOXOUA=
+    /// Script: VwYBDAEADAL/AEE5DOMKEAwB/0EHdlLzcCIbaEHzVL8dcTsABT0XDAEBDAL/AEE5DOMKP2hBnAjtnCThDAL/AEHVjV7oDAEBlzkQDAH/QQd2UvNwImloQfNUvx1xOxkuEHIiDgwJZXhjZXB0aW9uOmoTMPI9SXI7AAc9Aj1JDAEADAL/AEE5DOMKPwwC/wBB1Y1e6AwBAJc5EhEQE8BKcspzEHQiFGpsznUMAQIMAv8AQTkM4woiBmxrMOw/aEGcCO2cJJMMAv8AQdWNXugMAQKXORAMAf9BB3ZS83Aie2hB81S/HXE7GlcQcmoTRUV4Jg4MCWV4Y2VwdGlvbjo9WnIQc2sTtSYCa7GqOTsRFgwBAwwC/wBBOQzjCmo6dD0CPUAMAv8AQdWNXugMAQOXOQwBAgwC/wBBOQzjCj8MAv8AQdWNXugMAQKXOQwBAwwC/wBBOQzjCj9oQZwI7ZwkgQwC/wBB1Y1e6AwBA5c5QA==
     /// INITSLOT 0601 [64 datoshi]
     /// PUSHDATA1 00 [8 datoshi]
     /// PUSHDATA1 FF00 [8 datoshi]
@@ -59,11 +59,11 @@ public abstract class Contract_Break(Neo.SmartContract.Testing.SmartContractInit
     /// PUSHDATA1 FF '?' [8 datoshi]
     /// SYSCALL 077652F3 'System.Storage.Local.Find' [32768 datoshi]
     /// STLOC0 [2 datoshi]
-    /// JMP 6A [2 datoshi]
+    /// JMP 69 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// SYSCALL F354BF1D 'System.Iterator.Value' [16 datoshi]
     /// STLOC1 [2 datoshi]
-    /// TRY 1A2F [4 datoshi]
+    /// TRY 192E [4 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC2 [2 datoshi]
     /// JMP 0E [2 datoshi]
@@ -71,8 +71,7 @@ public abstract class Contract_Break(Neo.SmartContract.Testing.SmartContractInit
     /// THROW [512 datoshi]
     /// LDLOC2 [2 datoshi]
     /// PUSH3 [1 datoshi]
-    /// LT [8 datoshi]
-    /// JMPIF F1 [2 datoshi]
+    /// JMPLT F2 [2 datoshi]
     /// ENDTRY 49 [4 datoshi]
     /// STLOC2 [2 datoshi]
     /// TRY 0007 [4 datoshi]
@@ -113,7 +112,7 @@ public abstract class Contract_Break(Neo.SmartContract.Testing.SmartContractInit
     /// ENDFINALLY [4 datoshi]
     /// LDLOC0 [2 datoshi]
     /// SYSCALL 9C08ED9C 'System.Iterator.Next' [32768 datoshi]
-    /// JMPIF 92 [2 datoshi]
+    /// JMPIF 93 [2 datoshi]
     /// PUSHDATA1 FF00 [8 datoshi]
     /// SYSCALL D58D5EE8 'System.Storage.Local.Get' [32768 datoshi]
     /// PUSHDATA1 02 [8 datoshi]
@@ -132,7 +131,7 @@ public abstract class Contract_Break(Neo.SmartContract.Testing.SmartContractInit
     /// STLOC2 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// PUSH3 [1 datoshi]
-    /// LT [8 datoshi]
+    /// DROP [2 datoshi]
     /// DROP [2 datoshi]
     /// LDARG0 [2 datoshi]
     /// JMPIFNOT 0E [2 datoshi]

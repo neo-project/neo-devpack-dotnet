@@ -18,7 +18,7 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3XAVcGAQwBAAwC/wBBOQzjChAMAf9BB3ZS83AiG2hB81S/HXE7AAU9DwwBAQwC/wBBOQzjCj9oQZwI7Zwk4QwC/wBB1Y1e6AwBAZc5EAwB/0EHdlLzcCJ1aEHzVL8dcTsaMhByIg4MCWV4Y2VwdGlvbjpqE7Uk8T1Ucgkk/zsABz0CPUkMAQAMAv8AQTkM4wo/DAL/AEHVjV7oDAEAlzkSERATwEpyynMQdCIcamzOdW0StSYEIg4MAQIMAv8AQTkM4wpsnHRsazDkP2hBnAjtnCSHDAL/AEHVjV7oDAEClzkQDAH/QQd2UvNwI9QAAABoQfNUvx1xPEoAAACtAAAAEHIiJmqcSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcmoTtSTZeCYODAlleGNlcHRpb246PoMAAAByEHNrE7UmKGucSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcyLXaxOzOTsRFgwBAwwC/wBBOQzjCmo6dD0CPTgMAv8AQdWNXugMAQOXOQwBAgwC/wBBOQzjCj8MAv8AQdWNXugMAQKXOQwBAwwC/wBBOQzjCj9oQZwI7ZwlK////wwC/wBB1Y1e6AwBA5c5QFpBBeM=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3VAVcGAQwBAAwC/wBBOQzjChAMAf9BB3ZS83AiG2hB81S/HXE7AAU9DwwBAQwC/wBBOQzjCj9oQZwI7Zwk4QwC/wBB1Y1e6AwBAZc5EAwB/0EHdlLzcCJ0aEHzVL8dcTsZMRByIg4MCWV4Y2VwdGlvbjpqEzDyPVRyCST/OwAHPQI9SQwBAAwC/wBBOQzjCj8MAv8AQdWNXugMAQCXORIREBPASnLKcxB0IhxqbM51bRK1JgQiDgwBAgwC/wBBOQzjCmycdGxrMOQ/aEGcCO2cJIgMAv8AQdWNXugMAQKXORAMAf9BB3ZS83Aj0wAAAGhB81S/HXE8SQAAAKwAAAAQciImapxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9yahMw2ngmDgwJZXhjZXB0aW9uOj6DAAAAchBzaxO1JihrnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3Mi12sTszk7ERYMAQMMAv8AQTkM4wpqOnQ9Aj04DAL/AEHVjV7oDAEDlzkMAQIMAv8AQTkM4wo/DAL/AEHVjV7oDAEClzkMAQMMAv8AQTkM4wo/aEGcCO2cJSz///8MAv8AQdWNXugMAQOXOUD2+RgQ").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYBDAEADAL/AEE5DOMKEAwB/0EHdlLzcCIbaEHzVL8dcTsABT0PDAEBDAL/AEE5DOMKP2hBnAjtnCThDAL/AEHVjV7oDAEBlzkQDAH/QQd2UvNwInVoQfNUvx1xOxoyEHIiDgwJZXhjZXB0aW9uOmoTtSTxPVRyCST/OwAHPQI9SQwBAAwC/wBBOQzjCj8MAv8AQdWNXugMAQCXORIREBPASnLKcxB0IhxqbM51bRK1JgQiDgwBAgwC/wBBOQzjCmycdGxrMOQ/aEGcCO2cJIcMAv8AQdWNXugMAQKXORAMAf9BB3ZS83Aj1AAAAGhB81S/HXE8SgAAAK0AAAAQciImapxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9yahO1JNl4Jg4MCWV4Y2VwdGlvbjo+gwAAAHIQc2sTtSYoa5xKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9zItdrE7M5OxEWDAEDDAL/AEE5DOMKajp0PQI9OAwC/wBB1Y1e6AwBA5c5DAECDAL/AEE5DOMKPwwC/wBB1Y1e6AwBApc5DAEDDAL/AEE5DOMKP2hBnAjtnCUr////DAL/AEHVjV7oDAEDlzlA
+    /// Script: VwYBDAEADAL/AEE5DOMKEAwB/0EHdlLzcCIbaEHzVL8dcTsABT0PDAEBDAL/AEE5DOMKP2hBnAjtnCThDAL/AEHVjV7oDAEBlzkQDAH/QQd2UvNwInRoQfNUvx1xOxkxEHIiDgwJZXhjZXB0aW9uOmoTMPI9VHIJJP87AAc9Aj1JDAEADAL/AEE5DOMKPwwC/wBB1Y1e6AwBAJc5EhEQE8BKcspzEHQiHGpsznVtErUmBCIODAECDAL/AEE5DOMKbJx0bGsw5D9oQZwI7ZwkiAwC/wBB1Y1e6AwBApc5EAwB/0EHdlLzcCPTAAAAaEHzVL8dcTxJAAAArAAAABByIiZqnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3JqEzDaeCYODAlleGNlcHRpb246PoMAAAByEHNrE7UmKGucSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcyLXaxOzOTsRFgwBAwwC/wBBOQzjCmo6dD0CPTgMAv8AQdWNXugMAQOXOQwBAgwC/wBBOQzjCj8MAv8AQdWNXugMAQKXOQwBAwwC/wBBOQzjCj9oQZwI7ZwlLP///wwC/wBB1Y1e6AwBA5c5QA==
     /// INITSLOT 0601 [64 datoshi]
     /// PUSHDATA1 00 [8 datoshi]
     /// PUSHDATA1 FF00 [8 datoshi]
@@ -59,11 +59,11 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// PUSHDATA1 FF '?' [8 datoshi]
     /// SYSCALL 077652F3 'System.Storage.Local.Find' [32768 datoshi]
     /// STLOC0 [2 datoshi]
-    /// JMP 75 [2 datoshi]
+    /// JMP 74 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// SYSCALL F354BF1D 'System.Iterator.Value' [16 datoshi]
     /// STLOC1 [2 datoshi]
-    /// TRY 1A32 [4 datoshi]
+    /// TRY 1931 [4 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC2 [2 datoshi]
     /// JMP 0E [2 datoshi]
@@ -71,8 +71,7 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// THROW [512 datoshi]
     /// LDLOC2 [2 datoshi]
     /// PUSH3 [1 datoshi]
-    /// LT [8 datoshi]
-    /// JMPIF F1 [2 datoshi]
+    /// JMPLT F2 [2 datoshi]
     /// ENDTRY 54 [4 datoshi]
     /// STLOC2 [2 datoshi]
     /// PUSHF [1 datoshi]
@@ -122,7 +121,7 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// ENDFINALLY [4 datoshi]
     /// LDLOC0 [2 datoshi]
     /// SYSCALL 9C08ED9C 'System.Iterator.Next' [32768 datoshi]
-    /// JMPIF 87 [2 datoshi]
+    /// JMPIF 88 [2 datoshi]
     /// PUSHDATA1 FF00 [8 datoshi]
     /// SYSCALL D58D5EE8 'System.Storage.Local.Get' [32768 datoshi]
     /// PUSHDATA1 02 [8 datoshi]
@@ -132,11 +131,11 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// PUSHDATA1 FF '?' [8 datoshi]
     /// SYSCALL 077652F3 'System.Storage.Local.Find' [32768 datoshi]
     /// STLOC0 [2 datoshi]
-    /// JMP_L D4000000 [2 datoshi]
+    /// JMP_L D3000000 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// SYSCALL F354BF1D 'System.Iterator.Value' [16 datoshi]
     /// STLOC1 [2 datoshi]
-    /// TRY_L 4A000000AD000000 [4 datoshi]
+    /// TRY_L 49000000AC000000 [4 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC2 [2 datoshi]
     /// JMP 26 [2 datoshi]
@@ -156,8 +155,7 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// STLOC2 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// PUSH3 [1 datoshi]
-    /// LT [8 datoshi]
-    /// JMPIF D9 [2 datoshi]
+    /// JMPLT DA [2 datoshi]
     /// LDARG0 [2 datoshi]
     /// JMPIFNOT 0E [2 datoshi]
     /// PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
@@ -218,7 +216,7 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
     /// ENDFINALLY [4 datoshi]
     /// LDLOC0 [2 datoshi]
     /// SYSCALL 9C08ED9C 'System.Iterator.Next' [32768 datoshi]
-    /// JMPIF_L 2BFFFFFF [2 datoshi]
+    /// JMPIF_L 2CFFFFFF [2 datoshi]
     /// PUSHDATA1 FF00 [8 datoshi]
     /// SYSCALL D58D5EE8 'System.Storage.Local.Get' [32768 datoshi]
     /// PUSHDATA1 03 [8 datoshi]

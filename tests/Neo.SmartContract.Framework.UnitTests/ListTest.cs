@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestCount()
         {
             Assert.AreEqual(4, Contract.TestCount(4));
-            AssertGasConsumed(2035980);
+            AssertGasConsumed(2034780);
         }
 
         [TestMethod]
@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestRemoveAt()
         {
             var item = Contract.TestRemoveAt(5, 2);
-            AssertGasConsumed(3389790);
+            AssertGasConsumed(3388350);
             var json = ParseJson(item);
 
             Assert.IsTrue(json is JArray);
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestClear()
         {
             var item = Contract.TestClear(4);
-            AssertGasConsumed(3142350);
+            AssertGasConsumed(3141150);
             var json = ParseJson(item);
 
             Assert.IsTrue(json is JArray);
@@ -73,7 +73,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestArrayConvert()
         {
             var array = Contract.TestArrayConvert(4)!;
-            AssertGasConsumed(2035860);
+            AssertGasConsumed(2034660);
             Assert.AreEqual(4, array.Count);
             for (int i = 0; i < 4; i++)
             {
