@@ -98,6 +98,63 @@ class TestClass
         }
 
         [TestMethod]
+        public async Task FrameworkInitialValueAttribute_WithDefaultForms_ShouldReportDiagnostic()
+        {
+            var test = """
+                       namespace Neo.SmartContract.Framework.Attributes
+                       {
+                           public class InitialValueAttribute : System.Attribute
+                           {
+                               public InitialValueAttribute(string value) { }
+                           }
+                       }
+
+                       namespace Neo.SmartContract.Framework
+                       {
+                           public sealed class UInt160 { }
+                       }
+
+                       class TestClass
+                       {
+                           [Neo.SmartContract.Framework.Attributes.InitialValue("value")]
+                           private static readonly Neo.SmartContract.Framework.UInt160 first = default;
+
+                           [Neo.SmartContract.Framework.Attributes.InitialValue("value")]
+                           private static readonly Neo.SmartContract.Framework.UInt160 second = default!;
+                       }
+                       """;
+
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(InitialValueAnalyzer.DiagnosticId).WithSpan(16, 5, 17, 81).WithArguments("Neo.SmartContract.Framework.Attributes.InitialValue"),
+                VerifyCS.Diagnostic(InitialValueAnalyzer.DiagnosticId).WithSpan(19, 5, 20, 83).WithArguments("Neo.SmartContract.Framework.Attributes.InitialValue")
+            };
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task CustomAttributeWithSameName_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       using System;
+                       [AttributeUsage(AttributeTargets.Field)]
+                       class InitialValueAttribute : Attribute
+                       {
+                           public InitialValueAttribute(string value) { }
+                       }
+
+                       class TestClass
+                       {
+                           [InitialValue("value")]
+                           private static readonly string value = default!;
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task ParseFix_ShouldTargetDiagnosedVariableAndPreserveSiblings()
         {
             var test = """
