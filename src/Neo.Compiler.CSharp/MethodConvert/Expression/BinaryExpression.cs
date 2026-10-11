@@ -53,7 +53,8 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/boolean-logical-operators">Boolean logical operators - AND, OR, NOT, XOR</seealso>
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
-        switch (expression.OperatorToken.ValueText)
+        var operatorToken = expression.OperatorToken.ValueText;
+        switch (operatorToken)
         {
             case "||":
                 ConvertLogicalOrExpression(model, expression.Left, expression.Right);
@@ -78,7 +79,7 @@ internal partial class MethodConvert
 
         if (IsLiftedNullPropagatingBinaryOperator(model, expression))
         {
-            if (expression.OperatorToken.ValueText is "&" or "|" && HasNullableBooleanOperand(model, expression))
+            if (operatorToken is "&" or "|" && HasNullableBooleanOperand(model, expression))
                 ConvertLiftedNullableBooleanExpression(model, expression);
             else
                 ConvertLiftedBinaryExpression(model, expression);
@@ -90,6 +91,18 @@ internal partial class MethodConvert
         {
             ConvertLiftedShiftExpression(model, expression);
             return;
+        }
+        if (IsBoolBinaryOperator(model, expression) && (operatorToken == "==" || operatorToken == "!="))
+        {
+            var leftIsConst = TryGetBoolConstant(model, expression.Left, out bool left);
+            var rightIsConst = TryGetBoolConstant(model, expression.Right, out bool right);
+            if (leftIsConst || rightIsConst)
+            {
+                ConvertExpression(model, leftIsConst ? expression.Right : expression.Left);
+                if (((leftIsConst && !left) || (rightIsConst && !right)) && operatorToken == "==") Not();
+                if (((leftIsConst && left) || (rightIsConst && right)) && operatorToken == "!=") Not();
+                return;
+            }
         }
 
         ConvertExpression(model, expression.Left);
@@ -162,6 +175,13 @@ internal partial class MethodConvert
         return !HasNullableOperand(model, expression) &&
             model.GetTypeInfo(expression.Left).Type?.GetStackItemType() == StackItemType.Integer &&
             model.GetTypeInfo(expression.Right).Type?.GetStackItemType() == StackItemType.Integer;
+    }
+
+    private static bool IsBoolBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        return !HasNullableOperand(model, expression) &&
+            model.GetTypeInfo(expression.Left).Type?.GetStackItemType() == StackItemType.Boolean &&
+            model.GetTypeInfo(expression.Right).Type?.GetStackItemType() == StackItemType.Boolean;
     }
 
     private static bool HasNullableOperand(SemanticModel model, BinaryExpressionSyntax expression) =>

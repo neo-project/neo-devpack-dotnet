@@ -18,7 +18,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGwQEBK/QFcFAAkQEAwBcxAQEr8LCwsQEAkWwBZVFsBwaGgVzlASwEpxynIQcyIbaWvOdGwQzgmXOWwRzrGqOWwSzrGqOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzrGqOWgUzhHOsao5aEAA1hDt").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGsQEBK/QFcFAAkQEAwBcxAQEr8LCwsQEAkWwBZVFsBwaGgVzlASwEpxynIQcyIaaWvOdGwQzqo5bBHOsao5bBLOsao5a5xza2ow5mgTzgwBc5c5aBXOE87YOWgUzhDOsao5aBTOEc6xqjloQDk6PCc=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -42,7 +42,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUACRAQDAFzEBASvwsLCxAQCRbAFlUWwHBoaBXOUBLASnHKchBzIhtpa850bBDOCZc5bBHOsao5bBLOsao5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOsao5aBTOEc6xqjloQA==
+    /// Script: VwUACRAQDAFzEBASvwsLCxAQCRbAFlUWwHBoaBXOUBLASnHKchBzIhppa850bBDOqjlsEc6xqjlsEs6xqjlrnHNrajDmaBPODAFzlzloFc4Tztg5aBTOEM6xqjloFM4RzrGqOWhA
     /// INITSLOT 0500 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -78,7 +78,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// STLOC2 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC3 [2 datoshi]
-    /// JMP 1B [2 datoshi]
+    /// JMP 1A [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// LDLOC3 [2 datoshi]
     /// PICKITEM [64 datoshi]
@@ -86,8 +86,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// LDLOC4 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// PUSHF [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NOT [4 datoshi]
     /// ASSERT [1 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH1 [1 datoshi]
@@ -106,7 +105,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// STLOC3 [2 datoshi]
     /// LDLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
-    /// JMPLT E5 [2 datoshi]
+    /// JMPLT E6 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// PICKITEM [64 datoshi]
