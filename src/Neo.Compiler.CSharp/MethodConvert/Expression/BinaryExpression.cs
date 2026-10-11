@@ -85,8 +85,7 @@ internal partial class MethodConvert
             return;
         }
 
-        if ((expression.IsKind(SyntaxKind.LeftShiftExpression) ||
-             expression.IsKind(SyntaxKind.RightShiftExpression)) &&
+        if ((expression.IsKind(SyntaxKind.LeftShiftExpression) || expression.IsKind(SyntaxKind.RightShiftExpression)) &&
             HasNullableOperand(model, expression))
         {
             ConvertLiftedShiftExpression(model, expression);
@@ -285,7 +284,7 @@ internal partial class MethodConvert
     {
         ITypeSymbol? leftType = model.GetTypeInfo(expression.Left).Type;
         ITypeSymbol? rightType = model.GetTypeInfo(expression.Right).Type;
-        ITypeSymbol resultType = model.GetTypeInfo(expression).Type!;
+        ITypeSymbol resultType = GetNonNullableValueType(model.GetTypeInfo(expression).Type!);
         bool leftNullable = IsNullableValueType(leftType);
         bool rightNullable = IsNullableValueType(rightType);
 
@@ -294,17 +293,17 @@ internal partial class MethodConvert
         var endTarget = new JumpTarget();
 
         ConvertExpression(model, expression.Left);
+        ConvertExpression(model, expression.Right);
+
         if (leftNullTarget is not null)
         {
-            Dup();
+            Over();    // left is null?
             IsNull();
             JumpIfTrue(leftNullTarget);
         }
-
-        ConvertExpression(model, expression.Right);
         if (rightNullTarget is not null)
         {
-            Dup();
+            Dup();    // right is null?
             IsNull();
             JumpIfTrue(rightNullTarget);
         }
@@ -323,19 +322,12 @@ internal partial class MethodConvert
         }
         Jump(OpCode.JMP_L, endTarget);
 
+        // The result is null when either operand is null, so keep whichever operand is null
+        // on top of the stack. The right-null path falls through into the left-null drop.
         if (rightNullTarget is not null)
-        {
-            rightNullTarget.Instruction = Nip();
-            Jump(OpCode.JMP_L, endTarget);
-        }
-
+            rightNullTarget.Instruction = leftNullable ? Swap() : Nip();
         if (leftNullTarget is not null)
-        {
-            leftNullTarget.Instruction = Nop();
-            ConvertExpression(model, expression.Right);
-            Drop();
-        }
-
+            leftNullTarget.Instruction = Drop();
         endTarget.Instruction = Nop();
     }
 
