@@ -1992,15 +1992,8 @@ internal partial class MethodConvert
     /// <param name="symbol">The method symbol</param>
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
-    /// <remarks>
-    /// Algorithm: Iteratively finds and replaces all occurrences of the search string
-    /// </remarks>
     private static void HandleStringReplace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        // Build the result by scanning the remaining tail of the string for the search
-        // value, appending the gap before each match plus the replacement, then continuing
-        // from just past the match. Scanning the tail (rather than the freshly built result)
-        // both terminates and avoids re-matching inside newValue when it contains oldValue.
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
         if (arguments is not null)
@@ -2009,32 +2002,17 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
 
         // Stack (top-down) after the calls above: instance, oldValue, newValue.
-        byte restSlot = methodConvert.AddAnonymousVariable();
+        byte strSlot = methodConvert.AddAnonymousVariable();
         byte oldSlot = methodConvert.AddAnonymousVariable();
         byte newSlot = methodConvert.AddAnonymousVariable();
         byte resultSlot = methodConvert.AddAnonymousVariable();
         byte oldLenSlot = methodConvert.AddAnonymousVariable();
-        byte idxSlot = methodConvert.AddAnonymousVariable();
-        byte consumedSlot = methodConvert.AddAnonymousVariable();
+        byte cursorSlot = methodConvert.AddAnonymousVariable();
+        byte indexSlot = methodConvert.AddAnonymousVariable();
 
-        methodConvert.AccessSlot(OpCode.STLOC, restSlot);          // instance
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);           // instance
         methodConvert.AccessSlot(OpCode.STLOC, oldSlot);           // oldValue
         methodConvert.AccessSlot(OpCode.STLOC, newSlot);           // newValue
-
-        // Normalize all three operands to ByteString.
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, restSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, oldSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, oldSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, newSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, newSlot);
-
-        // result = ""
-        methodConvert.Push("");
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
 
         // oldLen = oldValue.Length; C# throws on an empty oldValue, so fault here too
         // (ASSERT faults on a zero length) instead of looping forever.
@@ -2044,60 +2022,78 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, oldLenSlot);
         methodConvert.Assert();
 
+        // cursor = 0; result = ""
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.STLOC, cursorSlot);
+        methodConvert.Push("");
+        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+
         var loopStart = new JumpTarget();
-        var notFound = new JumpTarget();
+        var noMoreMatches = new JumpTarget();
+        var unchanged = new JumpTarget();
+        var done = new JumpTarget();
 
         loopStart.Instruction = methodConvert.Nop();
 
-        // idx = StdLib.memorySearch(rest, oldValue)
-        // memorySearch takes the haystack (mem) on top of the needle (value).
+        // index = StdLib.memorySearch(str, oldValue, cursor)
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, oldSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        methodConvert.AccessSlot(OpCode.STLOC, idxSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 3, true);
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
 
-        // if (idx == -1) goto notFound
-        methodConvert.AccessSlot(OpCode.LDLOC, idxSlot);
+        // if (index == -1) goto noMoreMatches
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.PushM1();
-        methodConvert.JumpIfEqual(notFound);
+        methodConvert.JumpIfEqual(noMoreMatches);
 
-        // result = result + rest[0..idx] + newValue
+        // result = result + str[cursor..index] + newValue
+        // CAT/SUBSTR/RIGHT push buffers, so the accumulator is only converted once, at the end.
         methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.Push0();
-        methodConvert.AccessSlot(OpCode.LDLOC, idxSlot);
-        methodConvert.SubStr();                                    // rest[0..idx]
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.Sub();                                       // length of the gap
+        methodConvert.SubStr();                                    // str[cursor..index]
         methodConvert.Cat();
         methodConvert.AccessSlot(OpCode.LDLOC, newSlot);
         methodConvert.Cat();
-        methodConvert.ChangeType(StackItemType.ByteString);
         methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
 
-        // consumed = idx + oldLen
-        methodConvert.AccessSlot(OpCode.LDLOC, idxSlot);
+        // cursor = index + oldLen; keep scanning right after the match, which also avoids
+        // re-matching inside newValue when it contains oldValue.
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, oldLenSlot);
         methodConvert.Add();
-        methodConvert.AccessSlot(OpCode.STLOC, consumedSlot);
-
-        // rest = rest[consumed .. end]
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, consumedSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.Size();
-        methodConvert.AccessSlot(OpCode.LDLOC, consumedSlot);
-        methodConvert.Sub();                                       // length = Size(rest) - consumed
-        methodConvert.SubStr();
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, restSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, cursorSlot);
 
         methodConvert.JumpAlways(loopStart);
 
         // No further match: append the remaining tail and return.
-        notFound.Instruction = methodConvert.Nop();
+        noMoreMatches.Instruction = methodConvert.Nop();
+
+        // cursor == 0 means no occurrence was replaced at all, so the input is already the
+        // result and can be returned without copying it.
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.JumpIfFalse(unchanged);
+
         methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.Sub();                                       // length of the tail
+        methodConvert.Right(null);                                 // str[cursor..]
         methodConvert.Cat();
         methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.JumpAlways(done);
+
+        unchanged.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);        // CAT/SUBSTR results are buffers
+
+        done.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,

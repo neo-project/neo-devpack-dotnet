@@ -536,35 +536,44 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Single occurrence, plus matches at the start and the end.
             Assert.AreEqual("Hello Neo", Contract.TestReplace("Hello World", "World", "Neo"));
-            AssertGasConsumed(4803000);
+            AssertGasConsumed(3574320);
             Assert.AreEqual("XYbc", Contract.TestReplace("abc", "a", "XY"));
-            AssertGasConsumed(4803000);
+            AssertGasConsumed(3574320);
             Assert.AreEqual("abXY", Contract.TestReplace("abc", "c", "XY"));
-            AssertGasConsumed(4803000);
+            AssertGasConsumed(3574320);
 
             // Multiple occurrences.
             Assert.AreEqual("bbb", Contract.TestReplace("aaa", "a", "b"));
-            AssertGasConsumed(8251140);
+            AssertGasConsumed(5916000);
             Assert.AreEqual("a-b-c", Contract.TestReplace("aXXbXXc", "XX", "-"));
-            AssertGasConsumed(6527070);
+            AssertGasConsumed(4745160);
 
             // No occurrence returns the original string.
             Assert.AreEqual("abc", Contract.TestReplace("abc", "x", "y"));
-            AssertGasConsumed(3078930);
+            AssertGasConsumed(2280060);
 
             // newValue containing oldValue must not loop or re-match the inserted text.
             Assert.AreEqual("aa", Contract.TestReplace("a", "a", "aa"));
-            AssertGasConsumed(4803000);
+            AssertGasConsumed(3574320);
             Assert.AreEqual("xbxxbx", Contract.TestReplace("bb", "b", "xbx"));
-            AssertGasConsumed(6527070);
+            AssertGasConsumed(4745160);
 
             // Replacing with the empty string removes every occurrence.
             Assert.AreEqual("abc", Contract.TestReplace("a-b-c", "-", ""));
-            AssertGasConsumed(6527070);
+            AssertGasConsumed(4745160);
 
             // An empty oldValue throws in C#; the contract faults instead of looping forever.
             Assert.ThrowsExactly<TestException>(() => Contract.TestReplace("abc", "", "x"));
-            AssertGasConsumed(1786290);
+            AssertGasConsumed(1048350);
+
+            // Matches are taken left to right and are not allowed to overlap.
+            Assert.AreEqual("ba", Contract.TestReplace("aaa", "aa", "b"));
+            // Replacing the whole string leaves an empty tail.
+            Assert.AreEqual("x", Contract.TestReplace("abc", "abc", "x"));
+            // The tail shortcut also has to work for an empty input.
+            Assert.AreEqual("", Contract.TestReplace("", "a", "b"));
+            // Multi-byte characters are matched and copied byte-wise.
+            Assert.AreEqual("aXb", Contract.TestReplace("a\u20acb", "\u20ac", "X"));
         }
 
         [TestMethod]
