@@ -200,6 +200,22 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         }
 
         [TestMethod]
+        public void MutatedInvalidKeyIsRejectedBeforeWrite()
+        {
+            using var stream = CreateStream(writer =>
+            {
+                WriteLength(writer, 4);
+                writer.Write(new byte[] { 1, 0, 0, 0 });
+                WriteLength(writer, 1);
+                writer.WriteByte(0x01);
+            });
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[0] = (Array.Empty<byte>(), checkpoint.Data[0].value);
+
+            Assert.ThrowsExactly<InvalidDataException>(() => checkpoint.ToArray());
+        }
+
+        [TestMethod]
         public void CheckpointReadsNonSeekableStreamInSmallSegments()
         {
             using var complete = CreateTwoRecordStream();

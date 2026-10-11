@@ -155,6 +155,8 @@ namespace Neo.SmartContract.Testing.Storage
         /// </summary>
         public void Write(Stream stream)
         {
+            ValidateData(Data);
+
             var buffer = new byte[sizeof(int)];
 
             foreach (var entry in Data)
