@@ -482,14 +482,38 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestSplitCharArray()
         {
             CollectionAssert.AreEqual(new[] { "hello", "world" }, ConvertToStrings(Contract.TestSplitCharArray("hello  world")));
-            AssertGasConsumed(2591820);
+            AssertGasConsumed(2346150);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitUnicodeSeparators()
+        {
+            CollectionAssert.AreEqual("aéb".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("aéb")));
+            CollectionAssert.AreEqual("aébéc".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("aébéc")));
+            CollectionAssert.AreEqual("abc".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("abc")));
+            CollectionAssert.AreEqual("a中b".Split('中'), ConvertToStrings(Contract.TestSplitUnicodeThreeByte("a中b")));
+            CollectionAssert.AreEqual("a中b中c".Split('中'), ConvertToStrings(Contract.TestSplitUnicodeThreeByte("a中b中c")));
+            CollectionAssert.AreEqual("a\0b".Split('\0'), ConvertToStrings(Contract.TestSplitNullChar("a\0b")));
+            CollectionAssert.AreEqual("éaéé".Split('é', System.StringSplitOptions.RemoveEmptyEntries), ConvertToStrings(Contract.TestSplitUnicodeRemoveEmpty("éaéé")));
+            CollectionAssert.AreEqual("中a中中b".Split(new[] { '中' }, System.StringSplitOptions.RemoveEmptyEntries), ConvertToStrings(Contract.TestSplitUnicodeCharArray("中a中中b")));
+        }
+
+        [TestMethod]
+        public void Test_TestSplitRuntimeChar()
+        {
+            foreach (char c in new[] { ',', 'é', '中', '\0' })
+            {
+                string input = $"a{c}b{c}c";
+                CollectionAssert.AreEqual(input.Split(c), ConvertToStrings(Contract.TestSplitRuntimeChar(input, c)));
+            }
+            CollectionAssert.AreEqual("a,b".Split(','), ConvertToStrings(Contract.TestSplitRuntimeChar("a,b", ',')));
         }
 
         [TestMethod]
         public void Test_TestSplitStringArray()
         {
             CollectionAssert.AreEqual(new[] { "hello", "world" }, ConvertToStrings(Contract.TestSplitStringArray("hello  world")));
-            AssertGasConsumed(2592240);
+            AssertGasConsumed(2346360);
         }
 
         [TestMethod]

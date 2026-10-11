@@ -343,7 +343,7 @@ internal partial class MethodConvert
             methodConvert.Drop();
 
             if (arrayCharSeparator.HasValue)
-                methodConvert.Push((ushort)arrayCharSeparator.Value);
+                methodConvert.Push(NormalizeCharForUtf8(arrayCharSeparator.Value).ToString());
             else
                 methodConvert.Push(arrayStringSeparator!);
 
@@ -353,9 +353,28 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.ChangeType(StackItemType.ByteString);
         methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+        if (separatorKind == SplitSeparatorKind.Char && !substituteArraySeparator)
+        {
+            var separatorConstant = TryGetArgument(arguments, 0, out var charSeparatorSyntax)
+                ? model.GetConstantValue(charSeparatorSyntax.Expression)
+                : default;
+            if (separatorConstant.HasValue && separatorConstant.Value is char constantChar)
+            {
+                methodConvert.Push(NormalizeCharForUtf8(constantChar).ToString());
+            }
+            else
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+                methodConvert.ConvertCharToUtf8(toByteString: true);
+            }
+            methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+        }
+        else if (!substituteArraySeparator)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+            methodConvert.ChangeType(StackItemType.ByteString);
+            methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+        }
 
         if (!hasOptions)
         {
