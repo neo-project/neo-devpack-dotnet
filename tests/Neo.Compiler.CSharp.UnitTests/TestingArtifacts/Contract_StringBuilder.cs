@@ -13,16 +13,359 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StringBuilder"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""appendPrimitiveValues"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StringBuilder"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""appendPrimitiveValues"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""appendEmpty"",""parameters"":[],""returntype"":""String"",""offset"":410,""safe"":false},{""name"":""appendConstEmpty"",""parameters"":[],""returntype"":""String"",""offset"":438,""safe"":false},{""name"":""appendEmptyMultiple"",""parameters"":[],""returntype"":""String"",""offset"":466,""safe"":false},{""name"":""appendEmptyChained"",""parameters"":[],""returntype"":""String"",""offset"":506,""safe"":false},{""name"":""appendEmptyKeepsInstance"",""parameters"":[],""returntype"":""String"",""offset"":561,""safe"":false},{""name"":""appendEmptyKeepsContent"",""parameters"":[],""returntype"":""String"",""offset"":616,""safe"":false},{""name"":""appendEmptyNullReceiver"",""parameters"":[],""returntype"":""String"",""offset"":694,""safe"":false},{""name"":""appendRuntimeString"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""String"",""offset"":719,""safe"":false},{""name"":""appendNonEmpty"",""parameters"":[],""returntype"":""String"",""offset"":766,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBQAA/ZoBVwUADAARwHBocWkQznIPNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchI3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yAP03AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yFDcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIA+zcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIWNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgD5NwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchg3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yDARUcnVlc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgwFRmFsc2VzamuLdGkQbNBpRWgQzkDHL131").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBQAA/TEDVwUADAARwHBocWkQznIPNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchI3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yAP03AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yFDcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIA+zcAAHNqa4t0aRBs0GlFaHFpEM5yDAF8c2pri3RpEGzQaUVocWkQznIWNwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgD5NwAAc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOchg3AABzamuLdGkQbNBpRWhxaRDOcgwBfHNqa4t0aRBs0GlFaHFpEM5yDARUcnVlc2pri3RpEGzQaUVocWkQznIMAXxzamuLdGkQbNBpRWhxaRDOcgwFRmFsc2VzamuLdGkQbNBpRWgQzkBXAQAMA05lb0rYJgVFDAARwHBoShDORUVoEM5AVwEADANOZW9K2CYFRQwAEcBwaEoQzkVFaBDOQFcBAAwDTmVvStgmBUUMABHAcGhKEM5FRWhKEM5FRWhKEM5FRWgQzkBXBgAMA05lb0rYJgVFDAARwHBoShDORXFpcmoQznMMAyBOM0rYJgVFDAB0a2yLdWoQbdBqEM5AVwYADANOZW9K2CYFRQwAEcBwaEoQzkVxaXJqEM5zDAEhStgmBUUMAHRrbIt1ahBt0GpFaBDOQFcFAAwAEcBwaHFpEM5yDAFhStgmBUUMAHNqa4t0aRBs0GlFaEoQzkVFaHFpEM5yDAFiStgmBUUMAHNqa4t0aRBs0GlFaEoQzkVFaBDOQFcBAAtwaEoQzkVFDAt1bnJlYWNoYWJsZUBXBQEMA05lb0rYJgVFDAARwHBocWkQznJ4StgmBUUMAHNqa4t0aRBs0GlFaBDOQFcFAAwDTmVvStgmBUUMABHAcGhxaRDOcgwDIE4zStgmBUUMAHNqa4t0aRBs0GlFaBDOQPjMLMA=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
     #region Unsafe methods
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEADANOZW9K2CYFRQwAEcBwaEoQzkVFaBDOQA==
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHDATA1 4E656F 'Neo' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendConstEmpty")]
+    public abstract string? AppendConstEmpty();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEADANOZW9K2CYFRQwAEcBwaEoQzkVFaBDOQA==
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHDATA1 4E656F 'Neo' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendEmpty")]
+    public abstract string? AppendEmpty();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwYADANOZW9K2CYFRQwAEcBwaEoQzkVxaXJqEM5zDAMgTjNK2CYFRQwAdGtsi3VqEG3QahDOQA==
+    /// INITSLOT 0600 [64 datoshi]
+    /// PUSHDATA1 4E656F 'Neo' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// PUSHDATA1 204E33 [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// STLOC4 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// LDLOC4 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// STLOC5 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC5 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendEmptyChained")]
+    public abstract string? AppendEmptyChained();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwUADAARwHBocWkQznIMAWFK2CYFRQwAc2pri3RpEGzQaUVoShDORUVocWkQznIMAWJK2CYFRQwAc2pri3RpEGzQaUVoShDORUVoEM5A
+    /// INITSLOT 0500 [64 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// PUSHDATA1 61 'a' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// STLOC4 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC4 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// PUSHDATA1 62 'b' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// STLOC4 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC4 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendEmptyKeepsContent")]
+    public abstract string? AppendEmptyKeepsContent();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwYADANOZW9K2CYFRQwAEcBwaEoQzkVxaXJqEM5zDAEhStgmBUUMAHRrbIt1ahBt0GpFaBDOQA==
+    /// INITSLOT 0600 [64 datoshi]
+    /// PUSHDATA1 4E656F 'Neo' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// PUSHDATA1 21 '!' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// STLOC4 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// LDLOC4 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// STLOC5 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC5 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendEmptyKeepsInstance")]
+    public abstract string? AppendEmptyKeepsInstance();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEADANOZW9K2CYFRQwAEcBwaEoQzkVFaEoQzkVFaEoQzkVFaBDOQA==
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHDATA1 4E656F 'Neo' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendEmptyMultiple")]
+    public abstract string? AppendEmptyMultiple();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEAC3BoShDORUUMC3VucmVhY2hhYmxlQA==
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DROP [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 756E726561636861626C65 'unreachable' [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendEmptyNullReceiver")]
+    public abstract string? AppendEmptyNullReceiver();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwUADANOZW9K2CYFRQwAEcBwaHFpEM5yDAMgTjNK2CYFRQwAc2pri3RpEGzQaUVoEM5A
+    /// INITSLOT 0500 [64 datoshi]
+    /// PUSHDATA1 4E656F 'Neo' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// PUSHDATA1 204E33 [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// STLOC4 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC4 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendNonEmpty")]
+    public abstract string? AppendNonEmpty();
 
     /// <summary>
     /// Unsafe method
@@ -391,6 +734,52 @@ public abstract class Contract_StringBuilder(Neo.SmartContract.Testing.SmartCont
     /// </remarks>
     [DisplayName("appendPrimitiveValues")]
     public abstract string? AppendPrimitiveValues();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwUBDANOZW9K2CYFRQwAEcBwaHFpEM5yeErYJgVFDABzamuLdGkQbNBpRWgQzkA=
+    /// INITSLOT 0501 [64 datoshi]
+    /// PUSHDATA1 4E656F 'Neo' [8 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// STLOC4 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// LDLOC4 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("appendRuntimeString")]
+    public abstract string? AppendRuntimeString(string? value);
 
     #endregion
 }

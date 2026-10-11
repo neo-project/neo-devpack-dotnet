@@ -78,6 +78,20 @@ internal partial class MethodConvert
 
     private static void HandleStringBuilderAppendString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null
+            && arguments is { Count: 1 }
+            && symbol.Parameters[0].Type.SpecialType == SpecialType.System_String
+            && model.GetConstantValue(ExtractExpression(arguments[0])) is { HasValue: true, Value: string { Length: 0 } })
+        {
+            // Appending a constant empty string is a no-op. Keep the receiver evaluated once and
+            // read its content so a null receiver still faults (PICKITEM on null).
+            methodConvert.ConvertExpression(model, instanceExpression);
+            methodConvert.Dup();
+            methodConvert.Push(0);
+            methodConvert.PickItem();
+            methodConvert.Drop();
+            return;
+        }
         AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: false, includeArgument: true);
     }
 
