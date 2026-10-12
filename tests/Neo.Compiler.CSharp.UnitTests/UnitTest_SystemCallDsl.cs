@@ -9,12 +9,16 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Neo.Compiler.CSharp.UnitTests.Syntax;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -77,6 +81,41 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.IsTrue(Handlers.Contains("System.Math.Clamp(int, int, int)"));
             Assert.IsTrue(Handlers.Contains("string.Contains(string)"));
+        }
+
+        [TestMethod]
+        public void Dsl_Should_Invoke_Every_Registration_Group()
+        {
+            string path = Path.Combine(
+                SyntaxProbeLoader.GetRepositoryRoot(),
+                "src",
+                "Neo.Compiler.CSharp",
+                "MethodConvert",
+                "System",
+                "SystemCall.Register.cs");
+            var root = CSharpSyntaxTree.ParseText(File.ReadAllText(path)).GetCompilationUnitRoot();
+            var registrationMethods = root.DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .Where(method => method.Identifier.Text.StartsWith("Register", StringComparison.Ordinal)
+                    && method.Identifier.Text.EndsWith("Handlers", StringComparison.Ordinal)
+                    && method.ParameterList.Parameters.Count == 0)
+                .ToArray();
+            var bootstrap = registrationMethods.Single(method => method.Identifier.Text == "RegisterSystemCallHandlers");
+            var invokedGroups = bootstrap.DescendantNodes()
+                .OfType<InvocationExpressionSyntax>()
+                .Select(invocation => (invocation.Expression as IdentifierNameSyntax)?.Identifier.Text)
+                .Where(name => name is not null)
+                .ToHashSet(StringComparer.Ordinal);
+
+            foreach (var method in registrationMethods.Where(method => method != bootstrap))
+            {
+                Assert.IsTrue(
+                    invokedGroups.Contains(method.Identifier.Text),
+                    $"Registration group {method.Identifier.Text} is not invoked by RegisterSystemCallHandlers.");
+                Assert.IsTrue(
+                    method.DescendantNodes().OfType<InvocationExpressionSyntax>().Any(),
+                    $"Registration group {method.Identifier.Text} does not register any handlers.");
+            }
         }
 
         [TestMethod]
