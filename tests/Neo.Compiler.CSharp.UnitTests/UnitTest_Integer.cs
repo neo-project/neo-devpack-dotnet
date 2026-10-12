@@ -1556,8 +1556,27 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(BigInteger.PopCount(BigInteger.Zero), Contract.PopCountBigInteger(BigInteger.Zero));
             Assert.AreEqual(BigInteger.PopCount(BigInteger.One), Contract.PopCountBigInteger(BigInteger.One));
             Assert.AreEqual(BigInteger.PopCount(BigInteger.MinusOne), Contract.PopCountBigInteger(BigInteger.MinusOne));
-            Assert.ThrowsExactly<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("123456789123456789")));
+            Assert.AreEqual(BigInteger.PopCount(BigInteger.Parse("123456789123456789")), Contract.PopCountBigInteger(BigInteger.Parse("123456789123456789")));
             Assert.ThrowsExactly<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("-987654321987654321")));
+        }
+
+        [TestMethod]
+        public void TestPopCountBigIntegerLargePositive()
+        {
+            BigInteger[] values =
+            [
+                BigInteger.Zero,
+                BigInteger.One,
+                BigInteger.One << 31,
+                BigInteger.One << 32,
+                BigInteger.One << 40,
+                (BigInteger.One << 64) - 1,
+                (BigInteger.One << 128) + 7,
+                BigInteger.Parse("123456789123456789"),
+                (BigInteger.One << 100) | (BigInteger.One << 50) | (BigInteger.One << 33) | BigInteger.One,
+            ];
+            foreach (var value in values)
+                Assert.AreEqual(BigInteger.PopCount(value), Contract.PopCountBigInteger(value), value.ToString());
         }
 
         [TestMethod]
