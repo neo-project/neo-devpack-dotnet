@@ -184,7 +184,7 @@ namespace Neo.SmartContract.Testing.Storage
 
         private static void ValidateData((byte[] key, byte[] value)[] data)
         {
-            var keys = new HashSet<string>(StringComparer.Ordinal);
+            var keys = new HashSet<byte[]>(ByteArrayEqualityComparer.Instance);
             foreach (var (key, value) in data)
             {
                 if (key is null || key.Length < sizeof(int) || key.Length > MaxCheckpointKeyLength)
@@ -192,8 +192,24 @@ namespace Neo.SmartContract.Testing.Storage
                 if (value is null || value.Length > MaxCheckpointValueLength)
                     throw new InvalidDataException("Invalid checkpoint storage value.");
 
-                if (!keys.Add(Convert.ToBase64String(key)))
+                if (!keys.Add(key))
                     throw new InvalidDataException("Duplicate checkpoint storage key.");
+            }
+        }
+
+        private sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
+        {
+            internal static readonly ByteArrayEqualityComparer Instance = new();
+
+            public bool Equals(byte[]? x, byte[]? y) =>
+                ReferenceEquals(x, y) || x is not null && y is not null && x.AsSpan().SequenceEqual(y);
+
+            public int GetHashCode(byte[] obj)
+            {
+                var hash = new HashCode();
+                foreach (var value in obj)
+                    hash.Add(value);
+                return hash.ToHashCode();
             }
         }
 
