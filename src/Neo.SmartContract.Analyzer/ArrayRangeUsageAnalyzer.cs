@@ -23,7 +23,7 @@ public sealed class ArrayRangeUsageAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "NC2010";
     public const string Message = "Range access is not supported for '{0}'. Use ranges only with byte[] or string receivers.";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Range receiver is not supported",
         Message,

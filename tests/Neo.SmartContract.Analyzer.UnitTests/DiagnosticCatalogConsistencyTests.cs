@@ -124,6 +124,33 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
+        public void EveryAnalyzerDiagnostic_ShouldHaveDocumentedHelpLink()
+        {
+            var analyzerDirectory = FindAnalyzerDirectory();
+            var documentationPath = Path.GetFullPath(Path.Combine(
+                analyzerDirectory,
+                "..",
+                "..",
+                "docs",
+                "diagnostics",
+                "catalog.md"));
+            var documentation = File.ReadAllText(documentationPath);
+
+            foreach (var entry in AnalyzerDiagnostics)
+            {
+                var helpLink = entry.Descriptor.HelpLinkUri;
+                Assert.IsFalse(string.IsNullOrWhiteSpace(helpLink), $"Missing help link for {entry.Descriptor.Id}.");
+                if (!helpLink!.Contains("/docs/diagnostics/catalog.md#", StringComparison.Ordinal))
+                    continue;
+
+                StringAssert.Contains(
+                    documentation,
+                    $"<a id=\"{entry.Descriptor.Id.ToLowerInvariant()}\"></a>",
+                    $"Missing catalog anchor for {entry.Descriptor.Id}.");
+            }
+        }
+
+        [TestMethod]
         public void UnsupportedSyntaxDiagnostics_ShouldLinkToDocumentedAnchors()
         {
             const string helpLinkBase =

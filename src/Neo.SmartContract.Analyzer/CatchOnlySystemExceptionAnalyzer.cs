@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly LocalizableString Description = "This analyzer enforces catching only System.Exception.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId, Title, MessageFormat, Category,
             DiagnosticSeverity.Error, isEnabledByDefault: true, description: Description);
 

@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4056";
         private const string Category = "Security";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Duplicate storage prefix may collide",
             "Storage prefix '{0}' used by '{1}' collides with '{2}'",

@@ -23,7 +23,7 @@ public sealed class StringBuilderUsageAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "NC4031";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Unsupported StringBuilder member",
         "Unsupported StringBuilder member: {0}",
