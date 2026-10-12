@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
+using Neo.SmartContract.Analyzer;
 using System;
 using System.IO;
 using System.Linq;
@@ -61,6 +63,42 @@ public class Contract : SmartContract
         Assert.IsTrue(result.Diagnostics.Any(item => item.Id == "NC4028"));
         Assert.IsTrue(result.Diagnostics.Any(item => item.Id == "CS0103"));
         Assert.IsFalse(result.Diagnostics.Any(item => item.Id == "NC1002"));
+    }
+
+    [TestMethod]
+    public void CompileProject_PreservesTheCompleteAnalyzerDiagnosticSet()
+    {
+        using var project = TempContractProject.Create("""
+using Neo.SmartContract.Framework;
+using System;
+
+public class Contract : SmartContract
+{
+    public static DateTime Main() => DateTime.UtcNow;
+}
+""");
+        var engine = CreateEngine();
+
+        var result = engine.CompileProject(project.ProjectFile).Single();
+        var compilation = engine.GetCompilation(project.ProjectFile);
+        var expected = compilation
+            .WithAnalyzers(NeoAnalyzerSuite.Create())
+            .GetAnalyzerDiagnosticsAsync()
+            .GetAwaiter()
+            .GetResult();
+
+        var actual = result.Diagnostics
+            .Where(diagnostic => expected.Any(item => item.Id == diagnostic.Id))
+            .Select(FormatDiagnostic)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+        var expectedFormatted = expected
+            .Where(diagnostic => diagnostic.Severity != DiagnosticSeverity.Hidden)
+            .Select(FormatDiagnostic)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+
+        CollectionAssert.AreEqual(expectedFormatted, actual);
     }
 
     [TestMethod]
@@ -179,6 +217,14 @@ public class Contract : SmartContract
         SkipRestoreIfAssetsPresent = true,
         RunAnalyzers = true
     });
+
+    private static string FormatDiagnostic(Diagnostic diagnostic) => string.Join(
+        "|",
+        diagnostic.Id,
+        diagnostic.Severity,
+        diagnostic.Location.SourceTree?.FilePath,
+        diagnostic.Location.SourceSpan.Start,
+        diagnostic.GetMessage());
 
     private sealed class TempContractProject : IDisposable
     {
