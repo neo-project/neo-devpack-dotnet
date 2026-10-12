@@ -78,11 +78,10 @@ internal partial class MethodConvert
 
     private static void HandleStringBuilderAppendString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null
-            && symbol.Parameters[0].Type.SpecialType == SpecialType.System_String
-            && TryGetConstantArgument(model, symbol, "value", arguments, out string? value)
-            && value is { Length: 0 })
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? value) && value is { Length: 0 })
         {
+            if (instanceExpression is null)
+                throw new CompilationException(DiagnosticId.SyntaxNotSupported, "A StringBuilder instance is required for this operation.");
             // Appending a constant empty string is a no-op. Keep the receiver evaluated once and
             // read its content so a null receiver still faults (PICKITEM on null).
             methodConvert.ConvertExpression(model, instanceExpression);
