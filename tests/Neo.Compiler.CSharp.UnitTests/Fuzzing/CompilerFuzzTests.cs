@@ -33,6 +33,16 @@ public class CompilerFuzzTests
         }
     }
 
+    [TestMethod]
+    public void GeneratedNullableExpressionsCompileWithoutRawCompilerFailures()
+    {
+        for (var seed = 0; seed < 32; seed++)
+        {
+            var random = new Random(seed);
+            Neo.Compiler.CSharp.UnitTests.Syntax.Helper.TestCodeBlock(BuildNullableBody(random));
+        }
+    }
+
     private static string BuildMethodBody(Random random)
     {
         string expression = BuildExpression(random, 3);
@@ -78,6 +88,27 @@ public class CompilerFuzzTests
             }
             while (value < {{target}}) value += {{step}};
             do value--; while (value > {{lowerBound}});
+            _ = value;
+            """;
+    }
+
+    private static string BuildNullableBody(Random random)
+    {
+        string nullableValue = random.Next(2) == 0 ? "null" : random.Next(-8, 9).ToString();
+        string nullableOther = random.Next(2) == 0 ? "null" : random.Next(-8, 9).ToString();
+        string nullableText = random.Next(2) == 0 ? "null" : "\"neo\"";
+        string nullableFlag = random.Next(2) == 0 ? "null" : random.Next(2) == 0 ? "false" : "true";
+
+        return $$"""
+            int? first = {{nullableValue}};
+            int? second = {{nullableOther}};
+            string? text = {{nullableText}};
+            bool? flag = {{nullableFlag}};
+            int value = first ?? second ?? 0;
+            int length = text?.Length ?? 0;
+            bool? combined = flag & (second.HasValue ? true : (bool?)null);
+            if (combined == true) value += length;
+            else value -= length;
             _ = value;
             """;
     }
