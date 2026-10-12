@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,6 +50,47 @@ public class AnalyzerExecutionReliabilityTests
         Assert.IsTrue(
             expected.Any(value => value.StartsWith("NC4058|Error|", StringComparison.Ordinal)),
             string.Join(Environment.NewLine, expected));
+    }
+
+    [TestMethod]
+    public async Task AnalyzerSuite_ProducesStableDiagnosticsAcrossCultures()
+    {
+        const string source = """
+            using System;
+            using System.Globalization;
+
+            class Contract
+            {
+                public DateTime ReadClock() => DateTime.Now;
+                public float ReadFloat(float value) => value;
+                public string Format(int value) => value.ToString(CultureInfo.CurrentCulture);
+            }
+            """;
+        CultureInfo originalCulture = CultureInfo.CurrentCulture;
+        CultureInfo originalUICulture = CultureInfo.CurrentUICulture;
+        string[] expected = Array.Empty<string>();
+        bool hasExpected = false;
+
+        try
+        {
+            foreach (string cultureName in new[] { "en-US", "tr-TR", "zh-CN" })
+            {
+                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+                CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
+                string[] actual = FormatDiagnostics(await AnalyzeAsync(CreateCompilation(source)));
+                if (!hasExpected)
+                {
+                    expected = actual;
+                    hasExpected = true;
+                }
+                CollectionAssert.AreEqual(expected, actual, $"Diagnostics changed under {cultureName}.");
+            }
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+            CultureInfo.CurrentUICulture = originalUICulture;
+        }
     }
 
     private static CSharpCompilation CreateCompilation(string source)
