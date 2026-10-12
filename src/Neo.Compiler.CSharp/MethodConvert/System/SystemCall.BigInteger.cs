@@ -997,7 +997,13 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        // Check if the value is within int range
+        // Nonnegative values go straight to the loop, no width limit
+        var popCountLoop = new JumpTarget();
+        methodConvert.Dup();
+        methodConvert.Push0();
+        methodConvert.JumpIfGreaterOrEqual(popCountLoop);
+
+        // Negative values: check if the value is within int range
         methodConvert.Dup();
         methodConvert.Size();
         methodConvert.Push(4); // sizeof(int)
@@ -1016,6 +1022,7 @@ internal partial class MethodConvert
         methodConvert.Push("Out of int range");
         methodConvert.Throw();
         endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        popCountLoop.Instruction = methodConvert.AddInstruction(OpCode.NOP);
 
         methodConvert.EmitPopCountFromMaskedValue();
     }
