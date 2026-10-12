@@ -12,6 +12,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- XML files are generated for API consumers; documentation coverage is tracked separately. -->
+    <NoWarn>$(NoWarn);CS1570;CS1571;CS1572;CS1573;CS1574;CS1584;CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
