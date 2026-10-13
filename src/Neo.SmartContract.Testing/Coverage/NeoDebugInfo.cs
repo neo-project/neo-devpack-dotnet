@@ -81,16 +81,17 @@ namespace Neo.SmartContract.Testing.Coverage
                     var sequencePoint = method.SequencePoints
                         .Where(sp => sp.Address <= instructionAddress)
                         .OrderByDescending(sp => sp.Address)
+                        .Select(sp => (SequencePoint?)sp)
                         .FirstOrDefault();
 
-                    if (sequencePoint.Document >= 0 && sequencePoint.Document < Documents.Count)
+                    if (sequencePoint is { } point && point.Document >= 0 && point.Document < Documents.Count)
                     {
-                        var fileName = Documents[sequencePoint.Document];
+                        var fileName = Documents[point.Document];
                         return new SourceLocation
                         {
                             FileName = System.IO.Path.GetFileName(fileName),
-                            Line = sequencePoint.Start.Line,
-                            Column = sequencePoint.Start.Column,
+                            Line = point.Start.Line,
+                            Column = point.Start.Column,
                             CodeSnippet = null // Could be enhanced to read actual source code
                         };
                     }
@@ -126,11 +127,11 @@ namespace Neo.SmartContract.Testing.Coverage
 
             var basePath = Path.Combine(Path.GetDirectoryName(manifestPath)!, GetBaseName(manifestPath, MANIFEST_FILE_EXTENSION));
 
-            var nefdbgnfoPath = Path.ChangeExtension(basePath, NEF_DBG_NFO_EXTENSION);
+            var nefdbgnfoPath = basePath + NEF_DBG_NFO_EXTENSION;
             if (TryLoadCompressed(nefdbgnfoPath, out debugInfo))
                 return true;
 
-            var debugJsonPath = Path.ChangeExtension(basePath, DEBUG_JSON_EXTENSION);
+            var debugJsonPath = basePath + DEBUG_JSON_EXTENSION;
             return TryLoadUncompressed(debugJsonPath, out debugInfo);
         }
 

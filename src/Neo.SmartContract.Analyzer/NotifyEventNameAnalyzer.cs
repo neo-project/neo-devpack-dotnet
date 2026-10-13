@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Analyzer
         private const string Description = "The name passed to Notify must match the DisplayName of an event.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,
