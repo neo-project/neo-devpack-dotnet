@@ -23,7 +23,7 @@ public sealed class TaskLikeTypeUsageAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "NC4057";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Usage of task-like types is not allowed in Neo smart contracts",
         "Neo smart contracts do not support task-like type: {0}",
