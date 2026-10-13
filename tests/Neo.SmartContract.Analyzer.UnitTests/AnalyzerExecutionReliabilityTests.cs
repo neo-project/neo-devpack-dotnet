@@ -73,11 +73,15 @@ public class AnalyzerExecutionReliabilityTests
 
         try
         {
-            foreach (string cultureName in new[] { "en-US", "tr-TR", "zh-CN" })
+            foreach (string cultureName in new[] { CultureInfo.InvariantCulture.Name, "en-US", "tr-TR", "zh-CN" })
             {
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
                 CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
-                string[] actual = FormatDiagnostics(await AnalyzeAsync(CreateCompilation(source)));
+                var diagnostics = await AnalyzeAsync(CreateCompilation(source));
+                Assert.IsTrue(diagnostics.Any(diagnostic => diagnostic.Id == "NC4058"), "Missing platform API diagnostic.");
+                Assert.IsTrue(diagnostics.Any(diagnostic => diagnostic.Id == "NC4002"), "Missing floating-point diagnostic.");
+                Assert.IsFalse(diagnostics.Any(diagnostic => diagnostic.Id == "AD0001"), "An analyzer failed.");
+                string[] actual = FormatDiagnostics(diagnostics);
                 if (!hasExpected)
                 {
                     expected = actual;
@@ -119,6 +123,7 @@ public class AnalyzerExecutionReliabilityTests
                 diagnostic.Severity,
                 diagnostic.Location.SourceTree?.FilePath,
                 diagnostic.Location.SourceSpan.Start,
+                diagnostic.Location.SourceSpan.Length,
                 diagnostic.GetMessage()))
             .OrderBy(value => value, StringComparer.Ordinal)
             .ToArray();
