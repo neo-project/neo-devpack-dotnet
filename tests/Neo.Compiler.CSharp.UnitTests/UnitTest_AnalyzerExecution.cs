@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
+using Neo.SmartContract.Analyzer;
 using System;
 using System.IO;
 using System.Linq;
@@ -61,6 +63,47 @@ public class Contract : SmartContract
         Assert.IsTrue(result.Diagnostics.Any(item => item.Id == "NC4028"));
         Assert.IsTrue(result.Diagnostics.Any(item => item.Id == "CS0103"));
         Assert.IsFalse(result.Diagnostics.Any(item => item.Id == "NC1002"));
+    }
+
+    [TestMethod]
+    public void CompileProject_PreservesTheCompleteAnalyzerDiagnosticSet()
+    {
+        using var project = TempContractProject.Create("""
+using Neo.SmartContract.Framework;
+using System;
+
+public class Contract : SmartContract
+{
+    public static DateTime Main() => DateTime.UtcNow;
+}
+""");
+        var engine = CreateEngine();
+
+        var result = engine.CompileProject(project.ProjectFile).Single();
+        var compilation = engine.GetCompilation(project.ProjectFile);
+        var analyzers = NeoAnalyzerSuite.Create();
+        var analyzerIds = analyzers.SelectMany(analyzer => analyzer.SupportedDiagnostics)
+            .Select(descriptor => descriptor.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var expected = compilation
+            .WithAnalyzers(analyzers)
+            .GetAnalyzerDiagnosticsAsync()
+            .GetAwaiter()
+            .GetResult();
+
+        Assert.IsTrue(expected.Any(diagnostic => diagnostic.Id == "NC4058"), "The sample must exercise the analyzer suite.");
+        var actual = result.Diagnostics
+            .Where(diagnostic => analyzerIds.Contains(diagnostic.Id) || diagnostic.Id == "AD0001")
+            .Select(FormatDiagnostic)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+        var expectedFormatted = expected
+            .Where(diagnostic => diagnostic.Severity != DiagnosticSeverity.Hidden)
+            .Select(FormatDiagnostic)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+
+        CollectionAssert.AreEqual(expectedFormatted, actual);
     }
 
     [TestMethod]
@@ -179,6 +222,15 @@ public class Contract : SmartContract
         SkipRestoreIfAssetsPresent = true,
         RunAnalyzers = true
     });
+
+    private static string FormatDiagnostic(Diagnostic diagnostic) => string.Join(
+        "|",
+        diagnostic.Id,
+        diagnostic.Severity,
+        diagnostic.Location.SourceTree?.FilePath,
+        diagnostic.Location.SourceSpan.Start,
+        diagnostic.Location.SourceSpan.Length,
+        diagnostic.GetMessage());
 
     private sealed class TempContractProject : IDisposable
     {

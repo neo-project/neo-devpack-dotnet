@@ -9,12 +9,17 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Neo.Compiler.CSharp.UnitTests.Syntax;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -77,6 +82,69 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.IsTrue(Handlers.Contains("System.Math.Clamp(int, int, int)"));
             Assert.IsTrue(Handlers.Contains("string.Contains(string)"));
+        }
+
+        [TestMethod]
+        public void Dsl_Should_Invoke_Every_Registration_Group()
+        {
+            string path = Path.Combine(
+                SyntaxProbeLoader.GetRepositoryRoot(),
+                "src",
+                "Neo.Compiler.CSharp",
+                "MethodConvert",
+                "System",
+                "SystemCall.Register.cs");
+            var root = CSharpSyntaxTree.ParseText(File.ReadAllText(path)).GetCompilationUnitRoot();
+            var bootstrap = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Single(method => method.Identifier.Text == "RegisterSystemCallHandlers");
+            var invokedGroups = bootstrap.Body!.Statements
+                .OfType<ExpressionStatementSyntax>()
+                .Select(statement => statement.Expression)
+                .OfType<InvocationExpressionSyntax>()
+                .Where(invocation => invocation.ArgumentList.Arguments.Count == 0)
+                .Select(invocation => (invocation.Expression as IdentifierNameSyntax)?.Identifier.Text)
+                .Where(name => name is not null && name.StartsWith("Register", StringComparison.Ordinal)
+                    && name.EndsWith("Handlers", StringComparison.Ordinal))
+                .ToArray();
+
+            CollectionAssert.AreEquivalent(RegistrationGroups(), invokedGroups,
+                "Every registration group must be called exactly once by the bootstrap.");
+        }
+
+        [TestMethod]
+        public void Dsl_Should_Register_A_Representative_Handler_From_Every_Group()
+        {
+            var expected = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["RegisterBigIntegerHandlers"] = "System.Numerics.BigInteger.Zero.get",
+                ["RegisterNumericTypeHandlers"] = "System.Numerics.BigInteger.explicit operator byte(System.Numerics.BigInteger)",
+                ["RegisterMathHandlers"] = "System.Math.Clamp(int, int, int)",
+                ["RegisterStringHandlers"] = "string.Contains(string)",
+                ["RegisterStringBuilderHandlers"] = "System.Text.StringBuilder.Append(string)",
+                ["RegisterArrayHandlers"] = "System.Array.Length.get",
+                ["RegisterObjectHandlers"] = "object.Equals(object)",
+                ["RegisterCharHandlers"] = "char.IsDigit(char)",
+                ["RegisterNullableTypeHandlers"] = "int?.HasValue.get",
+                ["RegisterBitOperationsHandlers"] = "System.Numerics.BitOperations.Log2(uint)",
+                ["RegisterEnumHandlers"] = "System.Enum.GetName<>()"
+            };
+            CollectionAssert.AreEquivalent(RegistrationGroups(), expected.Keys.ToArray(),
+                "Each registration group needs a representative runtime assertion.");
+            foreach (var (group, key) in expected)
+                Assert.IsNotNull(Handlers[key], $"{group} did not register {key}.");
+        }
+
+        private static string[] RegistrationGroups()
+        {
+            // Reflection includes methods declared in every MethodConvert partial-class file.
+            var type = typeof(Program).Assembly.GetType("Neo.Compiler.MethodConvert", throwOnError: true)!;
+            return type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+                .Where(method => method.Name.StartsWith("Register", StringComparison.Ordinal)
+                    && method.Name.EndsWith("Handlers", StringComparison.Ordinal)
+                    && method.Name != "RegisterSystemCallHandlers"
+                    && method.GetParameters().Length == 0)
+                .Select(method => method.Name)
+                .ToArray();
         }
 
         [TestMethod]
