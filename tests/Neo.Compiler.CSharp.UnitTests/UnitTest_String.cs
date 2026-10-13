@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015-2026 The Neo Project.
+// Copyright (C) 2015-2026 The Neo Project.
 //
 // UnitTest_String.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -558,7 +558,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_TestSplitRuntimeCharThreeByte()
         {
-            CollectionAssert.AreEqual("a中b中c".Split('中'), ConvertToStrings(Contract.TestSplitRuntimeChar("a中b中c", '中')));
+            Assert.AreSequenceEqual("a中b中c".Split('中'), ConvertToStrings(Contract.TestSplitRuntimeChar("a中b中c", '中')));
             AssertGasConsumed(2533860);
         }
 
