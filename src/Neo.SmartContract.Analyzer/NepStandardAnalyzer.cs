@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly string Description = "Checks for the usage of supported NEP standards.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,

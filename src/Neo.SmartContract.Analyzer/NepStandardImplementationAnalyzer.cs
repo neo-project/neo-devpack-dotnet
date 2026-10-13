@@ -32,7 +32,7 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
     private const string SupportedStandardsAttributeName =
         "Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Supported standard requires mandatory API surface",
         "Contract declares support for {0} but is missing required members or interfaces: {1}",
@@ -41,7 +41,7 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "When a contract declares support for NEP standards it must expose the required members or implement the canonical interface.");
 
-    private static readonly DiagnosticDescriptor InterfaceRule = new(
+    private static readonly DiagnosticDescriptor InterfaceRule = DiagnosticDescriptorFactory.Create(
         InterfaceDiagnosticId,
         "Supported standard requires interface implementation",
         "Contract declares support for {0} but does not implement required interface {1}",
