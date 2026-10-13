@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Analyzer
         private const string HelpLink =
             "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/NC4002.md";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Usage of float is not allowed in neo contract",
             "Neo contract does not support float data type: {0}",
