@@ -81,14 +81,19 @@ public class Contract : SmartContract
 
         var result = engine.CompileProject(project.ProjectFile).Single();
         var compilation = engine.GetCompilation(project.ProjectFile);
+        var analyzers = NeoAnalyzerSuite.Create();
+        var analyzerIds = analyzers.SelectMany(analyzer => analyzer.SupportedDiagnostics)
+            .Select(descriptor => descriptor.Id)
+            .ToHashSet(StringComparer.Ordinal);
         var expected = compilation
-            .WithAnalyzers(NeoAnalyzerSuite.Create())
+            .WithAnalyzers(analyzers)
             .GetAnalyzerDiagnosticsAsync()
             .GetAwaiter()
             .GetResult();
 
+        Assert.IsTrue(expected.Any(diagnostic => diagnostic.Id == "NC4058"), "The sample must exercise the analyzer suite.");
         var actual = result.Diagnostics
-            .Where(diagnostic => expected.Any(item => item.Id == diagnostic.Id))
+            .Where(diagnostic => analyzerIds.Contains(diagnostic.Id) || diagnostic.Id == "AD0001")
             .Select(FormatDiagnostic)
             .OrderBy(value => value, StringComparer.Ordinal)
             .ToArray();
@@ -224,6 +229,7 @@ public class Contract : SmartContract
         diagnostic.Severity,
         diagnostic.Location.SourceTree?.FilePath,
         diagnostic.Location.SourceSpan.Start,
+        diagnostic.Location.SourceSpan.Length,
         diagnostic.GetMessage());
 
     private sealed class TempContractProject : IDisposable
