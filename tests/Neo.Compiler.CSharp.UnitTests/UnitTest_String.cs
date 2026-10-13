@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2026 The Neo Project.
+﻿// Copyright (C) 2015-2026 The Neo Project.
 //
 // UnitTest_String.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -486,27 +486,87 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_TestSplitUnicodeSeparators()
+        public void Test_TestSplitUnicodeTwoByte()
         {
             CollectionAssert.AreEqual("aéb".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("aéb")));
-            CollectionAssert.AreEqual("aébéc".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("aébéc")));
-            CollectionAssert.AreEqual("abc".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("abc")));
-            CollectionAssert.AreEqual("a中b".Split('中'), ConvertToStrings(Contract.TestSplitUnicodeThreeByte("a中b")));
-            CollectionAssert.AreEqual("a中b中c".Split('中'), ConvertToStrings(Contract.TestSplitUnicodeThreeByte("a中b中c")));
-            CollectionAssert.AreEqual("a\0b".Split('\0'), ConvertToStrings(Contract.TestSplitNullChar("a\0b")));
-            CollectionAssert.AreEqual("éaéé".Split('é', System.StringSplitOptions.RemoveEmptyEntries), ConvertToStrings(Contract.TestSplitUnicodeRemoveEmpty("éaéé")));
-            CollectionAssert.AreEqual("中a中中b".Split(new[] { '中' }, System.StringSplitOptions.RemoveEmptyEntries), ConvertToStrings(Contract.TestSplitUnicodeCharArray("中a中中b")));
+            AssertGasConsumed(2284560);
         }
 
         [TestMethod]
-        public void Test_TestSplitRuntimeChar()
+        public void Test_TestSplitUnicodeTwoByteMultiple()
         {
-            foreach (char c in new[] { ',', 'é', '中', '\0' })
-            {
-                string input = $"a{c}b{c}c";
-                CollectionAssert.AreEqual(input.Split(c), ConvertToStrings(Contract.TestSplitRuntimeChar(input, c)));
-            }
-            CollectionAssert.AreEqual("a,b".Split(','), ConvertToStrings(Contract.TestSplitRuntimeChar("a,b", ',')));
+            CollectionAssert.AreEqual("aébéc".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("aébéc")));
+            AssertGasConsumed(2284560);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitUnicodeSeparatorNotPresent()
+        {
+            CollectionAssert.AreEqual("abc".Split('é'), ConvertToStrings(Contract.TestSplitUnicodeTwoByte("abc")));
+            AssertGasConsumed(2284560);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitUnicodeThreeByte()
+        {
+            CollectionAssert.AreEqual("a中b".Split('中'), ConvertToStrings(Contract.TestSplitUnicodeThreeByte("a中b")));
+            AssertGasConsumed(2284560);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitUnicodeThreeByteMultiple()
+        {
+            CollectionAssert.AreEqual("a中b中c".Split('中'), ConvertToStrings(Contract.TestSplitUnicodeThreeByte("a中b中c")));
+            AssertGasConsumed(2284560);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitNullChar()
+        {
+            CollectionAssert.AreEqual("a\0b".Split('\0'), ConvertToStrings(Contract.TestSplitNullChar("a\0b")));
+            AssertGasConsumed(2284560);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitUnicodeRemoveEmpty()
+        {
+            CollectionAssert.AreEqual("éaéé".Split('é', System.StringSplitOptions.RemoveEmptyEntries), ConvertToStrings(Contract.TestSplitUnicodeRemoveEmpty("éaéé")));
+            AssertGasConsumed(2284560);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitUnicodeCharArray()
+        {
+            CollectionAssert.AreEqual("中a中中b".Split(new[] { '中' }, System.StringSplitOptions.RemoveEmptyEntries), ConvertToStrings(Contract.TestSplitUnicodeCharArray("中a中中b")));
+            AssertGasConsumed(2346150);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitRuntimeCharAscii()
+        {
+            CollectionAssert.AreEqual("a,b,c".Split(','), ConvertToStrings(Contract.TestSplitRuntimeChar("a,b,c", ',')));
+            AssertGasConsumed(2530590);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitRuntimeCharTwoByte()
+        {
+            CollectionAssert.AreEqual("aébéc".Split('é'), ConvertToStrings(Contract.TestSplitRuntimeChar("aébéc", 'é')));
+            AssertGasConsumed(2532060);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitRuntimeCharThreeByte()
+        {
+            CollectionAssert.AreEqual("a中b中c".Split('中'), ConvertToStrings(Contract.TestSplitRuntimeChar("a中b中c", '中')));
+            AssertGasConsumed(2533860);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitRuntimeCharNull()
+        {
+            CollectionAssert.AreEqual("a\0b\0c".Split('\0'), ConvertToStrings(Contract.TestSplitRuntimeChar("a\0b\0c", '\0')));
+            AssertGasConsumed(2285190);
         }
 
         [TestMethod]
@@ -766,10 +826,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringCharCount()
         {
             Assert.AreEqual("aaa", Contract.TestStringCharCount('a', 3));
-            AssertGasConsumed(1480260);
+            AssertGasConsumed(1479780);
 
             Assert.ThrowsExactly<TestException>(() => Contract.TestStringCharCount('a', -1));
             AssertGasConsumed(1063380);
+
+            Assert.AreEqual("", Contract.TestStringCharCount('a', 0));
+            AssertGasConsumed(1293930);
         }
 
         [TestMethod]

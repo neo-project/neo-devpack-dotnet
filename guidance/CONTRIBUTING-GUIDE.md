@@ -160,6 +160,19 @@ when processing large token transfers.
 - **Security tests** for security-critical code
 - **Performance tests** where appropriate
 
+### Complexity Checks
+
+The repository tracks cyclomatic complexity, maintainability index, and class
+coupling with the built-in CA1502, CA1505, and CA1506 rules. New code should
+keep the affected type below the project targets of 25 for cyclomatic
+complexity, 20 for maintainability index, and 95 for class coupling.
+
+The rules are currently suggestions because the existing baseline still
+contains legacy violations. A change that increases a reported value should
+either reduce the surrounding complexity or explain the trade-off in the pull
+request. Once the baseline is reduced, the same rules can be promoted to an
+enforced CI gate without changing the source-level configuration.
+
 ### Performance Guidelines
 
 - **Benchmark critical paths** before optimization
