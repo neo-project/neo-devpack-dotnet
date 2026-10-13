@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly LocalizableString ParseMessageFormat = "Use '{0}.Parse(...)' instead of implicit initialization from string or ByteString";
         private static readonly LocalizableString ParseDescription = "UInt160/UInt256/ECPoint must be initialized via Parse to ensure validation.";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,
@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Analyzer
             isEnabledByDefault: true,
             description: Description);
 
-        private static readonly DiagnosticDescriptor ParseRule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor ParseRule = DiagnosticDescriptorFactory.Create(
             ParseDiagnosticId,
             ParseTitle,
             ParseMessageFormat,

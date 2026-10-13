@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4008";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Use of BigInteger constructor",
             "BigInteger constructor is not supported. Only BigInteger(byte[]) is supported; use BigInteger.Zero for zero or an implicit conversion for integral values.",
