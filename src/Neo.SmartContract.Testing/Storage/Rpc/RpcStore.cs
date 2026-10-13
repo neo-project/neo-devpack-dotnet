@@ -168,13 +168,25 @@ public class RpcStore : IStore
 
                 var prefix = skey.ToArray().Take(4);
 
-                foreach (JObject r in results.Cast<JObject>())
+                foreach (var record in results)
                 {
-                    if (r["key"]?.Value<string>() is string jkey &&
-                        r["value"]?.Value<string>() is string kvalue)
+                    if (record is not JObject r ||
+                        r["key"] is not { Type: JTokenType.String } keyToken ||
+                        r["value"] is not { Type: JTokenType.String } valueToken)
+                        throw UnexpectedRpcResponse("findstorage", jo);
+
+                    byte[] recordKey;
+                    byte[] recordValue;
+                    try
                     {
-                        yield return (prefix.Concat(Convert.FromBase64String(jkey)).ToArray(), Convert.FromBase64String(kvalue));
+                        recordKey = Convert.FromBase64String(keyToken.Value<string>()!);
+                        recordValue = Convert.FromBase64String(valueToken.Value<string>()!);
                     }
+                    catch (FormatException)
+                    {
+                        throw UnexpectedRpcResponse("findstorage", jo);
+                    }
+                    yield return (prefix.Concat(recordKey).ToArray(), recordValue);
                 }
 
                 if (result["truncated"]?.Value<bool>() != true)
