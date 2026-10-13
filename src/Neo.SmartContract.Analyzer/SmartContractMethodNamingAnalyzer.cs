@@ -9,11 +9,10 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Neo.SmartContract.Analyzer
@@ -37,36 +36,56 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeSyntaxNode, SyntaxKind.ClassDeclaration);
+            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
         }
 
-        private void AnalyzeSyntaxNode(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeSymbol(SymbolAnalysisContext context)
         {
-            var classDeclaration = (ClassDeclarationSyntax)context.Node;
-            var model = context.SemanticModel;
-
-            // Get the symbol for the class and cast it to INamedTypeSymbol
-            if (model.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol classSymbol) return;
-
-            // Check if class inherits from SmartContract directly or indirectly
-            if (!InheritsFromSmartContract(classSymbol))
+            if (context.Symbol is not INamedTypeSymbol classSymbol || !InheritsFromSmartContract(classSymbol))
                 return;
 
-            // Group methods by name and parameter count
-            var methods = classSymbol.GetMembers().OfType<IMethodSymbol>();
-            var groupedMethods = methods.Where(m => m.DeclaredAccessibility == Accessibility.Public)
-                .GroupBy(m => new { m.Name, ParamCount = m.Parameters.Length });
+            var methods = classSymbol.GetMembers().OfType<IMethodSymbol>()
+                .Where(method => method.DeclaredAccessibility == Accessibility.Public).ToArray();
+            var reported = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
 
-            foreach (var group in groupedMethods)
+            // The compiler first rejects ambiguous C# name/arity pairs, then exported ABI names.
+            ReportConflicts(methods.GroupBy(method => (method.Name, method.Parameters.Length)));
+            if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public })
             {
-                if (group.Count() <= 1) continue; // No naming conflict, skip
-                foreach (var method in group)
+                ReportConflicts(methods.Where(method => !method.IsAbstract && method.MethodKind is
+                        MethodKind.Ordinary or MethodKind.PropertyGet or MethodKind.PropertySet)
+                    .GroupBy(method => (GetAbiName(method), method.Parameters.Length)));
+            }
+
+            void ReportConflicts(IEnumerable<IGrouping<(string, int), IMethodSymbol>> groups)
+            {
+                foreach (var group in groups.Where(group => group.Count() > 1))
                 {
-                    var location = method.DeclaringSyntaxReferences.First().GetSyntax().GetLocation();
-                    var diagnostic = Diagnostic.Create(Rule, location, method.Name);
-                    context.ReportDiagnostic(diagnostic);
+                    foreach (var method in group)
+                    {
+                        if (!reported.Add(method) || method.DeclaringSyntaxReferences.FirstOrDefault() is not { } syntax)
+                            continue;
+                        context.ReportDiagnostic(Diagnostic.Create(Rule,
+                            syntax.GetSyntax(context.CancellationToken).GetLocation(), method.Name));
+                    }
                 }
             }
+        }
+
+        private static string GetAbiName(IMethodSymbol method)
+        {
+            static string? DisplayName(ISymbol symbol) => symbol.GetAttributes()
+                .FirstOrDefault(attribute => attribute.AttributeClass?.Name == "DisplayNameAttribute")?
+                .ConstructorArguments.FirstOrDefault().Value as string;
+
+            if (DisplayName(method) is { } name) return name;
+            if (method.MethodKind == MethodKind.PropertySet) return "set" + method.Name.Substring(4);
+            ISymbol member = method.MethodKind == MethodKind.PropertyGet ? method.AssociatedSymbol! : method;
+            if (DisplayName(member) is { } memberName) return memberName;
+            var value = member.Name;
+            return value.Length > 1 && value[0] == '_'
+                ? "_" + char.ToLowerInvariant(value[1]) + value.Substring(2)
+                : char.ToLowerInvariant(value[0]) + value.Substring(1);
         }
 
         private static bool InheritsFromSmartContract(INamedTypeSymbol? symbol)
