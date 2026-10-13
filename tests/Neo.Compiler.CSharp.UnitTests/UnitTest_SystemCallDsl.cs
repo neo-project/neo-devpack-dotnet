@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -94,28 +95,56 @@ namespace Neo.Compiler.CSharp.UnitTests
                 "System",
                 "SystemCall.Register.cs");
             var root = CSharpSyntaxTree.ParseText(File.ReadAllText(path)).GetCompilationUnitRoot();
-            var registrationMethods = root.DescendantNodes()
-                .OfType<MethodDeclarationSyntax>()
-                .Where(method => method.Identifier.Text.StartsWith("Register", StringComparison.Ordinal)
-                    && method.Identifier.Text.EndsWith("Handlers", StringComparison.Ordinal)
-                    && method.ParameterList.Parameters.Count == 0)
-                .ToArray();
-            var bootstrap = registrationMethods.Single(method => method.Identifier.Text == "RegisterSystemCallHandlers");
-            var invokedGroups = bootstrap.DescendantNodes()
+            var bootstrap = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Single(method => method.Identifier.Text == "RegisterSystemCallHandlers");
+            var invokedGroups = bootstrap.Body!.Statements
+                .OfType<ExpressionStatementSyntax>()
+                .Select(statement => statement.Expression)
                 .OfType<InvocationExpressionSyntax>()
+                .Where(invocation => invocation.ArgumentList.Arguments.Count == 0)
                 .Select(invocation => (invocation.Expression as IdentifierNameSyntax)?.Identifier.Text)
-                .Where(name => name is not null)
-                .ToHashSet(StringComparer.Ordinal);
+                .Where(name => name is not null && name.StartsWith("Register", StringComparison.Ordinal)
+                    && name.EndsWith("Handlers", StringComparison.Ordinal))
+                .ToArray();
 
-            foreach (var method in registrationMethods.Where(method => method != bootstrap))
+            CollectionAssert.AreEquivalent(RegistrationGroups(), invokedGroups,
+                "Every registration group must be called exactly once by the bootstrap.");
+        }
+
+        [TestMethod]
+        public void Dsl_Should_Register_A_Representative_Handler_From_Every_Group()
+        {
+            var expected = new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                Assert.IsTrue(
-                    invokedGroups.Contains(method.Identifier.Text),
-                    $"Registration group {method.Identifier.Text} is not invoked by RegisterSystemCallHandlers.");
-                Assert.IsTrue(
-                    method.DescendantNodes().OfType<InvocationExpressionSyntax>().Any(),
-                    $"Registration group {method.Identifier.Text} does not register any handlers.");
-            }
+                ["RegisterBigIntegerHandlers"] = "System.Numerics.BigInteger.Zero.get",
+                ["RegisterNumericTypeHandlers"] = "System.Numerics.BigInteger.explicit operator byte(System.Numerics.BigInteger)",
+                ["RegisterMathHandlers"] = "System.Math.Clamp(int, int, int)",
+                ["RegisterStringHandlers"] = "string.Contains(string)",
+                ["RegisterStringBuilderHandlers"] = "System.Text.StringBuilder.Append(string)",
+                ["RegisterArrayHandlers"] = "System.Array.Length.get",
+                ["RegisterObjectHandlers"] = "object.Equals(object)",
+                ["RegisterCharHandlers"] = "char.IsDigit(char)",
+                ["RegisterNullableTypeHandlers"] = "int?.HasValue.get",
+                ["RegisterBitOperationsHandlers"] = "System.Numerics.BitOperations.Log2(uint)",
+                ["RegisterEnumHandlers"] = "System.Enum.GetName<>()"
+            };
+            CollectionAssert.AreEquivalent(RegistrationGroups(), expected.Keys.ToArray(),
+                "Each registration group needs a representative runtime assertion.");
+            foreach (var (group, key) in expected)
+                Assert.IsNotNull(Handlers[key], $"{group} did not register {key}.");
+        }
+
+        private static string[] RegistrationGroups()
+        {
+            // Reflection includes methods declared in every MethodConvert partial-class file.
+            var type = typeof(Program).Assembly.GetType("Neo.Compiler.MethodConvert", throwOnError: true)!;
+            return type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+                .Where(method => method.Name.StartsWith("Register", StringComparison.Ordinal)
+                    && method.Name.EndsWith("Handlers", StringComparison.Ordinal)
+                    && method.Name != "RegisterSystemCallHandlers"
+                    && method.GetParameters().Length == 0)
+                .Select(method => method.Name)
+                .ToArray();
         }
 
         [TestMethod]
