@@ -25,7 +25,7 @@ public sealed class UnsupportedPlatformApiAnalyzer : DiagnosticAnalyzer
     private const string HelpLink =
         "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/unsupported-platform-api.md#nc4058";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Unsupported platform API is used",
         "Neo smart contracts do not support platform API: {0}",

@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Analyzer
         private const string HelpLink =
             "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/unsupported-platform-api.md#nc4028";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Usage of System.Diagnostics is not allowed in Neo smart contracts",
             "Neo smart contracts do not support System.Diagnostics: {0}",

@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly string Description = "Reports by-reference invocation forms that the Neo compiler cannot lower.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,

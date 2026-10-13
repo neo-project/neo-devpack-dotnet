@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly LocalizableString Description = "This keyword is restricted in this project.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,

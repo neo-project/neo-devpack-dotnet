@@ -22,7 +22,7 @@ public sealed class ExtendedPropertyPatternAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "NC4061";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Extended property patterns are not supported",
         "Extended property pattern '{0}' is not supported; use nested property patterns instead",

@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Analyzer
         private const string Description = "Ensures that 'using BigInteger = System.Numerics.BigInteger;' is used for BigInteger.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId, Title, MessageFormat, Category,
             DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
