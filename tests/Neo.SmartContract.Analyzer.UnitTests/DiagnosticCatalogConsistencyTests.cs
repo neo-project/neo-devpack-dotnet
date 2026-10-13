@@ -126,28 +126,56 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         [TestMethod]
         public void EveryAnalyzerDiagnostic_ShouldHaveDocumentedHelpLink()
         {
-            var analyzerDirectory = FindAnalyzerDirectory();
-            var documentationPath = Path.GetFullPath(Path.Combine(
-                analyzerDirectory,
-                "..",
-                "..",
-                "docs",
-                "diagnostics",
-                "catalog.md"));
-            var documentation = File.ReadAllText(documentationPath);
-
             foreach (var entry in AnalyzerDiagnostics)
             {
-                var helpLink = entry.Descriptor.HelpLinkUri;
-                Assert.IsFalse(string.IsNullOrWhiteSpace(helpLink), $"Missing help link for {entry.Descriptor.Id}.");
-                if (!helpLink!.Contains("/docs/diagnostics/catalog.md#", StringComparison.Ordinal))
-                    continue;
-
-                StringAssert.Contains(
-                    documentation,
-                    $"<a id=\"{entry.Descriptor.Id.ToLowerInvariant()}\"></a>",
-                    $"Missing catalog anchor for {entry.Descriptor.Id}.");
+                AssertDocumentedHelpLink(entry.Descriptor.HelpLinkUri, entry.Descriptor.Id);
             }
+        }
+
+        [TestMethod]
+        [DataRow("catalog.md#nc4001-missing")]
+        [DataRow("catalog.md#nc4002")]
+        [DataRow("missing.md#nc4001")]
+        [DataRow("catalog.md")]
+        [DataRow("../missing.md")]
+        public void HelpLinkValidation_ShouldRejectMissingTargets(string target)
+        {
+            Assert.ThrowsExactly<AssertFailedException>(() => AssertDocumentedHelpLink(
+                "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/" + target, "NC4001"));
+        }
+
+        [TestMethod]
+        [DataRow("")]
+        [DataRow("catalog.md#nc4001")]
+        [DataRow("https://example.com/docs/diagnostics/catalog.md#nc4001")]
+        public void HelpLinkValidation_ShouldRejectUnsupportedUrls(string helpLink)
+        {
+            Assert.ThrowsExactly<AssertFailedException>(() => AssertDocumentedHelpLink(helpLink, "NC4001"));
+        }
+
+        private static void AssertDocumentedHelpLink(string? helpLink, string diagnosticId)
+        {
+            const string documentationBase =
+                "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/";
+            Assert.IsTrue(Uri.TryCreate(helpLink, UriKind.Absolute, out var uri), $"Invalid help link: {helpLink}");
+            Assert.IsTrue(uri!.AbsoluteUri.StartsWith(documentationBase, StringComparison.Ordinal),
+                $"Help link must target repository diagnostic documentation: {helpLink}");
+            Assert.AreEqual(string.Empty, uri.Query, $"Unexpected help-link query: {helpLink}");
+
+            var documentationDirectory = Path.GetFullPath(Path.Combine(FindAnalyzerDirectory(), "..", "..", "docs", "diagnostics"));
+            var relativePath = Uri.UnescapeDataString(uri.AbsolutePath[new Uri(documentationBase).AbsolutePath.Length..]);
+            var documentationPath = Path.GetFullPath(Path.Combine(documentationDirectory, relativePath));
+            Assert.IsTrue(documentationPath.StartsWith(documentationDirectory + Path.DirectorySeparatorChar, StringComparison.Ordinal),
+                $"Help link escapes the documentation directory: {helpLink}");
+            Assert.IsTrue(File.Exists(documentationPath), $"Missing help-link file: {helpLink}");
+
+            var fragment = Uri.UnescapeDataString(uri.Fragment.TrimStart('#'));
+            if (relativePath == "catalog.md")
+                Assert.IsFalse(string.IsNullOrEmpty(fragment), $"Missing diagnostic catalog fragment: {helpLink}");
+            if (!string.IsNullOrEmpty(fragment))
+                Assert.AreEqual(diagnosticId.ToLowerInvariant(), fragment, $"Help link targets a different diagnostic: {helpLink}");
+            StringAssert.Contains(File.ReadAllText(documentationPath), $"<a id=\"{diagnosticId.ToLowerInvariant()}\"></a>",
+                $"Missing help-link diagnostic anchor: {helpLink}");
         }
 
         [TestMethod]
