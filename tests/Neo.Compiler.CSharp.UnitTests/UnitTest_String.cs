@@ -742,10 +742,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringCharCount()
         {
             Assert.AreEqual("aaa", Contract.TestStringCharCount('a', 3));
-            AssertGasConsumed(1480260);
+            AssertGasConsumed(1479780);
 
             Assert.ThrowsExactly<TestException>(() => Contract.TestStringCharCount('a', -1));
             AssertGasConsumed(1063380);
+
+            Assert.AreEqual("", Contract.TestStringCharCount('a', 0));
+            AssertGasConsumed(1293930);
         }
 
         [TestMethod]
