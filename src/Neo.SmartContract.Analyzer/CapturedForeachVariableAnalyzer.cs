@@ -24,7 +24,7 @@ public sealed class CapturedForeachVariableAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "NC4063";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Captured foreach variables use Neo-specific semantics",
         "Lambda captures foreach variable '{0}', whose value is shared across iterations on NeoVM",

@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Analyzer
 
         private const string BigIntegerMetadataName = "System.Numerics.BigInteger";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported BigInteger method is used",
             "Unsupported BigInteger method: {0}",

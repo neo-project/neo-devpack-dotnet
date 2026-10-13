@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly string Description = "System.Linq is not supported in neo smart contract. Use Neo.SmartContract.Framework.Linq instead.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,
