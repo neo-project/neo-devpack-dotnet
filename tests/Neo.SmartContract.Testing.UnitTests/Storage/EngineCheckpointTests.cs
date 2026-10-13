@@ -226,6 +226,59 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             CollectionAssert.AreEqual(complete.ToArray(), checkpoint.ToArray());
         }
 
+        [TestMethod]
+        [DataRow(false, false)]
+        [DataRow(false, true)]
+        [DataRow(true, false)]
+        [DataRow(true, true)]
+        public void SaveRejectsInvalidDataBeforeChangingDestination(bool destinationExists, bool duplicateKey)
+        {
+            using var stream = CreateTwoRecordStream();
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[1] = (
+                duplicateKey ? (byte[])checkpoint.Data[0].key.Clone() : Array.Empty<byte>(),
+                checkpoint.Data[1].value);
+            var directory = Directory.CreateTempSubdirectory();
+            var path = Path.Combine(directory.FullName, "checkpoint.dat");
+            byte[] original = [0x42, 0x43];
+            try
+            {
+                if (destinationExists) File.WriteAllBytes(path, original);
+
+                Assert.ThrowsExactly<InvalidDataException>(() => checkpoint.Save(path));
+
+                Assert.AreEqual(destinationExists, File.Exists(path));
+                if (destinationExists) CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+            }
+            finally
+            {
+                directory.Delete(true);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public void SaveValidCheckpointRoundTrips(bool empty)
+        {
+            using var stream = empty ? new MemoryStream() : CreateTwoRecordStream();
+            var checkpoint = new EngineCheckpoint(stream);
+            var directory = Directory.CreateTempSubdirectory();
+            var path = Path.Combine(directory.FullName, "checkpoint.dat");
+            try
+            {
+                File.WriteAllText(path, "previous checkpoint");
+                checkpoint.Save(path);
+
+                CollectionAssert.AreEqual(checkpoint.ToArray(), File.ReadAllBytes(path));
+                CollectionAssert.AreEqual(checkpoint.ToArray(), EngineCheckpoint.Load(path).ToArray());
+            }
+            finally
+            {
+                directory.Delete(true);
+            }
+        }
+
         private static MemoryStream CreateTwoRecordStream()
         {
             return CreateStream(writer =>

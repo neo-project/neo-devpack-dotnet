@@ -135,8 +135,9 @@ namespace Neo.SmartContract.Testing.Storage
         /// <param name="path">File path</param>
         public void Save(string path)
         {
+            ValidateData(Data);
             using var stream = File.Create(path);
-            Write(stream);
+            WriteValidatedData(stream);
         }
 
         /// <summary>
@@ -156,7 +157,11 @@ namespace Neo.SmartContract.Testing.Storage
         public void Write(Stream stream)
         {
             ValidateData(Data);
+            WriteValidatedData(stream);
+        }
 
+        private void WriteValidatedData(Stream stream)
+        {
             var buffer = new byte[sizeof(int)];
 
             foreach (var entry in Data)
