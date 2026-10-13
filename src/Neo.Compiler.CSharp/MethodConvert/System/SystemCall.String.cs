@@ -97,10 +97,9 @@ internal partial class MethodConvert
 
     private void EmitStringCharCountConstructor(SemanticModel model, ExpressionSyntax charExpression, ExpressionSyntax countExpression, Optional<object?> charConstant)
     {
+        using var tempScope = PreserveAnonymousVariables();
         byte charSlot = AddAnonymousVariable();
         byte countSlot = AddAnonymousVariable();
-        byte resultSlot = AddAnonymousVariable();
-
         if (charConstant.HasValue && charConstant.Value is char character)
         {
             Push(NormalizeCharForUtf8(character).ToString());
@@ -110,44 +109,34 @@ internal partial class MethodConvert
             ConvertExpression(model, charExpression);
             ConvertCharToUtf8(toByteString: false);
         }
-        AccessSlot(OpCode.STLOC, charSlot);
+        StLoc(charSlot);
 
         ConvertExpression(model, countExpression);
-        AccessSlot(OpCode.STLOC, countSlot);
+        StLoc(countSlot);
 
         JumpTarget validCountTarget = new();
-        AccessSlot(OpCode.LDLOC, countSlot);
+        LdLoc(countSlot);
         Push(0);
-        Jump(OpCode.JMPGE_L, validCountTarget);
+        JumpIfGreaterOrEqual(validCountTarget);
         Push("Negative count");
-        AddInstruction(OpCode.THROW);
+        Throw();
 
-        validCountTarget.Instruction = Push("");
-        AccessSlot(OpCode.STLOC, resultSlot);
-
+        validCountTarget.Instruction = Push(""); // [result]
         JumpTarget conditionTarget = new();
         JumpTarget endTarget = new();
-
-        conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, countSlot);
+        conditionTarget.Instruction = LdLoc(countSlot);
         Push(0);
-        Jump(OpCode.JMPLE_L, endTarget);
+        JumpIfLessOrEqual(endTarget);
 
-        AccessSlot(OpCode.LDLOC, resultSlot);
-        AccessSlot(OpCode.LDLOC, charSlot);
-        Cat();
-        AccessSlot(OpCode.STLOC, resultSlot);
-
-        AccessSlot(OpCode.LDLOC, countSlot);
+        LdLoc(charSlot);                      // [result, unit]
+        Cat();                                // [result']
+        LdLoc(countSlot);
         Dec();
-        AccessSlot(OpCode.STLOC, countSlot);
-        Jump(OpCode.JMP_L, conditionTarget);
+        StLoc(countSlot);
+        JumpAlways(conditionTarget);
 
-        endTarget.Instruction = AccessSlot(OpCode.LDLOC, resultSlot);
+        endTarget.Instruction = Nop();
         ChangeType(StackItemType.ByteString);
-
-        RemoveAnonymousVariable(resultSlot);
-        RemoveAnonymousVariable(countSlot);
-        RemoveAnonymousVariable(charSlot);
     }
 
     private static void HandleStringPickItem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
