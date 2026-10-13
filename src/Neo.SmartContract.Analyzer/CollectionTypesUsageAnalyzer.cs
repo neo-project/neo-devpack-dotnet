@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Analyzer
             "System.ArraySegment<T>"
         };
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported collection type is used",
             "Do not use collection type: {0}. Use {1} instead.",

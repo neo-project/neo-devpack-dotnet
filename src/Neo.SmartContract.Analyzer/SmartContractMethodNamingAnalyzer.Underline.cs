@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Analyzer
         private const string Description = "Ensure method names in SmartContract subclasses follow the naming convention.";
         private const string Category = "Naming";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,
