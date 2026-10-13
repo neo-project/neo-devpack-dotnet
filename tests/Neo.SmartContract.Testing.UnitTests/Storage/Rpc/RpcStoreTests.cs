@@ -30,6 +30,39 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         private const string RpcUrlEnvironmentVariable = "NEO_RPC_TEST_URL";
 
         [TestMethod]
+        [DataRow("{}")]
+        [DataRow("{\"key\":\"Ag==\"}")]
+        [DataRow("{\"value\":\"BA==\"}")]
+        [DataRow("{\"key\":null,\"value\":\"BA==\"}")]
+        [DataRow("{\"key\":\"Ag==\",\"value\":null}")]
+        [DataRow("{\"key\":1234,\"value\":\"BA==\"}")]
+        [DataRow("{\"key\":\"Ag==\",\"value\":1234}")]
+        [DataRow("{\"key\":\"!\",\"value\":\"BA==\"}")]
+        [DataRow("{\"key\":\"Ag==\",\"value\":\"!\"}")]
+        [DataRow("null")]
+        [DataRow("42")]
+        [DataRow("[]")]
+        public void RpcStoreFindRejectsMalformedRecords(string record)
+        {
+            using var server = new RpcResponseServer("{\"result\":{\"results\":[" + record + "],\"truncated\":false}}");
+            using var store = new RpcStore(server.Url);
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
+                store.Find([0, 0, 0, 1], SeekDirection.Forward).ToArray());
+            StringAssert.Contains(exception.Message, "findstorage");
+        }
+
+        [TestMethod]
+        public void RpcStoreFindPreservesEmptyKeysAndValues()
+        {
+            using var server = new RpcResponseServer("""{"result":{"results":[{"key":"","value":""}],"truncated":false}}""");
+            using var store = new RpcStore(server.Url);
+            var records = store.Find([0, 0, 0, 1], SeekDirection.Forward).ToArray();
+            Assert.AreEqual(1, records.Length);
+            CollectionAssert.AreEqual(new byte[] { 0, 0, 0, 1 }, records[0].Key);
+            Assert.AreEqual(0, records[0].Value.Length);
+        }
+
+        [TestMethod]
         public void RpcStoreMutationsExplainReadOnlyBehavior()
         {
             var store = new RpcStore("http://localhost:10332");
