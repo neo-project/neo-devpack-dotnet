@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -217,9 +218,10 @@ namespace Neo.SmartContract.Analyzer
                 .SelectMany(al => al.Attributes)
                 .FirstOrDefault(attr => semanticModel is not null && IsTargetAttribute(semanticModel, attr, cancellationToken));
 
-            if (attribute != null && attribute.ArgumentList?.Arguments.Count > 0)
+            if (attribute is not null && semanticModel?.GetOperation(attribute, cancellationToken) is
+                IAttributeOperation { Operation: IObjectCreationOperation creation } &&
+                creation.Arguments.FirstOrDefault(argument => argument.Parameter?.Ordinal == 0)?.Value.Syntax is ExpressionSyntax valueExpression)
             {
-                var valueExpression = attribute.ArgumentList.Arguments[0].Expression;
                 var variable = fieldDeclaration.Declaration.Variables[0];
                 var fieldSymbol = semanticModel?.GetDeclaredSymbol(variable, cancellationToken) as IFieldSymbol;
                 var initializerExpression = BuildInitializerExpression(fieldSymbol?.Type, valueExpression);

@@ -31,6 +31,43 @@ namespace Neo.SmartContract.Analyzer.UnitTests
     public class InitialValueAnalyzerUnitTest
     {
         [TestMethod]
+        [DataRow("type: 7, value: Text")]
+        [DataRow("value: Text, type: 7")]
+        [DataRow("Text, type: 7")]
+        public async Task AttributeFix_BindsValueParameter(string arguments)
+        {
+            const string declarations = """
+                namespace Neo.SmartContract.Framework.Attributes
+                {
+                    public class InitialValueAttribute : System.Attribute
+                    {
+                        public InitialValueAttribute(string value, int type) { }
+                    }
+                }
+                """;
+            var source = declarations + $$"""
+
+                class Contract
+                {
+                    private const string Text = "retained";
+                    {|#0:[Neo.SmartContract.Framework.Attributes.InitialValue({{arguments}})]
+                    public static readonly string Value = default;|}
+                }
+                """;
+            var fixedSource = declarations + """
+
+                class Contract
+                {
+                    private const string Text = "retained";
+                    public static readonly string Value = Text;
+                }
+                """;
+            await VerifyFix.VerifyCodeFixAsync(source,
+                VerifyFix.Diagnostic(InitialValueAnalyzer.DiagnosticId).WithLocation(0)
+                    .WithArguments("Neo.SmartContract.Framework.Attributes.InitialValue"), fixedSource);
+        }
+
+        [TestMethod]
         public async Task FieldWithoutAttribute_ShouldNotReportDiagnostic()
         {
             var test = @"

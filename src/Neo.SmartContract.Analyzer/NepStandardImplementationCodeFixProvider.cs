@@ -140,7 +140,7 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
             return document;
 
         var formatAnnotation = new SyntaxAnnotation("NepGeneratedInterface");
-        var interfaceTypeSyntax = SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(interfaceName));
+        var interfaceTypeSyntax = SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("global::" + interfaceName));
 
         var updatedClass = classDeclaration.AddBaseListTypes(interfaceTypeSyntax);
 
@@ -203,26 +203,26 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
             {
                 "Symbol" => CreateMethod("string", "Symbol"),
                 "Decimals" => CreateMethod("byte", "Decimals"),
-                "TotalSupply" => CreateMethod("System.Numerics.BigInteger", "TotalSupply"),
-                "BalanceOf" => CreateMethod("System.Numerics.BigInteger", "BalanceOf",
-                    ("Neo.SmartContract.Framework.UInt160", "owner")),
+                "TotalSupply" => CreateMethod("global::System.Numerics.BigInteger", "TotalSupply"),
+                "BalanceOf" => CreateMethod("global::System.Numerics.BigInteger", "BalanceOf",
+                    ("global::Neo.SmartContract.Framework.UInt160", "owner")),
                 "Transfer" => standard == NepStandardKind.Nep11
                     ? CreateMethod("bool", "Transfer",
-                        ("Neo.SmartContract.Framework.UInt160", "to"),
-                        ("Neo.SmartContract.Framework.ByteString", "tokenId"),
+                        ("global::Neo.SmartContract.Framework.UInt160", "to"),
+                        ("global::Neo.SmartContract.Framework.ByteString", "tokenId"),
                         ("object", "data"))
                     : CreateMethod("bool", "Transfer",
-                        ("Neo.SmartContract.Framework.UInt160", "from"),
-                        ("Neo.SmartContract.Framework.UInt160", "to"),
-                        ("System.Numerics.BigInteger", "amount"),
+                        ("global::Neo.SmartContract.Framework.UInt160", "from"),
+                        ("global::Neo.SmartContract.Framework.UInt160", "to"),
+                        ("global::System.Numerics.BigInteger", "amount"),
                         ("object", "data")),
-                "OwnerOf" => CreateMethod("Neo.SmartContract.Framework.UInt160", "OwnerOf",
-                    ("Neo.SmartContract.Framework.ByteString", "tokenId")),
-                "Properties" => CreateMethod("Neo.SmartContract.Framework.Map<string, object>", "Properties",
-                    ("Neo.SmartContract.Framework.ByteString", "tokenId")),
-                "Tokens" => CreateMethod("Neo.SmartContract.Framework.Services.Iterator", "Tokens"),
-                "TokensOf" => CreateMethod("Neo.SmartContract.Framework.Services.Iterator", "TokensOf",
-                    ("Neo.SmartContract.Framework.UInt160", "owner")),
+                "OwnerOf" => CreateMethod("global::Neo.SmartContract.Framework.UInt160", "OwnerOf",
+                    ("global::Neo.SmartContract.Framework.ByteString", "tokenId")),
+                "Properties" => CreateMethod("global::Neo.SmartContract.Framework.Map<string, object>", "Properties",
+                    ("global::Neo.SmartContract.Framework.ByteString", "tokenId")),
+                "Tokens" => CreateMethod("global::Neo.SmartContract.Framework.Services.Iterator", "Tokens"),
+                "TokensOf" => CreateMethod("global::Neo.SmartContract.Framework.Services.Iterator", "TokensOf",
+                    ("global::Neo.SmartContract.Framework.UInt160", "owner")),
                 _ => CreateMethod("object", memberName)
             };
         }
@@ -242,7 +242,7 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
 
         var throwStatement = SyntaxFactory.ThrowStatement(
             SyntaxFactory.ObjectCreationExpression(
-                    SyntaxFactory.ParseTypeName("System.NotImplementedException"))
+                    SyntaxFactory.ParseTypeName("global::System.NotImplementedException"))
                 .WithArgumentList(SyntaxFactory.ArgumentList()));
 
         return SyntaxFactory.MethodDeclaration(returnType, methodName)
