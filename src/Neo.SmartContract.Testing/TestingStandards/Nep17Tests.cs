@@ -256,7 +256,7 @@ public class Nep17Tests<T> : TestBase<T>
 
                  var me = new UInt160((i.Arguments[2] as ByteString)!.GetSpan().ToArray());
                  calledFrom = i.Arguments[0] as UInt160;
-                 calledAmount = (BigInteger)i.Arguments[1];
+                 calledAmount = i.Arguments[1] as BigInteger?;
 
                  if (calledAmount == 0)
                  {
