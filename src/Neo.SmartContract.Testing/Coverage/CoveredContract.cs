@@ -199,7 +199,11 @@ namespace Neo.SmartContract.Testing.Coverage
                         while (ip < script.Length)
                         {
                             var instruction = script.GetInstruction(ip);
-                            if (instruction.OpCode == OpCode.RET) break;
+                            if (instruction.OpCode == OpCode.RET)
+                            {
+                                to = ip;
+                                break;
+                            }
                             ip += instruction.Size;
                             to = ip;
                         }

@@ -30,6 +30,47 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
         private const int MaxDebugInfoJsonBytes = 16 * 1024 * 1024;
 
         [TestMethod]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(4)]
+        public void MergingHitsIntoEmptyCoveragePreservesFeeExtrema(int count)
+        {
+            var source = new CoverageHit(0, Neo.VM.Instruction.RET);
+            for (var i = 0; i < count; i++) source.Hit(100 + i);
+            var destination = new CoverageHit(0, Neo.VM.Instruction.RET);
+            destination.Hit(source);
+            Assert.AreEqual(source.Hits, destination.Hits);
+            Assert.AreEqual(source.FeeMin, destination.FeeMin);
+            Assert.AreEqual(source.FeeMax, destination.FeeMax);
+            Assert.AreEqual(source.FeeTotal, destination.FeeTotal);
+            Assert.AreEqual(source.FeeAvg, destination.FeeAvg);
+            destination.Hit(new CoverageHit(0, Neo.VM.Instruction.RET));
+            Assert.AreEqual(source.FeeMin, destination.FeeMin);
+            destination.Hit(50);
+            destination.Hit(source);
+            Assert.AreEqual(50, destination.FeeMin);
+            Assert.AreEqual(source.FeeMax, destination.FeeMax);
+            Assert.AreEqual(source.Hits * 2 + 1, destination.Hits);
+        }
+
+        [TestMethod]
+        public void CoveredBranchesAllCountsPathsIncludingOutOfScript()
+        {
+            var inside = new CoverageBranch(0);
+            var outside = new CoverageBranch(1, outOfScript: true);
+            var untouched = new CoverageBranch(2);
+            var coverage = new Mock<CoverageBase>();
+            coverage.SetupGet(item => item.Branches).Returns(new[] { inside, outside, untouched });
+            Assert.AreEqual(0, coverage.Object.CoveredBranchesAll);
+            inside.Hit(true);
+            inside.Hit(false);
+            outside.Hit(true);
+            outside.Hit(false);
+            Assert.AreEqual(2, coverage.Object.CoveredBranches);
+            Assert.AreEqual(4, coverage.Object.CoveredBranchesAll);
+        }
+
+        [TestMethod]
         public void NeoDebugInfoLoadThrowsHelpfulMessageForNonObjectJson()
         {
             var load = typeof(NeoDebugInfo).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
