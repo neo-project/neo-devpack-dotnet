@@ -620,17 +620,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Single occurrence, plus matches at the start and the end.
             Assert.AreEqual("Hello Neo", Contract.TestReplace("Hello World", "World", "Neo"));
-            AssertGasConsumed(3574320);
+            AssertGasConsumed(3574080);
             Assert.AreEqual("XYbc", Contract.TestReplace("abc", "a", "XY"));
-            AssertGasConsumed(3574320);
+            AssertGasConsumed(3574080);
             Assert.AreEqual("abXY", Contract.TestReplace("abc", "c", "XY"));
-            AssertGasConsumed(3574320);
+            AssertGasConsumed(3574080);
 
             // Multiple occurrences.
             Assert.AreEqual("bbb", Contract.TestReplace("aaa", "a", "b"));
-            AssertGasConsumed(5916000);
+            AssertGasConsumed(5915520);
             Assert.AreEqual("a-b-c", Contract.TestReplace("aXXbXXc", "XX", "-"));
-            AssertGasConsumed(4745160);
+            AssertGasConsumed(4744800);
 
             // No occurrence returns the original string.
             Assert.AreEqual("abc", Contract.TestReplace("abc", "x", "y"));
@@ -638,13 +638,13 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // newValue containing oldValue must not loop or re-match the inserted text.
             Assert.AreEqual("aa", Contract.TestReplace("a", "a", "aa"));
-            AssertGasConsumed(3574320);
+            AssertGasConsumed(3574080);
             Assert.AreEqual("xbxxbx", Contract.TestReplace("bb", "b", "xbx"));
-            AssertGasConsumed(4745160);
+            AssertGasConsumed(4744800);
 
             // Replacing with the empty string removes every occurrence.
             Assert.AreEqual("abc", Contract.TestReplace("a-b-c", "-", ""));
-            AssertGasConsumed(4745160);
+            AssertGasConsumed(4744800);
 
             // An empty oldValue throws in C#; the contract faults instead of looping forever.
             Assert.ThrowsExactly<TestException>(() => Contract.TestReplace("abc", "", "x"));

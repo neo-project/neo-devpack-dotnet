@@ -2013,7 +2013,6 @@ internal partial class MethodConvert
         byte strSlot = methodConvert.AddAnonymousVariable();
         byte oldSlot = methodConvert.AddAnonymousVariable();
         byte newSlot = methodConvert.AddAnonymousVariable();
-        byte resultSlot = methodConvert.AddAnonymousVariable();
         byte oldLenSlot = methodConvert.AddAnonymousVariable();
         byte cursorSlot = methodConvert.AddAnonymousVariable();
         byte indexSlot = methodConvert.AddAnonymousVariable();
@@ -2030,11 +2029,14 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, oldLenSlot);
         methodConvert.Assert();
 
-        // cursor = 0; result = ""
+        // cursor = 0
         methodConvert.Push0();
         methodConvert.AccessSlot(OpCode.STLOC, cursorSlot);
+
+        // The result is accumulated in the single value that stays on the evaluation stack for
+        // the whole loop, so it is neither stored nor reloaded per iteration: both the loop
+        // start and the noMoreMatches target expect exactly this item, and nothing else.
         methodConvert.Push("");
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
 
         var loopStart = new JumpTarget();
         var noMoreMatches = new JumpTarget();
@@ -2055,9 +2057,8 @@ internal partial class MethodConvert
         methodConvert.PushM1();
         methodConvert.JumpIfEqual(noMoreMatches);
 
-        // result = result + str[cursor..index] + newValue
+        // result += str[cursor..index] + newValue   (stack: [result] -> [result'])
         // CAT/SUBSTR/RIGHT push buffers, so the accumulator is only converted once, at the end.
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
@@ -2067,7 +2068,6 @@ internal partial class MethodConvert
         methodConvert.Cat();
         methodConvert.AccessSlot(OpCode.LDLOC, newSlot);
         methodConvert.Cat();
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
 
         // cursor = index + oldLen; keep scanning right after the match, which also avoids
         // re-matching inside newValue when it contains oldValue.
@@ -2086,7 +2086,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
         methodConvert.JumpIfFalse(unchanged);
 
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        // stack: [result] -> [result + str[cursor..]]
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Size();
@@ -2098,6 +2098,7 @@ internal partial class MethodConvert
         methodConvert.JumpAlways(done);
 
         unchanged.Instruction = methodConvert.Nop();
+        methodConvert.Drop();                                      // discard the empty accumulator
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.ChangeType(StackItemType.ByteString);        // CAT/SUBSTR results are buffers
 
