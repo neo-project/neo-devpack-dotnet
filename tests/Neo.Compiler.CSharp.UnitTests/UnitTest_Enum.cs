@@ -162,6 +162,66 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        [DataRow("TryParse")]
+        [DataRow("TryParseIgnoreCase")]
+        [DataRow("IsDefinedByName")]
+        [DataRow("GetName")]
+        [DataRow("IsDefinedByValue")]
+        [DataRow("ToString")]
+        [DataRow("TryParseGeneric")]
+        [DataRow("TryParseGenericIgnoreCase")]
+        public void TestLargeEnumBranches(string operation)
+        {
+            var expression = operation switch
+            {
+                "TryParse" => "Enum.TryParse(typeof(E), value, out object parsed) ? ((int)(E)parsed).ToString() : \"missing\"",
+                "TryParseIgnoreCase" => "Enum.TryParse(typeof(E), value, true, out object parsed) ? ((int)(E)parsed).ToString() : \"missing\"",
+                "IsDefinedByName" => "Enum.IsDefined(typeof(E), value) ? \"yes\" : \"no\"",
+                "GetName" => "Enum.GetName(typeof(E), number)",
+                "IsDefinedByValue" => "Enum.IsDefined(typeof(E), (object)number) ? \"yes\" : \"no\"",
+                "ToString" => "((E)number).ToString()",
+                "TryParseGeneric" => "Enum.TryParse<E>(value, out var parsed) ? ((int)parsed).ToString() : \"missing\"",
+                "TryParseGenericIgnoreCase" => "Enum.TryParse<E>(value, true, out var parsed) ? ((int)parsed).ToString() : \"missing\"",
+                _ => throw new ArgumentOutOfRangeException(nameof(operation))
+            };
+            var members = string.Join(", ", Enumerable.Range(0, 48).Select(i => $"Item{i:D2} = {i}"));
+            var context = TestHelper.CompileSingleContract($$"""
+                using Neo.SmartContract.Framework;
+                using System;
+
+                public class Contract : SmartContract
+                {
+                    private enum E { {{members}} }
+
+                    public static string? Run(string value, int number) => {{expression}};
+                }
+                """);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<LargeEnumContract>(context.CreateExecutable(), context.CreateManifest());
+            foreach (var number in new[] { 0, 24, 47, 99 })
+            {
+                var name = $"Item{number:D2}";
+                var input = operation.EndsWith("IgnoreCase", StringComparison.Ordinal) ? name.ToLowerInvariant() : name;
+                var expected = operation switch
+                {
+                    "IsDefinedByName" or "IsDefinedByValue" => number < 48 ? "yes" : "no",
+                    "GetName" => number < 48 ? name : null,
+                    "ToString" => number < 48 ? name : number.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    _ => number < 48 ? number.ToString(System.Globalization.CultureInfo.InvariantCulture) : "missing"
+                };
+                Assert.AreEqual(expected, contract.Run(input, number), $"{operation}: {input}");
+            }
+        }
+
+        public abstract class LargeEnumContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("run")] public abstract string? Run(string value, BigInteger number);
+        }
+
+        [TestMethod]
         public void TestEnumGetName_SupportsAllIntegralBackingTypes()
         {
             // Regression coverage for ToBigIntegerConstant: every valid enum backing type
