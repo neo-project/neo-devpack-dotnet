@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: 10.0.1xx
+  DOTNET_VERSION: 10.0.4xx
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
@@ -49,7 +49,7 @@ jobs:
       run: find tests -path '*UnitTests/*.csproj' | xargs -I % dotnet add % package coverlet.msbuild --version 6.0.4 --no-restore
     - name: Build Solution
       if: steps.scope.outputs.full == 'true'
-      run: dotnet build ./neo-devpack-dotnet.sln
+      run: dotnet build ./neo-devpack-dotnet.sln -warnaserror:CS9057
     - name: Validate packaged analyzer with external consumer
       if: steps.scope.outputs.full == 'true'
       run: |
@@ -69,7 +69,6 @@ jobs:
           <ItemGroup>
             <Compile Include="Contract.cs" />
             <PackageReference Include="Neo.SmartContract.Analyzer" Version="${ANALYZER_VERSION}" />
-            <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="5.9.0" PrivateAssets="all" />
           </ItemGroup>
         </Project>
         EOF
