@@ -191,7 +191,7 @@ public class NepStandardImplementationAnalyzerUnitTest
                 [global::Neo.SmartContract.Framework.Attributes.Safe]
                 public static byte Decimals()
                 {
-                    throw new System.NotImplementedException();
+                    throw new global::System.NotImplementedException();
                 }
             }
             """;
@@ -249,13 +249,13 @@ public class NepStandardImplementationAnalyzerUnitTest
                 [global::Neo.SmartContract.Framework.Attributes.Safe]
                 public static string {{generatedName}}()
                 {
-                    throw new System.NotImplementedException();
+                    throw new global::System.NotImplementedException();
                 }
 
                 [global::Neo.SmartContract.Framework.Attributes.Safe]
                 public static byte Decimals()
                 {
-                    throw new System.NotImplementedException();
+                    throw new global::System.NotImplementedException();
                 }
             }
             """;
@@ -297,7 +297,7 @@ public class NepStandardImplementationAnalyzerUnitTest
                 [global::Neo.SmartContract.Framework.Attributes.Safe]
                 public static string Symbol1()
                 {
-                    throw new System.NotImplementedException();
+                    throw new global::System.NotImplementedException();
                 }
             }
             """;
@@ -353,30 +353,30 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static string Symbol()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static byte Decimals()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         public static global::System.Numerics.BigInteger TotalSupply()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         public static global::System.Numerics.BigInteger BalanceOf(global::Neo.SmartContract.Framework.UInt160 owner)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
-                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         public static bool Transfer(global::Neo.SmartContract.Framework.UInt160 from, global::Neo.SmartContract.Framework.UInt160 to, global::System.Numerics.BigInteger amount, object data)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
                                                      }
                                                  }
@@ -434,54 +434,54 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static string Symbol()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static byte Decimals()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         public static global::System.Numerics.BigInteger TotalSupply()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         public static global::System.Numerics.BigInteger BalanceOf(global::Neo.SmartContract.Framework.UInt160 owner)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
-                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 to, Neo.SmartContract.Framework.ByteString tokenId, object data)
+                                                         public static bool Transfer(global::Neo.SmartContract.Framework.UInt160 to, global::Neo.SmartContract.Framework.ByteString tokenId, object data)
                                                          {
-                                                             throw new System.NotImplementedException();
-                                                         }
-
-                                                         [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static Neo.SmartContract.Framework.UInt160 OwnerOf(Neo.SmartContract.Framework.ByteString tokenId)
-                                                         {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static Neo.SmartContract.Framework.Map<string, object> Properties(Neo.SmartContract.Framework.ByteString tokenId)
+                                                         public static global::Neo.SmartContract.Framework.UInt160 OwnerOf(global::Neo.SmartContract.Framework.ByteString tokenId)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static Neo.SmartContract.Framework.Services.Iterator Tokens()
+                                                         public static global::Neo.SmartContract.Framework.Map<string, object> Properties(global::Neo.SmartContract.Framework.ByteString tokenId)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static Neo.SmartContract.Framework.Services.Iterator TokensOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         public static global::Neo.SmartContract.Framework.Services.Iterator Tokens()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
+                                                         }
+
+                                                         [global::Neo.SmartContract.Framework.Attributes.Safe]
+                                                         public static global::Neo.SmartContract.Framework.Services.Iterator TokensOf(global::Neo.SmartContract.Framework.UInt160 owner)
+                                                         {
+                                                             throw new global::System.NotImplementedException();
                                                          }
                                                      }
                                                  }
@@ -608,7 +608,7 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                  namespace Contracts
                                                  {
                                                      [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep24)]
-                                                     public class SampleRoyalty : Neo.SmartContract.Framework.Interfaces.INep24
+                                                     public class SampleRoyalty : global::Neo.SmartContract.Framework.Interfaces.INep24
                                                      {
                                                      }
                                                  }
@@ -814,30 +814,30 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static string Symbol()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static byte Decimals()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         public static global::System.Numerics.BigInteger TotalSupply()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         public static global::System.Numerics.BigInteger BalanceOf(global::Neo.SmartContract.Framework.UInt160 owner)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
-                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         public static bool Transfer(global::Neo.SmartContract.Framework.UInt160 from, global::Neo.SmartContract.Framework.UInt160 to, global::System.Numerics.BigInteger amount, object data)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
                                                      }
                                                  }
@@ -879,30 +879,30 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static string Symbol()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static byte Decimals()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         public static global::System.Numerics.BigInteger TotalSupply()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         public static global::System.Numerics.BigInteger BalanceOf(global::Neo.SmartContract.Framework.UInt160 owner)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
-                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         public static bool Transfer(global::Neo.SmartContract.Framework.UInt160 from, global::Neo.SmartContract.Framework.UInt160 to, global::System.Numerics.BigInteger amount, object data)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
                                                      }
                                                  }
@@ -947,30 +947,30 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static string Symbol()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static byte Decimals()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         public static global::System.Numerics.BigInteger TotalSupply()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         public static global::System.Numerics.BigInteger BalanceOf(global::Neo.SmartContract.Framework.UInt160 owner)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
-                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         public static bool Transfer(global::Neo.SmartContract.Framework.UInt160 from, global::Neo.SmartContract.Framework.UInt160 to, global::System.Numerics.BigInteger amount, object data)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
                                                      }
                                                  }
@@ -1007,7 +1007,7 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                  namespace Contracts
                                                  {
                                                      [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep24)]
-                                                     public class SampleRoyalty : Neo.SmartContract.Framework.Interfaces.INep24
+                                                     public class SampleRoyalty : global::Neo.SmartContract.Framework.Interfaces.INep24
                                                      {
                                                          public static string Name() => "Royalty";
                                                      }
@@ -1059,30 +1059,30 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static string Symbol()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
                                                          public static byte Decimals()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         public static global::System.Numerics.BigInteger TotalSupply()
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
                                                          [global::Neo.SmartContract.Framework.Attributes.Safe]
-                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         public static global::System.Numerics.BigInteger BalanceOf(global::Neo.SmartContract.Framework.UInt160 owner)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
 
-                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         public static bool Transfer(global::Neo.SmartContract.Framework.UInt160 from, global::Neo.SmartContract.Framework.UInt160 to, global::System.Numerics.BigInteger amount, object data)
                                                          {
-                                                             throw new System.NotImplementedException();
+                                                             throw new global::System.NotImplementedException();
                                                          }
                                                      }
                                                  }

@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Analyzer
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             if (usingDirective.Name is null) return document;
 
-            var newName = SyntaxFactory.ParseName("System.Numerics.BigInteger")
+            var newName = SyntaxFactory.ParseName("global::System.Numerics.BigInteger")
                 .WithTriviaFrom(usingDirective.Name);
             var newUsingDirective = usingDirective.WithName(newName);
 
