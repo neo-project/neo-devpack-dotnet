@@ -60,7 +60,7 @@ namespace Neo.SmartContract.Testing
         /// <param name="methodName">Method name</param>
         /// <param name="args">Arguments</param>
         /// <returns>Object</returns>
-        internal StackItem Invoke(string methodName, params object[] args)
+        internal StackItem Invoke(string methodName, params object?[] args)
         {
             // Compose script
 
@@ -86,7 +86,7 @@ namespace Neo.SmartContract.Testing
             testEngine.TestingSyscall = testingSyscall;
         }
 
-        private static void ConvertArgs(ScriptBuilder script, object[] args, ref TestingSyscall? testingSyscall)
+        private static void ConvertArgs(ScriptBuilder script, object?[] args, ref TestingSyscall? testingSyscall)
         {
             if (args is null || args.Length == 0)
                 script.Emit(OpCode.NEWARRAY0);
@@ -96,12 +96,12 @@ namespace Neo.SmartContract.Testing
                 {
                     var arg = args[i];
 
-                    if (arg is object[] arg2)
+                    if (arg is object?[] arg2)
                     {
                         ConvertArgs(script, arg2, ref testingSyscall);
                         continue;
                     }
-                    else if (arg is IEnumerable<object> argEnumerable)
+                    else if (arg is IEnumerable<object?> argEnumerable)
                     {
                         ConvertArgs(script, argEnumerable.ToArray(), ref testingSyscall);
                         continue;

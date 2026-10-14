@@ -82,6 +82,17 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
         return null;
     }
 
+    internal static void AnalyzeFieldDeclaration(
+        SyntaxNodeAnalysisContext context,
+        SpecialType specialType,
+        DiagnosticDescriptor rule,
+        Func<ITypeSymbol, object?[]> getMessageArgs)
+    {
+        var field = (FieldDeclarationSyntax)context.Node;
+        var type = context.SemanticModel.GetTypeInfo(field.Declaration.Type, context.CancellationToken).Type;
+        ReportIfUnsupportedType(context, field.GetLocation(), type, specialType, rule, getMessageArgs);
+    }
+
     internal static void AnalyzeMethodDeclaration(
         SyntaxNodeAnalysisContext context,
         SpecialType specialType,
