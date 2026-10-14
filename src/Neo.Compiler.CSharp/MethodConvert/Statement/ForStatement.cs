@@ -123,13 +123,6 @@ namespace Neo.Compiler
         {
             if (!IsPreEvaluatedInstanceExpression(syntax, out var _) && syntax is BinaryExpressionSyntax expr)
             {
-                if (IsLiftedNullPropagatingBinaryOperator(model, expr) ||
-                    HasNullableOperand(model, expr) ||
-                    !IsIntegerBinaryOperator(model, expr))
-                {
-                    return false;
-                }
-
                 var opcode = expr.OperatorToken.ValueText switch
                 {
                     "==" => OpCode.JMPEQ_L,
@@ -140,7 +133,7 @@ namespace Neo.Compiler
                     ">=" => OpCode.JMPGE_L,
                     _ => OpCode.NOP,
                 };
-                if (opcode == OpCode.NOP) return false;
+                if (opcode == OpCode.NOP || !IsIntegerBinaryOperator(model, expr)) return false;
 
                 ConvertExpression(model, expr.Left);
                 ConvertExpression(model, expr.Right);
