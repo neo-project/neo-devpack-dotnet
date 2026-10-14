@@ -43,6 +43,13 @@ namespace Neo.SmartContract.Analyzer
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
             context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeFieldDeclaration(
+                    context,
+                    SpecialType.System_Decimal,
+                    Rule,
+                    static type => new object?[] { type.SpecialType.ToString(), type.ToString() }),
+                SyntaxKind.FieldDeclaration);
+            context.RegisterSyntaxNodeAction(
                 static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeExpression(
                     context,
                     SpecialType.System_Decimal,
