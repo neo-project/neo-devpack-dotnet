@@ -18,6 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Create : SmartContract
     {
+#pragma warning disable CS8602, CS8603 // This fixture intentionally exercises unchecked nullable framework lookups.
         public static string OldContract()
         {
             return ContractManagement.GetContract(Runtime.CallingScriptHash).Manifest.Name;
@@ -27,6 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return ContractManagement.GetContractById(id);
         }
+#pragma warning restore CS8602, CS8603
 
         public static object GetContractHashes()
         {
