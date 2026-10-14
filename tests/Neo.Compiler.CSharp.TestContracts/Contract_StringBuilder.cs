@@ -39,4 +39,74 @@ public class Contract_StringBuilder : SmartContract.Framework.SmartContract
         builder.Append(false);
         return builder.ToString();
     }
+
+    private const string ConstantEmpty = "";
+
+    public static string AppendEmpty()
+    {
+        var builder = new StringBuilder("Neo");
+        builder.Append("");
+        return builder.ToString();
+    }
+
+    public static string AppendConstEmpty()
+    {
+        var builder = new StringBuilder("Neo");
+        builder.Append(ConstantEmpty);
+        return builder.ToString();
+    }
+
+    public static string AppendEmptyMultiple()
+    {
+        var builder = new StringBuilder("Neo");
+        builder.Append("");
+        builder.Append("");
+        builder.Append("");
+        return builder.ToString();
+    }
+
+    public static string AppendEmptyChained()
+    {
+        var builder = new StringBuilder("Neo");
+        return builder.Append("").Append(" N3").ToString();
+    }
+
+    public static string AppendEmptyKeepsInstance()
+    {
+        var builder = new StringBuilder("Neo");
+        var returned = builder.Append("");
+        returned.Append("!");
+        return builder.ToString();
+    }
+
+    public static string AppendEmptyKeepsContent()
+    {
+        var builder = new StringBuilder();
+        builder.Append("a");
+        builder.Append("");
+        builder.Append("b");
+        builder.Append("");
+        return builder.ToString();
+    }
+
+    public static string AppendEmptyNullReceiver()
+    {
+        StringBuilder? builder = null;
+        builder!.Append("");
+        return "unreachable";
+    }
+
+    public static string AppendRuntimeString(string value)
+    {
+        var builder = new StringBuilder("Neo");
+        builder.Append(value);
+        return builder.ToString();
+    }
+
+    public static string AppendNonEmpty()
+    {
+        var builder = new StringBuilder("Neo");
+        builder.Append(" N3");
+        return builder.ToString();
+    }
 }
