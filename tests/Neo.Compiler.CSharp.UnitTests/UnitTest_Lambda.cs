@@ -22,12 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AnyGreatThanZero()
         {
-            var array = new List<object>
-            {
-                0,
-                -1,
-                -100
-            };
+            var array = new List<object> { 0, -1, -100 };
             var result = Contract.AnyGreatThanZero(array);
             AssertGasConsumed(1188090);
             Assert.AreEqual(false, result);
@@ -41,12 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AnyGreatThan()
         {
-            var array = new List<object>
-            {
-                0,
-                -1,
-                -100
-            };
+            var array = new List<object> { 0, -1, -100 };
             var result = Contract.AnyGreatThan(array, 0);
             AssertGasConsumed(1188330);
             Assert.AreEqual(false, result);
@@ -64,12 +54,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_WhereGreaterThanZero()
         {
-            var array = new List<object>
-            {
-                0,
-                -1,
-                -100
-            };
+            var array = new List<object> { 0, -1, -100 };
             var result = Contract.WhereGreaterThanZero(array);
             AssertGasConsumed(1188660);
             Assert.AreEqual(0, result!.Count);
@@ -90,12 +75,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ForEachVar()
         {
-            var array = new List<object>
-            {
-                0,
-                -1,
-                -100
-            };
+            var array = new List<object> { 0, -1, -100 };
             var result = Contract.ForEachVar(array);
             AssertGasConsumed(2648700);
             Assert.AreEqual(array.Count, result!.Count);
@@ -105,14 +85,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_ForVar()
         {
-            var array = new List<object>
-            {
-                0,
-                -1,
-                -100
-            };
+            var array = new List<object> { 0, -1, -100 };
             var result = Contract.ForVar(array);
-            AssertGasConsumed(2650950);
+            AssertGasConsumed(2649990);
             Assert.AreEqual(array.Count, result!.Count);
             Assert.AreEqual(new BigInteger(-100), result[0]);
         }

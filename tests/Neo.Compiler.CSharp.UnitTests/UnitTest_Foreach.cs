@@ -15,6 +15,9 @@ using Neo.VM.Types;
 using System.Numerics;
 using System.Text;
 using Neo.Extensions;
+using System;
+using System.ComponentModel;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -31,10 +34,30 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void IntForloopTest()
+        public void IntForLoopTest()
         {
-            Assert.AreEqual(10, Contract.IntForloop());
-            AssertGasConsumed(1063800);
+            Assert.AreEqual(10, Contract.IntForLoopLt());
+            AssertGasConsumed(1062600);
+            Assert.AreEqual(10, Contract.IntForLoopLtNullable());
+            AssertGasConsumed(1065330);
+            Assert.AreEqual(10, Contract.IntForLoopNonCompare());
+            AssertGasConsumed(1065510);
+            Assert.AreEqual(10, Contract.IntForLoopLifted());
+            AssertGasConsumed(1062600);
+            Assert.AreEqual(10, Contract.IntForLoopLe());
+            AssertGasConsumed(1064550);
+            Assert.AreEqual(10, Contract.IntForLoopEq());
+            AssertGasConsumed(1063200);
+            Assert.AreEqual(10, Contract.IntForLoopNe());
+            AssertGasConsumed(1062600);
+            Assert.AreEqual(10, Contract.IntForLoopGe());
+            AssertGasConsumed(1062390);
+            Assert.AreEqual(9, Contract.IntForLoopGt());
+            AssertGasConsumed(1058940);
+            Assert.AreEqual(1, Contract.IntForLoopNoCondition());
+            AssertGasConsumed(1050390);
+            Assert.AreEqual("abcd", Contract.IntForLoopString());
+            AssertGasConsumed(2305650);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
             AssertGasConsumed(1125030);
         }
@@ -44,6 +67,56 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual("abcdefhij", Contract.StringForeach());
             AssertGasConsumed(1978950);
+        }
+
+        [TestMethod]
+        [DataRow("KeepGoing(i, limit)", 403, 100, 100)]
+        [DataRow("KeepGoing(i, limit) && i >= 0", 403, 100, 100)]
+        [DataRow("KeepGoing(i, limit) & (i >= 0)", 403, 100, 100)]
+        [DataRow("(int?)i < bound", 3, 0, 0)]
+        [DataRow("(i < limit ? \"keep\" : \"stop\") != \"stop\"", 3, 0, 0)]
+        public void TestForConditionFallbacks(string condition, int positive, int zero, int negative)
+        {
+            var context = TestHelper.CompileSingleContract($$"""
+                using Neo.SmartContract.Framework;
+
+                public class Contract : SmartContract
+                {
+                    private static int calls;
+
+                    private static bool KeepGoing(int value, int limit)
+                    {
+                        calls++;
+                        return value < limit;
+                    }
+
+                    public static int Run(int limit)
+                    {
+                        calls = 0;
+                        int? bound = limit < 0 ? null : limit;
+                        int sum = 0;
+                        for (int i = 0; {{condition}}; i++)
+                        {
+                            if (i >= 10) return -1;
+                            sum += i;
+                        }
+                        return calls * 100 + sum;
+                    }
+                }
+                """);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<ForConditionContract>(context.CreateExecutable(), context.CreateManifest());
+            Assert.AreEqual(new BigInteger(positive), contract.Run(3));
+            Assert.AreEqual(new BigInteger(zero), contract.Run(0));
+            Assert.AreEqual(new BigInteger(negative), contract.Run(-1));
+        }
+
+        public abstract class ForConditionContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("run")] public abstract BigInteger? Run(BigInteger limit);
         }
 
         [TestMethod]
