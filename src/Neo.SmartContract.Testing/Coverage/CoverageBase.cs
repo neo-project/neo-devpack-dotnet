@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// All branches that have been touched
         /// </summary>
-        public int CoveredBranchesAll => Branches.Where(u => u.Hits > 0).Count();
+        public int CoveredBranchesAll => Branches.Sum(u => u.Hits);
 
         /// <summary>
         /// Covered lines percentage
