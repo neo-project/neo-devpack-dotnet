@@ -324,7 +324,7 @@ internal partial class MethodConvert
             methodConvert.JumpIfFalse(nextCheck);              // Stack: [..., string], If not equal, discard duplicated string and proceed to next
             methodConvert.Push(true);                          // Stack: [..., true]
             methodConvert.Push(t.ConstantValue);               // Stack: [..., enumValue]
-            methodConvert.JumpAlways(endTarget);
+            methodConvert.JumpAlwaysLong(endTarget);
             nextCheck.Instruction = methodConvert.Nop();
         }
 
@@ -389,7 +389,7 @@ internal partial class MethodConvert
             var nextCheck = new JumpTarget();
             methodConvert.JumpIfNot(nextCheck);                    // If not equal, check next
             methodConvert.Push(true);                              // Push true (enum name is defined)
-            methodConvert.JumpAlways(endTarget);
+            methodConvert.JumpAlwaysLong(endTarget);
 
             nextCheck.Instruction = methodConvert.Nop();
         }
@@ -513,7 +513,7 @@ internal partial class MethodConvert
 
             methodConvert.Drop();       // Remove the duplicated input value
             methodConvert.Push(t.Name); // Push enum name
-            methodConvert.JumpAlways(endTarget);
+            methodConvert.JumpAlwaysLong(endTarget);
 
             nextCheck.Instruction = methodConvert.Nop();
         }
@@ -589,7 +589,7 @@ internal partial class MethodConvert
             // If equal:
             methodConvert.Push(true);                              // Stack: [..., true]
             methodConvert.Push(t.ConstantValue);                   // Stack: [..., enumValue]
-            methodConvert.JumpAlways(endTarget);
+            methodConvert.JumpAlwaysLong(endTarget);
             nextCheck.Instruction = methodConvert.Nop();
         }
 
@@ -779,7 +779,7 @@ internal partial class MethodConvert
             methodConvert.JumpIfNot(nextCheck);
 
             methodConvert.Push(true);                          // Set result to true
-            methodConvert.JumpAlways(endTarget);
+            methodConvert.JumpAlwaysLong(endTarget);
             nextCheck.Instruction = methodConvert.Nop();
         }
 
@@ -833,7 +833,7 @@ internal partial class MethodConvert
             methodConvert.JumpIfNotEqual(next);
             methodConvert.Drop();
             methodConvert.Push(member.Name);
-            methodConvert.JumpAlways(endTarget);
+            methodConvert.JumpAlwaysLong(endTarget);
             next.Instruction = methodConvert.Nop();
         }
 
@@ -965,7 +965,7 @@ internal partial class MethodConvert
             methodConvert.JumpIfFalse(next);
             methodConvert.Push(true);
             methodConvert.Push(member.ConstantValue);
-            methodConvert.JumpAlways(successTarget);
+            methodConvert.JumpAlwaysLong(successTarget);
 
             next.Instruction = methodConvert.Nop();
         }
@@ -1037,7 +1037,7 @@ internal partial class MethodConvert
             methodConvert.JumpIfFalse(next);
             methodConvert.Push(true);
             methodConvert.Push(member.ConstantValue);
-            methodConvert.JumpAlways(successTarget);
+            methodConvert.JumpAlwaysLong(successTarget);
             next.Instruction = methodConvert.Nop();
         }
 
