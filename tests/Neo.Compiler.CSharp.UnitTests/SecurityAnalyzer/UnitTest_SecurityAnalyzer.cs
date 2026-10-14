@@ -24,10 +24,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         [TestMethod]
         public void Test_AnalyzeWithPrint_IncludesMissingCheckWitnessWarnings()
         {
-            string output = CaptureAnalyzeWithPrintOutput(
-                Contract_MissingCheckWitness.Nef,
-                Contract_MissingCheckWitness.Manifest);
-
+            string output = CaptureAnalyzeWithPrintOutput(Contract_MissingCheckWitness.Nef, Contract_MissingCheckWitness.Manifest);
             Assert.IsTrue(output.Contains("[SECURITY]"));
             Assert.IsTrue(output.Contains("unsafeUpdate"));
             Assert.IsTrue(output.Contains("unsafeLocalUpdate"));
@@ -37,23 +34,17 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         [TestMethod]
         public void Test_AnalyzeWithPrint_IncludesUnboundedOperationWarnings()
         {
-            string output = CaptureAnalyzeWithPrintOutput(
-                Contract_UnboundedOperation.Nef,
-                Contract_UnboundedOperation.Manifest);
-
+            string output = CaptureAnalyzeWithPrintOutput(Contract_UnboundedOperation.Nef, Contract_UnboundedOperation.Manifest);
             Assert.IsTrue(output.Contains("[SECURITY]"));
             Assert.IsTrue(output.Contains("Potential unbounded operations"));
             Assert.IsTrue(output.Contains("Backward jumps at instruction addresses:"));
-            Assert.IsTrue(output.Contains("\t87"));
+            Assert.IsTrue(output.Contains("\t86"));
         }
 
-        private static string CaptureAnalyzeWithPrintOutput(
-            Neo.SmartContract.NefFile nef,
-            Neo.SmartContract.Manifest.ContractManifest manifest)
+        private static string CaptureAnalyzeWithPrintOutput(SmartContract.NefFile nef, SmartContract.Manifest.ContractManifest manifest)
         {
             var stdout = new StringWriter();
             TextWriter originalOut = Console.Out;
-
             try
             {
                 Console.SetOut(stdout);

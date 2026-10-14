@@ -184,15 +184,92 @@ namespace Neo.Compiler.CSharp.TestContracts
             return sum;
         }
 
-        public static int IntForloop()
+        public static int IntForLoopLt()
         {
             int[] a = new int[] { 1, 2, 3, 4 };
             int sum = 0;
-            int i;
-            for (i = 0; i < a.Length; i++)
-            {
-                sum += a[i];
-            }
+            for (int i = 0; i < a.Length; i++) sum += a[i];
+            return sum;
+        }
+
+        public static int IntForLoopLtNullable()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            int? i = null;
+            for (i = 0; i < a.Length; i++) sum += a[i.Value];
+            return sum;
+        }
+
+        public static int IntForLoopNonCompare()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (int i = 0; i < a.Length && i >= 0; i++) sum += a[i];
+            return sum;
+        }
+
+        public static int IntForLoopLifted()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (short i = 0; i < a.Length; i++) sum += a[i];
+            return sum;
+        }
+
+        public static int IntForLoopNoCondition()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (; ; ) { sum += a[0]; break; }
+            return sum;
+        }
+
+        public static int IntForLoopLe()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (int i = 0; i <= a.Length - 1; i++) sum += a[i];
+            return sum;
+        }
+
+        public static int IntForLoopNe()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (int i = 0; i != a.Length; i++) sum += a[i];
+            return sum;
+        }
+
+        public static int IntForLoopEq()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (int i = 0; i / 4 == 0; i++) sum += a[i];
+            return sum;
+        }
+
+        public static int IntForLoopGe()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (int i = a.Length - 1; i >= 0; i--) sum += a[i];
+            return sum;
+        }
+
+        public static int IntForLoopGt()
+        {
+            int[] a = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            for (int i = a.Length - 1; i > 0; i--) sum += a[i];
+            return sum;
+        }
+
+        public static string IntForLoopString()
+        {
+            string[] a = ["a", "b", "c", "d", ""];
+            string sum = "";
+            for (int i = 0; a[i] != ""; i++) sum += a[i];
             return sum;
         }
 
