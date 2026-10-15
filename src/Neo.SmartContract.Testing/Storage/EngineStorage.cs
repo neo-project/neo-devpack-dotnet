@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.Persistence;
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 
 namespace Neo.SmartContract.Testing.Storage
 {
@@ -115,31 +116,47 @@ namespace Neo.SmartContract.Testing.Storage
         /// <param name="json">Json Object</param>
         public void Import(JObject json)
         {
+            var entries = ParseImport(json);
+            foreach (var (key, _) in entries)
+                if (Snapshot.Contains(key)) throw new ArgumentException("An imported storage key already exists.", nameof(json));
+            foreach (var (key, value) in entries)
+                Snapshot.Add(key, value);
+        }
+
+        internal static IReadOnlyList<(StorageKey Key, StorageItem Value)> ParseImport(JObject json)
+        {
+            var entries = new List<(StorageKey, StorageItem)>();
+            var keys = new HashSet<StorageKey>();
             foreach (var entry in json.Properties)
             {
-                if (entry.Value is JString str)
+                var prefix = Convert.FromBase64String(entry.Key);
+                if (entry.Value is JString value)
                 {
-                    // "key":"value" in base64
-
-                    Snapshot.Add(new StorageKey(Convert.FromBase64String(entry.Key)), new StorageItem(Convert.FromBase64String(str.Value)));
+                    Add(prefix, value);
                 }
-                else if (entry.Value is JObject obj)
+                else if (entry.Value is JObject group)
                 {
-                    // "prefix": { "key":"value" }  in base64
-
-                    byte[] prefix = Convert.FromBase64String(entry.Key);
-
-                    foreach (var subEntry in obj.Properties)
+                    foreach (var item in group.Properties)
                     {
-                        if (subEntry.Value is JString subStr)
-                        {
-                            Snapshot.Add(
-                                new StorageKey([.. prefix, .. Convert.FromBase64String(subEntry.Key)]),
-                                new StorageItem(Convert.FromBase64String(subStr.Value))
-                                );
-                        }
+                        if (item.Value is not JString itemValue)
+                            throw new FormatException("Storage values must be base64 strings.");
+                        Add([.. prefix, .. Convert.FromBase64String(item.Key)], itemValue);
                     }
                 }
+                else
+                {
+                    throw new FormatException("Storage entries must be base64 strings or objects.");
+                }
+            }
+            return entries;
+
+            void Add(byte[] bytes, JString value)
+            {
+                if (bytes.Length < sizeof(int))
+                    throw new FormatException("A storage key must include a contract identifier.");
+                var key = new StorageKey(bytes);
+                if (!keys.Add(key)) throw new FormatException("Duplicate imported storage key.");
+                entries.Add((key, new StorageItem(Convert.FromBase64String(value.Value))));
             }
         }
 
