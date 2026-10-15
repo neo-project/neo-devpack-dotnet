@@ -50,27 +50,18 @@ namespace Neo.SmartContract.Analyzer
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
         {
             var invocationExpr = (InvocationExpressionSyntax)context.Node;
-            if (invocationExpr.Expression is not MemberAccessExpressionSyntax memberAccessExpr)
-                return;
-
-            if (memberAccessExpr.Name.Identifier.ValueText != "Notify")
-                return;
-
             if (context.SemanticModel.GetOperation(invocationExpr, context.CancellationToken) is not IInvocationOperation operation ||
                 !IsRuntimeNotify(operation.TargetMethod))
                 return;
 
             var eventNameArgument = operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Ordinal == 0);
             if (eventNameArgument?.Syntax is not ArgumentSyntax argumentSyntax ||
-                argumentSyntax.Expression is not LiteralExpressionSyntax firstArgument ||
-                !firstArgument.IsKind(SyntaxKind.StringLiteralExpression))
+                eventNameArgument.Value.ConstantValue is not { HasValue: true, Value: string passedName })
                 return;
-
-            var passedName = firstArgument.Token.ValueText;
 
             // Resolve event names the way the compiler does: an event's [DisplayName] when present,
             // otherwise the event field name. Events inherited from base types count as well.
-            var containingTypeSyntax = memberAccessExpr.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+            var containingTypeSyntax = invocationExpr.FirstAncestorOrSelf<TypeDeclarationSyntax>();
             if (containingTypeSyntax is null ||
                 context.SemanticModel.GetDeclaredSymbol(containingTypeSyntax) is not INamedTypeSymbol containingType)
                 return;
@@ -78,7 +69,7 @@ namespace Neo.SmartContract.Analyzer
             if (EnumerateEventNames(containingType).Any(name => name == passedName))
                 return;
 
-            context.ReportDiagnostic(Diagnostic.Create(Rule, firstArgument.GetLocation(), passedName));
+            context.ReportDiagnostic(Diagnostic.Create(Rule, argumentSyntax.Expression.GetLocation(), passedName));
         }
 
         private static IEnumerable<string> EnumerateEventNames(INamedTypeSymbol type)

@@ -89,6 +89,10 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             if (stackItem is null || stackItem.IsNull) return null;
 
+            var enumType = Nullable.GetUnderlyingType(type) ?? type;
+            if (enumType.IsEnum)
+                return Enum.ToObject(enumType, stackItem.ConvertTo(Enum.GetUnderlyingType(enumType), stringInterpreter)!);
+
             return type switch
             {
                 _ when type == stackItem.GetType() => stackItem,
@@ -106,7 +110,6 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(long) || type == typeof(long?) => (long)stackItem.GetInteger(),
                 _ when type == typeof(ulong) || type == typeof(ulong?) => (ulong)stackItem.GetInteger(),
 
-                _ when type.IsEnum => Enum.ToObject(type, (int)stackItem.GetInteger()),
                 _ when type == typeof(BigInteger) || type == typeof(BigInteger?) => stackItem.GetInteger(),
                 _ when type == typeof(UInt160) => new UInt160(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(UInt256) => new UInt256(stackItem.GetSpan().ToArray()),
