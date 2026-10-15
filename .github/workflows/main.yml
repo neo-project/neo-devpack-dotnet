@@ -180,6 +180,8 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ${{ github.workspace }}/coverage/lcov.info
+        disable_search: true
+        flags: merged-tests
         fail_ci_if_error: false
 
     - name: Test analyzer and documentation references
