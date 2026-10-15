@@ -79,7 +79,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                             break;
                     }
                 }
-            END0:
+        END0:
             ExecutionEngine.Assert(goto_ == false);
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x01");
             foreach (object i in Storage.Find("\xff"))
@@ -114,7 +114,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                         Storage.Put("\xff\x00", "\x02");
                     }
                 }
-            END2:
+        END2:
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x02");
             foreach (object i in Storage.Find("\xff"))
                 try
@@ -150,7 +150,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                     ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x02");
                     Storage.Put("\xff\x00", "\x03");
                 }
-            END3:
+        END3:
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x03");
         }
     }
