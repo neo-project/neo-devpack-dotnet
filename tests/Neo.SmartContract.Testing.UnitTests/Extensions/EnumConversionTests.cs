@@ -7,6 +7,7 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.UnitTests.Extensions;
@@ -36,7 +37,8 @@ public class EnumConversionTests
     [DynamicData(nameof(Boundaries))]
     public void ConvertsDeclaredWidthAndNullableValues(Type type, object expected)
     {
-        var value = BigInteger.Parse(Convert.ChangeType(expected, Enum.GetUnderlyingType(type))!.ToString()!, System.Globalization.CultureInfo.InvariantCulture);
+        var underlying = Convert.ChangeType(expected, Enum.GetUnderlyingType(type), CultureInfo.InvariantCulture);
+        var value = BigInteger.Parse(Convert.ToString(underlying, CultureInfo.InvariantCulture)!, CultureInfo.InvariantCulture);
         StackItem item = new Integer(value);
         Assert.AreEqual(expected, item.ConvertTo(type));
         var nullableType = typeof(Nullable<>).MakeGenericType(type);
@@ -55,7 +57,7 @@ public class EnumConversionTests
     [DataRow(typeof(UnsignedLong), "18446744073709551616")]
     public void RejectsValuesOutsideUnderlyingRange(Type type, string value)
     {
-        StackItem item = new Integer(BigInteger.Parse(value));
+        StackItem item = new Integer(BigInteger.Parse(value, CultureInfo.InvariantCulture));
         Assert.ThrowsExactly<OverflowException>(() => item.ConvertTo(type));
     }
 
