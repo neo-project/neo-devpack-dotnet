@@ -204,7 +204,6 @@ public class RpcStoreSeekTests
         public void Dispose()
         {
             _stop.Cancel();
-            _listener.Stop();
             try
             {
                 _serverTask.GetAwaiter().GetResult();
@@ -212,6 +211,7 @@ public class RpcStoreSeekTests
             catch (OperationCanceledException) { }
             finally
             {
+                _listener.Stop();
                 _stop.Dispose();
             }
         }
