@@ -22,6 +22,18 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
     public class MethodDetectionTests
     {
         [TestMethod]
+        [DataRow(0)]
+        [DataRow(1)]
+        public void FindRetStopsAtAnEmptyMethod(int offset)
+        {
+            byte[] script = [(byte)OpCode.NOP, (byte)OpCode.RET, (byte)OpCode.PUSH7, (byte)OpCode.RET];
+            var original = CreateCoverage(script, offset);
+            var coverage = new CoveredContract(MethodDetectionMechanism.FindRET, UInt160.Zero, original.ContractState);
+            var expected = offset == 0 ? new[] { 0, 1 } : new[] { 1 };
+            CollectionAssert.AreEqual(expected, coverage.Methods.Single().Lines.Select(line => line.Offset).ToArray());
+        }
+
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public void NextMethodDetectsLocalCallTargets(bool longCall)
