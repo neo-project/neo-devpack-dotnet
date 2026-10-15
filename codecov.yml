@@ -3,5 +3,7 @@ coverage:
     project:
       default:
         target: auto
+        flags:
+          - merged-tests
         # Two diagnostic output lines vary between otherwise identical runs.
         threshold: 0.02%
