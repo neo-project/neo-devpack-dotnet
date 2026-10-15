@@ -687,46 +687,37 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringCompare(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        byte leftSlot = methodConvert.AddAnonymousVariable();
-        byte rightSlot = methodConvert.AddAnonymousVariable();
-
-        methodConvert.AccessSlot(OpCode.STLOC, leftSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, rightSlot);
-
+        // A null left operand loses against everything, including the empty string, so its
+        // result is ISNULL(right) - 1 (0 when both are null, -1 otherwise); ISNULL pushes a
+        // Boolean, whose numeric value is exactly 0/1.
         JumpTarget leftNotNullTarget = new();
-        JumpTarget rightNotNullWhenLeftNullTarget = new();
         JumpTarget bothNotNullTarget = new();
         JumpTarget endTarget = new();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
-        methodConvert.IsNull();
-        methodConvert.JumpIfFalse(leftNotNullTarget);
+        // if (left is null) -> ISNULL(right) - 1
+        methodConvert.Dup();                                       // [right, left, left]
+        methodConvert.IsNull();                                    // [right, left, isNull]
+        methodConvert.JumpIfFalse(leftNotNullTarget);              // [right, left]
 
-        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.IsNull();
-        methodConvert.JumpIfFalse(rightNotNullWhenLeftNullTarget);
-        methodConvert.Push(0);
+        methodConvert.Drop();                                      // [right]
+        methodConvert.IsNull();                                    // [isNull]
+        methodConvert.Dec();                                       // [0 | -1]
         methodConvert.JumpAlways(endTarget);
 
-        rightNotNullWhenLeftNullTarget.Instruction = methodConvert.Nop();
-        methodConvert.Push(-1);
-        methodConvert.JumpAlways(endTarget);
-
+        // if (right is null) -> 1, otherwise StdLib.memoryCompare(left, right)
         leftNotNullTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
+        methodConvert.Over();                                      // [right, left, right]
         methodConvert.IsNull();
         methodConvert.JumpIfFalse(bothNotNullTarget);
+        methodConvert.Drop(2);                                     // []
         methodConvert.Push(1);
         methodConvert.JumpAlways(endTarget);
 
+        // [right, left] is exactly the order the native memoryCompare(mem, value) pops.
         bothNotNullTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memoryCompare", 2, true);
 
         endTarget.Instruction = methodConvert.Nop();
