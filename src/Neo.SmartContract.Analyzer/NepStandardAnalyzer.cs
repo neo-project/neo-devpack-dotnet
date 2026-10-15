@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Simplification;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -122,32 +123,51 @@ namespace Neo.SmartContract.Analyzer
 
             if (attributeArgument is null ||
                 !diagnostic.Properties.TryGetValue(SupportedStandardsAnalyzer.StandardPropertyName, out var standardName) ||
-                !Enum.TryParse(standardName, out NepStandard standard))
+                !Enum.TryParse<NepStandard>(standardName, out _))
                 return;
 
+            var attribute = attributeArgument.FirstAncestorOrSelf<AttributeSyntax>();
+            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+            if (attribute?.ArgumentList is null || model is null ||
+                model.GetSymbolInfo(attribute, context.CancellationToken).Symbol is not IMethodSymbol constructor)
+                return;
+
+            var enumType = constructor.ContainingType.InstanceConstructors
+                .Where(candidate => candidate.Parameters.Length == 1 && candidate.Parameters[0].IsParams)
+                .Select(candidate => (candidate.Parameters[0].Type as IArrayTypeSymbol)?.ElementType)
+                .OfType<INamedTypeSymbol>()
+                .FirstOrDefault(type => type.TypeKind == TypeKind.Enum && type.Name == nameof(NepStandard));
+            if (enumType is null) return;
+
+            var replacements = new System.Collections.Generic.Dictionary<AttributeArgumentSyntax, ExpressionSyntax>();
+            foreach (var argument in attribute.ArgumentList.Arguments.Where(argument => argument.NameEquals is null))
+            {
+                var constant = model.GetConstantValue(argument.Expression, context.CancellationToken);
+                if (!constant.HasValue || constant.Value is not string value) return;
+                var name = value.StartsWith("NEP-", StringComparison.OrdinalIgnoreCase)
+                    ? "Nep" + value.Substring(4) : value;
+                var field = enumType.GetMembers().OfType<IFieldSymbol>()
+                    .FirstOrDefault(member => member.HasConstantValue && member.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                if (field is null) return;
+                replacements.Add(argument, SyntaxFactory.ParseExpression(
+                    enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + "." + field.Name)
+                    .WithTriviaFrom(argument.Expression).WithAdditionalAnnotations(Simplifier.Annotation));
+            }
+
+            // Convert every constructor argument together; a mixture of strings and enums has no overload.
+            var replacement = attribute.ReplaceNodes(replacements.Keys,
+                (argument, _) => argument.WithExpression(replacements[argument]));
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: Title,
-                    createChangedDocument: c => UpdateSupportedStandards(context.Document, attributeArgument, standard, c),
+                    createChangedDocument: async cancellationToken =>
+                    {
+                        var updated = context.Document.WithSyntaxRoot(root!.ReplaceNode(attribute, replacement));
+                        return await Simplifier.ReduceAsync(updated, Simplifier.Annotation, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    },
                     equivalenceKey: Title),
                 diagnostic);
         }
 
-        private static async Task<Document> UpdateSupportedStandards(
-            Document document,
-            AttributeArgumentSyntax attributeArgument,
-            NepStandard standard,
-            CancellationToken cancellationToken)
-        {
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
-            var replacementExpression = SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName("NepStandard"),
-                    SyntaxFactory.IdentifierName(standard.ToString()))
-                .WithTriviaFrom(attributeArgument.Expression);
-            var newArgument = attributeArgument.WithExpression(replacementExpression);
-            var newRoot = root!.ReplaceNode(attributeArgument, newArgument);
-            return document.WithSyntaxRoot(newRoot);
-        }
     }
 }
