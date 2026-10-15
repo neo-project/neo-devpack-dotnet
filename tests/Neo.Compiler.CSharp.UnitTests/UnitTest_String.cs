@@ -226,13 +226,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(compare);
 
             Assert.AreEqual(0, Contract.TestCompare("alpha", "alpha"));
-            AssertGasConsumed(2032170);
+            AssertGasConsumed(2031930);
 
             Assert.IsTrue(Contract.TestCompare("alpha", "beta") < 0);
-            AssertGasConsumed(2032170);
+            AssertGasConsumed(2031930);
 
             Assert.IsTrue(Contract.TestCompare("beta", "alpha") > 0);
-            AssertGasConsumed(2032170);
+            AssertGasConsumed(2031930);
         }
 
         [TestMethod]
@@ -254,6 +254,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestCompare(null, "a") < 0);
             Assert.IsTrue(Contract.TestCompare("a", null) > 0);
             Assert.AreEqual(0, Contract.TestCompare(null, null));
+            // A null sorts before the empty string, so these must not collapse to 0.
+            Assert.IsTrue(Contract.TestCompare(null, "") < 0);
+            Assert.IsTrue(Contract.TestCompare("", null) > 0);
         }
 
         [TestMethod]
