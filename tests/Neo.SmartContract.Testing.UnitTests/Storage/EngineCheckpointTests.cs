@@ -200,6 +200,24 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         }
 
         [TestMethod]
+        public void MergeIntoCanSkipRepeatedValidationWhenExplicitlyRequested()
+        {
+            using var stream = CreateTwoRecordStream();
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[1] = ((byte[])checkpoint.Data[0].key.Clone(), checkpoint.Data[1].value);
+
+            using var store = new MemoryStore();
+            using var snapshot = new StoreCache(store);
+
+            checkpoint.MergeInto(snapshot, validate: false);
+
+            var entries = new EngineCheckpoint(snapshot).Data;
+            Assert.AreEqual(1, entries.Length);
+            CollectionAssert.AreEqual(checkpoint.Data[0].key, entries[0].key);
+            CollectionAssert.AreEqual(checkpoint.Data[0].value, entries[0].value);
+        }
+
+        [TestMethod]
         public void MutatedInvalidKeyIsRejectedBeforeWrite()
         {
             using var stream = CreateStream(writer =>

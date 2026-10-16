@@ -85,9 +85,16 @@ namespace Neo.SmartContract.Testing.Storage
         /// Restore
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public void Restore(DataCache snapshot)
+        public void Restore(DataCache snapshot) => Restore(snapshot, validate: true);
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        /// <param name="validate">Whether to validate the checkpoint data before restoring it.</param>
+        public void Restore(DataCache snapshot, bool validate)
         {
-            ValidateData(Data);
+            if (validate) ValidateData(Data);
 
             // Clean snapshot
 
@@ -111,9 +118,17 @@ namespace Neo.SmartContract.Testing.Storage
         /// preserved, such as when only seeding native contract state.
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public void MergeInto(DataCache snapshot)
+        public void MergeInto(DataCache snapshot) => MergeInto(snapshot, validate: true);
+
+        /// <summary>
+        /// Merge the checkpoint's data into the destination snapshot without clearing any
+        /// pre-existing entries first.
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        /// <param name="validate">Whether to validate the checkpoint data before merging it.</param>
+        public void MergeInto(DataCache snapshot, bool validate)
         {
-            ValidateData(Data);
+            if (validate) ValidateData(Data);
 
             foreach (var entry in Data)
             {
