@@ -234,6 +234,36 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public static string[] TestSplitUnicodeTwoByte(string str)
+        {
+            return str.Split('é');
+        }
+
+        public static string[] TestSplitUnicodeThreeByte(string str)
+        {
+            return str.Split('中');
+        }
+
+        public static string[] TestSplitNullChar(string str)
+        {
+            return str.Split('\0');
+        }
+
+        public static string[] TestSplitUnicodeRemoveEmpty(string str)
+        {
+            return str.Split('é', StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string[] TestSplitUnicodeCharArray(string str)
+        {
+            return str.Split(new[] { '中' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string[] TestSplitRuntimeChar(string str, char separator)
+        {
+            return str.Split(separator);
+        }
+
         public static string[] TestSplitStringArray(string str)
         {
             return str.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
