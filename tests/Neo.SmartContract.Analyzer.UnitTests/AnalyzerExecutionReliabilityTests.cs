@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,6 +52,51 @@ public class AnalyzerExecutionReliabilityTests
             string.Join(Environment.NewLine, expected));
     }
 
+    [TestMethod]
+    public async Task AnalyzerSuite_ProducesStableDiagnosticsAcrossCultures()
+    {
+        const string source = """
+            using System;
+            using System.Globalization;
+
+            class Contract
+            {
+                public DateTime ReadClock() => DateTime.Now;
+                public float ReadFloat(float value) => value;
+                public string Format(int value) => value.ToString(CultureInfo.CurrentCulture);
+            }
+            """;
+        CultureInfo originalCulture = CultureInfo.CurrentCulture;
+        CultureInfo originalUICulture = CultureInfo.CurrentUICulture;
+        string[] expected = Array.Empty<string>();
+        bool hasExpected = false;
+
+        try
+        {
+            foreach (string cultureName in new[] { CultureInfo.InvariantCulture.Name, "en-US", "tr-TR", "zh-CN" })
+            {
+                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+                CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
+                var diagnostics = await AnalyzeAsync(CreateCompilation(source));
+                Assert.IsTrue(diagnostics.Any(diagnostic => diagnostic.Id == "NC4058"), "Missing platform API diagnostic.");
+                Assert.IsTrue(diagnostics.Any(diagnostic => diagnostic.Id == "NC4002"), "Missing floating-point diagnostic.");
+                Assert.IsFalse(diagnostics.Any(diagnostic => diagnostic.Id == "AD0001"), "An analyzer failed.");
+                string[] actual = FormatDiagnostics(diagnostics);
+                if (!hasExpected)
+                {
+                    expected = actual;
+                    hasExpected = true;
+                }
+                CollectionAssert.AreEqual(expected, actual, $"Diagnostics changed under {cultureName}.");
+            }
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+            CultureInfo.CurrentUICulture = originalUICulture;
+        }
+    }
+
     private static CSharpCompilation CreateCompilation(string source)
     {
         var trustedPlatformAssemblies = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
@@ -77,6 +123,7 @@ public class AnalyzerExecutionReliabilityTests
                 diagnostic.Severity,
                 diagnostic.Location.SourceTree?.FilePath,
                 diagnostic.Location.SourceSpan.Start,
+                diagnostic.Location.SourceSpan.Length,
                 diagnostic.GetMessage()))
             .OrderBy(value => value, StringComparer.Ordinal)
             .ToArray();
