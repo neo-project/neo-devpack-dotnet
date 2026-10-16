@@ -98,14 +98,21 @@ namespace Neo.SmartContract.Testing.Storage
         /// - "prefix"  : { "key":"value" }
         /// </summary>
         /// <param name="json">Json Object</param>
-        public void Import(string json)
+        public void Import(string json) => Import(json, overwrite: false);
+
+        /// <summary>
+        /// Import storage data, optionally overwriting existing values.
+        /// </summary>
+        /// <param name="json">Json Object</param>
+        /// <param name="overwrite">Whether imported values replace existing values with the same key.</param>
+        public void Import(string json, bool overwrite)
         {
             if (JToken.Parse(json) is not JObject jo)
             {
                 throw new FormatException("The json is not a valid JObject");
             }
 
-            Import(jo);
+            Import(jo, overwrite);
         }
 
         /// <summary>
@@ -114,13 +121,28 @@ namespace Neo.SmartContract.Testing.Storage
         /// - "prefix"  : { "key":"value" }
         /// </summary>
         /// <param name="json">Json Object</param>
-        public void Import(JObject json)
+        public void Import(JObject json) => Import(json, overwrite: false);
+
+        /// <summary>
+        /// Import storage data, optionally overwriting existing values.
+        /// </summary>
+        /// <param name="json">Json Object</param>
+        /// <param name="overwrite">Whether imported values replace existing values with the same key.</param>
+        public void Import(JObject json, bool overwrite)
         {
             var entries = ParseImport(json);
-            foreach (var (key, _) in entries)
-                if (Snapshot.Contains(key)) throw new ArgumentException("An imported storage key already exists.", nameof(json));
+            if (!overwrite)
+            {
+                foreach (var (key, _) in entries)
+                    if (Snapshot.Contains(key)) throw new ArgumentException("An imported storage key already exists.", nameof(json));
+            }
             foreach (var (key, value) in entries)
-                Snapshot.Add(key, value);
+            {
+                if (overwrite)
+                    Snapshot.GetAndChange(key, () => value).Value = value.Value;
+                else
+                    Snapshot.Add(key, value);
+            }
         }
 
         internal static IReadOnlyList<(StorageKey Key, StorageItem Value)> ParseImport(JObject json)

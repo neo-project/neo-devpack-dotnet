@@ -44,6 +44,95 @@ public class StorageImportValidationTests
     }
 
     [TestMethod]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
+    public void EngineImportCanOverwriteExistingKeys(bool asString, bool committed)
+    {
+        using var memory = new MemoryStore();
+        var store = new EngineStorage(memory);
+        var existing = new StorageKey { Id = 1, Key = new byte[] { 7 } };
+        var untouched = new StorageKey { Id = 2, Key = new byte[] { 8 } };
+        store.Snapshot.Add(existing, new StorageItem(new byte[] { 42 }));
+        store.Snapshot.Add(untouched, new StorageItem(new byte[] { 43 }));
+        if (committed)
+        {
+            store.Commit();
+            store.Rollback();
+        }
+        var json = new JObject
+        {
+            ["AQAAAA=="] = new JObject { ["Bw=="] = "" },
+            ["AgAAAAk="] = "AQ=="
+        };
+
+        if (asString) store.Import(json.ToString(), overwrite: true);
+        else store.Import(json, overwrite: true);
+
+        Assert.AreEqual(0, store.Snapshot[existing].Value.Length);
+        CollectionAssert.AreEqual(new byte[] { 43 }, store.Snapshot[untouched].Value.ToArray());
+        var added = new StorageKey { Id = 2, Key = new byte[] { 9 } };
+        CollectionAssert.AreEqual(new byte[] { 1 }, store.Snapshot[added].Value.ToArray());
+        var expected = store.Export().ToString();
+        store.Commit();
+        store.Rollback();
+        Assert.AreEqual(expected, store.Export().ToString(), "Imported values must survive commit and reload.");
+    }
+
+    [TestMethod]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
+    public void EngineImportWithoutOverwritePreservesExistingKeys(bool asString, bool explicitOption)
+    {
+        using var memory = new MemoryStore();
+        var store = new EngineStorage(memory);
+        store.Import(new JObject { ["AgAAAAk="] = "Kg==" });
+        var before = store.Export().ToString();
+        var json = new JObject { ["AQAAAAc="] = "AQ==", ["AgAAAAk="] = "Ag==" };
+
+        Assert.ThrowsExactly<ArgumentException>(() =>
+        {
+            if (asString)
+            {
+                if (explicitOption) store.Import(json.ToString(), overwrite: false);
+                else store.Import(json.ToString());
+            }
+            else
+            {
+                if (explicitOption) store.Import(json, overwrite: false);
+                else store.Import(json);
+            }
+        });
+        Assert.AreEqual(before, store.Export().ToString());
+    }
+
+    [TestMethod]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
+    public void EngineImportWithOverwriteRejectsInvalidBatchBeforeWriting(bool asString, bool duplicate)
+    {
+        using var memory = new MemoryStore();
+        var store = new EngineStorage(memory);
+        store.Import(new JObject { ["AQAAAAc="] = "Kg==" });
+        var before = store.Export().ToString();
+        var json = new JObject { ["AQAAAAc="] = "Ag==", ["AgAAAAk="] = "AQ==" };
+        if (duplicate) json["AQAAAA=="] = new JObject { ["Bw=="] = "Aw==" };
+        else json["AwAAAA=="] = new JObject { ["CA=="] = "!" };
+
+        Assert.ThrowsExactly<FormatException>(() =>
+        {
+            if (asString) store.Import(json.ToString(), overwrite: true);
+            else store.Import(json, overwrite: true);
+        });
+        Assert.AreEqual(before, store.Export().ToString());
+    }
+
+    [TestMethod]
     [DataRow(false)]
     [DataRow(true)]
     public void ContractImportRejectsInvalidEntriesBeforeOverwriting(bool malformedValue)
