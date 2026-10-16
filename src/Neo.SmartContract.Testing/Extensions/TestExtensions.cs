@@ -162,12 +162,14 @@ namespace Neo.SmartContract.Testing.Extensions
             if (!_propertyCache.TryGetValue(type, out var cache))
             {
                 cache = new Dictionary<int, PropertyInfo>();
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(property => property.CanWrite && property.GetIndexParameters().Length == 0)
+                    .ToArray();
 
-                foreach (var property in type.GetProperties())
+                foreach (var property in properties)
                 {
                     var fieldOffset = property.GetCustomAttribute<FieldOrderAttribute>();
                     if (fieldOffset is null) continue;
-                    if (!property.CanWrite) continue;
 
                     cache.Add(fieldOffset.Order, property);
                 }
@@ -176,9 +178,8 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // Without FieldOrderAttribute, by order
 
-                    foreach (var property in type.GetProperties())
+                    foreach (var property in properties)
                     {
-                        if (!property.CanWrite) continue;
                         cache.Add(index, property);
                         index++;
                     }
@@ -228,7 +229,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             if (!_fieldCache.TryGetValue(valueType, out var cache))
             {
-                cache = valueType.GetFields().ToArray();
+                cache = valueType.GetFields(BindingFlags.Public | BindingFlags.Instance);
                 _fieldCache[valueType] = cache;
             }
 
