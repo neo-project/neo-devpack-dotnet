@@ -146,12 +146,12 @@ internal partial class MethodConvert
     {
         byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
         byte currentSlot = methodConvert.AddAnonymousVariable();
-        LoadStringBuilderContent(methodConvert, builderSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
-
         byte? valueSlot = null;
         if (includeArgument && parameterType is not null)
             valueSlot = ConvertStringBuilderArgument(methodConvert, model, parameterType, arguments[0]);
+
+        LoadStringBuilderContent(methodConvert, builderSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
 
         byte resultSlot = methodConvert.AddAnonymousVariable();
         methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
