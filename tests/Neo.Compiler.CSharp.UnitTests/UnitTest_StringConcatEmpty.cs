@@ -135,6 +135,8 @@ public class Contract : SmartContract
     [TestMethod]
     public void SideEffectsEvaluatedOnceInOrder()
     {
+        // optimized is false here because the trailing "c + ":" + r" is a real concatenation that emits CAT
+        // the empty-constant Concat itself is optimized and the opcodes are checked in the scenarios above.
         AssertScenario("int c = 0; var r = string.Concat(Next(ref c), \"\"); return c + \":\" + r;", _ => "1:Neo", false);
         AssertScenario("int c = 0; var r = string.Concat(\"\", Next(ref c)); return c + \":\" + r;", _ => "1:Neo", false);
         AssertScenario("int c = 0; var r = string.Concat(c++ == 0 ? v : null, \"\"); return c + \":\" + r;", v => "1:" + (v ?? ""), false);
