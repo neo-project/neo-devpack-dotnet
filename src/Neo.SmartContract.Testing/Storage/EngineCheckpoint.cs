@@ -44,6 +44,7 @@ namespace Neo.SmartContract.Testing.Storage
             }
 
             Data = list.ToArray();
+            ValidateData(Data);
         }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace Neo.SmartContract.Testing.Storage
             }
 
             Data = list.ToArray();
+            ValidateData(Data);
         }
 
         /// <summary>
@@ -83,8 +85,17 @@ namespace Neo.SmartContract.Testing.Storage
         /// Restore
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public void Restore(DataCache snapshot)
+        public void Restore(DataCache snapshot) => Restore(snapshot, validate: true);
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        /// <param name="validate">Whether to validate the checkpoint data before restoring it.</param>
+        public void Restore(DataCache snapshot, bool validate)
         {
+            if (validate) ValidateData(Data);
+
             // Clean snapshot
 
             foreach (var entry in snapshot.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray())
@@ -107,8 +118,18 @@ namespace Neo.SmartContract.Testing.Storage
         /// preserved, such as when only seeding native contract state.
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public void MergeInto(DataCache snapshot)
+        public void MergeInto(DataCache snapshot) => MergeInto(snapshot, validate: true);
+
+        /// <summary>
+        /// Merge the checkpoint's data into the destination snapshot without clearing any
+        /// pre-existing entries first.
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        /// <param name="validate">Whether to validate the checkpoint data before merging it.</param>
+        public void MergeInto(DataCache snapshot, bool validate)
         {
+            if (validate) ValidateData(Data);
+
             foreach (var entry in Data)
             {
                 var key = new StorageKey(entry.key);
@@ -129,8 +150,9 @@ namespace Neo.SmartContract.Testing.Storage
         /// <param name="path">File path</param>
         public void Save(string path)
         {
+            ValidateData(Data);
             using var stream = File.Create(path);
-            Write(stream);
+            WriteValidatedData(stream);
         }
 
         /// <summary>
@@ -148,6 +170,12 @@ namespace Neo.SmartContract.Testing.Storage
         /// Write to Stream
         /// </summary>
         public void Write(Stream stream)
+        {
+            ValidateData(Data);
+            WriteValidatedData(stream);
+        }
+
+        private void WriteValidatedData(Stream stream)
         {
             var buffer = new byte[sizeof(int)];
 
@@ -172,6 +200,37 @@ namespace Neo.SmartContract.Testing.Storage
             var data = new byte[length];
             stream.ReadExactly(data);
             return data;
+        }
+
+        private static void ValidateData((byte[] key, byte[] value)[] data)
+        {
+            var keys = new HashSet<byte[]>(ByteArrayEqualityComparer.Instance);
+            foreach (var (key, value) in data)
+            {
+                if (key is null || key.Length < sizeof(int) || key.Length > MaxCheckpointKeyLength)
+                    throw new InvalidDataException("Invalid checkpoint storage key.");
+                if (value is null || value.Length > MaxCheckpointValueLength)
+                    throw new InvalidDataException("Invalid checkpoint storage value.");
+
+                if (!keys.Add(key))
+                    throw new InvalidDataException("Duplicate checkpoint storage key.");
+            }
+        }
+
+        private sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
+        {
+            internal static readonly ByteArrayEqualityComparer Instance = new();
+
+            public bool Equals(byte[]? x, byte[]? y) =>
+                ReferenceEquals(x, y) || x is not null && y is not null && x.AsSpan().SequenceEqual(y);
+
+            public int GetHashCode(byte[] obj)
+            {
+                var hash = new HashCode();
+                foreach (var value in obj)
+                    hash.Add(value);
+                return hash.ToHashCode();
+            }
         }
 
         private static bool TryReadExactly(Stream stream, Span<byte> buffer)
