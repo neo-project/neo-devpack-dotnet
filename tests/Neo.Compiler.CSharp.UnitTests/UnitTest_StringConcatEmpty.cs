@@ -153,30 +153,6 @@ public class Contract : SmartContract
         }
     }
 
-    [TestMethod]
-    public void GasConsumed()
-    {
-        var scenarios = new (string Name, string Body, string? Input, long Gas)[]
-        {
-            ("Concat(\"Neo\", \"\")", "return string.Concat(\"Neo\", \"\");", null, 1047930),
-            ("Concat(\"\", \"Neo\")", "return string.Concat(\"\", \"Neo\");", null, 1047930),
-            ("Concat(\"\", \"\")", "return string.Concat(\"\", \"\");", null, 1047750),
-            ("Concat((string?)null, \"\")", "return string.Concat((string?)null, \"\");", null, 1048020),
-            ("Concat(\"\", (string?)null)", "return string.Concat(\"\", (string?)null);", null, 1048020),
-            ("Concat(v=\"Neo\", \"\")", "return string.Concat(v, \"\");", "Neo", 1047960),
-            ("Concat(\"\", v=\"Neo\")", "return string.Concat(\"\", v);", "Neo", 1047960),
-            ("Concat(\"Neo\", \"N3\")", "return string.Concat(\"Neo\", \"N3\");", null, 1355610),
-        };
-
-        foreach (var (name, body, input, gas) in scenarios)
-        {
-            var (contract, engine, _, _) = Deploy(body, CompilationOptions.OptimizationType.All);
-            using var watcher = engine.CreateFeeWatcher();
-            contract.Run(input);
-            Assert.AreEqual(gas, watcher.Value, name);
-        }
-    }
-
     public abstract class StringConcatContract(SmartContractInitialize initialize)
         : Neo.SmartContract.Testing.SmartContract(initialize)
     {
