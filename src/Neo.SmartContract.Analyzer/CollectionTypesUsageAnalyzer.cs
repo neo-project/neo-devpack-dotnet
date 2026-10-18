@@ -82,6 +82,23 @@ namespace Neo.SmartContract.Analyzer
             context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeParameter, SyntaxKind.Parameter);
             context.RegisterSyntaxNodeAction(AnalyzePropertyDeclaration, SyntaxKind.PropertyDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeMemberDeclaration, SyntaxKind.FieldDeclaration,
+                SyntaxKind.EventFieldDeclaration, SyntaxKind.EventDeclaration, SyntaxKind.IndexerDeclaration);
+        }
+
+        private void AnalyzeMemberDeclaration(SyntaxNodeAnalysisContext context)
+        {
+            TypeSyntax? typeSyntax = context.Node switch
+            {
+                BaseFieldDeclarationSyntax field => field.Declaration.Type,
+                EventDeclarationSyntax @event => @event.Type,
+                IndexerDeclarationSyntax indexer => indexer.Type,
+                _ => null
+            };
+            if (typeSyntax is null) return;
+
+            var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
+            ReportIfUnsupportedCollectionType(context, typeSyntax.GetLocation(), type);
         }
 
         private void AnalyzeOperation(OperationAnalysisContext context)
