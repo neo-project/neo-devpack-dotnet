@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015-2026 The Neo Project.
+// Copyright (C) 2015-2026 The Neo Project.
 //
 // UnitTest_StringConcatEmpty.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -20,7 +20,7 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests;
 
 [TestClass]
-public class UnitTest_StringConcatEmpty
+public class UnitTest_StringConcatEmpty : DebugAndTestBase<Contract_StringConcatEmpty>
 {
     private static readonly string?[] Inputs = [null, "", "Neo", "\u4F60\u597DNeo"];
 
@@ -151,6 +151,64 @@ public class Contract : SmartContract
             Assert.AreEqual("", contract.Run("Neo12"));
             Assert.AreEqual("xyz", contract.Run("Neo12xyz"));
         }
+    }
+
+    [TestMethod]
+    public void Test_ConcatNeoRight()
+    {
+        Assert.AreEqual("Neo", Contract.ConcatNeoRight());
+        AssertGasConsumed(984450);
+    }
+
+    [TestMethod]
+    public void Test_ConcatNeoLeft()
+    {
+        Assert.AreEqual("Neo", Contract.ConcatNeoLeft());
+        AssertGasConsumed(984450);
+    }
+
+    [TestMethod]
+    public void Test_ConcatBoth()
+    {
+        Assert.AreEqual("", Contract.ConcatBoth());
+        AssertGasConsumed(984270);
+    }
+
+    [TestMethod]
+    public void Test_ConcatNullRight()
+    {
+        Assert.AreEqual("", Contract.ConcatNullRight());
+        AssertGasConsumed(984540);
+    }
+
+    [TestMethod]
+    public void Test_ConcatNullLeft()
+    {
+        Assert.AreEqual("", Contract.ConcatNullLeft());
+        AssertGasConsumed(984540);
+    }
+
+    [TestMethod]
+    public void Test_ConcatRight()
+    {
+        Assert.AreEqual("Neo", Contract.ConcatRight("Neo"));
+        AssertGasConsumed(1047420);
+        Assert.AreEqual("", Contract.ConcatRight(null));
+    }
+
+    [TestMethod]
+    public void Test_ConcatLeft()
+    {
+        Assert.AreEqual("Neo", Contract.ConcatLeft("Neo"));
+        AssertGasConsumed(1047420);
+        Assert.AreEqual("", Contract.ConcatLeft(null));
+    }
+
+    [TestMethod]
+    public void Test_ConcatNormal()
+    {
+        Assert.AreEqual("NeoN3", Contract.ConcatNormal());
+        AssertGasConsumed(1292130);
     }
 
     public abstract class StringConcatContract(SmartContractInitialize initialize)
