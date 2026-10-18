@@ -369,17 +369,10 @@ namespace Neo.SmartContract.Testing.Storage
                 return;
             }
 
-            // Read values
-
-            foreach (var entry in prefix.Properties)
-            {
-                if (entry.Value is JString str)
-                {
-                    // "key":"value" in base64
-
-                    Put(Convert.FromBase64String(entry.Key), Convert.FromBase64String(str.Value));
-                }
-            }
+            // Validate the complete selected contract before overwriting any existing value.
+            var entries = EngineStorage.ParseImport(new JObject { [keyId] = prefix });
+            foreach (var (key, value) in entries)
+                Put(key.Key, value.Value);
         }
 
         /// <summary>
