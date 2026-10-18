@@ -14,6 +14,23 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_AnalyzerExecution
 {
     [TestMethod]
+    [DataRow("public static System.Collections.Generic.List<int> values;")]
+    [DataRow("public System.Collections.Generic.List<int> this[int index] => null;")]
+    [DataRow("public static event System.Action<System.Collections.Generic.List<int>> Changed;")]
+    [DataRow("public static event System.Action<System.Collections.Generic.List<int>> Changed { add { } remove { } }")]
+    public void CompileProject_ReportsUnsupportedCollectionMembersBeforeLowering(string member)
+    {
+        using var project = TempContractProject.Create("using Neo.SmartContract.Framework; public class Contract : SmartContract { "
+            + member + " public static int Main() => 1; }");
+        var result = CreateEngine().CompileProject(project.ProjectFile).Single();
+        var diagnostics = result.Diagnostics.Where(item => item.Id == "NC4013").ToArray();
+        Assert.HasCount(1, diagnostics, string.Join(Environment.NewLine, result.Diagnostics));
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(DiagnosticSeverity.Error, diagnostics[0].Severity);
+        Assert.IsFalse(result.Diagnostics.Any(item => item.Id is "NC1002" or "AD0001"));
+    }
+
+    [TestMethod]
     public void CompileProject_ReportsNeoAnalyzerErrorsBeforeLowering()
     {
         using var project = TempContractProject.Create("""
