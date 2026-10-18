@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2026 The Neo Project.
+﻿// Copyright (C) 2015-2026 The Neo Project.
 //
 // UnitTest_StringConcatEmpty.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -154,26 +154,26 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
-    public void MeasureGas()
+    public void GasConsumed()
     {
-        var scenarios = new (string Name, string Body, string? Input)[]
+        var scenarios = new (string Name, string Body, string? Input, long Gas)[]
         {
-            ("Concat(\"Neo\", \"\")", "return string.Concat(\"Neo\", \"\");", null),
-            ("Concat(\"\", \"Neo\")", "return string.Concat(\"\", \"Neo\");", null),
-            ("Concat(\"\", \"\")", "return string.Concat(\"\", \"\");", null),
-            ("Concat((string?)null, \"\")", "return string.Concat((string?)null, \"\");", null),
-            ("Concat(\"\", (string?)null)", "return string.Concat(\"\", (string?)null);", null),
-            ("Concat(v=\"Neo\", \"\")", "return string.Concat(v, \"\");", "Neo"),
-            ("Concat(\"\", v=\"Neo\")", "return string.Concat(\"\", v);", "Neo"),
-            ("Concat(\"Neo\", \"N3\")", "return string.Concat(\"Neo\", \"N3\");", null),
+            ("Concat(\"Neo\", \"\")", "return string.Concat(\"Neo\", \"\");", null, 1047930),
+            ("Concat(\"\", \"Neo\")", "return string.Concat(\"\", \"Neo\");", null, 1047930),
+            ("Concat(\"\", \"\")", "return string.Concat(\"\", \"\");", null, 1047750),
+            ("Concat((string?)null, \"\")", "return string.Concat((string?)null, \"\");", null, 1048020),
+            ("Concat(\"\", (string?)null)", "return string.Concat(\"\", (string?)null);", null, 1048020),
+            ("Concat(v=\"Neo\", \"\")", "return string.Concat(v, \"\");", "Neo", 1047960),
+            ("Concat(\"\", v=\"Neo\")", "return string.Concat(\"\", v);", "Neo", 1047960),
+            ("Concat(\"Neo\", \"N3\")", "return string.Concat(\"Neo\", \"N3\");", null, 1355610),
         };
 
-        foreach (var (name, body, input) in scenarios)
+        foreach (var (name, body, input, gas) in scenarios)
         {
-            var (contract, engine, opCodes, length) = Deploy(body, CompilationOptions.OptimizationType.All);
+            var (contract, engine, _, _) = Deploy(body, CompilationOptions.OptimizationType.All);
             using var watcher = engine.CreateFeeWatcher();
             contract.Run(input);
-            Console.WriteLine($"GAS|{name}|{watcher.Value}|opcodes={opCodes.Length}|script={length}");
+            Assert.AreEqual(gas, watcher.Value, name);
         }
     }
 
