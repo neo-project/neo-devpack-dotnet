@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         [TestMethod]
         public void LoadCheckpointReadsValidData()
         {
-            byte[] key = [0x01, 0x02, 0x03];
+            byte[] key = [0x01, 0x02, 0x03, 0x04];
             byte[] value = [0x04, 0x05];
             using var stream = CreateStream(writer =>
             {
@@ -142,12 +142,95 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         [TestMethod]
         public void CheckpointSupportsZeroLengthFields()
         {
-            using var stream = new MemoryStream(new byte[8]);
+            using var stream = CreateStream(writer =>
+            {
+                WriteLength(writer, 4);
+                writer.Write(new byte[] { 1, 0, 0, 0 });
+                WriteLength(writer, 0);
+            });
             var checkpoint = new EngineCheckpoint(stream);
 
             Assert.AreEqual(1, checkpoint.Data.Length);
-            Assert.AreEqual(0, checkpoint.Data[0].key.Length);
+            Assert.AreEqual(4, checkpoint.Data[0].key.Length);
             Assert.AreEqual(0, checkpoint.Data[0].value.Length);
+        }
+
+        [TestMethod]
+        public void DuplicateKeysAreRejectedBeforeRestore()
+        {
+            using var stream = CreateStream(writer =>
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    WriteLength(writer, 4);
+                    writer.Write(new byte[] { 1, 0, 0, 0 });
+                    WriteLength(writer, 1);
+                    writer.WriteByte((byte)i);
+                }
+            });
+
+            Assert.ThrowsExactly<InvalidDataException>(() => new EngineCheckpoint(stream));
+        }
+
+        [TestMethod]
+        public void MutatedInvalidKeyPreservesDestination()
+        {
+            using var stream = CreateStream(writer =>
+            {
+                WriteLength(writer, 4);
+                writer.Write(new byte[] { 1, 0, 0, 0 });
+                WriteLength(writer, 1);
+                writer.WriteByte(0x01);
+            });
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[0] = (Array.Empty<byte>(), checkpoint.Data[0].value);
+
+            using var store = new MemoryStore();
+            byte[] originalKey = [1, 0, 0, 0];
+            byte[] originalValue = [0x42];
+            store.Put(originalKey, originalValue);
+            using var snapshot = new StoreCache(store);
+
+            Assert.ThrowsExactly<InvalidDataException>(() => checkpoint.Restore(snapshot));
+
+            var entries = new EngineCheckpoint(snapshot).Data;
+            Assert.AreEqual(1, entries.Length);
+            CollectionAssert.AreEqual(originalKey, entries[0].key);
+            CollectionAssert.AreEqual(originalValue, entries[0].value);
+        }
+
+        [TestMethod]
+        public void MergeIntoCanSkipRepeatedValidationWhenExplicitlyRequested()
+        {
+            using var stream = CreateTwoRecordStream();
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[1] = ((byte[])checkpoint.Data[0].key.Clone(), checkpoint.Data[1].value);
+
+            using var store = new MemoryStore();
+            using var snapshot = new StoreCache(store);
+
+            checkpoint.MergeInto(snapshot, validate: false);
+
+            var entries = new EngineCheckpoint(snapshot).Data;
+            Assert.AreEqual(1, entries.Length);
+            CollectionAssert.AreEqual(checkpoint.Data[0].key, entries[0].key);
+            CollectionAssert.AreEqual(checkpoint.Data[0].value, entries[0].value);
+        }
+
+        [TestMethod]
+        public void MutatedInvalidKeyIsRejectedBeforeWrite()
+        {
+            using var stream = CreateStream(writer =>
+            {
+                WriteLength(writer, 4);
+                writer.Write(new byte[] { 1, 0, 0, 0 });
+                WriteLength(writer, 1);
+                writer.WriteByte(0x01);
+            });
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[0] = (Array.Empty<byte>(), checkpoint.Data[0].value);
+
+            Assert.ThrowsExactly<InvalidDataException>(() => checkpoint.ToArray());
         }
 
         [TestMethod]
@@ -159,6 +242,59 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             Assert.AreEqual(2, checkpoint.Data.Length);
             CollectionAssert.AreEqual(complete.ToArray(), checkpoint.ToArray());
+        }
+
+        [TestMethod]
+        [DataRow(false, false)]
+        [DataRow(false, true)]
+        [DataRow(true, false)]
+        [DataRow(true, true)]
+        public void SaveRejectsInvalidDataBeforeChangingDestination(bool destinationExists, bool duplicateKey)
+        {
+            using var stream = CreateTwoRecordStream();
+            var checkpoint = new EngineCheckpoint(stream);
+            checkpoint.Data[1] = (
+                duplicateKey ? (byte[])checkpoint.Data[0].key.Clone() : Array.Empty<byte>(),
+                checkpoint.Data[1].value);
+            var directory = Directory.CreateTempSubdirectory();
+            var path = Path.Combine(directory.FullName, "checkpoint.dat");
+            byte[] original = [0x42, 0x43];
+            try
+            {
+                if (destinationExists) File.WriteAllBytes(path, original);
+
+                Assert.ThrowsExactly<InvalidDataException>(() => checkpoint.Save(path));
+
+                Assert.AreEqual(destinationExists, File.Exists(path));
+                if (destinationExists) CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
+            }
+            finally
+            {
+                directory.Delete(true);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public void SaveValidCheckpointRoundTrips(bool empty)
+        {
+            using var stream = empty ? new MemoryStream() : CreateTwoRecordStream();
+            var checkpoint = new EngineCheckpoint(stream);
+            var directory = Directory.CreateTempSubdirectory();
+            var path = Path.Combine(directory.FullName, "checkpoint.dat");
+            try
+            {
+                File.WriteAllText(path, "previous checkpoint");
+                checkpoint.Save(path);
+
+                CollectionAssert.AreEqual(checkpoint.ToArray(), File.ReadAllBytes(path));
+                CollectionAssert.AreEqual(checkpoint.ToArray(), EngineCheckpoint.Load(path).ToArray());
+            }
+            finally
+            {
+                directory.Delete(true);
+            }
         }
 
         private static MemoryStream CreateTwoRecordStream()
