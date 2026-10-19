@@ -945,7 +945,8 @@ internal partial class MethodConvert
                         methodConvert.Push("");
                         return;
                     }
-                    methodConvert.ConvertExpression(model, firstEmpty ? second : first);
+                    var value = firstEmpty ? second : first;
+                    methodConvert.ConvertExpression(model, value);
                     var notNull = new JumpTarget();
                     methodConvert.Dup();
                     methodConvert.IsNull();
@@ -953,6 +954,10 @@ internal partial class MethodConvert
                     methodConvert.Drop();
                     methodConvert.Push("");
                     notNull.Instruction = methodConvert.Nop();
+                    // Runtime strings can be backed by buffers, for example StringBuilder contents.
+                    // Preserve Concat's byte-string result even when CAT is unnecessary.
+                    if (!model.GetConstantValue(value).HasValue)
+                        methodConvert.ChangeType(StackItemType.ByteString);
                     return;
                 }
             }

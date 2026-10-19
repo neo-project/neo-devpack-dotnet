@@ -71,7 +71,7 @@ public class Contract : SmartContract
         return (contract, engine, opCodes.ToArray(), nef.Script.Length);
     }
 
-    private static void AssertScenario(string body, Func<string?, string> expected, bool optimized)
+    private static void AssertScenario(string body, Func<string?, string> expected, bool optimized, bool expectConvert = false)
     {
         foreach (var level in Levels)
         {
@@ -84,7 +84,7 @@ public class Contract : SmartContract
                 if (optimized)
                 {
                     Assert.IsFalse(opCodes.Contains(OpCode.CAT), $"Unexpected CAT: {body}");
-                    Assert.IsFalse(opCodes.Contains(OpCode.CONVERT), $"Unexpected CONVERT: {body}");
+                    Assert.AreEqual(expectConvert, opCodes.Contains(OpCode.CONVERT), $"Unexpected conversion: {body}");
                 }
                 else
                 {
@@ -95,22 +95,22 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
-    public void EmptyRight() => AssertScenario("return string.Concat(v, \"\");", v => v ?? "", true);
+    public void EmptyRight() => AssertScenario("return string.Concat(v, \"\");", v => v ?? "", true, expectConvert: true);
 
     [TestMethod]
-    public void EmptyLeft() => AssertScenario("return string.Concat(\"\", v);", v => v ?? "", true);
+    public void EmptyLeft() => AssertScenario("return string.Concat(\"\", v);", v => v ?? "", true, expectConvert: true);
 
     [TestMethod]
-    public void EmptyConstRight() => AssertScenario("const string e = \"\"; return string.Concat(v, e);", v => v ?? "", true);
+    public void EmptyConstRight() => AssertScenario("const string e = \"\"; return string.Concat(v, e);", v => v ?? "", true, expectConvert: true);
 
     [TestMethod]
-    public void EmptyConstLeft() => AssertScenario("const string e = \"\"; return string.Concat(e, v);", v => v ?? "", true);
+    public void EmptyConstLeft() => AssertScenario("const string e = \"\"; return string.Concat(e, v);", v => v ?? "", true, expectConvert: true);
 
     [TestMethod]
-    public void EmptyNamedArguments() => AssertScenario("return string.Concat(str1: \"\", str0: v);", v => v ?? "", true);
+    public void EmptyNamedArguments() => AssertScenario("return string.Concat(str1: \"\", str0: v);", v => v ?? "", true, expectConvert: true);
 
     [TestMethod]
-    public void EmptyNamedArgumentsRight() => AssertScenario("return string.Concat(str1: v, str0: \"\");", v => v ?? "", true);
+    public void EmptyNamedArgumentsRight() => AssertScenario("return string.Concat(str1: v, str0: \"\");", v => v ?? "", true, expectConvert: true);
 
     [TestMethod]
     public void BothEmpty() => AssertScenario("return string.Concat(\"\", \"\");", _ => "", true);
@@ -140,6 +140,13 @@ public class Contract : SmartContract
         AssertScenario("int c = 0; var r = string.Concat(Next(ref c), \"\"); return c + \":\" + r;", _ => "1:Neo", false);
         AssertScenario("int c = 0; var r = string.Concat(\"\", Next(ref c)); return c + \":\" + r;", _ => "1:Neo", false);
         AssertScenario("int c = 0; var r = string.Concat(c++ == 0 ? v : null, \"\"); return c + \":\" + r;", v => "1:" + (v ?? ""), false);
+    }
+
+    [TestMethod]
+    public void EmptyConcatPreservesRuntimeStringType()
+    {
+        AssertScenario("var b = new System.Text.StringBuilder(\"Ne\"); b.Append(\"o\"); object r = string.Concat(b.ToString(), \"\"); return r is string ? \"string\" : \"other\";", _ => "string", false);
+        AssertScenario("var b = new System.Text.StringBuilder(\"Ne\"); b.Append(\"o\"); object r = string.Concat(\"\", b.ToString()); return r is string ? \"string\" : \"other\";", _ => "string", false);
     }
 
     [TestMethod]
@@ -194,7 +201,7 @@ public class Contract : SmartContract
     public void Test_ConcatRight()
     {
         Assert.AreEqual("Neo", Contract.ConcatRight("Neo"));
-        AssertGasConsumed(1047420);
+        AssertGasConsumed(1293180);
         Assert.AreEqual("", Contract.ConcatRight(null));
     }
 
@@ -202,7 +209,7 @@ public class Contract : SmartContract
     public void Test_ConcatLeft()
     {
         Assert.AreEqual("Neo", Contract.ConcatLeft("Neo"));
-        AssertGasConsumed(1047420);
+        AssertGasConsumed(1293180);
         Assert.AreEqual("", Contract.ConcatLeft(null));
     }
 
