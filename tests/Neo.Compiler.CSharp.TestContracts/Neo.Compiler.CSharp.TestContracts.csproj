@@ -5,6 +5,8 @@
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>false</IsTestProject>
+		<!-- Fixtures deliberately accumulate strings in loops; NC4065 covers user contracts. -->
+		<NoWarn>$(NoWarn);NC4065</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
