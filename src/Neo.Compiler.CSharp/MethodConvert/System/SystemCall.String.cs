@@ -171,22 +171,6 @@ internal partial class MethodConvert
         methodConvert.Ge();
     }
 
-    /// <summary>
-    /// Replaces a NUL character on top of the stack with a single 0x00 byte, so that the value
-    /// keeps one byte of length instead of collapsing into an empty byte string.
-    /// </summary>
-    /// <param name="methodConvert">The method converter instance</param>
-    private static void NormalizeNulChar(MethodConvert methodConvert)
-    {
-        JumpTarget endTarget = new();
-
-        methodConvert.Dup();
-        methodConvert.JumpIfTrue(endTarget);
-        methodConvert.Drop();
-        methodConvert.Push(new byte[] { 0 });
-        endTarget.Instruction = methodConvert.Nop();
-    }
-
     private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -968,10 +952,9 @@ internal partial class MethodConvert
     /// <remarks>
     /// Width is measured in bytes, consistent with how the compiler treats string length
     /// (<see cref="OpCode.SIZE"/>); for ASCII text this matches .NET's character semantics.
-    /// The padding character is an integer, so concatenating it emits its minimal little-endian
-    /// bytes and its size is exactly that byte count. That allows the padding to be doubled and
-    /// trimmed once instead of concatenating the character one byte group at a time.
-    /// A NUL character is normalized to a single 0x00 byte so that it still pads one byte per repetition.
+    /// The padding character is encoded as its UTF-8 bytes, so non-ASCII fills stay valid
+    /// strings. That allows the padding to be doubled and trimmed once instead of concatenating
+    /// the character one byte group at a time.
     /// </remarks>
     private static void EmitStringPad(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool padLeft)
@@ -991,21 +974,27 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
 
         // stack: [string, count, char]
-        // Store the padding character (default is a space).
+        // Store the padding character (default is a space) before measuring the padding.
         if (arguments?.Count < 2) methodConvert.Push(' ');
-        NormalizeNulChar(methodConvert);                           // '\0' -> a single 0x00 byte
         methodConvert.AccessSlot(OpCode.STLOC, fillSlot);          // stack: [string, count]
 
-        // padLength = (totalWidth - size(str)) * size(fill), keeping the string on the stack.
+        // reps = totalWidth - size(str), keeping the string on the stack.
         methodConvert.Over();                                      // stack: [string, count, string]
         methodConvert.Size();
-        methodConvert.Sub();
-        methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);
-        methodConvert.Size();
-        methodConvert.Mul();                                       // stack: [string, padLength]
+        methodConvert.Sub();                                       // stack: [string, reps]
         methodConvert.Dup();
         methodConvert.Push0();
         methodConvert.JumpIfLessOrEqual(noPaddingTarget);          // Nothing to pad, return the string unchanged
+        methodConvert.AccessSlot(OpCode.STLOC, padLengthSlot);     // stack: [string]
+
+        // Encode the fill as UTF-8, then padLength = reps * size(fill).
+        methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);
+        methodConvert.ConvertCharToUtf8(toByteString: true);
+        methodConvert.AccessSlot(OpCode.STLOC, fillSlot);          // stack: [string]
+        methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);
+        methodConvert.Size();                                      // stack: [string, size(fill)]
+        methodConvert.AccessSlot(OpCode.LDLOC, padLengthSlot);
+        methodConvert.Mul();                                       // stack: [string, padLength]
         methodConvert.AccessSlot(OpCode.STLOC, padLengthSlot);     // stack: [string]
 
         // Double the fill until it covers padLength bytes, keeping the padding on the stack.

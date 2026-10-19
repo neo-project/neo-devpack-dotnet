@@ -47,6 +47,12 @@ public class Contract : SmartContract
     [DisplayName(""padRightMid"")]
     public static string PadRightMid(string s) => s.PadRight(7, (char)0x0100);
 
+    [DisplayName(""padLeftAccent"")]
+    public static string PadLeftAccent(string s, int width) => s.PadLeft(width, 'é');
+
+    [DisplayName(""padRightAccent"")]
+    public static string PadRightAccent(string s, int width) => s.PadRight(width, 'é');
+
     [DisplayName(""padLeftWide"")]
     public static string PadLeftWide(string s, int width) => s.PadLeft(width, '*');
 }";
@@ -73,10 +79,12 @@ public class Contract : SmartContract
         // Empty input.
         Assert.AreEqual("".PadLeft(3), contract.PadLeft("", 3));
 
-        // A NUL char is normalized to one 0x00 byte per repetition (matching .NET), while other
-        // fill chars are still emitted as their minimal little-endian bytes ("00 01" for 0x0100).
+        // A NUL char pads with one 0x00 byte per repetition, and every other fill char uses its
+        // UTF-8 encoding, matching .NET for both.
         Assert.AreEqual("ab".PadLeft(5, '\0'), contract.PadLeftNul("ab", 5));
-        Assert.AreEqual("ab\u0000\u0001\u0000\u0001\u0000\u0001\u0000\u0001\u0000\u0001", contract.PadRightMid("ab"));
+        Assert.AreEqual("ab".PadRight(7, (char)0x0100), contract.PadRightMid("ab"));
+        Assert.AreEqual("abc".PadLeft(5, 'é'), contract.PadLeftAccent("abc", 5));
+        Assert.AreEqual("abc".PadRight(5, 'é'), contract.PadRightAccent("abc", 5));
 
         // Wide padding needs only logarithmically many concatenations.
         Assert.AreEqual("abc".PadLeft(20, '*'), contract.PadLeftWide("abc", 20));
@@ -85,7 +93,7 @@ public class Contract : SmartContract
         using (var watcher = engine.CreateFeeWatcher())
         {
             Assert.AreEqual("abc", contract.PadLeft("abc", 3));
-            Assert.AreEqual(1048590, watcher.Value);
+            Assert.AreEqual(1048050, watcher.Value);
         }
     }
 
@@ -109,6 +117,12 @@ public class Contract : SmartContract
 
         [DisplayName("padRightMid")]
         public abstract string? PadRightMid(string s);
+
+        [DisplayName("padLeftAccent")]
+        public abstract string? PadLeftAccent(string s, BigInteger width);
+
+        [DisplayName("padRightAccent")]
+        public abstract string? PadRightAccent(string s, BigInteger width);
 
         [DisplayName("padLeftWide")]
         public abstract string? PadLeftWide(string s, BigInteger width);
