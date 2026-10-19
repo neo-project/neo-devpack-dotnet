@@ -913,6 +913,40 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringConcat(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (arguments is not null && symbol.Parameters.Length == 2)
+        {
+            var expressions = MapArgumentExpressionsToParameters(symbol, arguments);
+            if (expressions.TryGetValue(symbol.Parameters[0], out var first)
+                && expressions.TryGetValue(symbol.Parameters[1], out var second))
+            {
+                bool firstEmpty = IsConstantEmptyString(model, first);
+                bool secondEmpty = IsConstantEmptyString(model, second);
+                if (firstEmpty || secondEmpty)
+                {
+                    // Constant empty operands have no side effects, so only the other operand is evaluated.
+                    if (firstEmpty && secondEmpty)
+                    {
+                        methodConvert.Push("");
+                        return;
+                    }
+                    var value = firstEmpty ? second : first;
+                    methodConvert.ConvertExpression(model, value);
+                    var notNull = new JumpTarget();
+                    methodConvert.Dup();
+                    methodConvert.IsNull();
+                    methodConvert.JumpIfNot(notNull);
+                    methodConvert.Drop();
+                    methodConvert.Push("");
+                    notNull.Instruction = methodConvert.Nop();
+                    // Runtime strings can be backed by buffers, for example StringBuilder contents.
+                    // Preserve Concat's byte-string result even when CAT is unnecessary.
+                    if (!model.GetConstantValue(value).HasValue)
+                        methodConvert.ChangeType(StackItemType.ByteString);
+                    return;
+                }
+            }
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -933,6 +967,12 @@ internal partial class MethodConvert
         secondNotNull.Instruction = methodConvert.Nop();           // Second not null target
         methodConvert.Cat();                                       // Concatenate strings
         methodConvert.ChangeType(StackItemType.ByteString);        // The CAT result is a buffer, so add CONVERT opcode.
+    }
+
+    private static bool IsConstantEmptyString(SemanticModel model, ExpressionSyntax expression)
+    {
+        var constant = model.GetConstantValue(expression);
+        return constant.HasValue && constant.Value is string { Length: 0 };
     }
 
     private static void HandleStringPadLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
