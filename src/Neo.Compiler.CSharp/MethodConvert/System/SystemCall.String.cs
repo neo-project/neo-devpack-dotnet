@@ -984,7 +984,7 @@ internal partial class MethodConvert
         methodConvert.Sub();                                       // stack: [string, reps]
         methodConvert.Dup();
         methodConvert.Push0();
-        methodConvert.JumpIfLessOrEqual(noPaddingTarget);          // Nothing to pad, return the string unchanged
+        methodConvert.Jump(OpCode.JMPLE_L, noPaddingTarget);        // UTF-8 encoding can exceed a short branch.
         methodConvert.AccessSlot(OpCode.STLOC, padLengthSlot);     // stack: [string]
 
         // Encode the fill as UTF-8, then padLength = reps * size(fill).

@@ -11,10 +11,12 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -126,5 +128,49 @@ public class Contract : SmartContract
 
         [DisplayName("padLeftWide")]
         public abstract string? PadLeftWide(string s, BigInteger width);
+    }
+    [TestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.Basic)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
+    public void RuntimeFillsPreserveUtf8Boundaries(CompilationOptions.OptimizationType level)
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+            public class Contract : SmartContract
+            {
+                [DisplayName("left")]
+                public static string Left(string s, int width, char fill) => s.PadLeft(width, fill);
+                [DisplayName("right")]
+                public static string Right(string s, int width, char fill) => s.PadRight(width, fill);
+            }
+            """;
+        var options = TestHelper.CreateDefaultOptions();
+        options.Optimize = level;
+        var context = TestHelper.CompileSingleContract(source, options);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<PaddingContract>(context.CreateExecutable(), context.CreateManifest());
+        foreach (char fill in new[] { '\0', '\x7f', '\x80', '\u07ff', '\u0800', '\ud7ff', '\ud800', '\udfff', '\ue000', '\uffff' })
+            foreach (string input in new[] { "", "ab", "\u00e9" })
+                foreach (int width in new[] { 0, 1, 4, 9 })
+                {
+                    var repeat = Math.Max(0, width - Encoding.UTF8.GetByteCount(input));
+                    var padding = Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(new string(fill, repeat)));
+                    var label = $"{level}, U+{(int)fill:X4}, {input}, {width}";
+                    Assert.AreEqual(padding + input, contract.Left(input, width, (int)fill), label);
+                    Assert.AreEqual(input + padding, contract.Right(input, width, (int)fill), label);
+                }
+        Assert.ThrowsExactly<TestException>(() => contract.Left(null, 4, 0x80));
+        Assert.ThrowsExactly<TestException>(() => contract.Right(null, 4, 0x800));
+    }
+
+    public abstract class PaddingContract(SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("left")]
+        public abstract string? Left(string? input, BigInteger width, BigInteger fill);
+        [DisplayName("right")]
+        public abstract string? Right(string? input, BigInteger width, BigInteger fill);
     }
 }
