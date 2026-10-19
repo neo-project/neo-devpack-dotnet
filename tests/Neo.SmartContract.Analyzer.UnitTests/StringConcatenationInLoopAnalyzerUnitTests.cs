@@ -382,4 +382,23 @@ public class StringConcatenationInLoopAnalyzerUnitTests
             VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(1).WithArguments("Shared"));
     }
 
+    [TestMethod]
+    public async Task UserDefinedReceiverConversion_ShouldNotAssumeSameInstance()
+    {
+        var test = """
+                   class Item { public string Text; }
+                   class Test
+                   {
+                       public static explicit operator Item(Test source) => new Item();
+                       void Build(int count)
+                       {
+                           var source = new Test();
+                           for (int i = 0; i < count; i++)
+                               ((Item)source).Text = ((Item)source).Text + "a";
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
 }

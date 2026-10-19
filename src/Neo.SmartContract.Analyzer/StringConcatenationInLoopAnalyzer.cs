@@ -148,7 +148,7 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
 
     private static IOperation Unwrap(IOperation operation)
     {
-        while (operation is IConversionOperation or IParenthesizedOperation)
+        while (operation is IConversionOperation { OperatorMethod: null } or IParenthesizedOperation)
             operation = operation.ChildOperations.First();
         return operation;
     }
