@@ -194,4 +194,192 @@ public class StringConcatenationInLoopAnalyzerUnitTests
 
         await VerifyCS.VerifyAnalyzerAsync(test);
     }
+    [TestMethod]
+    public async Task DeferredFunctionsInsideLoop_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       void Build(int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                           {
+                               System.Action append = () => result += "a";
+                               System.Action anonymous = delegate { result += "b"; };
+                               void Append() { result += "c"; }
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task LoopSetup_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       void Build(int count)
+                       {
+                           var result = "";
+                           for (result += "a"; count > 0; count--) { }
+                           for (string value = result += "b"; count > 0; count--) { }
+                           foreach (var c in result += "c") { }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task ForInitializerLocal_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       void Build(int count)
+                       {
+                           for (string result = ""; result.Length < count; {|#0:result += "a"|})
+                               {|#1:result = result + "b"|};
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"),
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(1).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task DifferentMemberReceivers_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       public string Text { get; set; }
+                       public string Field;
+                       void Build(Test other, int count)
+                       {
+                           for (int i = 0; i < count; i++)
+                           {
+                               this.Text = other.Text + "a";
+                               this.Field = other.Field + "a";
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task NestedConcatenationAndParameter_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(string result, int count)
+                       {
+                           for (int i = 0; i < count; i++)
+                               {|#0:result = "[" + result + "]"|};
+                           return result;
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task InnerLoopSetup_RepeatedByOuterLoop_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                               for ({|#0:result += "a"|}; false;) { }
+                           return result;
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task SameMemberReceiver_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       public string Text { get; set; }
+                       public string Field;
+                       void Build(int count)
+                       {
+                           for (int i = 0; i < count; i++)
+                           {
+                               {|#0:this.Text = Text + "a"|};
+                               {|#1:Field = this.Field + "a"|};
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("this.Text"),
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(1).WithArguments("Field"));
+    }
+
+    [TestMethod]
+    public async Task LoopInsideLocalFunction_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       void Build(int count)
+                       {
+                           var result = "";
+                           void Append()
+                           {
+                               while (result.Length < count)
+                                   {|#0:result += "a"|};
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task MemberAccesses_ShouldRequireMatchingStableReceivers()
+    {
+        var test = """
+                   class Test
+                   {
+                       public string Text { get; set; }
+                       static string Shared;
+                       string this[int index] { get => ""; set { } }
+                       Test Next() => new Test();
+                       void Build(Test left, Test right, string[] values, int count)
+                       {
+                           for (int i = 0; i < count; i++)
+                           {
+                               {|#0:left.Text = left.Text + "a"|};
+                               left.Text = right.Text + "a";
+                               {|#1:Shared += "a"|};
+                               Next().Text += "a";
+                               this[i] = this[i] + "a";
+                               values[i] += "a";
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("left.Text"),
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(1).WithArguments("Shared"));
+    }
+
 }

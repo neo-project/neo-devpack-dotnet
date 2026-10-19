@@ -30,7 +30,7 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
         "Usage",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Every concatenation copies the accumulated value, so the total gas cost grows with the iteration count multiplied by the string length. Use StringBuilder with a bounded length, or move the concatenation outside the loop.");
+        description: "Every concatenation copies the accumulated value. Bound the accumulated length and iteration count, or move the concatenation outside the loop.");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
@@ -61,14 +61,7 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
         if (binary.OperatorKind != BinaryOperatorKind.Add || binary.Type?.SpecialType != SpecialType.System_String)
             return;
 
-        var target = GetReferencedSymbol(assignment.Target);
-        if (target is null)
-            return;
-        var operands = binary.ChildOperations.ToArray();
-        if (operands.Length < 2)
-            return;
-        if (!SymbolEqualityComparer.Default.Equals(target, GetReferencedSymbol(operands[0]))
-            && !SymbolEqualityComparer.Default.Equals(target, GetReferencedSymbol(operands[1])))
+        if (!ContainsTarget(binary, assignment.Target))
             return;
 
         ReportIfAccumulatesInLoop(context, assignment.Target);
@@ -77,12 +70,12 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
     private static void ReportIfAccumulatesInLoop(OperationAnalysisContext context, IOperation target)
     {
         var loop = FindEnclosingLoop(context.Operation.Syntax);
-        if (loop is null)
+        if (loop is null || !ReferencesSameStorage(target, target))
             return;
 
         // A local that is recreated on every iteration does not accumulate anything.
-        if (GetReferencedSymbol(target) is ILocalSymbol local
-            && local.DeclaringSyntaxReferences.Any(reference => loop.Span.Contains(reference.Span)))
+        if (Unwrap(target) is ILocalReferenceOperation { Local: var local }
+            && local.DeclaringSyntaxReferences.Any(reference => IsRepeatedWithinLoop(loop, reference.GetSyntax(context.CancellationToken))))
             return;
 
         context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), target.Syntax.ToString()));
@@ -92,25 +85,72 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
     {
         for (var parent = node.Parent; parent is not null; parent = parent.Parent)
         {
+            // A nested function runs when called, not when the enclosing loop creates it.
+            if (parent is AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax)
+                return null;
             if (parent is ForStatementSyntax or ForEachStatementSyntax or ForEachVariableStatementSyntax
                 or WhileStatementSyntax or DoStatementSyntax)
-                return parent;
+            {
+                if (IsRepeatedWithinLoop(parent, node))
+                    return parent;
+            }
         }
 
         return null;
     }
 
-    private static ISymbol? GetReferencedSymbol(IOperation operation)
+    private static bool IsRepeatedWithinLoop(SyntaxNode loop, SyntaxNode node)
+    {
+        if (!loop.Span.Contains(node.Span))
+            return false;
+
+        // Initializers and the foreach collection expression execute once per loop entry.
+        return loop switch
+        {
+            ForStatementSyntax statement => statement.Declaration?.Span.Contains(node.Span) != true
+                && !statement.Initializers.Any(initializer => initializer.Span.Contains(node.Span)),
+            CommonForEachStatementSyntax statement => !statement.Expression.Span.Contains(node.Span),
+            _ => true,
+        };
+    }
+
+    private static bool ContainsTarget(IOperation operation, IOperation target)
+    {
+        operation = Unwrap(operation);
+        if (ReferencesSameStorage(operation, target))
+            return true;
+        return operation is IBinaryOperation { OperatorKind: BinaryOperatorKind.Add } binary
+            && binary.Type?.SpecialType == SpecialType.System_String
+            && (ContainsTarget(binary.LeftOperand, target) || ContainsTarget(binary.RightOperand, target));
+    }
+
+    private static bool ReferencesSameStorage(IOperation? left, IOperation? right)
+    {
+        if (left is null || right is null)
+            return left is null && right is null;
+        left = Unwrap(left);
+        right = Unwrap(right);
+
+        return (left, right) switch
+        {
+            (ILocalReferenceOperation a, ILocalReferenceOperation b) => SymbolEqualityComparer.Default.Equals(a.Local, b.Local),
+            (IParameterReferenceOperation a, IParameterReferenceOperation b) => SymbolEqualityComparer.Default.Equals(a.Parameter, b.Parameter),
+            (IInstanceReferenceOperation a, IInstanceReferenceOperation b) => a.ReferenceKind == InstanceReferenceKind.ContainingTypeInstance
+                && b.ReferenceKind == InstanceReferenceKind.ContainingTypeInstance,
+            (IFieldReferenceOperation a, IFieldReferenceOperation b) => SymbolEqualityComparer.Default.Equals(a.Field, b.Field)
+                && ReferencesSameStorage(a.Instance, b.Instance),
+            (IPropertyReferenceOperation a, IPropertyReferenceOperation b) => !a.Property.IsIndexer
+                && SymbolEqualityComparer.Default.Equals(a.Property, b.Property)
+                && ReferencesSameStorage(a.Instance, b.Instance),
+            _ => false,
+        };
+    }
+
+    private static IOperation Unwrap(IOperation operation)
     {
         while (operation is IConversionOperation or IParenthesizedOperation)
             operation = operation.ChildOperations.First();
-
-        return operation switch
-        {
-            ILocalReferenceOperation local => local.Local,
-            IFieldReferenceOperation field => field.Field,
-            IPropertyReferenceOperation property => property.Property,
-            _ => null,
-        };
+        return operation;
     }
+
 }
