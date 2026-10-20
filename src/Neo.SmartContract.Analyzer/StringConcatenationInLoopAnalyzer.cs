@@ -28,7 +28,7 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
         "String concatenation inside a loop",
         "String '{0}' is extended with concatenation inside a loop",
         "Usage",
-        DiagnosticSeverity.Warning,
+        DiagnosticSeverity.Info,
         isEnabledByDefault: true,
         description: "Every concatenation copies the accumulated value. Bound the accumulated length and iteration count, or move the concatenation outside the loop.");
 
