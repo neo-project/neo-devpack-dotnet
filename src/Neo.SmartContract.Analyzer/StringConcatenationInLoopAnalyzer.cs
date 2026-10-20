@@ -124,7 +124,7 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
             && (ContainsTarget(binary.LeftOperand, target) || ContainsTarget(binary.RightOperand, target));
     }
 
-    private static bool ReferencesSameStorage(IOperation? left, IOperation? right)
+    private static bool ReferencesSameStorage(IOperation? left, IOperation? right, bool allowProperty = true)
     {
         if (left is null || right is null)
             return left is null && right is null;
@@ -138,10 +138,11 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
             (IInstanceReferenceOperation a, IInstanceReferenceOperation b) => a.ReferenceKind == InstanceReferenceKind.ContainingTypeInstance
                 && b.ReferenceKind == InstanceReferenceKind.ContainingTypeInstance,
             (IFieldReferenceOperation a, IFieldReferenceOperation b) => SymbolEqualityComparer.Default.Equals(a.Field, b.Field)
-                && ReferencesSameStorage(a.Instance, b.Instance),
-            (IPropertyReferenceOperation a, IPropertyReferenceOperation b) => !a.Property.IsIndexer
+                && ReferencesSameStorage(a.Instance, b.Instance, allowProperty: false),
+            // A property can store the string, but its getter may return a fresh receiver.
+            (IPropertyReferenceOperation a, IPropertyReferenceOperation b) => allowProperty && !a.Property.IsIndexer
                 && SymbolEqualityComparer.Default.Equals(a.Property, b.Property)
-                && ReferencesSameStorage(a.Instance, b.Instance),
+                && ReferencesSameStorage(a.Instance, b.Instance, allowProperty: false),
             _ => false,
         };
     }

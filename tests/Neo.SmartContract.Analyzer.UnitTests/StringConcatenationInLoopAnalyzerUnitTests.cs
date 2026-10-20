@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<
     Neo.SmartContract.Analyzer.StringConcatenationInLoopAnalyzer>;
@@ -37,6 +38,7 @@ public class StringConcatenationInLoopAnalyzerUnitTests
 
         var expected = VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId)
             .WithLocation(0)
+            .WithSeverity(DiagnosticSeverity.Info)
             .WithArguments("result");
 
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
@@ -380,6 +382,41 @@ public class StringConcatenationInLoopAnalyzerUnitTests
         await VerifyCS.VerifyAnalyzerAsync(test,
             VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("left.Text"),
             VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(1).WithArguments("Shared"));
+    }
+
+    [TestMethod]
+    public async Task PropertyReceiver_ShouldNotAssumeSameInstance()
+    {
+        var test = """
+                   class Item
+                   {
+                       public string Text { get; set; }
+                       public string Field;
+                   }
+                   class Container { public Item Item = new Item(); }
+                   class Test
+                   {
+                       Item Next => new Item();
+                       static Item Shared => new Item();
+                       Container Group => new Container();
+                       void Build(int count)
+                       {
+                           var saved = Next;
+                           for (int i = 0; i < count; i++)
+                           {
+                               Next.Text += "a";
+                               Next.Field = Next.Field + "a";
+                               Shared.Text = Shared.Text + "a";
+                               Group.Item.Text += "a";
+                               {|#0:saved.Text += "a"|};
+                               {|#1:saved.Field = saved.Field + "a"|};
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("saved.Text"),
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(1).WithArguments("saved.Field"));
     }
 
     [TestMethod]
