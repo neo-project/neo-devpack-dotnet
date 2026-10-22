@@ -129,6 +129,29 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
         ReportIfUnsupportedType(context, propertyDeclaration.Type.GetLocation(), type, specialType, rule, getMessageArgs);
     }
 
+    internal static void AnalyzeAdditionalMemberDeclaration(
+        SyntaxNodeAnalysisContext context,
+        SpecialType specialType,
+        DiagnosticDescriptor rule,
+        Func<ITypeSymbol, object?[]> getMessageArgs)
+    {
+        var typeSyntax = GetAdditionalMemberType(context.Node);
+        if (typeSyntax is null) return;
+
+        var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
+        ReportIfUnsupportedType(context, typeSyntax.GetLocation(), type, specialType, rule, getMessageArgs);
+    }
+
+    internal static TypeSyntax? GetAdditionalMemberType(SyntaxNode node) => node switch
+    {
+        EventFieldDeclarationSyntax field => field.Declaration.Type,
+        EventDeclarationSyntax @event => @event.Type,
+        IndexerDeclarationSyntax indexer => indexer.Type,
+        DelegateDeclarationSyntax @delegate => @delegate.ReturnType,
+        OperatorDeclarationSyntax @operator => @operator.ReturnType,
+        _ => null
+    };
+
     internal static void AnalyzeExpression(
         SyntaxNodeAnalysisContext context,
         SpecialType specialType,
@@ -170,6 +193,8 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
                     context.SemanticModel.GetTypeInfo(property.Type, context.CancellationToken).Type,
                 ParameterSyntax parameter when parameter.Type is not null =>
                     context.SemanticModel.GetTypeInfo(parameter.Type, context.CancellationToken).Type,
+                _ when GetAdditionalMemberType(ancestor) is { } memberType =>
+                    context.SemanticModel.GetTypeInfo(memberType, context.CancellationToken).Type,
                 _ => null
             };
 
