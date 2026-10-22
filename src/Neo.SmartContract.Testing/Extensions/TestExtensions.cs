@@ -89,9 +89,9 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             if (stackItem is null || stackItem.IsNull) return null;
 
-            var enumType = Nullable.GetUnderlyingType(type) ?? type;
-            if (enumType.IsEnum)
-                return Enum.ToObject(enumType, stackItem.ConvertTo(Enum.GetUnderlyingType(enumType), stringInterpreter)!);
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            if (type.IsEnum)
+                return Enum.ToObject(type, stackItem.ConvertTo(Enum.GetUnderlyingType(type), stringInterpreter)!);
 
             return type switch
             {
@@ -105,6 +105,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(sbyte) || type == typeof(sbyte?) => (sbyte)stackItem.GetInteger(),
                 _ when type == typeof(short) || type == typeof(short?) => (short)stackItem.GetInteger(),
                 _ when type == typeof(ushort) || type == typeof(ushort?) => (ushort)stackItem.GetInteger(),
+                _ when type == typeof(char) => (char)(ushort)stackItem.GetInteger(),
                 _ when type == typeof(int) || type == typeof(int?) => (int)stackItem.GetInteger(),
                 _ when type == typeof(uint) || type == typeof(uint?) => (uint)stackItem.GetInteger(),
                 _ when type == typeof(long) || type == typeof(long?) => (long)stackItem.GetInteger(),
