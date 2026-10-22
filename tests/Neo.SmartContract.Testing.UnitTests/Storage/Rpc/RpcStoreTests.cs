@@ -218,6 +218,23 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         }
 
         [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public void RpcStoreFindRejectsCyclesAcrossMultiplePages(bool keyCursor)
+        {
+            string Page(int cursor) => "{\"result\":{\"results\":[{\"key\":\"Ag==\",\"value\":\"BA==\"}],\"truncated\":true,\"next\":"
+                + (keyCursor ? "\"" + Convert.ToBase64String([(byte)cursor]) + "\"" : cursor.ToString()) + "}}";
+            using var server = new RpcResponseServer(Page(1), Page(2), Page(1), Page(2));
+            var store = new RpcStore(server.Url);
+
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
+                store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).Take(4).ToArray());
+
+            StringAssert.Contains(exception.Message, "findstorage");
+            Assert.AreEqual(3, server.Requests.Count);
+        }
+
+        [TestMethod]
         public void RpcSnapshotDelegatesReadsAndTracksState()
         {
             using var server = new RpcResponseServer(

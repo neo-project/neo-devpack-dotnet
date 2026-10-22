@@ -146,6 +146,7 @@ public class RpcStore : IStore
 
         var skey = new StorageKey(key);
         JToken? next = null;
+        var continuations = new HashSet<JToken>(new JTokenEqualityComparer());
         var keyPrefix = Convert.ToBase64String(skey.Key.ToArray());
 
         while (true)
@@ -196,7 +197,7 @@ public class RpcStore : IStore
                 if (results.Count == 0 ||
                     continuation?.Type is not (JTokenType.Integer or JTokenType.String) ||
                     continuation.Type == JTokenType.String && string.IsNullOrEmpty(continuation.Value<string>()) ||
-                    JToken.DeepEquals(next, continuation))
+                    !continuations.Add(continuation))
                 {
                     throw UnexpectedRpcResponse("findstorage", jo);
                 }

@@ -3,6 +3,7 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|---------------------------------
 NC4064  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (user-defined compound assignment operators)
+NC4065  | Usage    | Info     | StringConcatenationInLoopAnalyzer
 
 ### Changed Rules
 
