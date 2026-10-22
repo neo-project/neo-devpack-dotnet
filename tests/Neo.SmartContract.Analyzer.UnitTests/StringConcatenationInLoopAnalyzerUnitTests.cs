@@ -160,6 +160,99 @@ public class StringConcatenationInLoopAnalyzerUnitTests
     }
 
     [TestMethod]
+    public async Task MembersOfLocalCreatedInsideLoop_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Item
+                   {
+                       public string Text { get; set; }
+                       public string Field;
+                   }
+                   class Container { public Item Item = new Item(); }
+                   class Test
+                   {
+                       void Build(int count)
+                       {
+                           for (int i = 0; i < count; i++)
+                           {
+                               var item = new Item();
+                               item.Text += "a";
+                               item.Field = item.Field + "b";
+                               var container = new Container();
+                               container.Item.Text = "[" + container.Item.Text + "]";
+                               container.Item.Field += "c";
+                           }
+                           while (count-- > 0)
+                           {
+                               var item = new Item();
+                               item.Text = item.Text + "a";
+                           }
+                           do
+                           {
+                               var item = new Item();
+                               item.Field += "a";
+                           } while (count-- > 0);
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task MembersOfForeachLocal_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Item
+                   {
+                       public string Text { get; set; }
+                       public string Field;
+                   }
+                   class Test
+                   {
+                       void Build(Item[] items)
+                       {
+                           foreach (var item in items)
+                           {
+                               item.Text += "a";
+                               item.Field = item.Field + "b";
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task MembersOfLocalRetainedAcrossIterations_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Item { public string Text; }
+                   class Container { public Item Item = new Item(); }
+                   class Test
+                   {
+                       void Build(int count)
+                       {
+                           var container = new Container();
+                           for (int i = 0; i < count; i++)
+                               {|#0:container.Item.Text += "a"|};
+                           for (var item = new Item(); item.Text.Length < count;)
+                               {|#1:item.Text = item.Text + "b"|};
+                           for (int i = 0; i < count; i++)
+                           {
+                               var item = new Item();
+                               for (int j = 0; j < count; j++)
+                                   {|#2:item.Text += "c"|};
+                           }
+                       }
+                   }
+                   """;
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("container.Item.Text"),
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(1).WithArguments("item.Text"),
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(2).WithArguments("item.Text"));
+    }
+
+    [TestMethod]
     public async Task UnrelatedConcatenationInsideLoop_ShouldNotReportDiagnostic()
     {
         var test = """

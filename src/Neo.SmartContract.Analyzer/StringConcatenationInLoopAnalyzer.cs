@@ -73,8 +73,11 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
         if (loop is null || !ReferencesSameStorage(target, target))
             return;
 
-        // A local that is recreated on every iteration does not accumulate anything.
-        if (Unwrap(target) is ILocalReferenceOperation { Local: var local }
+        // Per-iteration locals and their members are not assumed to share storage across iterations.
+        var storage = Unwrap(target);
+        while (storage is IMemberReferenceOperation { Instance: { } instance })
+            storage = Unwrap(instance);
+        if (storage is ILocalReferenceOperation { Local: var local }
             && local.DeclaringSyntaxReferences.Any(reference => IsRepeatedWithinLoop(loop, reference.GetSyntax(context.CancellationToken))))
             return;
 
