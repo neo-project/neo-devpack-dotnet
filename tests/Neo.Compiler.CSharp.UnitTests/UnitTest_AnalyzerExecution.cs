@@ -14,6 +14,24 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_AnalyzerExecution
 {
     [TestMethod]
+    [DataRow("public float this[int index] => default;", "NC4002")]
+    [DataRow("public static event System.Action<double> Changed;", "NC4004")]
+    [DataRow("public delegate decimal Factory();", "NC4003")]
+    [DataRow("public static System.Collections.Generic.List<int> operator +(Contract value) => default;", "NC4013")]
+    [DataRow("public delegate System.Collections.Generic.List<int> Factory();", "NC4013")]
+    public void CompileProject_ReportsUnsupportedSignaturesBeforeLowering(string member, string diagnosticId)
+    {
+        using var project = TempContractProject.Create("using Neo.SmartContract.Framework; public class Contract : SmartContract { "
+            + member + " public static int Main() => 1; }");
+        var result = CreateEngine().CompileProject(project.ProjectFile).Single();
+        var diagnostics = result.Diagnostics.Where(item => item.Id == diagnosticId).ToArray();
+        Assert.HasCount(1, diagnostics, string.Join(Environment.NewLine, result.Diagnostics));
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(DiagnosticSeverity.Error, diagnostics[0].Severity);
+        Assert.IsFalse(result.Diagnostics.Any(item => item.Id is "NC1002" or "AD0001"));
+    }
+
+    [TestMethod]
     [DataRow("public static System.Collections.Generic.List<int> values;")]
     [DataRow("public System.Collections.Generic.List<int> this[int index] => null;")]
     [DataRow("public static event System.Action<System.Collections.Generic.List<int>> Changed;")]
