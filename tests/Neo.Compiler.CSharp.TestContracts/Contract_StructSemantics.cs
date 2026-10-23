@@ -147,6 +147,30 @@ namespace Neo.Compiler.CSharp.TestContracts
             return sum;
         }
 
+        public record struct Frame(Point Origin, int Scale);
+
+        /// <summary>
+        /// A with-expression on a record struct that holds a struct copies the nested struct too.
+        /// </summary>
+        public static int CopyOnWithExpression(int a)
+        {
+            var one = new Frame(new Point { X = a, Y = 2 }, 3);
+            var two = one with { Scale = 4 };
+            return two.Origin.X * 1000 + two.Scale;
+        }
+
+        /// <summary>
+        /// A foreach loop that deconstructs its element copies the struct parts.
+        /// </summary>
+        public static int CopyInDeconstructionForeach(int a)
+        {
+            var items = new (Point, int)[] { (new Point { X = a, Y = 2 }, 3) };
+            var sum = 0;
+            foreach (var (point, count) in items)
+                sum += point.X + count;
+            return sum;
+        }
+
         /// <summary>
         /// A tuple is a value type, so assigning it copies it.
         /// </summary>

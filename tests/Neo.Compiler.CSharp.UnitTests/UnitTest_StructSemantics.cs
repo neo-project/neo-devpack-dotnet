@@ -72,6 +72,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_CopyOnWithExpression()
+        {
+            Assert.AreEqual(7004, (int)Contract.CopyOnWithExpression(7)!.Value);
+        }
+
+        [TestMethod]
+        public void Test_CopyInDeconstructionForeach()
+        {
+            Assert.AreEqual(10, (int)Contract.CopyInDeconstructionForeach(7)!.Value);
+        }
+
+        [TestMethod]
         public void Test_CopyOnTupleAssignment()
         {
             Assert.AreEqual(7099, (int)Contract.CopyOnTupleAssignment(7, 3)!.Value);
