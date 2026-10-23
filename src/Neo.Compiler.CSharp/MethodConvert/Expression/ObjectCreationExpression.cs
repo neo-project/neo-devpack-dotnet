@@ -58,10 +58,42 @@ internal partial class MethodConvert
                 return;
             CreateObject(model, type);
         }
-        if (!constructor.DeclaringSyntaxReferences.IsEmpty)
+
+        // A constructor whose lowering is described by [OpCode]/[Syscall] attributes has to
+        // be expanded even when the declaring assembly carries no syntax, which is the case
+        // when the framework comes from a compiled assembly rather than a project reference.
+        // IsExtern is not enough to decide this: it reflects the source modifier, and a
+        // constructor read from metadata does not report it.
+        if (HasDeclarativeLowering(constructor) || !constructor.DeclaringSyntaxReferences.IsEmpty)
             CallInstanceMethod(model, constructor, needCreateObject, arguments);
         if (expression.Initializer is not null)
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
+    }
+
+    /// <summary>
+    /// Determines whether a member declares its own lowering through attributes.
+    /// </summary>
+    /// <param name="symbol">The member to inspect.</param>
+    /// <returns>
+    /// <c>true</c> when the member carries an <c>[OpCode]</c> or <c>[Syscall]</c> attribute.
+    /// </returns>
+    /// <remarks>
+    /// <c>ExternConvert</c> expands exactly these attributes, so a member that has one can
+    /// be emitted from metadata alone. Members that carry neither are ordinary calls and
+    /// need their declaring syntax.
+    /// </remarks>
+    private static bool HasDeclarativeLowering(IMethodSymbol symbol)
+    {
+        foreach (AttributeData attribute in symbol.GetAttributes())
+        {
+            string? name = attribute.AttributeClass?.Name;
+            if (name is "OpCodeAttribute" or "SyscallAttribute")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
