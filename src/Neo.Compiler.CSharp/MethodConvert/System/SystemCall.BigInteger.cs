@@ -851,6 +851,9 @@ internal partial class MethodConvert
         // we want:    (l/r) (l%r)
         methodConvert.Reverse3();                                  // l/r, l, r
         methodConvert.Mod();                                       // l/r, l%r
+        // PACK stores the first popped item at index 0, so the remainder has to move below
+        // the quotient for the array to match the declared (Quotient, Remainder) tuple.
+        methodConvert.Swap();                                      // l%r, l/r
         methodConvert.Pack(2);                                     // (l/r, l%r) as array
     }
 
