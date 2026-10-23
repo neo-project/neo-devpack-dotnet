@@ -111,6 +111,43 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         /// <summary>
+        /// A struct boxed into an object is a copy, so a later write to the source is not visible.
+        /// </summary>
+        public static int CopyOnBoxing(int a)
+        {
+            var p = new Point { X = a, Y = a + 1 };
+            object boxed = p;
+            p.X = 99;
+            return ((Point)boxed).X * 1000 + p.X;
+        }
+
+        /// <summary>
+        /// A struct stored in an object array is boxed, so it is a copy as well.
+        /// </summary>
+        public static int CopyIntoObjectArray(int a)
+        {
+            var p = new Point { X = a, Y = a + 1 };
+            var boxed = new object[] { p };
+            p.X = 99;
+            return ((Point)boxed[0]).X * 1000 + p.X;
+        }
+
+        /// <summary>
+        /// A foreach iteration variable is a copy of the element it reads.
+        /// </summary>
+        public static int CopyInForeach(int a)
+        {
+            var arr = new Point[] { new Point { X = a, Y = a + 1 } };
+            int sum = 0;
+            foreach (var p in arr)
+            {
+                arr[0].X = 99;
+                sum += p.X;
+            }
+            return sum;
+        }
+
+        /// <summary>
         /// A struct argument is passed by value, so writes inside the callee stay local.
         /// </summary>
         public static int ArgumentIsCopied(int a)

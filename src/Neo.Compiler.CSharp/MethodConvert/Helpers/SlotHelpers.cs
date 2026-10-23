@@ -465,7 +465,7 @@ internal partial class MethodConvert
             }
 
             ConvertExpression(model, expression);
-            CopyStructValueBeforeStore(parameter.Type, expression);
+            CopyStructValueBeforeStore(model, parameter.Type, expression);
             byte slot = AddAnonymousVariable();
             AccessSlot(OpCode.STLOC, slot);
             anonymousSlots.Add(slot);
@@ -544,7 +544,7 @@ internal partial class MethodConvert
             }
 
             ConvertExpression(model, expression);
-            CopyStructValueBeforeStore(parameter.Type, expression);
+            CopyStructValueBeforeStore(model, parameter.Type, expression);
             byte slot = AddAnonymousVariable();
             AccessSlot(OpCode.STLOC, slot);
             anonymousSlots.Add(slot);
@@ -606,7 +606,7 @@ internal partial class MethodConvert
             if (orderedExpressions[i] is { } expression)
             {
                 ConvertExpression(model, expression);
-                CopyStructValueBeforeStore(symbol.Parameters[i].Type, expression);
+                CopyStructValueBeforeStore(model, symbol.Parameters[i].Type, expression);
             }
             else
                 Push(symbol.Parameters[i].ExplicitDefaultValue);
@@ -718,7 +718,7 @@ internal partial class MethodConvert
     {
         if (!namedArguments.TryGetValue(parameter, out var expression)) return false;
         ConvertExpression(model, expression);
-        CopyStructValueBeforeStore(parameter.Type, expression);
+        CopyStructValueBeforeStore(model, parameter.Type, expression);
         return true;
     }
 
@@ -763,7 +763,7 @@ internal partial class MethodConvert
         if (argumentExpressions.TryGetValue(parameter, out var expression))
         {
             ConvertExpression(model, expression);
-            CopyStructValueBeforeStore(parameter.Type, expression);
+            CopyStructValueBeforeStore(model, parameter.Type, expression);
         }
         else
             Push(parameter.ExplicitDefaultValue);

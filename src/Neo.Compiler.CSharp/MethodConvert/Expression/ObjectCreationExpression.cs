@@ -179,7 +179,7 @@ internal partial class MethodConvert
                 slots.Add((() =>
                 {
                     ConvertExpression(model, value);
-                    CopyStructValueBeforeStore(fieldType, value);
+                    CopyStructValueBeforeStore(model, fieldType, value);
                 }, CanDeferExpressionEmission(model, value)));
             }
             else
@@ -288,7 +288,7 @@ internal partial class MethodConvert
                     int index = GetInstanceFieldIndex(field);
                     Push(index);
                     ConvertExpression(model, ae.Right);
-                    CopyStructValueBeforeStore(field.Type, ae.Right);
+                    CopyStructValueBeforeStore(model, field.Type, ae.Right);
                     AddInstruction(OpCode.SETITEM);
                     break;
                 case IPropertySymbol property:
@@ -321,7 +321,7 @@ internal partial class MethodConvert
                     {
                         // For regular properties:
                         ConvertExpression(model, ae.Right);
-                        CopyStructValueBeforeStore(property.Type, ae.Right);
+                        CopyStructValueBeforeStore(model, property.Type, ae.Right);
                         AddInstruction(OpCode.OVER);
                         CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                     }
