@@ -148,6 +148,26 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         /// <summary>
+        /// A tuple is a value type, so assigning it copies it.
+        /// </summary>
+        public static int CopyOnTupleAssignment(int a, int b)
+        {
+            var t = (a, b);
+            var u = t;
+            u.Item1 = 99;
+            return t.Item1 * 1000 + u.Item1;
+        }
+
+        /// <summary>
+        /// The default value of a tuple is a tuple of default values.
+        /// </summary>
+        public static int DefaultTupleFields()
+        {
+            (int, int) t = default;
+            return t.Item1 * 1000 + t.Item2;
+        }
+
+        /// <summary>
         /// A struct argument is passed by value, so writes inside the callee stay local.
         /// </summary>
         public static int ArgumentIsCopied(int a)

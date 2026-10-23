@@ -18,7 +18,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADcUExIRFL9AVwIAEAsSvxAQCwsVv3BoFBALEr/QEHE04sFFaBJR0GgUzhFR0EVxNNJFaBNp0GhAlLNFvg==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF0UExIRFL9AVwIAEAsSvxAQCwsVv3BoFBALEr/QEHE04hBNE84RTRLOEk0RzhNNEM4Uv0bBRWgSUdBoFM4RUdBFcTS/EE0TzhFNEs4STRHOE00QzhS/RkVoE2nQaEClW4nw").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -44,7 +44,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAEAsSvxAQCwsVv3BoFBALEr/QEHE04sFFaBJR0GgUzhFR0EVxNNJFaBNp0GhA
+    /// Script: VwIAEAsSvxAQCwsVv3BoFBALEr/QEHE04hBNE84RTRLOEk0RzhNNEM4Uv0bBRWgSUdBoFM4RUdBFcTS/EE0TzhFNEs4STRHOE00QzhS/RkVoE2nQaEA=
     /// INITSLOT 0200 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSHNULL [1 datoshi]
@@ -67,6 +67,25 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// PUSH0 [1 datoshi]
     /// STLOC1 [2 datoshi]
     /// CALL E2 [512 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// NIP [2 datoshi]
     /// UNPACK [2048 datoshi]
     /// DROP [2 datoshi]
     /// LDLOC0 [2 datoshi]
@@ -81,7 +100,26 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// SETITEM [8192 datoshi]
     /// DROP [2 datoshi]
     /// STLOC1 [2 datoshi]
-    /// CALL D2 [512 datoshi]
+    /// CALL BF [512 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// NIP [2 datoshi]
     /// DROP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH3 [1 datoshi]

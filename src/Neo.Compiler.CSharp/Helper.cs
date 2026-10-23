@@ -185,11 +185,12 @@ namespace Neo.Compiler
         /// <remarks>
         /// Structs coming from metadata (for example <see cref="BigInteger"/> or the framework integer
         /// wrappers) are not lowered to arrays and are excluded by the missing syntax reference.
-        /// Tuples are stored as plain arrays and handled separately, so they are excluded as well.
+        /// Tuples are value types lowered the same way, so they are included: a tuple assignment has
+        /// to copy as well.
         /// </remarks>
         public static bool IsStructArray(this ITypeSymbol type)
         {
-            return type is INamedTypeSymbol { IsValueType: true, TypeKind: TypeKind.Struct, SpecialType: SpecialType.None, IsTupleType: false } named
+            return type is INamedTypeSymbol { IsValueType: true, TypeKind: TypeKind.Struct, SpecialType: SpecialType.None } named
                 && !named.DeclaringSyntaxReferences.IsEmpty;
         }
 

@@ -213,7 +213,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Tuple2_Test()
         {
             var item = Contract.CheckTuple2()!;
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1113630);
             Assert.AreEqual(2, item.Count);
             Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
             Assert.AreEqual("smart economy", (item[1] as ByteString)?.GetString());
