@@ -178,6 +178,21 @@ namespace Neo.Compiler
             };
         }
 
+        /// <summary>
+        /// Returns true when the type is a struct declared in source code. Such a struct is lowered to
+        /// an array that holds its fields, so it has value semantics on top of a reference type.
+        /// </summary>
+        /// <remarks>
+        /// Structs coming from metadata (for example <see cref="BigInteger"/> or the framework integer
+        /// wrappers) are not lowered to arrays and are excluded by the missing syntax reference.
+        /// Tuples are stored as plain arrays and handled separately, so they are excluded as well.
+        /// </remarks>
+        public static bool IsStructArray(this ITypeSymbol type)
+        {
+            return type is INamedTypeSymbol { IsValueType: true, TypeKind: TypeKind.Struct, SpecialType: SpecialType.None, IsTupleType: false } named
+                && !named.DeclaringSyntaxReferences.IsEmpty;
+        }
+
         public static StackItemType GetPatternType(this ITypeSymbol type)
         {
             return type.ToString() switch

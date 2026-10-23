@@ -13,12 +13,12 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Recursion"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""factorial"",""parameters"":[{""name"":""a"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""hanoiTower"",""parameters"":[{""name"":""n"",""type"":""Integer""},{""name"":""src"",""type"":""Integer""},{""name"":""aux"",""type"":""Integer""},{""name"":""dst"",""type"":""Integer""}],""returntype"":""Array"",""offset"":55,""safe"":false},{""name"":""even"",""parameters"":[{""name"":""n"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":153,""safe"":false},{""name"":""odd"",""parameters"":[{""name"":""n"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":176,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Recursion"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""factorial"",""parameters"":[{""name"":""a"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""hanoiTower"",""parameters"":[{""name"":""n"",""type"":""Integer""},{""name"":""src"",""type"":""Integer""},{""name"":""aux"",""type"":""Integer""},{""name"":""dst"",""type"":""Integer""}],""returntype"":""Array"",""offset"":55,""safe"":false},{""name"":""even"",""parameters"":[{""name"":""n"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":168,""safe"":false},{""name"":""odd"",""parameters"":[{""name"":""n"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":191,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMdXAgF4ELhwDBpNaW51cyBudW1iZXIgbm90IHN1cHBvcnRlZHFoJARp4HgSuCYJeHidNM+gQBFAVwUEeBC3cAwTQ291bnQgb2YgZGlza3MgPD0gMHFoJARp4HgRsyYOwnBoEXl7UxO/z2hAent5eJ00yHBoeHl7UxO/z3t5enidNLhKccpyEHMiDGlrznRobM9rnHNrajD0aEBXAAF4sSQECEB4ELUmBnicIgR4nTQDQFcAAXixJAQJQHgQtSYGeJwiBHidNNVAM8DzSQ==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANZXAgF4ELhwDBpNaW51cyBudW1iZXIgbm90IHN1cHBvcnRlZHFoJARp4HgSuCYJeHidNM+gQBFAVwUEeBC3cAwTQ291bnQgb2YgZGlza3MgPD0gMHFoJARp4HgRsyYOwnBoEXl7UxO/z2hAent5eJ00yHBoeHl7UxO/z3t5enidNLhKccpyEHMiG2lrznRobBBNEs4RTRHOEk0QzhO/Rs9rnHNrajDlaEBXAAF4sSQECEB4ELUmBnicIgR4nTQDQFcAAXixJAQJQHgQtSYGeJwiBHidNNVA8hm0qA==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -86,7 +86,7 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUEeBC3cAwTQ291bnQgb2YgZGlza3MgPD0gMHFoJARp4HgRsyYOwnBoEXl7UxO/z2hAent5eJ00yHBoeHl7UxO/z3t5enidNLhKccpyEHMiDGlrznRobM9rnHNrajD0aEA=
+    /// Script: VwUEeBC3cAwTQ291bnQgb2YgZGlza3MgPD0gMHFoJARp4HgRsyYOwnBoEXl7UxO/z2hAent5eJ00yHBoeHl7UxO/z3t5enidNLhKccpyEHMiG2lrznRobBBNEs4RTRHOEk0QzhO/Rs9rnHNrajDlaEA=
     /// INITSLOT 0504 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// PUSH0 [1 datoshi]
@@ -141,20 +141,35 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// STLOC2 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC3 [2 datoshi]
-    /// JMP 0C [2 datoshi]
+    /// JMP 1B [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// LDLOC3 [2 datoshi]
     /// PICKITEM [64 datoshi]
     /// STLOC4 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// LDLOC4 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// NIP [2 datoshi]
     /// APPEND [8192 datoshi]
     /// LDLOC3 [2 datoshi]
     /// INC [4 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
-    /// JMPLT F4 [2 datoshi]
+    /// JMPLT E5 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// RET [0 datoshi]
     /// </remarks>

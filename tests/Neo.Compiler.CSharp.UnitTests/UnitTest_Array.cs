@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var result = Contract.TestStructArray();
-            AssertGasConsumed(2111610);
+            AssertGasConsumed(2179260);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -132,7 +132,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArrayInit()
         {
             var result = Contract.TestStructArrayInit();
-            AssertGasConsumed(1911960);
+            AssertGasConsumed(1979610);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;

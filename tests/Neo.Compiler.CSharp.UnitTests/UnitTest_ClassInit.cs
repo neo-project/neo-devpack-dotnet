@@ -42,7 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_InitializationExpression()
         {
             Contract.TestInitializationExpression();
-            AssertGasConsumed(1270020);
+            AssertGasConsumed(1331520);
         }
     }
 }
