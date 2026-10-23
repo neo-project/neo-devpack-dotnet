@@ -28,5 +28,23 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(4, tuple[3].GetInteger());
             Assert.AreEqual(2, ((Struct)tuple[4])[1].GetInteger());
         }
+
+        [TestMethod]
+        public void Test_ReadTupleElements()
+        {
+            Assert.AreEqual(7034007, (int)Contract.ReadTupleElements(7, 3)!.Value);
+        }
+
+        [TestMethod]
+        public void Test_WriteTupleElement()
+        {
+            Assert.AreEqual(99, (int)Contract.WriteTupleElement(7)!.Value);
+        }
+
+        [TestMethod]
+        public void Test_ReadTupleRest()
+        {
+            Assert.AreEqual(8005, (int)Contract.ReadTupleRest(7)!.Value);
+        }
     }
 }

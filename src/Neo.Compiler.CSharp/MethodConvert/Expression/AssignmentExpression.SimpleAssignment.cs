@@ -276,7 +276,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = GetInstanceFieldIndex(field);
+                    int index = GetFieldIndex(model.GetTypeInfo(left.Expression).Type, field);
                     ConvertExpression(model, left.Expression);
                     Push(index);
                     ConvertExpression(model, right);

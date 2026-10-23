@@ -39,6 +39,25 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (1, 2, 3, 4);
         }
 
+        public static BigInteger ReadTupleElements(BigInteger a, BigInteger b)
+        {
+            var t = (a, b, 3, 4, 5, 6, 7);
+            return t.Item1 * 1000000 + t.Item3 * 10000 + t.Item4 * 1000 + t.Item7;
+        }
+
+        public static BigInteger WriteTupleElement(BigInteger a)
+        {
+            var t = (a, 2, 3, 4);
+            t.Item4 = 99;
+            return t.Item4;
+        }
+
+        public static BigInteger ReadTupleRest(BigInteger a)
+        {
+            var t = (a, 2, 3, 4, 5, 6, 7, 8);
+            return t.Item8 * 1000 + t.Item5;
+        }
+
         public static object T1()
         {
             var state = new StructA();
