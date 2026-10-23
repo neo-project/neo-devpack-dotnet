@@ -72,6 +72,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_CopyOnTupleAssignment()
+        {
+            Assert.AreEqual(7099, (int)Contract.CopyOnTupleAssignment(7, 3)!.Value);
+        }
+
+        [TestMethod]
+        public void Test_DefaultTupleFields()
+        {
+            Assert.AreEqual(0, (int)Contract.DefaultTupleFields()!.Value);
+        }
+
+        [TestMethod]
         public void Test_ArgumentIsCopied()
         {
             Assert.AreEqual(99007, (int)Contract.ArgumentIsCopied(7)!.Value);

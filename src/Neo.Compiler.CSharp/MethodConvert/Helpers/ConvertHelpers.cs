@@ -355,7 +355,7 @@ internal partial class MethodConvert
     private void CreateObject(SemanticModel model, ITypeSymbol type)
     {
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
-        var fields = members.OfType<IFieldSymbol>().ToArray();
+        var fields = GetStructFields(type);
 
         int needVirtualMethodTable = 0;
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
@@ -373,9 +373,35 @@ internal partial class MethodConvert
         }
 
         foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
+        {
+            if (field.DeclaringSyntaxReferences.IsEmpty && field.AssociatedSymbol is not IPropertySymbol)
+            {
+                // A field that comes from metadata, such as a tuple element, has no initializer
+                // to run; the field initializer processing has nothing to emit for it, which
+                // would leave the packed struct one item short. A backing field of an
+                // auto-property has no syntax of its own but does have an initializer, so it
+                // still goes through the field initializer processing.
+                PushDefault(field.Type);
+                continue;
+            }
             ProcessFieldInitializer(model, field, null, null);
+        }
         Push(fields.Length + needVirtualMethodTable);
         AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+    }
+
+    /// <summary>
+    /// Returns the fields of a struct in storage order.
+    /// </summary>
+    /// <remarks>
+    /// A tuple type reports more members than the value it stores, so its elements are read from
+    /// <see cref="INamedTypeSymbol.TupleElements"/> instead of from the declaration.
+    /// </remarks>
+    private static IFieldSymbol[] GetStructFields(ITypeSymbol type)
+    {
+        if (type is INamedTypeSymbol { IsTupleType: true } tuple)
+            return tuple.TupleElements.ToArray();
+        return type.GetAllMembers().Where(p => !p.IsStatic).OfType<IFieldSymbol>().ToArray();
     }
 
     /// <summary>
@@ -387,7 +413,7 @@ internal partial class MethodConvert
     /// </remarks>
     private Instruction CreateDefaultStruct(ITypeSymbol type)
     {
-        IFieldSymbol[] fields = type.GetAllMembers().Where(p => !p.IsStatic).OfType<IFieldSymbol>().ToArray();
+        IFieldSymbol[] fields = GetStructFields(type);
         if (fields.Length == 0)
             return AddInstruction(OpCode.NEWSTRUCT0);
 
@@ -409,7 +435,7 @@ internal partial class MethodConvert
     /// </remarks>
     private void CopyStructValue(ITypeSymbol type)
     {
-        IFieldSymbol[] fields = type.GetAllMembers().Where(p => !p.IsStatic).OfType<IFieldSymbol>().ToArray();
+        IFieldSymbol[] fields = GetStructFields(type);
         if (fields.Length == 0)
             return;  // An empty struct holds no state, so a shared instance cannot be observed.
 
@@ -433,10 +459,7 @@ internal partial class MethodConvert
     /// </summary>
     private static bool HasNestedStructField(ITypeSymbol type)
     {
-        return type.GetAllMembers()
-            .Where(p => !p.IsStatic)
-            .OfType<IFieldSymbol>()
-            .Any(p => p.Type.IsStructArray());
+        return GetStructFields(type).Any(p => p.Type.IsStructArray());
     }
 
     /// <summary>
