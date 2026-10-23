@@ -101,7 +101,7 @@ internal partial class MethodConvert
         }
 
         ConvertExpression(model, expression.Right);
-        CopyStructValueBeforeStore(assignedType, expression.Right);
+        CopyStructValueBeforeStore(model, assignedType, expression.Right);
         if (leaveResultOnStack)
             AddInstruction(OpCode.DUP);
         switch (expression.Left)
@@ -181,6 +181,7 @@ internal partial class MethodConvert
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             ConvertExpression(model, right);
+            CopyStructValueBeforeStore(model, property.Type, right);
             if (leaveResultOnStack)
             {
                 AddInstruction(OpCode.DUP);
@@ -211,7 +212,7 @@ internal partial class MethodConvert
             }
 
             ConvertExpression(model, right);
-            CopyStructValueBeforeStore(model.GetTypeInfo(left).Type, right);
+            CopyStructValueBeforeStore(model, model.GetTypeInfo(left).Type, right);
             if (leaveResultOnStack)
             {
                 AddInstruction(OpCode.DUP);
@@ -292,7 +293,7 @@ internal partial class MethodConvert
                 {
                     byte index = _context.AddStaticField(field);
                     ConvertExpression(model, right);
-                    CopyStructValueBeforeStore(field.Type, right);
+                    CopyStructValueBeforeStore(model, field.Type, right);
                     if (leaveResultOnStack)
                         AddInstruction(OpCode.DUP);
                     AccessSlot(OpCode.STSFLD, index);
@@ -303,7 +304,7 @@ internal partial class MethodConvert
                     ConvertExpression(model, left.Expression);
                     Push(index);
                     ConvertExpression(model, right);
-                    CopyStructValueBeforeStore(field.Type, right);
+                    CopyStructValueBeforeStore(model, field.Type, right);
                     if (leaveResultOnStack)
                     {
                         AddInstruction(OpCode.DUP);
@@ -317,7 +318,7 @@ internal partial class MethodConvert
                 if (property.IsStatic)
                 {
                     ConvertExpression(model, right);
-                    CopyStructValueBeforeStore(property.Type, right);
+                    CopyStructValueBeforeStore(model, property.Type, right);
                     if (leaveResultOnStack)
                         AddInstruction(OpCode.DUP);
                 }
@@ -325,7 +326,7 @@ internal partial class MethodConvert
                 {
                     ConvertExpression(model, left.Expression);
                     ConvertExpression(model, right);
-                    CopyStructValueBeforeStore(property.Type, right);
+                    CopyStructValueBeforeStore(model, property.Type, right);
                     if (leaveResultOnStack)
                     {
                         AddInstruction(OpCode.DUP);

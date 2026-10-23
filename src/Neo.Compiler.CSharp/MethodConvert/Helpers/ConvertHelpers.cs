@@ -442,17 +442,29 @@ internal partial class MethodConvert
     /// <summary>
     /// Copies a struct value before it is stored, so the target does not share it with the source.
     /// </summary>
-    /// <param name="type">The type of the value being stored.</param>
-    /// <param name="value">The stored expression, used to skip values that are already fresh.</param>
-    private void CopyStructValueBeforeStore(ITypeSymbol? type, ExpressionSyntax? value)
+    /// <param name="model">The semantic model used to read the type of the stored expression.</param>
+    /// <param name="targetType">The type of the target being stored into, if it is known.</param>
+    /// <param name="value">The stored expression, used to find the value type and to skip values that are already fresh.</param>
+    /// <remarks>
+    /// A struct stored into a struct-typed target shares its array, which is the case this method
+    /// mostly handles. A struct converted to <see cref="object"/> is boxed by C#, and a value
+    /// unboxed back into a struct is also a copy, so a conversion in either direction is copied as
+    /// well: `object boxed = p;` must not follow a later write to `p`.
+    /// </remarks>
+    private void CopyStructValueBeforeStore(SemanticModel model, ITypeSymbol? targetType, ExpressionSyntax? value)
     {
-        if (type is null || !type.IsStructArray())
+        ITypeSymbol? structType = null;
+        if (value is not null && model.GetTypeInfo(value).Type?.IsStructArray() == true)
+            structType = model.GetTypeInfo(value).Type;
+        if (structType is null && targetType?.IsStructArray() == true)
+            structType = targetType;
+        if (structType is null)
             return;
         // An object creation, a default value, and a with-expression all produce a new array,
         // so copying them again would only add instructions.
         if (value is BaseObjectCreationExpressionSyntax or WithExpressionSyntax or DefaultExpressionSyntax ||
             value?.IsKind(SyntaxKind.DefaultLiteralExpression) == true)
             return;
-        CopyStructValue(type);
+        CopyStructValue(structType);
     }
 }

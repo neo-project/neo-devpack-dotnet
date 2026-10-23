@@ -54,6 +54,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_CopyOnBoxing()
+        {
+            Assert.AreEqual(7099, (int)Contract.CopyOnBoxing(7)!.Value);
+        }
+
+        [TestMethod]
+        public void Test_CopyIntoObjectArray()
+        {
+            Assert.AreEqual(7099, (int)Contract.CopyIntoObjectArray(7)!.Value);
+        }
+
+        [TestMethod]
+        public void Test_CopyInForeach()
+        {
+            Assert.AreEqual(7, (int)Contract.CopyInForeach(7)!.Value);
+        }
+
+        [TestMethod]
         public void Test_ArgumentIsCopied()
         {
             Assert.AreEqual(99007, (int)Contract.ArgumentIsCopied(7)!.Value);
