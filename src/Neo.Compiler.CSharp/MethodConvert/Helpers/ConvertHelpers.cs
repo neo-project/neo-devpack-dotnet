@@ -14,6 +14,7 @@ extern alias scfx;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using OpCode = Neo.VM.OpCode;
@@ -375,5 +376,83 @@ internal partial class MethodConvert
             ProcessFieldInitializer(model, field, null, null);
         Push(fields.Length + needVirtualMethodTable);
         AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+    }
+
+    /// <summary>
+    /// Pushes the default value of a struct: every field zero-initialized, nested structs included.
+    /// </summary>
+    /// <remarks>
+    /// Field initializers do not run for a default value, so the fields are built here instead of
+    /// going through <see cref="CreateObject"/>.
+    /// </remarks>
+    private Instruction CreateDefaultStruct(ITypeSymbol type)
+    {
+        IFieldSymbol[] fields = type.GetAllMembers().Where(p => !p.IsStatic).OfType<IFieldSymbol>().ToArray();
+        if (fields.Length == 0)
+            return AddInstruction(OpCode.NEWSTRUCT0);
+
+        foreach (var field in fields.Reverse())  // PACKSTRUCT consumes the fields in reverse order
+            PushDefault(field.Type);
+        Push(fields.Length);
+        return AddInstruction(OpCode.PACKSTRUCT);
+    }
+
+    /// <summary>
+    /// Replaces the struct value on top of the evaluation stack with a copy of it.
+    /// </summary>
+    /// <remarks>
+    /// A struct is stored as an array of its fields, and arrays are reference types on the VM, so
+    /// storing one array into two variables would let a write through either variable be observed
+    /// through the other. Rebuilding the array from copies of its fields restores the value semantics
+    /// of C#. Nested structs are rebuilt the same way, because two structs that share a nested value
+    /// are still aliased.
+    /// </remarks>
+    private void CopyStructValue(ITypeSymbol type)
+    {
+        IFieldSymbol[] fields = type.GetAllMembers().Where(p => !p.IsStatic).OfType<IFieldSymbol>().ToArray();
+        if (fields.Length == 0)
+            return;  // An empty struct holds no state, so a shared instance cannot be observed.
+
+        int copiedFields = 0;
+        for (int i = fields.Length - 1; i >= 0; i--)  // PACKSTRUCT consumes the fields in reverse order
+        {
+            Pick(copiedFields);  // the source struct stays below the field values pushed so far
+            Push(i);
+            AddInstruction(OpCode.PICKITEM);
+            if (fields[i].Type.IsStructArray())
+                CopyStructValue(fields[i].Type);
+            copiedFields++;
+        }
+        Push(fields.Length);
+        AddInstruction(OpCode.PACKSTRUCT);
+        Nip();  // drop the source, which the copy has replaced
+    }
+
+    /// <summary>
+    /// Returns true when the struct has a field that is itself a struct.
+    /// </summary>
+    private static bool HasNestedStructField(ITypeSymbol type)
+    {
+        return type.GetAllMembers()
+            .Where(p => !p.IsStatic)
+            .OfType<IFieldSymbol>()
+            .Any(p => p.Type.IsStructArray());
+    }
+
+    /// <summary>
+    /// Copies a struct value before it is stored, so the target does not share it with the source.
+    /// </summary>
+    /// <param name="type">The type of the value being stored.</param>
+    /// <param name="value">The stored expression, used to skip values that are already fresh.</param>
+    private void CopyStructValueBeforeStore(ITypeSymbol? type, ExpressionSyntax? value)
+    {
+        if (type is null || !type.IsStructArray())
+            return;
+        // An object creation, a default value, and a with-expression all produce a new array,
+        // so copying them again would only add instructions.
+        if (value is BaseObjectCreationExpressionSyntax or WithExpressionSyntax or DefaultExpressionSyntax ||
+            value?.IsKind(SyntaxKind.DefaultLiteralExpression) == true)
+            return;
+        CopyStructValue(type);
     }
 }

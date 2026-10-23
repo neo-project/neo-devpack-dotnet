@@ -58,6 +58,7 @@ namespace Neo.Compiler
                     using (InsertSequencePoint(variable))
                     {
                         ConvertExpression(model, variable.Initializer.Value);
+                        CopyStructValueBeforeStore(symbol.Type, variable.Initializer.Value);
                         AccessSlot(OpCode.STLOC, variableIndex);
                     }
             }

@@ -18,7 +18,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQUExIRFL9AVwIACxAQCwsVv3BoFBALEr/QEHE05cFFaBJR0GgUzhFR0EVxNNVFaBNp0GhAIhaJpA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADcUExIRFL9AVwIAEAsSvxAQCwsVv3BoFBALEr/QEHE04sFFaBJR0GgUzhFR0EVxNNJFaBNp0GhAlLNFvg==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -44,9 +44,12 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACxAQCwsVv3BoFBALEr/QEHE05cFFaBJR0GgUzhFR0EVxNNVFaBNp0GhA
+    /// Script: VwIAEAsSvxAQCwsVv3BoFBALEr/QEHE04sFFaBJR0GgUzhFR0EVxNNJFaBNp0GhA
     /// INITSLOT 0200 [64 datoshi]
+    /// PUSH0 [1 datoshi]
     /// PUSHNULL [1 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSHNULL [1 datoshi]
@@ -63,7 +66,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// SETITEM [8192 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC1 [2 datoshi]
-    /// CALL E5 [512 datoshi]
+    /// CALL E2 [512 datoshi]
     /// UNPACK [2048 datoshi]
     /// DROP [2 datoshi]
     /// LDLOC0 [2 datoshi]
@@ -78,7 +81,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// SETITEM [8192 datoshi]
     /// DROP [2 datoshi]
     /// STLOC1 [2 datoshi]
-    /// CALL D5 [512 datoshi]
+    /// CALL D2 [512 datoshi]
     /// DROP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH3 [1 datoshi]
