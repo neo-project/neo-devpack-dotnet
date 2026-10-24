@@ -30,5 +30,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.TestDelegate();
             AssertGasConsumed(3400710);
         }
+
+        [TestMethod]
+        public void TestConditionalInvoke()
+        {
+            Assert.AreEqual(1202, Contract.TestConditionalInvoke(false));
+            Assert.AreEqual(0, Contract.TestConditionalInvoke(true));
+        }
     }
 }
