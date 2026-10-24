@@ -49,6 +49,7 @@ namespace Neo.Compiler
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new(SymbolEqualityComparer.Default);
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
+        private readonly HashSet<ISymbol> _byRefCapturedSymbols = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
@@ -165,6 +166,8 @@ namespace Neo.Compiler
                     SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
                 RegisterMethodParameters();
+                RegisterByRefCapturedSymbols(model);
+                InitializeByRefCapturedParameters();
 
                 // Step 3: Process method based on its kind
                 // This handles special cases for constructors and static constructors
@@ -218,6 +221,70 @@ namespace Neo.Compiler
             // Step 11: Set the start target
             // Mark the first instruction as the entry point of the method
             _startTarget.Instruction = _instructions[0];
+        }
+
+        internal MethodConvert CloneWithCapturedStaticFields(IReadOnlyDictionary<byte, byte> aliases)
+        {
+            var clone = new MethodConvert(_context, Symbol);
+            var instructions = new Dictionary<Instruction, Instruction>();
+
+            foreach (Instruction instruction in _instructions)
+            {
+                var copy = new Instruction
+                {
+                    OpCode = instruction.OpCode,
+                    Operand = instruction.Operand,
+                    Location = instruction.Location
+                };
+                RebindCapturedStaticField(copy, aliases);
+                clone._instructions.Add(copy);
+                instructions.Add(instruction, copy);
+            }
+
+            foreach ((Instruction source, Instruction target) in instructions)
+            {
+                target.Target = CloneJumpTarget(source.Target, instructions);
+                target.Target2 = CloneJumpTarget(source.Target2, instructions);
+            }
+
+            foreach (MethodConvert callee in _callees)
+                clone._callees.Add(callee);
+            clone._variableSymbols.AddRange(_variableSymbols);
+            clone.CapturedLocalSymbols.UnionWith(CapturedLocalSymbols);
+            if (clone._instructions.Count > 0)
+                clone._startTarget.Instruction = clone._instructions[0];
+            return clone;
+        }
+
+        private static JumpTarget? CloneJumpTarget(JumpTarget? target, IReadOnlyDictionary<Instruction, Instruction> instructions)
+        {
+            if (target is null)
+                return null;
+            return new JumpTarget
+            {
+                Instruction = target.Instruction is not null && instructions.TryGetValue(target.Instruction, out Instruction? copy)
+                    ? copy
+                    : target.Instruction
+            };
+        }
+
+        private static void RebindCapturedStaticField(Instruction instruction, IReadOnlyDictionary<byte, byte> aliases)
+        {
+            OpCode opCode = instruction.OpCode;
+            bool load = opCode == OpCode.LDSFLD || opCode is >= OpCode.LDSFLD0 and <= OpCode.LDSFLD6;
+            bool store = opCode == OpCode.STSFLD || opCode is >= OpCode.STSFLD0 and <= OpCode.STSFLD6;
+            if (!load && !store)
+                return;
+
+            byte oldIndex = opCode == OpCode.LDSFLD || opCode == OpCode.STSFLD
+                ? instruction.Operand![0]
+                : (byte)(opCode - (load ? OpCode.LDSFLD0 : OpCode.STSFLD0));
+            if (!aliases.TryGetValue(oldIndex, out byte newIndex))
+                return;
+
+            OpCode baseOpCode = load ? OpCode.LDSFLD : OpCode.STSFLD;
+            instruction.OpCode = newIndex >= 7 ? baseOpCode : baseOpCode - 7 + newIndex;
+            instruction.Operand = newIndex >= 7 ? new[] { newIndex } : null;
         }
 
         public void ConvertForward(SemanticModel model, MethodConvert target)

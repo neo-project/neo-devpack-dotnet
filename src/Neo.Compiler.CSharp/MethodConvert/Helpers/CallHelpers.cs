@@ -27,6 +27,8 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     private readonly Stack<Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>> _outStaticFieldSyncScopes = new();
+    private readonly Stack<Dictionary<ISymbol, IParameterSymbol>> _byRefAliasScopes = new();
+    private readonly Stack<Dictionary<IParameterSymbol, (byte Original, byte Alias)>> _byRefAliasParameters = new();
     private ExpressionSyntax? _preEvaluatedInstanceExpression;
     private byte? _preEvaluatedInstanceSlot;
 
@@ -270,6 +272,8 @@ internal partial class MethodConvert
     private void PushOutStaticFieldSyncScope()
     {
         _outStaticFieldSyncScopes.Push(new Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>(SymbolEqualityComparer.Default));
+        _byRefAliasScopes.Push(new Dictionary<ISymbol, IParameterSymbol>(SymbolEqualityComparer.Default));
+        _byRefAliasParameters.Push(new Dictionary<IParameterSymbol, (byte Original, byte Alias)>(SymbolEqualityComparer.Default));
     }
 
     private void PopOutStaticFieldSyncScope()
@@ -277,6 +281,9 @@ internal partial class MethodConvert
         if (_outStaticFieldSyncScopes.Count == 0)
             throw new CompilationException(DiagnosticId.SyntaxNotSupported, "Internal compiler error: out-parameter synchronization scope underflow.");
         _outStaticFieldSyncScopes.Pop();
+        _byRefAliasScopes.Pop();
+        foreach (var alias in _byRefAliasParameters.Pop())
+            _context.AssociateCapturedStaticField(alias.Key, alias.Value.Original);
     }
 
     private Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>> GetCurrentOutStaticFieldSyncScope()
@@ -441,7 +448,7 @@ internal partial class MethodConvert
                     PushDefault(local.Type);
                 ProcessOutSymbol(parameter, local);
                 AddInstruction(OpCode.DUP);
-                StLocSlot(local);
+                StArgSlot(parameter);
                 break;
             case IParameterSymbol param:
                 if (captureOnly)
@@ -457,7 +464,7 @@ internal partial class MethodConvert
                     PushDefault(param.Type);
                 ProcessOutSymbol(parameter, param);
                 AddInstruction(OpCode.DUP);
-                StArgSlot(param);
+                StArgSlot(parameter);
                 break;
             case IFieldSymbol field:
                 ProcessByRefField(model, parameter, field, isRef, instanceExpression: null, identifierName, captureOnly);
@@ -549,6 +556,28 @@ internal partial class MethodConvert
         AccessSlot(OpCode.STSFLD, fieldStorageIndex);
     }
 
+    private bool TryShareByRefAlias(IParameterSymbol parameter, ISymbol symbol)
+    {
+        if (symbol is not ILocalSymbol and not IParameterSymbol)
+            return false;
+
+        var scope = _byRefAliasScopes.Peek();
+        if (scope.TryGetValue(symbol, out IParameterSymbol? alias))
+        {
+            byte index = _context.GetOrAddCapturedStaticField(alias);
+            byte original = _context.GetOrAddCapturedStaticField(parameter);
+            if (original != index)
+            {
+                _byRefAliasParameters.Peek()[parameter] = (original, index);
+                _context.AssociateCapturedStaticField(parameter, index);
+            }
+            return true;
+        }
+
+        scope.Add(symbol, parameter);
+        return false;
+    }
+
     private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null, bool instanceSlotIsLocal = false)
     {
         if (symbol is IFieldSymbol fieldSymbol)
@@ -556,6 +585,9 @@ internal partial class MethodConvert
             ProcessOutFieldSymbol(parameter, fieldSymbol, instanceSlot, instanceSlotIsLocal);
             return;
         }
+
+        if (TryShareByRefAlias(parameter, symbol))
+            return;
 
         if (parameter.RefKind == RefKind.Out)
         {
@@ -657,6 +689,12 @@ internal partial class MethodConvert
     {
         if (convert is null)
             CallVirtual(symbol);
+        else if (_byRefAliasParameters.Count > 0 && _byRefAliasParameters.Peek().Count > 0)
+        {
+            Dictionary<byte, byte> aliases = _byRefAliasParameters.Peek()
+                .ToDictionary(p => p.Value.Original, p => p.Value.Alias);
+            EmitCall(_context.AddByRefAliasMethod(convert, aliases));
+        }
         else
             EmitCall(convert);
 
