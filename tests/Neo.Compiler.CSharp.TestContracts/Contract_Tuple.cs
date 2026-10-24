@@ -73,6 +73,9 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             public int X;
             public int Y;
+            public int P { get; set; }
+            public static int StaticField;
+            public static int StaticProperty { get; set; }
         }
 
         private static int TupleNext(ref int state)
@@ -94,6 +97,18 @@ namespace Neo.Compiler.CSharp.TestContracts
             (TuplePick(left, ref state).X, _, TuplePick(right, ref state).Y) =
                 (TupleNext(ref state), TupleNext(ref state), TupleNext(ref state));
             return left.X * 100000 + right.Y * 10000 + state;
+        }
+
+        public static int TuplePropertyAndStaticAssignment(int a)
+        {
+            var left = new TupleBox();
+            int state = a;
+            (TuplePick(left, ref state).X, TuplePick(left, ref state).P,
+             TupleBox.StaticField, TupleBox.StaticProperty) =
+                (TupleNext(ref state), TupleNext(ref state),
+                 TupleNext(ref state), TupleNext(ref state));
+            return left.X * 100000 + left.P * 10000
+                + TupleBox.StaticField * 1000 + TupleBox.StaticProperty * 100 + state;
         }
     }
 }
