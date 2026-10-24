@@ -40,5 +40,23 @@ namespace Neo.Compiler.CSharp.TestContracts
             int result = myDelegate(5, 6);
             Runtime.Log($"Sum: {result}");
         }
+
+        private sealed class ConditionalCounter
+        {
+            public int Value;
+
+            public int Next()
+            {
+                return ++Value;
+            }
+        }
+
+        public static int TestConditionalInvoke(bool isNull)
+        {
+            var counter = new ConditionalCounter();
+            Func<int, int, int>? callback = isNull ? null : (left, right) => left * 10 + right;
+            int result = callback?.Invoke(counter.Next(), counter.Next()) ?? 0;
+            return result * 100 + counter.Value;
+        }
     }
 }
