@@ -177,6 +177,22 @@ namespace Neo.Compiler.CSharp.TestContracts
             return read(in value);
         }
 
+        public static int ExpressionVoidAssignment(int value)
+        {
+            int captured = value;
+            Action<int> write = current => captured = current;
+            write(99);
+            return captured;
+        }
+
+        public static int ExpressionVoidParenthesized(int value)
+        {
+            int captured = 0;
+            Action<int, int> write = (left, right) => captured = left + right;
+            write(value, 2);
+            return captured;
+        }
+
         private static bool Any<T>(IEnumerable<T> array, Predicate<T> pre)
         {
             foreach (var i in array)
