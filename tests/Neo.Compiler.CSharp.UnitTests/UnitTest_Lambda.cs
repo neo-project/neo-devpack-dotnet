@@ -225,6 +225,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_ExpressionBodiedVoidLambdasDiscardAssignmentResults()
+        {
+            Assert.AreEqual(99, Contract.ExpressionVoidAssignment(7));
+            Assert.AreEqual(9, Contract.ExpressionVoidParenthesized(7));
+        }
+
+        [TestMethod]
         public void Test_ReadOnlyLambdaParameterModifiers()
         {
             var result = Contract.TestLambdaInModifier(3);

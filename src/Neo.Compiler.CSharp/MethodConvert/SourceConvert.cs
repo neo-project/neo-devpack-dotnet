@@ -149,6 +149,8 @@ internal partial class MethodConvert
                 if (syntax.Block is null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody!);
+                    if (Symbol.ReturnsVoid && IsExpressionReturningValue(model, syntax.ExpressionBody!))
+                        AddInstruction(OpCode.DROP);
                 }
                 else
                 {
@@ -159,6 +161,8 @@ internal partial class MethodConvert
                 if (syntax.Block is null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody!);
+                    if (Symbol.ReturnsVoid && IsExpressionReturningValue(model, syntax.ExpressionBody!))
+                        AddInstruction(OpCode.DROP);
                 }
                 else
                 {
