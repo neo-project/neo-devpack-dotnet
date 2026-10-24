@@ -58,6 +58,11 @@ internal partial class MethodConvert
                 AddInstruction(new Instruction { OpCode = OpCode.PACKSTRUCT });
             }
         }
+        else if (HasNestedStructField(type))
+        {
+            // UNPACK and PACKSTRUCT rebuild the outer struct but keep the nested structs shared.
+            CopyStructValue(type);
+        }
         else
         {
             // Value-type records are copied by value.

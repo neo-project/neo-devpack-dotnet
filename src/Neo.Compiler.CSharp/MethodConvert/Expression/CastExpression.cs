@@ -68,6 +68,9 @@ internal partial class MethodConvert
 
         ConvertExpression(model, expression.Expression);
 
+        if (sType.IsStructArray() && model.ClassifyConversion(expression.Expression, tType).IsBoxing)
+            CopyStructValue(sType);
+
         JumpTarget? nullableEnd = null;
         if (IsNullableValueType(sType) && tType.IsValueType)
         {

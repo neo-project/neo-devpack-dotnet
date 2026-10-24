@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var result = Contract.TestStructArray();
-            AssertGasConsumed(2111610);
+            AssertGasConsumed(3171060);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -125,14 +125,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsInstanceOfType(state[1], typeof(VM.Types.Null));
             Assert.IsInstanceOfType(state[2], typeof(VM.Types.Integer));
             Assert.AreEqual(0, state[2]);
-            AssertGasConsumed(1848300);
+            AssertGasConsumed(1915950);
         }
 
         [TestMethod]
         public void Test_StructArrayInit()
         {
             var result = Contract.TestStructArrayInit();
-            AssertGasConsumed(1911960);
+            AssertGasConsumed(2114910);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;

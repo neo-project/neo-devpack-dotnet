@@ -14,6 +14,7 @@ extern alias scfx;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using OpCode = Neo.VM.OpCode;
@@ -97,6 +98,7 @@ internal partial class MethodConvert
                 else if (syntax.ExpressionBody != null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody.Expression);
+                    CopyBoxedStructReturn(model, syntax.ExpressionBody.Expression);
                 }
             }
 
@@ -354,7 +356,7 @@ internal partial class MethodConvert
     private void CreateObject(SemanticModel model, ITypeSymbol type)
     {
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
-        var fields = members.OfType<IFieldSymbol>().ToArray();
+        var fields = GetStructFields(type);
 
         int needVirtualMethodTable = 0;
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
@@ -372,8 +374,130 @@ internal partial class MethodConvert
         }
 
         foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
+        {
+            if (field.DeclaringSyntaxReferences.IsEmpty && field.AssociatedSymbol is not IPropertySymbol)
+            {
+                // A field that comes from metadata, such as a tuple element, has no initializer
+                // to run; the field initializer processing has nothing to emit for it, which
+                // would leave the packed struct one item short. A backing field of an
+                // auto-property has no syntax of its own but does have an initializer, so it
+                // still goes through the field initializer processing.
+                PushDefault(field.Type);
+                continue;
+            }
             ProcessFieldInitializer(model, field, null, null);
+        }
         Push(fields.Length + needVirtualMethodTable);
         AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+    }
+
+    /// <summary>
+    /// Returns the fields of a struct in storage order.
+    /// </summary>
+    /// <remarks>
+    /// A tuple type reports more members than the value it stores, so its elements are read from
+    /// <see cref="INamedTypeSymbol.TupleElements"/> instead of from the declaration.
+    /// </remarks>
+    private static IFieldSymbol[] GetStructFields(ITypeSymbol type)
+    {
+        if (type is INamedTypeSymbol { IsTupleType: true } tuple)
+            return tuple.TupleElements.ToArray();
+        return type.GetAllMembers().Where(p => !p.IsStatic).OfType<IFieldSymbol>().ToArray();
+    }
+
+    /// <summary>
+    /// Pushes the default value of a struct: every field zero-initialized, nested structs included.
+    /// </summary>
+    /// <remarks>
+    /// Field initializers do not run for a default value, so the fields are built here instead of
+    /// going through <see cref="CreateObject"/>.
+    /// </remarks>
+    private Instruction CreateDefaultStruct(ITypeSymbol type)
+    {
+        IFieldSymbol[] fields = GetStructFields(type);
+        if (fields.Length == 0)
+            return AddInstruction(OpCode.NEWSTRUCT0);
+
+        foreach (var field in fields.Reverse())  // PACKSTRUCT consumes the fields in reverse order
+            PushDefault(field.Type);
+        Push(fields.Length);
+        return AddInstruction(OpCode.PACKSTRUCT);
+    }
+
+    /// <summary>
+    /// Replaces the struct value on top of the evaluation stack with a copy of it.
+    /// </summary>
+    /// <remarks>
+    /// A struct is stored as an array of its fields, and arrays are reference types on the VM, so
+    /// storing one array into two variables would let a write through either variable be observed
+    /// through the other. Rebuilding the array from copies of its fields restores the value semantics
+    /// of C#. Nested structs are rebuilt the same way, because two structs that share a nested value
+    /// are still aliased.
+    /// </remarks>
+    private void CopyStructValue(ITypeSymbol type)
+    {
+        IFieldSymbol[] fields = GetStructFields(type);
+        if (fields.Length == 0)
+            return;  // An empty struct holds no state, so a shared instance cannot be observed.
+
+        int copiedFields = 0;
+        for (int i = fields.Length - 1; i >= 0; i--)  // PACKSTRUCT consumes the fields in reverse order
+        {
+            Pick(copiedFields);  // the source struct stays below the field values pushed so far
+            Push(i);
+            AddInstruction(OpCode.PICKITEM);
+            if (fields[i].Type.IsStructArray())
+                CopyStructValue(fields[i].Type);
+            copiedFields++;
+        }
+        Push(fields.Length);
+        AddInstruction(OpCode.PACKSTRUCT);
+        Nip();  // drop the source, which the copy has replaced
+    }
+
+    private void CopyBoxedStructReturn(SemanticModel model, ExpressionSyntax expression)
+    {
+        model = model.GetModelForNode(expression);
+        var typeInfo = model.GetTypeInfo(expression);
+        if (typeInfo.Type?.IsStructArray() == true && typeInfo.ConvertedType is not null &&
+            model.ClassifyConversion(expression, typeInfo.ConvertedType).IsBoxing)
+            CopyStructValue(typeInfo.Type);
+    }
+
+    /// <summary>
+    /// Returns true when the struct has a field that is itself a struct.
+    /// </summary>
+    private static bool HasNestedStructField(ITypeSymbol type)
+    {
+        return GetStructFields(type).Any(p => p.Type.IsStructArray());
+    }
+
+    /// <summary>
+    /// Copies a struct value before it is stored, so the target does not share it with the source.
+    /// </summary>
+    /// <param name="model">The semantic model used to read the type of the stored expression.</param>
+    /// <param name="targetType">The type of the target being stored into, if it is known.</param>
+    /// <param name="value">The stored expression, used to find the value type and to skip values that are already fresh.</param>
+    /// <remarks>
+    /// A struct stored into a struct-typed target shares its array, which is the case this method
+    /// mostly handles. A struct converted to <see cref="object"/> is boxed by C#, and a value
+    /// unboxed back into a struct is also a copy, so a conversion in either direction is copied as
+    /// well: `object boxed = p;` must not follow a later write to `p`.
+    /// </remarks>
+    private void CopyStructValueBeforeStore(SemanticModel model, ITypeSymbol? targetType, ExpressionSyntax? value)
+    {
+        ITypeSymbol? structType = null;
+        if (value is not null && model.GetTypeInfo(value).Type?.IsStructArray() == true)
+            structType = model.GetTypeInfo(value).Type;
+        if (structType is null && targetType?.IsStructArray() == true)
+            structType = targetType;
+        if (structType is null)
+            return;
+        // An object creation, a default value, and a with-expression all produce a new array,
+        // so copying them again would only add instructions.
+        if (value is BaseObjectCreationExpressionSyntax or WithExpressionSyntax or DefaultExpressionSyntax ||
+            value?.IsKind(SyntaxKind.DefaultLiteralExpression) == true)
+            return;
+        CopyStructValue(structType);
     }
 }
