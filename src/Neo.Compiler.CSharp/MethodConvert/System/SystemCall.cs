@@ -343,7 +343,11 @@ internal partial class MethodConvert
         {
             if (arguments is not null)
                 PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
-            ConvertExpression(model, instanceExpression!);
+            if (instanceExpression is not null)
+                ConvertExpression(model, instanceExpression);
+            else
+                // Conditional access has already evaluated the receiver below the arguments.
+                HandleInstanceOnStack(symbol, true, CallingConvention.Cdecl);
             CallA();
             return true;
         }
