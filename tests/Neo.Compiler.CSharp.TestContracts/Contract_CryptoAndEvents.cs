@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.TestContracts
     /// </summary>
     public class Contract_CryptoAndEvents : SmartContract.Framework.SmartContract
     {
-        public static event Action<int, string, bool, byte[], long> Mixed;
+        public static event Action<int, string, bool, byte[], long> Mixed = null!;
 
         /// <summary>
         /// Raises an event with one argument of each supported kind and returns the sum.
