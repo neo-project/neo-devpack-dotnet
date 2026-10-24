@@ -441,7 +441,7 @@ internal partial class MethodConvert
                     PushDefault(local.Type);
                 ProcessOutSymbol(parameter, local);
                 AddInstruction(OpCode.DUP);
-                StLocSlot(local);
+                StArgSlot(parameter);
                 break;
             case IParameterSymbol param:
                 if (captureOnly)
@@ -457,7 +457,7 @@ internal partial class MethodConvert
                     PushDefault(param.Type);
                 ProcessOutSymbol(parameter, param);
                 AddInstruction(OpCode.DUP);
-                StArgSlot(param);
+                StArgSlot(parameter);
                 break;
             case IFieldSymbol field:
                 ProcessByRefField(model, parameter, field, isRef, instanceExpression: null, identifierName, captureOnly);
