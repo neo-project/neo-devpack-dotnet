@@ -88,7 +88,9 @@ namespace Neo.Compiler
                         : AddLocalVariable(exceptionSymbol);
                 }
                 using (InsertSequencePoint(catchClause.CatchKeyword))
-                    catchTarget.Instruction = AccessSlot(OpCode.STLOC, exceptionIndex);
+                    catchTarget.Instruction = exceptionSymbol is null
+                        ? AccessSlot(OpCode.STLOC, exceptionIndex)
+                        : StLocSlot(exceptionSymbol);
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);

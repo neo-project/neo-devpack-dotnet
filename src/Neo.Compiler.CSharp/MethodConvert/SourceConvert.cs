@@ -11,6 +11,7 @@
 
 extern alias scfx;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
@@ -65,6 +66,49 @@ internal partial class MethodConvert
             {
                 _context.GetOrAddCapturedStaticField(parameter);
             }
+        }
+    }
+
+    private void RegisterByRefCapturedSymbols(SemanticModel model)
+    {
+        if (SyntaxNode is null)
+            return;
+
+        IEnumerable<ArgumentSyntax> arguments = SyntaxNode
+            .DescendantNodesAndSelf(descendIntoChildren: static node =>
+                node is not LambdaExpressionSyntax and
+                    not AnonymousMethodExpressionSyntax and
+                    not LocalFunctionStatementSyntax)
+            .OfType<ArgumentSyntax>();
+        foreach (ArgumentSyntax argument in arguments)
+        {
+            if (!argument.RefKindKeyword.IsKind(SyntaxKind.RefKeyword) &&
+                !argument.RefKindKeyword.IsKind(SyntaxKind.OutKeyword))
+                continue;
+
+            ISymbol? symbol = argument.Expression is DeclarationExpressionSyntax
+            {
+                Designation: SingleVariableDesignationSyntax designation
+            }
+                ? model.GetDeclaredSymbol(designation)
+                : model.GetSymbolInfo(argument.Expression).Symbol;
+            if (symbol is not ILocalSymbol and not IParameterSymbol)
+                continue;
+
+            _context.GetOrAddCapturedStaticField(symbol);
+            _byRefCapturedSymbols.Add(symbol);
+        }
+    }
+
+    private void InitializeByRefCapturedParameters()
+    {
+        foreach (IParameterSymbol parameter in Symbol.Parameters)
+        {
+            if (IsByRef(parameter.RefKind) || !_byRefCapturedSymbols.Contains(parameter))
+                continue;
+
+            AccessSlot(OpCode.LDARG, _parameters[parameter]);
+            AccessSlot(OpCode.STSFLD, _context.GetOrAddCapturedStaticField(parameter));
         }
     }
 

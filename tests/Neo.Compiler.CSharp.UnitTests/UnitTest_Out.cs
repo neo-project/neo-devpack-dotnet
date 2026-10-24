@@ -138,5 +138,24 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("Hello", message, "Instance field should receive the string value assigned through out parameter.");
             Assert.IsTrue(flag, "Instance field should receive the boolean value assigned through out parameter.");
         }
+
+        [TestMethod]
+        public void Test_RefStorageSurvivesSkippedBranches()
+        {
+            Assert.AreEqual(500, Contract.TestRefLocalAfterCoalesce(false));
+            Assert.AreEqual(101, Contract.TestRefLocalAfterCoalesce(true));
+            Assert.AreEqual(507, Contract.TestRefParameterAfterCoalesce());
+            Assert.AreEqual(3, Contract.TestRefAfterConditionalBranch(false));
+            Assert.AreEqual(4, Contract.TestRefAfterConditionalBranch(true));
+        }
+
+        [TestMethod]
+        public void Test_ByRefAliases()
+        {
+            Assert.AreEqual(2, Contract.TestRefAliases());
+            Assert.AreEqual(2, Contract.TestOutAliases());
+            Assert.AreEqual(111, Contract.TestDistinctRefArguments());
+            Assert.AreEqual(20111, Contract.TestMixedRefAliases());
+        }
     }
 }

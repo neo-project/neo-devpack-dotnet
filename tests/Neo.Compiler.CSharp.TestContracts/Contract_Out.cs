@@ -141,4 +141,87 @@ public class Contract_Out : SmartContract.Framework.SmartContract
         MultipleOut(out holder.Value, out holder.Message, out holder.Flag);
         return (holder.Value, holder.Message, holder.Flag);
     }
+
+    private static int NextValue(ref int state)
+    {
+        state++;
+        return state;
+    }
+
+    private static string NextText(ref int state)
+    {
+        state++;
+        return "X";
+    }
+
+    private static void IncrementTwice(ref int first, ref int second)
+    {
+        first++;
+        second++;
+    }
+
+    private static void SetTwice(out int first, out int second)
+    {
+        first = 1;
+        second = first + 1;
+    }
+
+    public static int TestRefLocalAfterCoalesce(bool evaluateRight)
+    {
+        int calls = 0;
+        string? value = evaluateRight ? null : "Child";
+        int length = (value ?? NextText(ref calls)).Length;
+        return length * 100 + calls;
+    }
+
+    private static int ParameterAfterCoalesce(string value, int calls)
+    {
+        int length = (value ?? NextText(ref calls)).Length;
+        return length * 100 + calls;
+    }
+
+    public static int TestRefParameterAfterCoalesce()
+    {
+        return ParameterAfterCoalesce("Child", 7);
+    }
+
+    public static int TestRefAfterConditionalBranch(bool execute)
+    {
+        int calls = 3;
+        if (execute)
+            calls = NextValue(ref calls);
+        return calls;
+    }
+
+    public static int TestRefAliases()
+    {
+        int value = 0;
+        IncrementTwice(ref value, ref value);
+        return value;
+    }
+
+    public static int TestOutAliases()
+    {
+        int value = 0;
+        SetTwice(out value, out value);
+        return value;
+    }
+
+    public static int TestDistinctRefArguments()
+    {
+        int first = 0;
+        int second = 10;
+        IncrementTwice(ref first, ref second);
+        return first * 100 + second;
+    }
+
+    public static int TestMixedRefAliases()
+    {
+        int alias = 0;
+        int first = 0;
+        int second = 10;
+        IncrementTwice(ref alias, ref alias);
+        IncrementTwice(ref first, ref second);
+        return alias * 10000 + first * 100 + second;
+    }
 }
