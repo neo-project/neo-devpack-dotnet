@@ -375,12 +375,7 @@ internal partial class MethodConvert
                 else
                 {
                     int index = GetFieldIndex(model.GetTypeInfo(left.Expression).Type, field);
-                    if (_tupleAssignmentReceiverSlots.TryGetValue(left, out byte slot))
-                    {
-                        AccessSlot(OpCode.LDLOC, slot);
-                    }
-                    else
-                        ConvertExpression(model, left.Expression);
+                    AccessSlot(OpCode.LDLOC, _tupleAssignmentReceiverSlots[left]);
                     Push(index);
                     AddInstruction(OpCode.ROT);
                     AddInstruction(OpCode.SETITEM);
@@ -388,14 +383,7 @@ internal partial class MethodConvert
                 break;
             case IPropertySymbol property:
                 if (!property.IsStatic)
-                {
-                    if (_tupleAssignmentReceiverSlots.TryGetValue(left, out byte slot))
-                    {
-                        AccessSlot(OpCode.LDLOC, slot);
-                    }
-                    else
-                        ConvertExpression(model, left.Expression);
-                }
+                    AccessSlot(OpCode.LDLOC, _tupleAssignmentReceiverSlots[left]);
                 CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                 break;
             default:
