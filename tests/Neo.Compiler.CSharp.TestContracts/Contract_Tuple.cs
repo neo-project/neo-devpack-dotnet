@@ -68,5 +68,32 @@ namespace Neo.Compiler.CSharp.TestContracts
             state.index = index;
             return state;
         }
+
+        private sealed class TupleBox
+        {
+            public int X;
+            public int Y;
+        }
+
+        private static int TupleNext(ref int state)
+        {
+            return ++state;
+        }
+
+        private static TupleBox TuplePick(TupleBox value, ref int state)
+        {
+            state++;
+            return value;
+        }
+
+        public static int TupleAssignmentEvaluationOrder(int a)
+        {
+            var left = new TupleBox();
+            var right = new TupleBox();
+            int state = a;
+            (TuplePick(left, ref state).X, _, TuplePick(right, ref state).Y) =
+                (TupleNext(ref state), TupleNext(ref state), TupleNext(ref state));
+            return left.X * 100000 + right.Y * 10000 + state;
+        }
     }
 }

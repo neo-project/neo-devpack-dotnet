@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Assign()
         {
             var tuple = Contract.T1()! as Struct;
-            AssertGasConsumed(2310420);
+            AssertGasConsumed(2311140);
             Assert.AreEqual(5, tuple!.Count);
             Assert.AreEqual(1, tuple[2].GetInteger());
             Assert.AreEqual(4, tuple[3].GetInteger());
@@ -45,6 +45,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ReadTupleRest()
         {
             Assert.AreEqual(8005, (int)Contract.ReadTupleRest(7)!.Value);
+        }
+
+        [TestMethod]
+        public void Test_TupleAssignmentEvaluationOrder()
+        {
+            Assert.AreEqual(1120012, (int)Contract.TupleAssignmentEvaluationOrder(7)!.Value);
         }
     }
 }
