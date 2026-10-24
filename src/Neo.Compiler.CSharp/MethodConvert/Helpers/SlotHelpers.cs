@@ -749,10 +749,12 @@ internal partial class MethodConvert
 
     private void ProcessMultipleParamsArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
     {
+        var elementType = ((IArrayTypeSymbol)parameter.Type).ElementType;
         for (int i = arguments.Count - 1; i >= parameter.Ordinal; i--)
         {
             var expression = ExtractExpression(arguments[i]);
             ConvertExpression(model, expression);
+            CopyStructValueBeforeStore(model, elementType, expression);
         }
         Push(arguments.Count - parameter.Ordinal);
         AddInstruction(OpCode.PACK);

@@ -498,6 +498,8 @@ namespace Neo.Compiler
             {
                 using (InsertSequencePoint(syntax.Identifier))
                 {
+                    if (elementSymbol.Type.IsStructArray())
+                        CopyStructValue(elementSymbol.Type);
                     AccessSlot(OpCode.STLOC, elementSlot);
                 }
                 ConvertStatement(model, syntax.Statement);
