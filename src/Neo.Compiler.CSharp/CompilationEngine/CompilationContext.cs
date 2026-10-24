@@ -52,6 +52,7 @@ namespace Neo.Compiler
         // We can not reuse these converted methods as the offsets are determined while converting
         private readonly MethodConvertCollection _methodsConverted = new();
         private readonly MethodConvertCollection _methodsForward = new();
+        private readonly System.Collections.Generic.List<MethodConvert> _methodsByRefAliases = new();
         private readonly System.Collections.Generic.List<MethodToken> _methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> _staticFields = new(SymbolEqualityComparer.Default);
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
@@ -129,7 +130,9 @@ namespace Neo.Compiler
 
         private IEnumerable<Instruction> GetInstructions()
         {
-            return _methodsConverted.SelectMany(p => p.Instructions).Concat(_methodsForward.SelectMany(p => p.Instructions));
+            return _methodsConverted.SelectMany(p => p.Instructions)
+                .Concat(_methodsByRefAliases.SelectMany(p => p.Instructions))
+                .Concat(_methodsForward.SelectMany(p => p.Instructions));
         }
 
         private int GetAbiOffset(IMethodSymbol method)
@@ -773,6 +776,13 @@ namespace Neo.Compiler
                 method.Convert(model);
             }
             return method;
+        }
+
+        internal MethodConvert AddByRefAliasMethod(MethodConvert method, IReadOnlyDictionary<byte, byte> aliases)
+        {
+            MethodConvert alias = method.CloneWithCapturedStaticFields(aliases);
+            _methodsByRefAliases.Add(alias);
+            return alias;
         }
 
         internal ushort AddMethodToken(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags)

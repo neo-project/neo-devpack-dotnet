@@ -18,7 +18,7 @@ public abstract class Contract_Char(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3MAVcAAXgAMAA6u0BXAAF4ACCSAGEAe7tAVwABeEoZHrtQACCzrEBXAAF4SgAwADq7SiQMRUoAIJIAYQB7u0ZAVwEBeEoAMAA6u0okDEVKACCSAGEAe7tGcGjZIEBXAAF4EAGAALtAVwABeAAgkgBhAHu7QFcAAXgAYQB7u0BXAAF4SgBBAFu7JgUAIJ5AVwABeABBAFu7QFcAAXhKAGEAe7smBQAgn0BXAAF4SgBhAHu7JgUAIJ9AVwABeEoAQQBbuyYFACCeQFcAAXhKADAAOrskBUUPQAAwn0BXAAF4SgB/LBkEAAAAAO73AIwBAAC4AAAAKBFRqJGxQEUJQFcAAXhKAH8sGQQAAAAAEAgAcAAAAEABAABQEVGokbFARQlAVwABeEoQACC7UAB/AaAAu6xAVwABeEoCANgAAAIA3AAAu1ACANwAAAIA4AAAu6xAVwABeAIA2AAAAgDcAAC7QFcAAXgCANwAAAIA4AAAu0BXAAN4eXpTTrZTtqtAVwABeErYJgpFDAROdWxsOkrKESgQRQwKTm90T25lQ2hhcjoQzkBXAgF4cRBKYWlQRUrYJA1KyhEqCBDOYAgiBkUQYAlYYXBoWVASv0BWAkDktQmn").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3MAVcAAXgAMAA6u0BXAAF4ACCSAGEAe7tAVwABeEoZHrtQACCzrEBXAAF4SgAwADq7SiQMRUoAIJIAYQB7u0ZAVwEBeEoAMAA6u0okDEVKACCSAGEAe7tGcGjZIEBXAAF4EAGAALtAVwABeAAgkgBhAHu7QFcAAXgAYQB7u0BXAAF4SgBBAFu7JgUAIJ5AVwABeABBAFu7QFcAAXhKAGEAe7smBQAgn0BXAAF4SgBhAHu7JgUAIJ9AVwABeEoAQQBbuyYFACCeQFcAAXhKADAAOrskBUUPQAAwn0BXAAF4SgB/LBkEAAAAAO73AIwBAAC4AAAAKBFRqJGxQEUJQFcAAXhKAH8sGQQAAAAAEAgAcAAAAEABAABQEVGokbFARQlAVwABeEoQACC7UAB/AaAAu6xAVwABeEoCANgAAAIA3AAAu1ACANwAAAIA4AAAu6xAVwABeAIA2AAAAgDcAAC7QFcAAXgCANwAAAIA4AAAu0BXAAN4eXpTTrZTtqtAVwABeErYJgpFDAROdWxsOkrKESgQRQwKTm90T25lQ2hhcjoQzkBXAgF4cRBKYGlQRUrYJA1KyhEqCBDOYQgiBkUQYQlZYHBoWFASv0BWAkBm0NxY").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -462,13 +462,13 @@ public abstract class Contract_Char(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBeHEQSmFpUEVK2CQNSsoRKggQzmAIIgZFEGAJWGFwaFlQEr9A
+    /// Script: VwIBeHEQSmBpUEVK2CQNSsoRKggQzmEIIgZFEGEJWWBwaFhQEr9A
     /// INITSLOT 0201 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC1 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// DUP [2 datoshi]
-    /// STSFLD1 [2 datoshi]
+    /// STSFLD0 [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// SWAP [2 datoshi]
     /// DROP [2 datoshi]
@@ -481,18 +481,18 @@ public abstract class Contract_Char(Neo.SmartContract.Testing.SmartContractIniti
     /// JMPNE 08 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// STSFLD0 [2 datoshi]
+    /// STSFLD1 [2 datoshi]
     /// PUSHT [1 datoshi]
     /// JMP 06 [2 datoshi]
     /// DROP [2 datoshi]
     /// PUSH0 [1 datoshi]
-    /// STSFLD0 [2 datoshi]
-    /// PUSHF [1 datoshi]
-    /// LDSFLD0 [2 datoshi]
     /// STSFLD1 [2 datoshi]
+    /// PUSHF [1 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// STSFLD0 [2 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// LDSFLD1 [2 datoshi]
+    /// LDSFLD0 [2 datoshi]
     /// SWAP [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]

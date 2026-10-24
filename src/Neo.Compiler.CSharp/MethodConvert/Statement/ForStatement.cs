@@ -71,13 +71,13 @@ namespace Neo.Compiler
 
             foreach (var (variable, symbol) in variables)
             {
-                byte variableIndex = AddLocalVariable(symbol);
+                AddLocalVariable(symbol);
                 if (variable.Initializer is not null)
                 {
                     using (InsertSequencePoint(variable))
                     {
                         ConvertExpression(model, variable.Initializer.Value);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        StLocSlot(symbol);
                     }
                 }
             }
