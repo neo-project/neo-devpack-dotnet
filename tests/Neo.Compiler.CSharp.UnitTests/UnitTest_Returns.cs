@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DoubleReturnA()
         {
             var array = Contract.Div(9, 5)!;
-            AssertGasConsumed(1109970);
+            AssertGasConsumed(1175280);
 
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual(BigInteger.One, array[0]);

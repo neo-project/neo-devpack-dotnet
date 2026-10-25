@@ -26,7 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)123, res[1]);
-            AssertGasConsumed(2106960);
+            AssertGasConsumed(2172570);
 
             res = Contract.TestByteTryParse("256");
             Assert.IsNotNull(res);
@@ -67,7 +67,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)100, res[1]);
-            AssertGasConsumed(2106810);
+            AssertGasConsumed(2172420);
 
             res = Contract.TestSByteTryParse("-128");
             Assert.IsNotNull(res);
@@ -111,7 +111,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)32000, res[1]);
-            AssertGasConsumed(2112450);
+            AssertGasConsumed(2178060);
 
             res = Contract.TestShortTryParse("-32768");
             Assert.IsNotNull(res);
@@ -155,7 +155,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)65000, res[1]);
-            AssertGasConsumed(2112600);
+            AssertGasConsumed(2178210);
 
             res = Contract.TestUShortTryParse("0");
             Assert.IsNotNull(res);
@@ -196,7 +196,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)2147483647, res[1]);
-            AssertGasConsumed(2126550);
+            AssertGasConsumed(2192160);
 
             res = Contract.TestIntTryParse("-2147483648");
             Assert.IsNotNull(res);
@@ -237,7 +237,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)4294967295, res[1]);
-            AssertGasConsumed(2126700);
+            AssertGasConsumed(2192310);
 
             res = Contract.TestUIntTryParse("0");
             Assert.IsNotNull(res);
@@ -284,7 +284,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)9223372036854775807, res[1]);
-            AssertGasConsumed(2151930);
+            AssertGasConsumed(2217540);
 
             res = Contract.TestLongTryParse("-9223372036854775808");
             Assert.IsNotNull(res);
@@ -328,7 +328,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)18446744073709551615, res[1]);
-            AssertGasConsumed(2154990);
+            AssertGasConsumed(2220600);
 
             res = Contract.TestULongTryParse("0");
             Assert.IsNotNull(res);
@@ -375,7 +375,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.IsTrue((bool)res[1]);
-            AssertGasConsumed(1111440);
+            AssertGasConsumed(1177050);
 
             res = Contract.TestBoolTryParse("false");
             Assert.IsNotNull(res);
@@ -403,7 +403,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.IsTrue((bool)res[1]);
-            AssertGasConsumed(1119360);
+            AssertGasConsumed(1184970);
 
             res = Contract.TestBoolTryParse("0");
             Assert.IsNotNull(res);
@@ -482,7 +482,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsFalse((bool)res[0]);
             Assert.IsFalse((bool)res[1]);
-            AssertGasConsumed(1136520);
+            AssertGasConsumed(1202130);
 
             res = Contract.TestBoolTryParse("invalid");
             Assert.IsNotNull(res);

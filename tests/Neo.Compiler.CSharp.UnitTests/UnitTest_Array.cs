@@ -207,7 +207,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Collectionexpressions()
         {
             var arr = Contract.TestCollectionexpressions();
-            AssertGasConsumed(2465250);
+            AssertGasConsumed(2534940);
 
             Assert.AreEqual(4, arr?.Count);
 
