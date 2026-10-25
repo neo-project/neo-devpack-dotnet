@@ -24,6 +24,8 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private readonly Dictionary<SyntaxNode, byte> _tupleAssignmentReceiverSlots = new();
+
     /// <summary>
     /// Converts the code for simple assignment expression into OpCodes.
     /// The assignment operator = assigns the value of its right-hand operand to a variable,
@@ -49,6 +51,28 @@ internal partial class MethodConvert
     /// </param>
     private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression, bool leaveResultOnStack = true)
     {
+        if (expression.Left is TupleExpressionSyntax tupleLeft)
+        {
+            // C# evaluates tuple assignment receivers before the right-hand side. Capture
+            // instance receivers in temporary slots so a side-effecting RHS cannot change
+            // which object or value is updated by the tuple writeback.
+            using var scope = PreserveAnonymousVariables();
+            try
+            {
+                CaptureTupleAssignmentReceivers(model, tupleLeft);
+                ConvertExpression(model, expression.Right);
+                if (leaveResultOnStack)
+                    AddInstruction(OpCode.DUP);
+                ConvertTupleAssignment(model, tupleLeft);
+                return;
+            }
+            finally
+            {
+                foreach (ArgumentSyntax argument in tupleLeft.Arguments)
+                    _tupleAssignmentReceiverSlots.Remove(argument.Expression);
+            }
+        }
+
         ITypeSymbol assignedType = model.GetTypeInfo(expression).Type ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
 
         if (expression.Right is RefExpressionSyntax refExpression &&
@@ -313,6 +337,30 @@ internal partial class MethodConvert
         }
     }
 
+    private void CaptureTupleAssignmentReceivers(SemanticModel model, TupleExpressionSyntax tuple)
+    {
+        foreach (ArgumentSyntax argument in tuple.Arguments)
+        {
+            if (argument.Expression is not MemberAccessExpressionSyntax memberAccess)
+                continue;
+
+            ISymbol? symbol = model.GetSymbolInfo(memberAccess.Name).Symbol;
+            bool instanceMember = symbol switch
+            {
+                IFieldSymbol field => !field.IsStatic,
+                IPropertySymbol property => !property.IsStatic,
+                _ => false,
+            };
+            if (!instanceMember)
+                continue;
+
+            byte slot = AddAnonymousVariable();
+            ConvertExpression(model, memberAccess.Expression);
+            AccessSlot(OpCode.STLOC, slot);
+            _tupleAssignmentReceiverSlots.Add(memberAccess, slot);
+        }
+    }
+
     private void ConvertTupleMemberAccessAssignment(SemanticModel model, MemberAccessExpressionSyntax left)
     {
         ISymbol symbol = model.GetSymbolInfo(left.Name).Symbol!;
@@ -326,15 +374,16 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = GetInstanceFieldIndex(field);
-                    ConvertExpression(model, left.Expression);
+                    int index = GetFieldIndex(model.GetTypeInfo(left.Expression).Type, field);
+                    AccessSlot(OpCode.LDLOC, _tupleAssignmentReceiverSlots[left]);
                     Push(index);
                     AddInstruction(OpCode.ROT);
                     AddInstruction(OpCode.SETITEM);
                 }
                 break;
             case IPropertySymbol property:
-                if (!property.IsStatic) ConvertExpression(model, left.Expression);
+                if (!property.IsStatic)
+                    AccessSlot(OpCode.LDLOC, _tupleAssignmentReceiverSlots[left]);
                 CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                 break;
             default:
