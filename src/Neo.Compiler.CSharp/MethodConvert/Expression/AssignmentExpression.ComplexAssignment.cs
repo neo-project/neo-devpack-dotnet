@@ -334,6 +334,7 @@ internal partial class MethodConvert
 
         if (operatorToken.ValueText is "/=" or "%=")
         {
+            CheckDivisionByZero(model, right);
             CheckSignedDivisionOverflow(model, type, null, right);
         }
         else if (operatorToken.ValueText == "<<=")
