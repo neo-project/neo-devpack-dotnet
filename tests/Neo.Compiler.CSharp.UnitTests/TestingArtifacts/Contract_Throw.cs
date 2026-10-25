@@ -13,12 +13,12 @@ public abstract class Contract_Throw(Neo.SmartContract.Testing.SmartContractInit
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Throw"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[{""name"":""args"",""type"":""Array""}],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""storeAndThrowException"",""parameters"":[],""returntype"":""Void"",""offset"":55,""safe"":false},{""name"":""storeThrowAndCatchException"",""parameters"":[],""returntype"":""String"",""offset"":67,""safe"":false},{""name"":""storeParameterlessExceptionAndCatch"",""parameters"":[],""returntype"":""String"",""offset"":99,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Throw"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[{""name"":""args"",""type"":""Array""}],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""storeAndThrowException"",""parameters"":[],""returntype"":""Void"",""offset"":55,""safe"":false},{""name"":""storeThrowAndCatchException"",""parameters"":[],""returntype"":""String"",""offset"":67,""safe"":false},{""name"":""storeParameterlessExceptionAndCatch"",""parameters"":[],""returntype"":""String"",""offset"":108,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIhXAQF4yhG4Jgd4EM4iKQwkUGxlYXNlIHN1cHBseSBhdCBsZWFzdCBvbmUgYXJndW1lbnQuOnBAVwEADARib29tcGg6VwEAOwwADARib29tcGg6cAwHY2F1Z2h0OmiL2yg9AkBXAQA7EQAMCWV4Y2VwdGlvbnBoOnAMB2NhdWdodDpoi9soPQJAzUk5uA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJpXAQF4yhG4Jgd4EM4iKQwkUGxlYXNlIHN1cHBseSBhdCBsZWFzdCBvbmUgYXJndW1lbnQuOnBAVwEADARib29tcGg6VwIAQ3E7DAAMBGJvb21waDpwQ2kyBUUi+wwHY2F1Z2h0OmiL2yg9AkBXAgBDcTsRAAwJZXhjZXB0aW9ucGg6cENpMgVFIvsMB2NhdWdodDpoi9soPQJAcuumbA==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -42,14 +42,21 @@ public abstract class Contract_Throw(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAOxEADAlleGNlcHRpb25waDpwDAdjYXVnaHQ6aIvbKD0CQA==
-    /// INITSLOT 0100 [64 datoshi]
+    /// Script: VwIAQ3E7EQAMCWV4Y2VwdGlvbnBoOnBDaTIFRSL7DAdjYXVnaHQ6aIvbKD0CQA==
+    /// INITSLOT 0200 [64 datoshi]
+    /// DEPTH [2 datoshi]
+    /// STLOC1 [2 datoshi]
     /// TRY 1100 [4 datoshi]
     /// PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
     /// STLOC0 [2 datoshi]
+    /// DEPTH [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// JMPLE 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// JMP FB [2 datoshi]
     /// PUSHDATA1 6361756768743A 'caught:' [8 datoshi]
     /// LDLOC0 [2 datoshi]
     /// CAT [2048 datoshi]
@@ -64,14 +71,21 @@ public abstract class Contract_Throw(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAOwwADARib29tcGg6cAwHY2F1Z2h0OmiL2yg9AkA=
-    /// INITSLOT 0100 [64 datoshi]
+    /// Script: VwIAQ3E7DAAMBGJvb21waDpwQ2kyBUUi+wwHY2F1Z2h0OmiL2yg9AkA=
+    /// INITSLOT 0200 [64 datoshi]
+    /// DEPTH [2 datoshi]
+    /// STLOC1 [2 datoshi]
     /// TRY 0C00 [4 datoshi]
     /// PUSHDATA1 626F6F6D 'boom' [8 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
     /// STLOC0 [2 datoshi]
+    /// DEPTH [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// JMPLE 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// JMP FB [2 datoshi]
     /// PUSHDATA1 6361756768743A 'caught:' [8 datoshi]
     /// LDLOC0 [2 datoshi]
     /// CAT [2048 datoshi]
