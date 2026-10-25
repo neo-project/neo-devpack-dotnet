@@ -18,7 +18,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -2046,7 +2046,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYBeHAMAsOpdBJ1aMpxEHJpnXNqbZ5pLCtoas5sEM4qI20RMhloapzObBHOKhZtEjIMaGqcnM5sEs4qCGptnnIi02ttn5xqMDRoa22fnM5sEM4qKW0RMh9oa22fnJzObBHOKhltEjIPaGttn5ycnM5sEs4qCGttn3MiyWhqa2qfnIzbKEA=
+    /// Script: VwYBeHAMAsOpdBJ1aMpxEHJpnXNqbZ5pLCtoas5sEM4qI20RMhloapzObBHOKhZtEjIMaGoSns5sEs4qCGptnnIi02ttn5xqMDRoa22fnM5sEM4qKW0RMh9oa22fnJzObBHOKhltEjIPaGttn5wSns5sEs4qCGttn3MiyWhqa2qfnIzbKEA=
     /// INITSLOT 0601 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -2090,8 +2090,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// JMPLE 0C [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// LDLOC2 [2 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -2140,8 +2140,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// LDLOC5 [2 datoshi]
     /// SUB [8 datoshi]
     /// INC [4 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -2169,7 +2169,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwcCeHB5dm4AfzJObgH/BzI2bgIA2AAAAgDgAAC7JCFuAD+RIKhuFqkAP5EYqJ5uHKkfkZ4C4ICA/57bKCInDAPvv70iIG4AP5EYqG4WqZ4BwICe2ygiDm5KJAhFDAEAIgTbKHRsynVoynEQcmmdc2ptnmksK2hqzmwQziojbREyGWhqnM5sEc4qFm0SMgxoapyczmwSzioIam2eciLTa22fnGowNGhrbZ+czmwQziopbREyH2hrbZ+cnM5sEc4qGW0SMg9oa22fnJyczmwSzioIa22fcyLJaGprap+cjNsoQA==
+    /// Script: VwcCeHB5dm4AfzJObgH/BzI2bgIA2AAAAgDgAAC7JCFuAD+RIKhuFqkAP5EYqJ5uHKkfkZ4C4ICA/57bKCInDAPvv70iIG4AP5EYqG4WqZ4BwICe2ygiDm5KJAhFDAEAIgTbKHRsynVoynEQcmmdc2ptnmksK2hqzmwQziojbREyGWhqnM5sEc4qFm0SMgxoahKezmwSzioIam2eciLTa22fnGowNGhrbZ+czmwQziopbREyH2hrbZ+cnM5sEc4qGW0SMg9oa22fnBKezmwSzioIa22fcyLJaGprap+cjNsoQA==
     /// INITSLOT 0702 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -2271,8 +2271,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// JMPLE 0C [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// LDLOC2 [2 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -2321,8 +2321,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// LDLOC5 [2 datoshi]
     /// SUB [8 datoshi]
     /// INC [4 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -2570,7 +2570,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYBeHAMA+S4rXQTdRBzaMpxaZ1yam2fnGswNGhqbZ+czmwQziopbREyH2hqbZ+cnM5sEc4qGW0SMg9oam2fnJyczmwSzioIam2fciLJag8oCmgQapyM2yhADABA
+    /// Script: VwYBeHAMA+S4rXQTdRBzaMpxaZ1yam2fnGswNGhqbZ+czmwQziopbREyH2hqbZ+cnM5sEc4qGW0SMg9oam2fnBKezmwSzioIam2fciLJag8oCmgQapyM2yhADABA
     /// INITSLOT 0601 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -2624,8 +2624,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// LDLOC5 [2 datoshi]
     /// SUB [8 datoshi]
     /// INC [4 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -2656,7 +2656,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwcCeHB5dm4AfzJObgH/BzI2bgIA2AAAAgDgAAC7JCFuAD+RIKhuFqkAP5EYqJ5uHKkfkZ4C4ICA/57bKCInDAPvv70iIG4AP5EYqG4WqZ4BwICe2ygiDm5KJAhFDAEAIgTbKHRsynUQc2jKcWmdcmptn5xrMDRoam2fnM5sEM4qKW0RMh9oam2fnJzObBHOKhltEjIPaGptn5ycnM5sEs4qCGptn3IiyWoPKApoEGqcjNsoQAwAQA==
+    /// Script: VwcCeHB5dm4AfzJObgH/BzI2bgIA2AAAAgDgAAC7JCFuAD+RIKhuFqkAP5EYqJ5uHKkfkZ4C4ICA/57bKCInDAPvv70iIG4AP5EYqG4WqZ4BwICe2ygiDm5KJAhFDAEAIgTbKHRsynUQc2jKcWmdcmptn5xrMDRoam2fnM5sEM4qKW0RMh9oam2fnJzObBHOKhltEjIPaGptn5wSns5sEs4qCGptn3IiyWoPKApoEGqcjNsoQAwAQA==
     /// INITSLOT 0702 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -2768,8 +2768,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// LDLOC5 [2 datoshi]
     /// SUB [8 datoshi]
     /// INC [4 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -2878,7 +2878,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUBeHAMA+S4rXMTdGjKcRByamyeaSwraGrOaxDOKiNsETIZaGqczmsRzioWbBIyDGhqnJzOaxLOKghqbJ5yItNoamlqn4zbKEA=
+    /// Script: VwUBeHAMA+S4rXMTdGjKcRByamyeaSwraGrOaxDOKiNsETIZaGqczmsRzioWbBIyDGhqEp7OaxLOKghqbJ5yItNoamlqn4zbKEA=
     /// INITSLOT 0501 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -2919,8 +2919,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// JMPLE 0C [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// LDLOC2 [2 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC3 [2 datoshi]
     /// PUSH2 [1 datoshi]
@@ -2947,7 +2947,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYCeHB5dW0AfzJObQH/BzI2bQIA2AAAAgDgAAC7JCFtAD+RIKhtFqkAP5EYqJ5tHKkfkZ4C4ICA/57bKCInDAPvv70iIG0AP5EYqG0WqZ4BwICe2ygiDm1KJAhFDAEAIgTbKHNrynRoynEQcmpsnmksK2hqzmsQziojbBEyGWhqnM5rEc4qFmwSMgxoapyczmsSzioIamyeciLTaGppap+M2yhA
+    /// Script: VwYCeHB5dW0AfzJObQH/BzI2bQIA2AAAAgDgAAC7JCFtAD+RIKhtFqkAP5EYqJ5tHKkfkZ4C4ICA/57bKCInDAPvv70iIG0AP5EYqG0WqZ4BwICe2ygiDm1KJAhFDAEAIgTbKHNrynRoynEQcmpsnmksK2hqzmsQziojbBEyGWhqnM5rEc4qFmwSMgxoahKezmsSzioIamyeciLTaGppap+M2yhA
     /// INITSLOT 0602 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -3046,8 +3046,8 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// JMPLE 0C [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// LDLOC2 [2 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// PICKITEM [64 datoshi]
     /// LDLOC3 [2 datoshi]
     /// PUSH2 [1 datoshi]
