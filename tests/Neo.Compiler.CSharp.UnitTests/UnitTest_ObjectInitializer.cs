@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.Compiler.CSharp.UnitTests.Syntax;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -34,6 +35,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_FieldInitializer()
         {
             Assert.AreEqual(new BigInteger(7), Contract.FieldInitializer(7));
+        }
+
+        [TestMethod]
+        public void Test_EmbeddedNestedInitializer_FailsWithDiagnostic()
+        {
+            // An embedded initializer has no type of its own; it must be rejected with a
+            // diagnostic instead of the NullReferenceException the converter used to throw.
+            Syntax.Helper.AssertClassCompilationFails(@"
+public static int Probe(int a)
+{
+    var w = new Wrapper { Inner = { X = a, Y = a + 1 } };
+    return w.Inner.X * 100 + w.Inner.Y;
+}", "Embedded nested object initializers should be rejected with a diagnostic instead of crashing.");
         }
     }
 }
