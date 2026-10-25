@@ -268,7 +268,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)1, res[1]);
-            AssertGasConsumed(2101500);
+            AssertGasConsumed(2167110);
 
             res = Contract.TestUIntTryParse("00123");
             Assert.IsNotNull(res);
