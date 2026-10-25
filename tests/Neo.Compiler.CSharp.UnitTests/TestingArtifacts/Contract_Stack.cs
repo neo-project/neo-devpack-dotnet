@@ -13,12 +13,12 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Stack"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test_Push_Integer"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""test_Push_Integer_Internal"",""parameters"":[],""returntype"":""Array"",""offset"":5,""safe"":false},{""name"":""test_External"",""parameters"":[],""returntype"":""Array"",""offset"":81,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Stack"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test_Push_Integer"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""test_Push_Integer_Internal"",""parameters"":[],""returntype"":""Array"",""offset"":5,""safe"":false},{""name"":""test_External"",""parameters"":[],""returntype"":""Array"",""offset"":136,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGNXAAF4QAP/////////fwMAAAAAAAAAgAT//////////wAAAAAAAAAAAv///38CAAAAgAP/////AAAAAAL//wAAAf9/AQCAAH8AgAH/ABAdv0ADAPBaKxf///8CwL3w/w8Tv0C5P7Cr").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKlXAAF4QAP/////////fwMAAAAAAAAAgAT//////////wAAAAAAAAAAAv///38CAAAAgAP/////AAAAAAL//wAAAf9/AQCAAH8AgAH/ABAdvxBNHM4RTRvOEk0azhNNGc4UTRjOFU0XzhZNFs4XTRXOGE0UzhlNE84aTRLOG00RzhxNEM4dv0ZAAwDwWisX////AsC98P8PE78QTRLOEU0RzhJNEM4Tv0ZARUWd6A==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,12 +28,27 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: AwDwWisX////AsC98P8PE79A
+    /// Script: AwDwWisX////AsC98P8PE78QTRLOEU0RzhJNEM4Tv0ZA
     /// PUSHINT64 00F05A2B17FFFFFF [1 datoshi]
     /// PUSHINT32 C0BDF0FF [1 datoshi]
     /// PUSHM1 [1 datoshi]
     /// PUSH3 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// NIP [2 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test_External")]
@@ -55,7 +70,7 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: A/////////9/AwAAAAAAAACABP//////////AAAAAAAAAAAC////fwIAAACAA/////8AAAAAAv//AAAB/38BAIAAfwCAAf8AEB2/QA==
+    /// Script: A/////////9/AwAAAAAAAACABP//////////AAAAAAAAAAAC////fwIAAACAA/////8AAAAAAv//AAAB/38BAIAAfwCAAf8AEB2/EE0czhFNG84STRrOE00ZzhRNGM4VTRfOFk0WzhdNFc4YTRTOGU0TzhpNEs4bTRHOHE0Qzh2/RkA=
     /// PUSHINT64 FFFFFFFFFFFFFF7F [1 datoshi]
     /// PUSHINT64 0000000000000080 [1 datoshi]
     /// PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000 [4 datoshi]
@@ -71,6 +86,61 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// PUSH0 [1 datoshi]
     /// PUSH13 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH12 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH11 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH10 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH9 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH8 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH5 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH7 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH7 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH5 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH8 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH9 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH10 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH11 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH12 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH13 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// NIP [2 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test_Push_Integer_Internal")]
