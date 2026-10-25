@@ -420,27 +420,6 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Checks for signed division and remainder overflow.
-    /// Both operations overflow when the minimum value of a signed integer type is divided by -1.
-    /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
-    /// </summary>
-    /// <param name="model">The semantic model of the compilation.</param>
-    /// <param name="type">The result type of the division or remainder expression.</param>
-    /// <param name="leftExpr">The left expression (dividend) of the operation.</param>
-    /// <param name="rightExpr">The right expression (divisor) of the operation.</param>
-    /// <remarks>
-    /// Overflow check is needed for:
-    /// - Int32 (int): int.MinValue / -1 overflows
-    /// - Int64 (long): long.MinValue / -1 overflows
-    ///
-    /// Overflow check is NOT needed for:
-    /// - Smaller types (sbyte, byte, short, ushort, char): promoted to int in division
-    /// - Unsigned types (uint, ulong): no negative values, no overflow possible
-    /// - BigInteger: arbitrary precision, no overflow possible
-    /// - Constant divisor != -1: overflow only occurs when dividing by -1
-    /// - Constant dividend != minValue: overflow only occurs when dividend is the minimum value
-    /// </remarks>
-    /// <summary>
     /// Emits an explicit zero-divisor check in front of a division or remainder.
     /// </summary>
     /// <param name="model">The semantic model of the compilation.</param>
@@ -468,6 +447,27 @@ internal partial class MethodConvert
         endTarget.Instruction = Nop();
     }
 
+    /// <summary>
+    /// Checks for signed division and remainder overflow.
+    /// Both operations overflow when the minimum value of a signed integer type is divided by -1.
+    /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
+    /// </summary>
+    /// <param name="model">The semantic model of the compilation.</param>
+    /// <param name="type">The result type of the division or remainder expression.</param>
+    /// <param name="leftExpr">The left expression (dividend) of the operation.</param>
+    /// <param name="rightExpr">The right expression (divisor) of the operation.</param>
+    /// <remarks>
+    /// Overflow check is needed for:
+    /// - Int32 (int): int.MinValue / -1 overflows
+    /// - Int64 (long): long.MinValue / -1 overflows
+    ///
+    /// Overflow check is NOT needed for:
+    /// - Smaller types (sbyte, byte, short, ushort, char): promoted to int in division
+    /// - Unsigned types (uint, ulong): no negative values, no overflow possible
+    /// - BigInteger: arbitrary precision, no overflow possible
+    /// - Constant divisor != -1: overflow only occurs when dividing by -1
+    /// - Constant dividend != minValue: overflow only occurs when dividend is the minimum value
+    /// </remarks>
     private void CheckSignedDivisionOverflow(SemanticModel model, ITypeSymbol? type, ExpressionSyntax? leftExpr, ExpressionSyntax rightExpr)
     {
         if (type is null) return;
