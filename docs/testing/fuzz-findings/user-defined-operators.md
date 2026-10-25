@@ -120,10 +120,11 @@ Two dispatches were added:
   (`model.GetConversion(...).IsUserDefined`, same assembly guard) to a call to the operator
   method, mirroring what `ConvertCastExpression` already did for explicit conversions.
 
-Compound assignment (`v += w`) and increment (`v++`) through user-defined operators remain
-out of scope: they lower through separate paths in
-`AssignmentExpression.ComplexAssignment.cs` and the unary converters and are still
-rejected.
+Compound assignment (`v += w`) and increment (`v++`) lower through separate paths in
+`AssignmentExpression.ComplexAssignment.cs` and the unary converters; the same dispatch was
+added at both emission points, with the compound form evaluating the right operand on top
+of the target's current value and the increment form consuming the old value that the
+target machinery already pushed.
 
 ## Reproduction
 
