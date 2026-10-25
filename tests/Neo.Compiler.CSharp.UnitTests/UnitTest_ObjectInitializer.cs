@@ -38,6 +38,29 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_MultiDimIndexInitializer_FailsWithDiagnostic()
+        {
+            // A multi-dimensional indexer in an initializer has no lowering; it must be
+            // rejected with the multidimensional diagnostic instead of miscompiling.
+            Syntax.Helper.AssertClassCompilationFails(@"
+public class Grid
+{
+    private int[] _data = new int[8];
+    public int this[int i, int j]
+    {
+        get { return _data[i * 2 + j]; }
+        set { _data[i * 2 + j] = value; }
+    }
+}
+
+public static int Probe(int a)
+{
+    var g = new Grid { [0, 1] = a };
+    return g[0, 1];
+}", "Multi-dimensional indexer initializers should be rejected with a diagnostic.");
+        }
+
+        [TestMethod]
         public void Test_EmbeddedNestedInitializer_FailsWithDiagnostic()
         {
             // An embedded initializer has no type of its own; it must be rejected with a
