@@ -30,10 +30,10 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
     public class WriteInTryAnalyzeTryCatchTests : DebugAndTestBase<Contract_TryCatch>
     {
         [TestMethod]
-// The catch handler's stack-restore loop (DEPTH/LDLOC/JMPLE/DROP/JMP) adds jump
-// targets that split basic blocks, so the block-level analyzer counts two extra try
-// regions and one extra conservative vulnerability. The extra reports are false
-// positives in the safe direction (it never hides a real one).
+        // The catch handler's stack-restore loop (DEPTH/LDLOC/JMPLE/DROP/JMP) adds jump
+        // targets that split basic blocks, so the block-level analyzer counts two extra try
+        // regions and one extra conservative vulnerability. The extra reports are false
+        // positives in the safe direction (it never hides a real one).
         public void Test_WriteInTryAnalyzeTryCatch()
         {
             ContractInBasicBlocks contractInBasicBlocks = new(NefFile, Manifest);
