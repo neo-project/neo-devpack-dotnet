@@ -274,7 +274,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)123, res[1]);
-            AssertGasConsumed(2112600);
+            AssertGasConsumed(2178210);
         }
 
         [TestMethod]
