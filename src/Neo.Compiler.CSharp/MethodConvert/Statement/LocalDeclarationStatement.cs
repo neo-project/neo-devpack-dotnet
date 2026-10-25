@@ -57,8 +57,7 @@ namespace Neo.Compiler
                 if (variable.Initializer is not null)
                     using (InsertSequencePoint(variable))
                     {
-                        if (!TryConvertUserDefinedConversion(model, variable.Initializer.Value, symbol.Type))
-                            ConvertExpression(model, variable.Initializer.Value);
+                        ConvertExpression(model, variable.Initializer.Value);
                         AccessSlot(OpCode.STLOC, variableIndex);
                     }
             }

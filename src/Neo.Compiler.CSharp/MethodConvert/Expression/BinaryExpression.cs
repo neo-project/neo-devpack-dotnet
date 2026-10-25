@@ -54,6 +54,14 @@ internal partial class MethodConvert
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
         var operatorToken = expression.OperatorToken.ValueText;
+        if (model.GetSymbolInfo(expression).Symbol is IMethodSymbol
+            { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } userOperator &&
+            IsDeclaredByCurrentCompilation(model, userOperator))
+        {
+            ConvertUserDefinedBinaryOperator(model, expression, userOperator);
+            return;
+        }
+
         switch (operatorToken)
         {
             case "||":
@@ -105,29 +113,80 @@ internal partial class MethodConvert
             }
         }
 
-        // A user-defined operator declared in the contract is bound by Roslyn to the operator
-        // method itself, and its semantics are the method body. Emitting the raw VM opcode for
-        // the token instead would compare or combine the operand values directly, which
-        // silently disagrees with C# whenever the operator body differs from the raw opcode's
-        // behavior. Operators of referenced types (for example BigInteger arithmetic) are
-        // native VM items, so they keep the raw opcode lowering.
-        if (symbol is { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } &&
-            IsDeclaredByCurrentCompilation(model, symbol))
-        {
-            // The operands are evaluated left to right, then reversed on the stack to match
-            // the Cdecl parameter order that EmitCall expects.
-            ConvertExpression(model, expression.Left);
-            ConvertExpression(model, expression.Right);
-            Swap();
-            EmitCall(_context.ConvertMethod(model, symbol));
-            return;
-        }
-
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
 
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
         EmitBinaryOperator(model, expression, type);
+    }
+
+    private void ConvertUserDefinedBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, IMethodSymbol symbol)
+    {
+        string token = expression.OperatorToken.ValueText;
+        ConvertExpression(model, expression.Left);
+        if (token is "&&" or "||")
+        {
+            string truthOperatorName = token == "&&" ? "op_False" : "op_True";
+            var truthOperator = symbol.ContainingType.GetMembers(truthOperatorName).OfType<IMethodSymbol>()
+                .Single(method => SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, symbol.Parameters[0].Type));
+            var endTarget = new JumpTarget();
+            Dup();
+            EmitCall(_context.ConvertMethod(model, truthOperator));
+            JumpIfTrue(endTarget);
+            ConvertExpression(model, expression.Right);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            endTarget.Instruction = Nop();
+            return;
+        }
+
+        ConvertExpression(model, expression.Right);
+        if (model.GetOperation(expression) is not IBinaryOperation { IsLifted: true })
+        {
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            return;
+        }
+
+        JumpTarget leftNullTarget = new(), rightNullTarget = new(), end = new();
+        Over();
+        IsNull();
+        JumpIfTrue(leftNullTarget);
+        Dup();
+        IsNull();
+        JumpIfTrue(rightNullTarget);
+        Swap();
+        EmitCall(_context.ConvertMethod(model, symbol));
+        Jump(OpCode.JMP_L, end);
+
+        rightNullTarget.Instruction = Drop();
+        Drop();
+        PushLiftedUserOperatorNullResult(token);
+        Jump(OpCode.JMP_L, end);
+
+        leftNullTarget.Instruction = Nop();
+        if (token is "==" or "!=")
+        {
+            IsNull();
+            Swap();
+            Drop();
+            if (token == "!=")
+                Not();
+        }
+        else
+        {
+            Drop(2);
+            PushLiftedUserOperatorNullResult(token);
+        }
+        end.Instruction = Nop();
+    }
+
+    private void PushLiftedUserOperatorNullResult(string token)
+    {
+        if (token is "==" or "!=" or "<" or ">" or "<=" or ">=")
+            Push(token == "!=");
+        else
+            Push((object?)null);
     }
 
     private void EmitBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, ITypeSymbol type)

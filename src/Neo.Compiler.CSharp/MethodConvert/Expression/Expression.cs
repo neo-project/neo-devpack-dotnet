@@ -57,57 +57,34 @@ internal partial class MethodConvert
         // Insert a sequence point for debugging purposes
         using var sequence = InsertSequencePoint(syntax);
 
-        // Try to convert the expression as a constant first
-        if (TryConvertConstant(model, syntax, syntaxNode))
-            return;
+        if (!TryConvertConstant(model, syntax, syntaxNode))
+            ConvertNonConstantExpression(model, syntax);
 
-        // If it's not a constant, convert it as a non-constant expression
-        ConvertNonConstantExpression(model, syntax);
+        ApplyUserDefinedImplicitConversion(model, syntax);
     }
 
-    /// <summary>
-    /// Determines whether a symbol was declared by the compilation being converted, as
-    /// opposed to a referenced assembly.
-    /// </summary>
-    /// <param name="model">The semantic model of the compilation.</param>
-    /// <param name="symbol">The symbol to inspect.</param>
-    /// <remarks>
-    /// Operators of referenced types (for example <c>BigInteger.operator +</c>) are bound as
-    /// user-defined operators too, but their values are native VM items and the raw opcode
-    /// is the correct lowering for them. Only operators declared in the contract source can
-    /// be lowered to a call, because only those have a converted method body available.
-    /// </remarks>
     private static bool IsDeclaredByCurrentCompilation(SemanticModel model, ISymbol symbol) =>
         SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, model.Compilation.Assembly);
 
-    /// <summary>
-    /// Converts an expression that is stored into a target type, dispatching to a
-    /// user-defined conversion operator when Roslyn bound one.
-    /// </summary>
-    /// <param name="model">The semantic model of the compilation.</param>
-    /// <param name="syntax">The expression being converted.</param>
-    /// <param name="targetType">The type the expression's value is stored into.</param>
-    /// <returns><c>true</c> when a user-defined conversion method was emitted.</returns>
-    /// <remarks>
-    /// An initializer like <c>Vec v = 7;</c> binds to the user-defined implicit operator.
-    /// Without this dispatch the raw operand is stored, and the first field access on it
-    /// faults at runtime because the value is not a struct.
-    /// </remarks>
-    private bool TryConvertUserDefinedConversion(SemanticModel model, ExpressionSyntax syntax, ITypeSymbol targetType)
+    private void ApplyUserDefinedImplicitConversion(SemanticModel model, ExpressionSyntax syntax)
     {
-        ITypeSymbol? sourceType = model.GetTypeInfo(syntax).Type;
-        if (sourceType is null || SymbolEqualityComparer.Default.Equals(sourceType, targetType))
-            return false;
+        // Parentheses defer their contextual conversion to the outer expression. Casts
+        // dispatch their own conversion method in ConvertCastExpression.
+        if (syntax.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax)
+            return;
 
+        model = model.GetModelForNode(syntax);
         var conversion = model.GetConversion(syntax);
-        if (conversion.IsUserDefined &&
-            conversion.MethodSymbol is not null &&
-            IsDeclaredByCurrentCompilation(model, conversion.MethodSymbol))
-        {
-            CallMethodWithInstanceExpression(model, conversion.MethodSymbol, null, syntax);
-            return true;
-        }
-        return false;
+        if (!conversion.IsImplicit || !conversion.IsUserDefined ||
+            conversion.MethodSymbol is not IMethodSymbol method ||
+            !IsDeclaredByCurrentCompilation(model, method))
+            return;
+
+        var sourceType = model.GetTypeInfo(syntax).Type;
+        if (IsNullableValueType(sourceType) && !IsNullableValueType(method.Parameters[0].Type))
+            EmitLiftedUnaryOperation(sourceType, () => EmitCall(_context.ConvertMethod(model, method)));
+        else
+            EmitCall(_context.ConvertMethod(model, method));
     }
 
     private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)

@@ -14,6 +14,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using System;
 using System.Runtime.InteropServices;
@@ -41,6 +42,20 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/arithmetic-operators#prefix-increment-operator">Prefix increment operator</seealso>
     private void ConvertPrefixUnaryExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
     {
+        if (expression.OperatorToken.ValueText is not ("++" or "--") &&
+            model.GetOperation(expression) is IUnaryOperation
+            { OperatorMethod: { IsImplicitlyDeclared: false } symbol } operation &&
+            IsDeclaredByCurrentCompilation(model, symbol))
+        {
+            ConvertExpression(model, expression.Operand);
+            if (operation.IsLifted)
+                EmitLiftedUnaryOperation(model.GetTypeInfo(expression.Operand).Type,
+                    () => EmitCall(_context.ConvertMethod(model, symbol)));
+            else
+                EmitCall(_context.ConvertMethod(model, symbol));
+            return;
+        }
+
         switch (expression.OperatorToken.ValueText)
         {
             case "+":
@@ -406,7 +421,10 @@ internal partial class MethodConvert
             operatorSymbol is { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } &&
             IsDeclaredByCurrentCompilation(model, operatorSymbol))
         {
-            EmitCall(_context.ConvertMethod(model, operatorSymbol));
+            if (model.GetOperation(operatorNode) is IIncrementOrDecrementOperation { IsLifted: true })
+                EmitLiftedUnaryOperation(typeSymbol, () => EmitCall(_context.ConvertMethod(model, operatorSymbol)));
+            else
+                EmitCall(_context.ConvertMethod(model, operatorSymbol));
             return;
         }
 
