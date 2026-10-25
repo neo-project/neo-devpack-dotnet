@@ -105,6 +105,24 @@ internal partial class MethodConvert
             }
         }
 
+        // A user-defined operator declared in the contract is bound by Roslyn to the operator
+        // method itself, and its semantics are the method body. Emitting the raw VM opcode for
+        // the token instead would compare or combine the operand values directly, which
+        // silently disagrees with C# whenever the operator body differs from the raw opcode's
+        // behavior. Operators of referenced types (for example BigInteger arithmetic) are
+        // native VM items, so they keep the raw opcode lowering.
+        if (symbol is { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } &&
+            IsDeclaredByCurrentCompilation(model, symbol))
+        {
+            // The operands are evaluated left to right, then reversed on the stack to match
+            // the Cdecl parameter order that EmitCall expects.
+            ConvertExpression(model, expression.Left);
+            ConvertExpression(model, expression.Right);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            return;
+        }
+
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
 

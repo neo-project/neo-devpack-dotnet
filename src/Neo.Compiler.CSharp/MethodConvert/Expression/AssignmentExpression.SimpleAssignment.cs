@@ -100,9 +100,17 @@ internal partial class MethodConvert
                 return;
         }
 
-        ConvertExpression(model, expression.Right);
-        if (leaveResultOnStack)
-            AddInstruction(OpCode.DUP);
+        if (TryConvertUserDefinedConversion(model, expression.Right, assignedType))
+        {
+            if (leaveResultOnStack)
+                AddInstruction(OpCode.DUP);
+        }
+        else
+        {
+            ConvertExpression(model, expression.Right);
+            if (leaveResultOnStack)
+                AddInstruction(OpCode.DUP);
+        }
         switch (expression.Left)
         {
             case DeclarationExpressionSyntax left:
