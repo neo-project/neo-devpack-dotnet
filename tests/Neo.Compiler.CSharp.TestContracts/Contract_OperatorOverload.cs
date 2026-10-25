@@ -62,6 +62,21 @@ public class Contract_OperatorOverload : SmartContract.Framework.SmartContract
             return new Vec(a.X - b.X, a.Y - b.Y);
         }
 
+        public static Vec operator *(Vec a, int k)
+        {
+            return new Vec(a.X * k, a.Y * k);
+        }
+
+        public static Vec operator ++(Vec a)
+        {
+            return new Vec(a.X + 1, a.Y + 10);
+        }
+
+        public static Vec operator --(Vec a)
+        {
+            return new Vec(a.X - 1, a.Y - 5);
+        }
+
         public static implicit operator Vec(int x)
         {
             return new Vec(x, x + 1);
@@ -134,5 +149,41 @@ public class Contract_OperatorOverload : SmartContract.Framework.SmartContract
         Vec v = 7;
         v = v + new Vec(1, 1);
         return (int)v + (v == new Vec(8, 9) ? 1 : 0);
+    }
+
+    /// <summary>
+    /// Compound assignments lower to calls to the operator methods.
+    /// Vec(7,4) + Vec(1,2) = Vec(8,6), scaled by 2 = Vec(16,12). Expected: 1612.
+    /// </summary>
+    public static int CompoundAssignment()
+    {
+        Vec v = new Vec(7, 4);
+        v += new Vec(1, 2);
+        v *= 2;
+        return v.X * 100 + v.Y;
+    }
+
+    /// <summary>
+    /// Postfix keeps the old value and prefix sees the new one. The ++ operator adds
+    /// (1, 10) and -- subtracts (1, 5), so old=(7,0), v becomes (8,10), then --v gives
+    /// (7,5). Expected: 7*10000 + 0*100 + 7*10 + 5 = 70075.
+    /// </summary>
+    public static int IncrementDecrement()
+    {
+        Vec v = new Vec(7, 0);
+        Vec old = v++;
+        Vec now = --v;
+        return old.X * 10000 + old.Y * 100 + now.X * 10 + now.Y;
+    }
+
+    /// <summary>
+    /// Compound assignment through an array element. Vec(7,4) += Vec(1,2) = Vec(8,6),
+    /// the untouched element keeps (1,1). Expected: 807.
+    /// </summary>
+    public static int CompoundAssignmentOnElement()
+    {
+        Vec[] arr = new Vec[] { new Vec(7, 4), new Vec(1, 1) };
+        arr[0] += new Vec(1, 2);
+        return arr[0].X * 100 + arr[0].Y + arr[1].X;
     }
 }

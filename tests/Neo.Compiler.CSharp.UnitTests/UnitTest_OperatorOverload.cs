@@ -58,5 +58,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(8010, Contract.ChainedOperators());
         }
+
+        [TestMethod]
+        public void Test_CompoundAssignment()
+        {
+            Assert.AreEqual(1612, Contract.CompoundAssignment());
+        }
+
+        [TestMethod]
+        public void Test_IncrementDecrement()
+        {
+            Assert.AreEqual(70075, Contract.IncrementDecrement());
+        }
+
+        [TestMethod]
+        public void Test_CompoundAssignmentOnElement()
+        {
+            Assert.AreEqual(807, Contract.CompoundAssignmentOnElement());
+        }
     }
 }

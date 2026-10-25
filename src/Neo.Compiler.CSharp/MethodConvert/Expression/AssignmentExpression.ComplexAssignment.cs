@@ -266,6 +266,21 @@ internal partial class MethodConvert
 
     private void EmitComplexAssignmentOperator(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)
     {
+        // A compound assignment bound to a user-defined operator lowers to a call to the
+        // operator method, like the plain binary form. The current value of the target is
+        // already on the stack, so the right operand is evaluated on top of it and the pair
+        // is reversed for the Cdecl parameter order.
+        if (right.Parent is AssignmentExpressionSyntax assignment &&
+            model.GetSymbolInfo(assignment).Symbol is IMethodSymbol operatorSymbol &&
+            operatorSymbol is { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } &&
+            IsDeclaredByCurrentCompilation(model, operatorSymbol))
+        {
+            ConvertExpression(model, right);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, operatorSymbol));
+            return;
+        }
+
         var itemType = type.GetStackItemType();
         if (itemType == VM.Types.StackItemType.ByteString)
         {
