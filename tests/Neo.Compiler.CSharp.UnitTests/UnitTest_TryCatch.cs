@@ -221,7 +221,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             result = Contract.TryNULL2Ecpoint_1(true, false, true);
             Assert.IsNotNull(result);
-            AssertGasConsumed(1365090);
+            AssertGasConsumed(1430700);
             Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
@@ -243,7 +243,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             result = Contract.TryNULL2Uint160_1(true, false, true);
             Assert.IsNotNull(result);
-            AssertGasConsumed(1365090);
+            AssertGasConsumed(1430700);
             Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
@@ -265,7 +265,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             result = Contract.TryNULL2Uint256_1(true, false, true);
             Assert.IsNotNull(result);
-            AssertGasConsumed(1365090);
+            AssertGasConsumed(1430700);
             Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
@@ -287,7 +287,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             result = Contract.TryNULL2Bytestring_1(true, false, true);
             Assert.IsNotNull(result);
-            AssertGasConsumed(1111410);
+            AssertGasConsumed(1177020);
             Assert.AreEqual(new BigInteger(4), result[0]);
             Assert.IsNull(result[1]);
 
