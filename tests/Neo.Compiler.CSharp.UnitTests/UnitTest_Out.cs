@@ -143,19 +143,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RefStorageSurvivesSkippedBranches()
         {
             Assert.AreEqual(500, Contract.TestRefLocalAfterCoalesce(false));
+            AssertGasConsumed(1049640);
             Assert.AreEqual(101, Contract.TestRefLocalAfterCoalesce(true));
+            AssertGasConsumed(1068000);
             Assert.AreEqual(507, Contract.TestRefParameterAfterCoalesce());
+            AssertGasConsumed(1003860);
             Assert.AreEqual(3, Contract.TestRefAfterConditionalBranch(false));
+            AssertGasConsumed(1047810);
             Assert.AreEqual(4, Contract.TestRefAfterConditionalBranch(true));
+            AssertGasConsumed(1066140);
         }
 
         [TestMethod]
         public void Test_ByRefAliases()
         {
             Assert.AreEqual(2, Contract.TestRefAliases());
+            AssertGasConsumed(1005690);
             Assert.AreEqual(2, Contract.TestOutAliases());
+            AssertGasConsumed(1004970);
             Assert.AreEqual(111, Contract.TestDistinctRefArguments());
+            AssertGasConsumed(1007010);
             Assert.AreEqual(20111, Contract.TestMixedRefAliases());
+            AssertGasConsumed(1027230);
         }
     }
 }
