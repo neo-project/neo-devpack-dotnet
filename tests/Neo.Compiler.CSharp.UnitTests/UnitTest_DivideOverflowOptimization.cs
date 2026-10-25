@@ -48,6 +48,37 @@ public class Contract : SmartContract
 
     [DisplayName("runtimeLong")]
     public static long RuntimeLong(long dividend, long divisor) => dividend / divisor;
+
+    [DisplayName("caught")]
+    public static int Caught(int divisor)
+    {
+        try
+        {
+            return 42 / divisor;
+        }
+        catch (System.Exception)
+        {
+            return -1;
+        }
+    }
+
+    [DisplayName("caughtRemainder")]
+    public static int CaughtRemainder(int divisor)
+    {
+        int total = 0;
+        for (int i = -1; i < 2; i++)
+        {
+            try
+            {
+                total += 42 % (divisor + i);
+            }
+            catch (System.Exception)
+            {
+                total += 7;
+            }
+        }
+        return total;
+    }
 }
 """;
 
@@ -56,12 +87,17 @@ public class Contract : SmartContract
     {
         var context = CompileContract();
 
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeInt("), OpCode.THROW);
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeLong("), OpCode.THROW);
+        // The dividend is a safe constant, so no overflow guard is emitted; the divisor is
+        // a runtime value, so exactly one THROW remains - the zero-divisor guard, which a
+        // catch block must be able to observe.
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeInt(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeLong(").Count(op => op == OpCode.THROW));
 
         var contract = Deploy(context);
         Assert.AreEqual(new BigInteger(-42), contract.SafeInt(-1));
         Assert.AreEqual(new BigInteger(-42), contract.SafeLong(-1));
+        Assert.ThrowsExactly<TestException>(() => contract.SafeInt(0));
+        Assert.ThrowsExactly<TestException>(() => contract.SafeLong(0));
     }
 
     [TestMethod]
@@ -90,6 +126,25 @@ public class Contract : SmartContract
         Assert.AreEqual(new BigInteger(100), contract.RuntimeLong(1000, 10));
         Assert.ThrowsExactly<TestException>(() => contract.RuntimeInt(int.MinValue, -1));
         Assert.ThrowsExactly<TestException>(() => contract.RuntimeLong(long.MinValue, -1));
+    }
+
+    [TestMethod]
+    public void DivideByZeroIsCatchable()
+    {
+        var contract = Deploy(CompileContract());
+
+        Assert.AreEqual(new BigInteger(21), contract.Caught(2));
+        Assert.AreEqual(new BigInteger(-1), contract.Caught(0));
+    }
+
+    [TestMethod]
+    public void RemainderByZeroIsCatchableInLoop()
+    {
+        // divisor = 0: the remainders 42 % -1, 42 % 0, 42 % 1 produce 0, catch, 0.
+        var contract = Deploy(CompileContract());
+        Assert.AreEqual(new BigInteger(7), contract.CaughtRemainder(0));
+        // divisor = 3: 42 % 2 = 0, 42 % 3 = 0, 42 % 4 = 2.
+        Assert.AreEqual(new BigInteger(2), contract.CaughtRemainder(3));
     }
 
     private static CompilationContext CompileContract()
@@ -145,5 +200,11 @@ public class Contract : SmartContract
 
         [DisplayName("runtimeLong")]
         public abstract BigInteger? RuntimeLong(BigInteger dividend, BigInteger divisor);
+
+        [DisplayName("caught")]
+        public abstract BigInteger? Caught(BigInteger divisor);
+
+        [DisplayName("caughtRemainder")]
+        public abstract BigInteger? CaughtRemainder(BigInteger divisor);
     }
 }
