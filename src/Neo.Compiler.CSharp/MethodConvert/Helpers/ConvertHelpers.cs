@@ -98,7 +98,7 @@ internal partial class MethodConvert
                 else if (syntax.ExpressionBody != null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody.Expression);
-                    CopyBoxedStructReturn(model, syntax.ExpressionBody.Expression);
+                    CopyStructReturn(model, syntax.ExpressionBody.Expression);
                 }
             }
 
@@ -455,12 +455,11 @@ internal partial class MethodConvert
         Nip();  // drop the source, which the copy has replaced
     }
 
-    private void CopyBoxedStructReturn(SemanticModel model, ExpressionSyntax expression)
+    private void CopyStructReturn(SemanticModel model, ExpressionSyntax expression)
     {
         model = model.GetModelForNode(expression);
         var typeInfo = model.GetTypeInfo(expression);
-        if (typeInfo.Type?.IsStructArray() == true && typeInfo.ConvertedType is not null &&
-            model.ClassifyConversion(expression, typeInfo.ConvertedType).IsBoxing)
+        if (typeInfo.Type?.IsStructArray() == true)
             CopyStructValue(typeInfo.Type);
     }
 

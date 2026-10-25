@@ -46,7 +46,7 @@ namespace Neo.Compiler
                 if (syntax.Expression is not null)
                 {
                     ConvertExpression(model, syntax.Expression);
-                    CopyBoxedStructReturn(model, syntax.Expression);
+                    CopyStructReturn(model, syntax.Expression);
                 }
 
                 // The following case is not considered:
