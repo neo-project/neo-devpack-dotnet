@@ -73,6 +73,7 @@ internal partial class MethodConvert
 
     private void EmitCreateStructArray(ITypeSymbol elementType)
     {
+        using var tempScope = PreserveAnonymousVariables();
         byte lengthSlot = AddAnonymousVariable();
         byte arraySlot = AddAnonymousVariable();
         byte indexSlot = AddAnonymousVariable();
@@ -100,10 +101,6 @@ internal partial class MethodConvert
         Jump(OpCode.JMPLT_L, bodyTarget);
         AddInstruction(OpCode.NOP);
         AccessSlot(OpCode.LDLOC, arraySlot);
-
-        RemoveAnonymousVariable(indexSlot);
-        RemoveAnonymousVariable(arraySlot);
-        RemoveAnonymousVariable(lengthSlot);
     }
 
     private static void ValidateConstantByteBufferSize(SemanticModel model, ExpressionSyntax sizeSyntax)
