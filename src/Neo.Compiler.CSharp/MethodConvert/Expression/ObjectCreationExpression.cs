@@ -82,6 +82,18 @@ internal partial class MethodConvert
     /// be emitted from metadata alone. Members that carry neither are ordinary calls and
     /// need their declaring syntax.
     /// </remarks>
+    /// <summary>
+    /// Determines whether an index-initializer argument is a from-end Index expression.
+    /// </summary>
+    /// <param name="expression">The index argument expression.</param>
+    /// <remarks>
+    /// A from-end index (`[^1]`) keeps taking the regular-property path, whose element
+    /// access lowering understands the from-end form; the plain-index path added for
+    /// integer index initializers only understands ordinary expressions.
+    /// </remarks>
+    private static bool IsFromEndIndex(ExpressionSyntax expression) =>
+        expression is PrefixUnaryExpressionSyntax unary && unary.IsKind(SyntaxKind.IndexExpression);
+
     private static bool HasDeclarativeLowering(IMethodSymbol symbol)
     {
         foreach (AttributeData attribute in symbol.GetAttributes())
@@ -311,6 +323,24 @@ internal partial class MethodConvert
                         // Convert the value to be assigned (for both Map and List)
                         ConvertExpression(model, ae.Right);
                         AddInstruction(OpCode.SETITEM);
+                    }
+                    else if (ae.Left is ImplicitElementAccessSyntax elementAccess &&
+                             ae.Right is not InitializerExpressionSyntax &&
+                             !IsFromEndIndex(elementAccess.ArgumentList.Arguments[0].Expression))
+                    {
+                        // An index initializer (`new Table { [1] = a }`) targets the indexer
+                        // setter, which takes the index in addition to the instance. Treating
+                        // it like a plain property consumed the index as the value and left
+                        // the stack misaligned. The instance is duplicated so it survives the
+                        // call for the remaining initializer elements; the setter wants
+                        // [value, index, obj] with the copy of the instance on top.
+                        if (elementAccess.ArgumentList.Arguments.Count != 1)
+                            throw new CompilationException(elementAccess.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported indexer rank: {elementAccess.ArgumentList}");
+                        AddInstruction(OpCode.DUP);
+                        ConvertExpression(model, elementAccess.ArgumentList.Arguments[0].Expression);
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.REVERSE3);
+                        CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                     }
                     else
                     {

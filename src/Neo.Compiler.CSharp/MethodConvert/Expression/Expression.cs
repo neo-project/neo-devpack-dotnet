@@ -213,6 +213,14 @@ internal partial class MethodConvert
                 break;
             case InitializerExpressionSyntax expression:
                 // Example: { 1, 2, 3 }
+                if (model.GetTypeInfo(expression).ConvertedType is not IArrayTypeSymbol)
+                {
+                    // An embedded nested initializer like `Inner = { X = 1 }` has no type of
+                    // its own; treating it as an array initializer crashed with a
+                    // NullReferenceException instead of a diagnostic.
+                    throw CompilationException.UnsupportedSyntax(expression,
+                        "Embedded nested object initializers ('member = { ... }') are not supported. Assign a fully-typed value instead, for example 'member = new Point { X = 1 }'.");
+                }
                 ConvertInitializerExpression(model, expression);
                 break;
             case InterpolatedStringExpressionSyntax expression:
