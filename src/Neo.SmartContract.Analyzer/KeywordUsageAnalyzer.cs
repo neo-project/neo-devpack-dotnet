@@ -44,8 +44,7 @@ namespace Neo.SmartContract.Analyzer
             context.RegisterSyntaxNodeAction(AnalyzeNode,
                 SyntaxKind.LockStatement,
                 SyntaxKind.FixedStatement,
-                SyntaxKind.StackAllocArrayCreationExpression,
-                SyntaxKind.ConversionOperatorDeclaration);
+                SyntaxKind.StackAllocArrayCreationExpression);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
@@ -55,7 +54,6 @@ namespace Neo.SmartContract.Analyzer
                 SyntaxKind.LockStatement => ((LockStatementSyntax)context.Node).LockKeyword,
                 SyntaxKind.FixedStatement => ((FixedStatementSyntax)context.Node).FixedKeyword,
                 SyntaxKind.StackAllocArrayCreationExpression => ((StackAllocArrayCreationExpressionSyntax)context.Node).StackAllocKeyword,
-                SyntaxKind.ConversionOperatorDeclaration => ((ConversionOperatorDeclarationSyntax)context.Node).ImplicitOrExplicitKeyword,
                 _ => default
             };
 
@@ -68,9 +66,11 @@ namespace Neo.SmartContract.Analyzer
 
         private bool IsRestrictedKeyword(string keyword)
         {
+            // User-defined conversion operators (implicit/explicit) are compiled to the
+            // operator method, so the keywords are allowed in that position.
             return keyword switch
             {
-                "lock" or "fixed" or "stackalloc" or "explicit" or "implicit" => true,
+                "lock" or "fixed" or "stackalloc" => true,
                 _ => false
             };
         }
