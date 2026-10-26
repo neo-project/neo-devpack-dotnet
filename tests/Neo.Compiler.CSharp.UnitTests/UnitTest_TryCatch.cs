@@ -125,11 +125,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(6), Contract.TryWithTwoFinally(false, false, false, false, false, true));
             AssertGasConsumed(1049880);
             Assert.AreEqual(new BigInteger(3), Contract.TryWithTwoFinally(true, false, true, false, false, false));
-            AssertGasConsumed(1065810);
+            AssertGasConsumed(1065840);
             Assert.AreEqual(new BigInteger(10), Contract.TryWithTwoFinally(false, true, false, true, false, true));
             AssertGasConsumed(1066500);
             Assert.AreEqual(new BigInteger(15), Contract.TryWithTwoFinally(true, true, true, true, true, true));
-            AssertGasConsumed(1083750);
+            AssertGasConsumed(1083780);
         }
 
         [TestMethod]
@@ -329,6 +329,15 @@ namespace Neo.Compiler.CSharp.UnitTests
             string? result = Contract.CatchException();
             Assert.AreEqual("ExceptionExample", result);
             AssertGasConsumed(1309770);
+        }
+
+        [TestMethod]
+        public void Test_CatchAndFinallyAfterHelperThrow_AllPaths()
+        {
+            Assert.AreEqual(new BigInteger(107), Contract.CatchAndFinallyAfterHelperThrow(0));
+            AssertGasConsumed(1082580);
+            Assert.AreEqual(new BigInteger(105), Contract.CatchAndFinallyAfterHelperThrow(5));
+            AssertGasConsumed(1066410);
         }
     }
 }
