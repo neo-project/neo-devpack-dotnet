@@ -19,6 +19,15 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Out : DebugAndTestBase<Contract_Out>
     {
+
+        // The by-ref dispatch contract grew past the default 20 GAS deployment budget;
+        // raise the transaction fee for this test class only.
+        protected override TestEngine CreateTestEngine()
+        {
+            var engine = base.CreateTestEngine();
+            engine.Fee = 200_00000000;
+            return engine;
+        }
         [TestMethod]
         public void Test_BasicOut()
         {
@@ -176,6 +185,20 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1323750);
             Assert.AreEqual(111, Contract.TestDistinctInstanceFieldRefs());
             AssertGasConsumed(1634400);
+            Assert.AreEqual(12311, Contract.TestRecursiveRefAliases());
+        }
+
+        [TestMethod]
+        public void Test_VirtualByRefArguments()
+        {
+            Assert.AreEqual(14313, Contract.TestVirtualRefAliases());
+            Assert.AreEqual(77617, Contract.TestVirtualDistinctRefArguments());
+            Assert.AreEqual(143207617, Contract.TestVirtualRefAliasesThenDistinctCalls());
+            Assert.AreEqual(13006017, Contract.TestVirtualRefAliasWritebackIsolation());
+            Assert.AreEqual(1463340849, Contract.TestVirtualRefAliasSignatures());
+            Assert.AreEqual(679818, Contract.TestVirtualRefAliasesThroughBaseCall());
+            Assert.AreEqual(201718, Contract.TestVirtualRecursiveRefAliasesThroughBaseCall());
+            Assert.AreEqual(238204823, Contract.TestVirtualOutArguments());
         }
     }
 }
