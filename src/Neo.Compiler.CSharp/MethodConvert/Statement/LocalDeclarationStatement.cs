@@ -45,7 +45,7 @@ namespace Neo.Compiler
             foreach (VariableDeclaratorSyntax variable in syntax.Declaration.Variables)
             {
                 ILocalSymbol symbol = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
-                byte variableIndex = AddLocalVariable(symbol);
+                AddLocalVariable(symbol);
                 if (isRefDeclaration)
                 {
                     if (variable.Initializer?.Value is not RefExpressionSyntax refExpression)
@@ -58,7 +58,7 @@ namespace Neo.Compiler
                     using (InsertSequencePoint(variable))
                     {
                         ConvertExpression(model, variable.Initializer.Value);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        StLocSlot(symbol);
                     }
             }
         }
