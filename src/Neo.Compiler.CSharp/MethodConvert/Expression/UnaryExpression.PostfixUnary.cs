@@ -87,7 +87,7 @@ internal partial class MethodConvert
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
             AddInstruction(OpCode.REVERSE3);
-            EmitIncrementOrDecrement(operatorToken, property.Type);
+            EmitIncrementOrDecrement(operatorToken, property.Type, model);
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
         else
@@ -105,7 +105,7 @@ internal partial class MethodConvert
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
-                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type, model);
                 AddInstruction(OpCode.SETITEM);
             }
             else
@@ -120,7 +120,7 @@ internal partial class MethodConvert
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
-                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type, model);
                 AddInstruction(OpCode.SETITEM);
             }
         }
@@ -132,13 +132,13 @@ internal partial class MethodConvert
         switch (symbol)
         {
             case IFieldSymbol field:
-                ConvertFieldIdentifierNamePostIncrementOrDecrementExpression(operatorToken, field);
+                ConvertFieldIdentifierNamePostIncrementOrDecrementExpression(model, operatorToken, field);
                 break;
             case ILocalSymbol local:
-                ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(operatorToken, local);
+                ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(model, operatorToken, local);
                 break;
             case IParameterSymbol parameter:
-                ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(operatorToken, parameter);
+                ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(model, operatorToken, parameter);
                 break;
             case IPropertySymbol property:
                 ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(model, operatorToken, property);
@@ -148,14 +148,14 @@ internal partial class MethodConvert
         }
     }
 
-    private void ConvertFieldIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, IFieldSymbol symbol)
+    private void ConvertFieldIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IFieldSymbol symbol)
     {
         if (symbol.IsStatic)
         {
             byte index = _context.AddStaticField(symbol);
             AccessSlot(OpCode.LDSFLD, index);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AccessSlot(OpCode.STSFLD, index);
         }
         else
@@ -166,26 +166,26 @@ internal partial class MethodConvert
             Push(index);
             AddInstruction(OpCode.PICKITEM);
             AddInstruction(OpCode.TUCK);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             Push(index);
             AddInstruction(OpCode.SWAP);
             AddInstruction(OpCode.SETITEM);
         }
     }
 
-    private void ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
+    private void ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, ILocalSymbol symbol)
     {
         LdLocSlot(symbol);
         AddInstruction(OpCode.DUP);
-        EmitIncrementOrDecrement(operatorToken, symbol.Type);
+        EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
         StLocSlot(symbol);
     }
 
-    private void ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
+    private void ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IParameterSymbol symbol)
     {
         LdArgSlot(symbol);
         AddInstruction(OpCode.DUP);
-        EmitIncrementOrDecrement(operatorToken, symbol.Type);
+        EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
         StArgSlot(symbol);
     }
 
@@ -195,7 +195,7 @@ internal partial class MethodConvert
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
@@ -204,7 +204,7 @@ internal partial class MethodConvert
             AddInstruction(OpCode.DUP);
             CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.TUCK);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
@@ -232,7 +232,7 @@ internal partial class MethodConvert
             byte index = _context.AddStaticField(symbol);
             AccessSlot(OpCode.LDSFLD, index);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AccessSlot(OpCode.STSFLD, index);
         }
         else
@@ -243,7 +243,7 @@ internal partial class MethodConvert
             Push(index);
             AddInstruction(OpCode.PICKITEM);
             AddInstruction(OpCode.TUCK);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             Push(index);
             AddInstruction(OpCode.SWAP);
             AddInstruction(OpCode.SETITEM);
@@ -256,7 +256,7 @@ internal partial class MethodConvert
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.DUP);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
@@ -265,7 +265,7 @@ internal partial class MethodConvert
             AddInstruction(OpCode.DUP);
             CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.TUCK);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
