@@ -224,4 +224,26 @@ public class Contract_Out : SmartContract.Framework.SmartContract
         IncrementTwice(ref first, ref second);
         return alias * 10000 + first * 100 + second;
     }
+
+    public static int TestStaticFieldRefAliases()
+    {
+        _cachedResult = 0;
+        IncrementTwice(ref _cachedResult, ref _cachedResult);
+        return _cachedResult;
+    }
+
+    public static int TestInstanceFieldRefAliases()
+    {
+        var holder = new Holder();
+        IncrementTwice(ref holder.Value, ref holder.Value);
+        return holder.Value;
+    }
+
+    public static int TestDistinctInstanceFieldRefs()
+    {
+        var first = new Holder();
+        var second = new Holder { Value = 10 };
+        IncrementTwice(ref first.Value, ref second.Value);
+        return first.Value * 100 + second.Value;
+    }
 }

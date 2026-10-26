@@ -26,8 +26,24 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private readonly record struct ByRefAliasLocation(ISymbol Symbol, ISymbol? Receiver, bool IsThisReceiver);
+
+    private sealed class ByRefAliasLocationComparer : IEqualityComparer<ByRefAliasLocation>
+    {
+        public bool Equals(ByRefAliasLocation x, ByRefAliasLocation y)
+            => SymbolEqualityComparer.Default.Equals(x.Symbol, y.Symbol) &&
+               SymbolEqualityComparer.Default.Equals(x.Receiver, y.Receiver) &&
+               x.IsThisReceiver == y.IsThisReceiver;
+
+        public int GetHashCode(ByRefAliasLocation obj)
+            => HashCode.Combine(
+                SymbolEqualityComparer.Default.GetHashCode(obj.Symbol),
+                obj.Receiver is null ? 0 : SymbolEqualityComparer.Default.GetHashCode(obj.Receiver),
+                obj.IsThisReceiver);
+    }
+
     private readonly Stack<Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>> _outStaticFieldSyncScopes = new();
-    private readonly Stack<Dictionary<ISymbol, IParameterSymbol>> _byRefAliasScopes = new();
+    private readonly Stack<Dictionary<ByRefAliasLocation, IParameterSymbol>> _byRefAliasScopes = new();
     private readonly Stack<Dictionary<IParameterSymbol, (byte Original, byte Alias)>> _byRefAliasParameters = new();
     private ExpressionSyntax? _preEvaluatedInstanceExpression;
     private byte? _preEvaluatedInstanceSlot;
@@ -272,7 +288,7 @@ internal partial class MethodConvert
     private void PushOutStaticFieldSyncScope()
     {
         _outStaticFieldSyncScopes.Push(new Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>(SymbolEqualityComparer.Default));
-        _byRefAliasScopes.Push(new Dictionary<ISymbol, IParameterSymbol>(SymbolEqualityComparer.Default));
+        _byRefAliasScopes.Push(new Dictionary<ByRefAliasLocation, IParameterSymbol>(new ByRefAliasLocationComparer()));
         _byRefAliasParameters.Push(new Dictionary<IParameterSymbol, (byte Original, byte Alias)>(SymbolEqualityComparer.Default));
     }
 
@@ -547,7 +563,18 @@ internal partial class MethodConvert
             PushDefault(field.Type);
         }
 
-        ProcessOutSymbol(parameter, field, instanceSlot, capturedInstanceSlotIsLocal);
+        ExpressionSyntax? receiverExpression = instanceExpression ?? syntaxNode switch
+        {
+            MemberAccessExpressionSyntax member => member.Expression,
+            ArgumentSyntax { Expression: MemberAccessExpressionSyntax member } => member.Expression,
+            _ => null,
+        };
+        bool usesImplicitThis = receiverExpression is null && syntaxNode is IdentifierNameSyntax or
+            ArgumentSyntax { Expression: IdentifierNameSyntax };
+        bool hasStableReceiver = TryGetStableReceiver(model, receiverExpression, usesImplicitThis,
+            out ISymbol? receiverSymbol, out bool isThisReceiver);
+        ProcessOutSymbol(parameter, field, instanceSlot, capturedInstanceSlotIsLocal,
+            hasStableReceiver ? receiverSymbol : null, hasStableReceiver && isThisReceiver);
         if (!_context.TryGetCapturedStaticField(field, out var fieldStorageIndex))
             fieldStorageIndex = _context.GetOrAddCapturedStaticField(field);
         AddInstruction(OpCode.DUP);
@@ -556,13 +583,38 @@ internal partial class MethodConvert
         AccessSlot(OpCode.STSFLD, fieldStorageIndex);
     }
 
-    private bool TryShareByRefAlias(IParameterSymbol parameter, ISymbol symbol)
+    private static bool TryGetStableReceiver(SemanticModel model, ExpressionSyntax? receiver,
+        bool usesImplicitThis, out ISymbol? receiverSymbol, out bool isThisReceiver)
     {
-        if (symbol is not ILocalSymbol and not IParameterSymbol)
+        while (receiver is ParenthesizedExpressionSyntax parenthesized)
+            receiver = parenthesized.Expression;
+
+        if (usesImplicitThis || receiver is ThisExpressionSyntax or BaseExpressionSyntax)
+        {
+            receiverSymbol = null;
+            isThisReceiver = true;
+            return true;
+        }
+
+        receiverSymbol = receiver is IdentifierNameSyntax identifier
+            ? model.GetSymbolInfo(identifier).Symbol
+            : null;
+        isThisReceiver = false;
+        return receiverSymbol is ILocalSymbol or IParameterSymbol or IFieldSymbol;
+    }
+
+    private bool TryShareByRefAlias(IParameterSymbol parameter, ISymbol symbol,
+        ISymbol? receiverSymbol = null, bool isThisReceiver = false)
+    {
+        if (symbol is not ILocalSymbol and not IParameterSymbol and not IFieldSymbol)
+            return false;
+
+        if (symbol is IFieldSymbol { IsStatic: false } && receiverSymbol is null && !isThisReceiver)
             return false;
 
         var scope = _byRefAliasScopes.Peek();
-        if (scope.TryGetValue(symbol, out IParameterSymbol? alias))
+        ByRefAliasLocation location = new(symbol, receiverSymbol, isThisReceiver);
+        if (scope.TryGetValue(location, out IParameterSymbol? alias))
         {
             byte index = _context.GetOrAddCapturedStaticField(alias);
             byte original = _context.GetOrAddCapturedStaticField(parameter);
@@ -574,20 +626,21 @@ internal partial class MethodConvert
             return true;
         }
 
-        scope.Add(symbol, parameter);
+        scope.Add(location, parameter);
         return false;
     }
 
-    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null, bool instanceSlotIsLocal = false)
+    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null,
+        bool instanceSlotIsLocal = false, ISymbol? receiverSymbol = null, bool isThisReceiver = false)
     {
+        if (TryShareByRefAlias(parameter, symbol, receiverSymbol, isThisReceiver))
+            return;
+
         if (symbol is IFieldSymbol fieldSymbol)
         {
             ProcessOutFieldSymbol(parameter, fieldSymbol, instanceSlot, instanceSlotIsLocal);
             return;
         }
-
-        if (TryShareByRefAlias(parameter, symbol))
-            return;
 
         if (parameter.RefKind == RefKind.Out)
         {

@@ -166,5 +166,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(20111, Contract.TestMixedRefAliases());
             AssertGasConsumed(1027230);
         }
+
+        [TestMethod]
+        public void Test_FieldRefAliases()
+        {
+            Assert.AreEqual(2, Contract.TestStaticFieldRefAliases());
+            AssertGasConsumed(1004010);
+            Assert.AreEqual(2, Contract.TestInstanceFieldRefAliases());
+            AssertGasConsumed(1323750);
+            Assert.AreEqual(111, Contract.TestDistinctInstanceFieldRefs());
+            AssertGasConsumed(1634400);
+        }
     }
 }
