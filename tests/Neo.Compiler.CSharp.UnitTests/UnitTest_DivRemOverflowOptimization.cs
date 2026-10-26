@@ -28,6 +28,7 @@ public class UnitTest_DivRemOverflowOptimization
 using Neo.SmartContract.Framework;
 using System;
 using System.Runtime.CompilerServices;
+using System.Numerics;
 
 public class Contract : SmartContract
 {
@@ -55,6 +56,18 @@ public class Contract : SmartContract
         try
         {
             return 7 + Math.DivRem(dividend, divisor).Quotient;
+        }
+        catch
+        {
+            return 1;
+        }
+    }
+
+    public static BigInteger CaughtBigInteger(BigInteger dividend, BigInteger divisor)
+    {
+        try
+        {
+            return 7 + BigInteger.DivRem(dividend, divisor).Quotient;
         }
         catch
         {
@@ -148,11 +161,15 @@ public class Contract : SmartContract
 
         Assert.AreEqual(BigInteger.One, contract.CaughtInt(int.MinValue, -1));
         Assert.AreEqual(BigInteger.One, contract.CaughtMathLong(long.MinValue, -1));
+        Assert.AreEqual(BigInteger.One, contract.CaughtInt(10, 0));
+        Assert.AreEqual(BigInteger.One, contract.CaughtMathLong(10, 0));
+        Assert.AreEqual(BigInteger.One, contract.CaughtBigInteger(10, 0));
         Assert.AreEqual(new BigInteger(100), contract.CallerInt(int.MinValue, -1));
         Assert.AreEqual(new BigInteger(100), contract.CallerMathLong(long.MinValue, -1));
         Assert.AreEqual(new BigInteger(1103), contract.InlineThenMethodOverflow(10, 3, int.MinValue, -1));
         Assert.AreEqual(new BigInteger(10), contract.CaughtInt(10, 3));
         Assert.AreEqual(new BigInteger(10), contract.CaughtMathLong(10, 3));
+        Assert.AreEqual(new BigInteger(10), contract.CaughtBigInteger(10, 3));
     }
 
     private static CompilationContext CompileContract(CompilationOptions.OptimizationType optimization)
@@ -190,6 +207,9 @@ public class Contract : SmartContract
 
         [DisplayName("caughtMathLong")]
         public abstract BigInteger? CaughtMathLong(BigInteger dividend, BigInteger divisor);
+
+        [DisplayName("caughtBigInteger")]
+        public abstract BigInteger? CaughtBigInteger(BigInteger dividend, BigInteger divisor);
 
         [DisplayName("callerInt")]
         public abstract BigInteger? CallerInt(BigInteger dividend, BigInteger divisor);
