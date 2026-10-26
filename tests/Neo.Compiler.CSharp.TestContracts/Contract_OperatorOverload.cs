@@ -21,6 +21,16 @@ namespace Neo.Compiler.CSharp.TestContracts;
 
 public class Contract_OperatorOverload : SmartContract.Framework.SmartContract
 {
+    public struct RawVec
+    {
+        public int X;
+
+        public RawVec(int x)
+        {
+            X = x;
+        }
+    }
+
     public struct Vec
     {
         public int X;
@@ -67,6 +77,11 @@ public class Contract_OperatorOverload : SmartContract.Framework.SmartContract
             return new Vec(a.X * k, a.Y * k);
         }
 
+        public static RawVec operator +(Vec a, int b)
+        {
+            return new RawVec(a.X + b);
+        }
+
         public static Vec operator ++(Vec a)
         {
             return new Vec(a.X + 1, a.Y + 10);
@@ -80,6 +95,11 @@ public class Contract_OperatorOverload : SmartContract.Framework.SmartContract
         public static implicit operator Vec(int x)
         {
             return new Vec(x, x + 1);
+        }
+
+        public static implicit operator Vec(RawVec value)
+        {
+            return new Vec(value.X + 100, 0);
         }
 
         public static explicit operator int(Vec v)
@@ -161,6 +181,25 @@ public class Contract_OperatorOverload : SmartContract.Framework.SmartContract
         v += new Vec(1, 2);
         v *= 2;
         return v.X * 100 + v.Y;
+    }
+
+    /// <summary>
+    /// Compound assignment must apply the implicit conversion from the operator result
+    /// back to the target type. Expected: (2 + 3) + 100 = 105.
+    /// </summary>
+    public static int CompoundAssignmentAppliesOutConversion()
+    {
+        Vec v = new Vec(2, 0);
+        v += 3;
+        return v.X;
+    }
+
+    /// <summary>The lifted operator must preserve null and convert non-null results.</summary>
+    public static int NullableCompoundAssignmentAppliesOutConversion(bool hasValue)
+    {
+        Vec? v = hasValue ? new Vec(2, 0) : null;
+        v += 3;
+        return v is null ? -1 : ((Vec)v).X;
     }
 
     /// <summary>

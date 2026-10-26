@@ -66,6 +66,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_CompoundAssignmentAppliesOutConversion()
+        {
+            Assert.AreEqual(105, Contract.CompoundAssignmentAppliesOutConversion());
+        }
+
+        [TestMethod]
+        public void Test_NullableCompoundAssignmentAppliesOutConversion()
+        {
+            Assert.AreEqual(105, Contract.NullableCompoundAssignmentAppliesOutConversion(true));
+            Assert.AreEqual(-1, Contract.NullableCompoundAssignmentAppliesOutConversion(false));
+        }
+
+        [TestMethod]
         public void Test_IncrementDecrement()
         {
             Assert.AreEqual(70075, Contract.IncrementDecrement());
