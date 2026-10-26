@@ -169,6 +169,36 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(100), result);
         }
 
+        [TestMethod]
+        public void Test_IntDivRem_ZeroIsCatchableAndNormalResultIsPreserved()
+        {
+            Assert.AreEqual(301, (int)(BigInteger)Contract.IntDivRemCaught(10, 3)!);
+            AssertGasConsumed(1172820);
+
+            Assert.AreEqual(-1, (int)(BigInteger)Contract.IntDivRemCaught(10, 0)!);
+            AssertGasConsumed(1064130);
+        }
+
+        [TestMethod]
+        public void Test_MathDivRem_ZeroIsCatchableAndNormalResultIsPreserved()
+        {
+            Assert.AreEqual(301, (int)(BigInteger)Contract.MathDivRemCaught(10, 3)!);
+            AssertGasConsumed(1172820);
+
+            Assert.AreEqual(-1, (int)(BigInteger)Contract.MathDivRemCaught(10, 0)!);
+            AssertGasConsumed(1064130);
+        }
+
+        [TestMethod]
+        public void Test_BigIntegerDivRem_ZeroIsCatchableAndNormalResultIsPreserved()
+        {
+            Assert.AreEqual(new BigInteger(301), Contract.BigIntegerDivRemCaught(10, 3));
+            AssertGasConsumed(1172130);
+
+            Assert.AreEqual(BigInteger.MinusOne, Contract.BigIntegerDivRemCaught(10, 0));
+            AssertGasConsumed(1064130);
+        }
+
         #endregion
     }
 }
