@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DoubleReturnA()
         {
             var array = Contract.Div(9, 5)!;
-            AssertGasConsumed(1175280);
+            AssertGasConsumed(1175580);
 
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual(BigInteger.One, array[0]);
@@ -48,7 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DoubleReturnB()
         {
             Assert.AreEqual(new BigInteger(-3), Contract.Mix(9, 5));
-            AssertGasConsumed(1272330);
+            AssertGasConsumed(1272630);
         }
 
         [TestMethod]
