@@ -117,11 +117,11 @@ public class Contract : SmartContract
     {
         var context = CompileContract(optimization);
 
-        // The dividend is a safe constant, so no overflow guard is emitted. These shapes
-        // call the DivRem helper methods, which lower through the system-call path and do
-        // not take the binary-operator zero-divisor guard either.
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeInt("), OpCode.THROW);
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeLong("), OpCode.THROW);
+        // The dividend is a safe constant, so no overflow guard is emitted. The shapes with
+        // a runtime divisor keep exactly one THROW - the zero-divisor guard; the ones with
+        // a constant non-zero divisor cannot fault and stay guard-free.
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeInt(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeLong(").Count(op => op == OpCode.THROW));
         CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeMathInt("), OpCode.THROW);
         CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeMathLong("), OpCode.THROW);
     }

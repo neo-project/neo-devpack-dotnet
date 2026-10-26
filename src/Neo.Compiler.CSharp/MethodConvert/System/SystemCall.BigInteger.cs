@@ -835,6 +835,8 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (RequiresZeroDivRemGuard(model, symbol, arguments))
+            EmitZeroDivRemGuard(methodConvert);
         EmitDivRem(methodConvert);
     }
 
