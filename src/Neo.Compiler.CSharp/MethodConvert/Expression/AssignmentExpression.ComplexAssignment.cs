@@ -14,6 +14,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using System.Runtime.InteropServices;
 
@@ -266,6 +267,30 @@ internal partial class MethodConvert
 
     private void EmitComplexAssignmentOperator(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)
     {
+        // A compound assignment bound to a user-defined operator lowers to a call to the
+        // operator method, like the plain binary form. The current value of the target is
+        // already on the stack, so the right operand is evaluated on top of it and the pair
+        // is reversed for the Cdecl parameter order.
+        if (right.Parent is AssignmentExpressionSyntax assignment &&
+            model.GetSymbolInfo(assignment).Symbol is IMethodSymbol operatorSymbol &&
+            operatorSymbol is { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } &&
+            IsDeclaredByCurrentCompilation(model, operatorSymbol))
+        {
+            ConvertExpression(model, right);
+            ICompoundAssignmentOperation operation = (ICompoundAssignmentOperation)model.GetOperation(assignment)!;
+            if (operation.IsLifted)
+            {
+                EmitLiftedUserDefinedCompoundAssignment(model, operation, operatorSymbol);
+            }
+            else
+            {
+                Swap();
+                EmitCall(_context.ConvertMethod(model, operatorSymbol));
+                EmitCompoundAssignmentOutConversion(model, operation, operatorSymbol.ReturnType);
+            }
+            return;
+        }
+
         var itemType = type.GetStackItemType();
         if (itemType == VM.Types.StackItemType.ByteString)
         {
@@ -283,6 +308,52 @@ internal partial class MethodConvert
 
         ConvertExpression(model, right);
         EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
+    }
+
+    private void EmitLiftedUserDefinedCompoundAssignment(
+        SemanticModel model,
+        ICompoundAssignmentOperation operation,
+        IMethodSymbol operatorSymbol)
+    {
+        JumpTarget leftNullTarget = new(), rightNullTarget = new(), endTarget = new();
+
+        Over();
+        IsNull();
+        JumpIfTrue(leftNullTarget);
+        Dup();
+        IsNull();
+        JumpIfTrue(rightNullTarget);
+
+        Swap();
+        EmitCall(_context.ConvertMethod(model, operatorSymbol));
+        EmitCompoundAssignmentOutConversion(model, operation, operatorSymbol.ReturnType);
+        Jump(OpCode.JMP_L, endTarget);
+
+        rightNullTarget.Instruction = Drop();
+        Drop();
+        Push((object?)null);
+        Jump(OpCode.JMP_L, endTarget);
+
+        leftNullTarget.Instruction = Nop();
+        Drop(2);
+        Push((object?)null);
+        endTarget.Instruction = Nop();
+    }
+
+    private void EmitCompoundAssignmentOutConversion(
+        SemanticModel model,
+        ICompoundAssignmentOperation operation,
+        ITypeSymbol sourceType)
+    {
+        if (!operation.OutConversion.IsUserDefined ||
+            operation.OutConversion.MethodSymbol is not IMethodSymbol conversion ||
+            !IsDeclaredByCurrentCompilation(model, conversion))
+            return;
+
+        if (IsNullableValueType(sourceType) && !IsNullableValueType(conversion.Parameters[0].Type))
+            EmitLiftedUnaryOperation(sourceType, () => EmitCall(_context.ConvertMethod(model, conversion)));
+        else
+            EmitCall(_context.ConvertMethod(model, conversion));
     }
 
     private void EmitLiftedComplexAssignmentOperator(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ExpressionSyntax right)

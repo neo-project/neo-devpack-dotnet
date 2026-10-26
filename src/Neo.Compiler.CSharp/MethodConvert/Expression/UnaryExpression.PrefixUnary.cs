@@ -14,6 +14,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using System;
 using System.Runtime.InteropServices;
@@ -41,6 +42,20 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/arithmetic-operators#prefix-increment-operator">Prefix increment operator</seealso>
     private void ConvertPrefixUnaryExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
     {
+        if (expression.OperatorToken.ValueText is not ("++" or "--") &&
+            model.GetOperation(expression) is IUnaryOperation
+            { OperatorMethod: { IsImplicitlyDeclared: false } symbol } operation &&
+            IsDeclaredByCurrentCompilation(model, symbol))
+        {
+            ConvertExpression(model, expression.Operand);
+            if (operation.IsLifted)
+                EmitLiftedUnaryOperation(model.GetTypeInfo(expression.Operand).Type,
+                    () => EmitCall(_context.ConvertMethod(model, symbol)));
+            else
+                EmitCall(_context.ConvertMethod(model, symbol));
+            return;
+        }
+
         switch (expression.OperatorToken.ValueText)
         {
             case "+":
@@ -209,7 +224,7 @@ internal partial class MethodConvert
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
             CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
-            EmitIncrementOrDecrement(operatorToken, property.Type);
+            EmitIncrementOrDecrement(operatorToken, property.Type, model);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
@@ -226,7 +241,7 @@ internal partial class MethodConvert
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.PICKITEM);
-                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type, model);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
@@ -241,7 +256,7 @@ internal partial class MethodConvert
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.PICKITEM);
-                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type, model);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
                 AddInstruction(OpCode.REVERSE3);
@@ -256,13 +271,13 @@ internal partial class MethodConvert
         switch (symbol)
         {
             case IFieldSymbol field:
-                ConvertFieldIdentifierNamePreIncrementOrDecrementExpression(operatorToken, field);
+                ConvertFieldIdentifierNamePreIncrementOrDecrementExpression(model, operatorToken, field);
                 break;
             case ILocalSymbol local:
-                ConvertLocalIdentifierNamePreIncrementOrDecrementExpression(operatorToken, local);
+                ConvertLocalIdentifierNamePreIncrementOrDecrementExpression(model, operatorToken, local);
                 break;
             case IParameterSymbol parameter:
-                ConvertParameterIdentifierNamePreIncrementOrDecrementExpression(operatorToken, parameter);
+                ConvertParameterIdentifierNamePreIncrementOrDecrementExpression(model, operatorToken, parameter);
                 break;
             case IPropertySymbol property:
                 ConvertPropertyIdentifierNamePreIncrementOrDecrementExpression(model, operatorToken, property);
@@ -272,13 +287,13 @@ internal partial class MethodConvert
         }
     }
 
-    private void ConvertFieldIdentifierNamePreIncrementOrDecrementExpression(SyntaxToken operatorToken, IFieldSymbol symbol)
+    private void ConvertFieldIdentifierNamePreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IFieldSymbol symbol)
     {
         if (symbol.IsStatic)
         {
             byte index = _context.AddStaticField(symbol);
             AccessSlot(OpCode.LDSFLD, index);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STSFLD, index);
         }
@@ -289,7 +304,7 @@ internal partial class MethodConvert
             AddInstruction(OpCode.DUP);
             Push(index);
             AddInstruction(OpCode.PICKITEM);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.TUCK);
             Push(index);
             AddInstruction(OpCode.SWAP);
@@ -297,18 +312,18 @@ internal partial class MethodConvert
         }
     }
 
-    private void ConvertLocalIdentifierNamePreIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
+    private void ConvertLocalIdentifierNamePreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, ILocalSymbol symbol)
     {
         LdLocSlot(symbol);
-        EmitIncrementOrDecrement(operatorToken, symbol.Type);
+        EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
         AddInstruction(OpCode.DUP);
         StLocSlot(symbol);
     }
 
-    private void ConvertParameterIdentifierNamePreIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
+    private void ConvertParameterIdentifierNamePreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IParameterSymbol symbol)
     {
         LdArgSlot(symbol);
-        EmitIncrementOrDecrement(operatorToken, symbol.Type);
+        EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
         AddInstruction(OpCode.DUP);
         StArgSlot(symbol);
     }
@@ -318,7 +333,7 @@ internal partial class MethodConvert
         if (symbol.IsStatic)
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.DUP);
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
@@ -327,7 +342,7 @@ internal partial class MethodConvert
             AddInstruction(OpCode.LDARG0);
             AddInstruction(OpCode.DUP);
             CallMethodWithConvention(model, symbol.GetMethod!);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.TUCK);
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
@@ -355,7 +370,7 @@ internal partial class MethodConvert
         {
             byte index = _context.AddStaticField(symbol);
             AccessSlot(OpCode.LDSFLD, index);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.DUP);
             AccessSlot(OpCode.STSFLD, index);
         }
@@ -366,7 +381,7 @@ internal partial class MethodConvert
             AddInstruction(OpCode.DUP);
             Push(index);
             AddInstruction(OpCode.PICKITEM);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.TUCK);
             Push(index);
             AddInstruction(OpCode.SWAP);
@@ -379,7 +394,7 @@ internal partial class MethodConvert
         if (symbol.IsStatic)
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.DUP);
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
@@ -388,14 +403,31 @@ internal partial class MethodConvert
             ConvertExpression(model, operand.Expression);
             AddInstruction(OpCode.DUP);
             CallMethodWithConvention(model, symbol.GetMethod!);
-            EmitIncrementOrDecrement(operatorToken, symbol.Type);
+            EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.TUCK);
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 
-    private void EmitIncrementOrDecrement(SyntaxToken operatorToken, ITypeSymbol? typeSymbol)
+    private void EmitIncrementOrDecrement(SyntaxToken operatorToken, ITypeSymbol? typeSymbol, SemanticModel? model = null)
     {
+        // An increment/decrement bound to a user-defined operator lowers to a call to the
+        // operator method. The old value of the target is on top of the stack, which is
+        // exactly the single argument the operator method takes.
+        SyntaxNode? operatorNode = operatorToken.Parent;
+        if (model is not null &&
+            operatorNode is PrefixUnaryExpressionSyntax or PostfixUnaryExpressionSyntax &&
+            model.GetSymbolInfo(operatorNode).Symbol is IMethodSymbol operatorSymbol &&
+            operatorSymbol is { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } &&
+            IsDeclaredByCurrentCompilation(model, operatorSymbol))
+        {
+            if (model.GetOperation(operatorNode) is IIncrementOrDecrementOperation { IsLifted: true })
+                EmitLiftedUnaryOperation(typeSymbol, () => EmitCall(_context.ConvertMethod(model, operatorSymbol)));
+            else
+                EmitCall(_context.ConvertMethod(model, operatorSymbol));
+            return;
+        }
+
         EmitLiftedUnaryOperation(typeSymbol, () =>
         {
             AddInstruction(operatorToken.ValueText switch

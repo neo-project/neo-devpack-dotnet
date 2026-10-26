@@ -57,12 +57,34 @@ internal partial class MethodConvert
         // Insert a sequence point for debugging purposes
         using var sequence = InsertSequencePoint(syntax);
 
-        // Try to convert the expression as a constant first
-        if (TryConvertConstant(model, syntax, syntaxNode))
+        if (!TryConvertConstant(model, syntax, syntaxNode))
+            ConvertNonConstantExpression(model, syntax);
+
+        ApplyUserDefinedImplicitConversion(model, syntax);
+    }
+
+    private static bool IsDeclaredByCurrentCompilation(SemanticModel model, ISymbol symbol) =>
+        SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, model.Compilation.Assembly);
+
+    private void ApplyUserDefinedImplicitConversion(SemanticModel model, ExpressionSyntax syntax)
+    {
+        // Parentheses defer their contextual conversion to the outer expression. Casts
+        // dispatch their own conversion method in ConvertCastExpression.
+        if (syntax.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax)
             return;
 
-        // If it's not a constant, convert it as a non-constant expression
-        ConvertNonConstantExpression(model, syntax);
+        model = model.GetModelForNode(syntax);
+        var conversion = model.GetConversion(syntax);
+        if (!conversion.IsImplicit || !conversion.IsUserDefined ||
+            conversion.MethodSymbol is not IMethodSymbol method ||
+            !IsDeclaredByCurrentCompilation(model, method))
+            return;
+
+        var sourceType = model.GetTypeInfo(syntax).Type;
+        if (IsNullableValueType(sourceType) && !IsNullableValueType(method.Parameters[0].Type))
+            EmitLiftedUnaryOperation(sourceType, () => EmitCall(_context.ConvertMethod(model, method)));
+        else
+            EmitCall(_context.ConvertMethod(model, method));
     }
 
     private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)
