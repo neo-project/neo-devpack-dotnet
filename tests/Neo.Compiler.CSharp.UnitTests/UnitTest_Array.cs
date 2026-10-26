@@ -280,7 +280,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalAssignments()
         {
             var value = Contract.MultiDimensionalAssignments();
-            AssertGasConsumed(3581910);
+            AssertGasConsumed(3581940);
             Assert.AreEqual(new BigInteger(10), value);
         }
 

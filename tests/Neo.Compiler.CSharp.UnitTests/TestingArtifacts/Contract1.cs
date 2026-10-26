@@ -18,7 +18,7 @@ public abstract class Contract1(Neo.SmartContract.Testing.SmartContractInitializ
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKlXAQAMBAECAwTbMHBoQFcBAAwEAQIDBNswcEBXAQEMBAECAwPbMHBoE3jQaEBXAAF4QFcAAnicnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn4B4QFcAAnicnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn4B4eZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AUOdAzQ==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKlXAQAMBAECAwTbMHBoQFcBAAwEAQIDBNswcEBXAQEMBAECAwPbMHBoE3jQaEBXAAF4QFcAAngSnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn4B4QFcAAngSnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn4B4eZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AnIPqnw==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -59,11 +59,11 @@ public abstract class Contract1(Neo.SmartContract.Testing.SmartContractInitializ
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeJycSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfgHhA
+    /// Script: VwACeBKeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfgHhA
     /// INITSLOT 0002 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]
     /// PUSH4 [1 datoshi]
@@ -86,11 +86,11 @@ public abstract class Contract1(Neo.SmartContract.Testing.SmartContractInitializ
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeJycSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfgHh5nkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// Script: VwACeBKeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfgHh5nkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
     /// INITSLOT 0002 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// INC [4 datoshi]
-    /// INC [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ADD [8 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]
     /// PUSH4 [1 datoshi]
