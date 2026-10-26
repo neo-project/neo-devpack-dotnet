@@ -125,11 +125,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(6), Contract.TryWithTwoFinally(false, false, false, false, false, true));
             AssertGasConsumed(1049760);
             Assert.AreEqual(new BigInteger(3), Contract.TryWithTwoFinally(true, false, true, false, false, false));
-            AssertGasConsumed(1065510);
+            AssertGasConsumed(1065540);
             Assert.AreEqual(new BigInteger(10), Contract.TryWithTwoFinally(false, true, false, true, false, true));
             AssertGasConsumed(1066200);
             Assert.AreEqual(new BigInteger(15), Contract.TryWithTwoFinally(true, true, true, true, true, true));
-            AssertGasConsumed(1083270);
+            AssertGasConsumed(1083300);
         }
 
         [TestMethod]
