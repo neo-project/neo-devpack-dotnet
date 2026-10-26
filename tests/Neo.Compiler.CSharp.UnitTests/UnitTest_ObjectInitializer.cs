@@ -26,6 +26,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_FromEndIndexInitializer()
+        {
+            Assert.AreEqual(new BigInteger(71234), Contract.FromEndIndexInitializer(7));
+        }
+
+        [TestMethod]
         public void Test_PropertyInitializer()
         {
             Assert.AreEqual(new BigInteger(7), Contract.PropertyInitializer(7));
@@ -66,6 +72,17 @@ public static int Probe(int a)
             // An embedded initializer has no type of its own; it must be rejected with a
             // diagnostic instead of the NullReferenceException the converter used to throw.
             Syntax.Helper.AssertClassCompilationFails(@"
+public class Point
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+}
+
+public class Wrapper
+{
+    public Point Inner { get; set; } = new Point();
+}
+
 public static int Probe(int a)
 {
     var w = new Wrapper { Inner = { X = a, Y = a + 1 } };

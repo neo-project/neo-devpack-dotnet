@@ -14,6 +14,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
@@ -82,18 +83,6 @@ internal partial class MethodConvert
     /// be emitted from metadata alone. Members that carry neither are ordinary calls and
     /// need their declaring syntax.
     /// </remarks>
-    /// <summary>
-    /// Determines whether an index-initializer argument is a from-end Index expression.
-    /// </summary>
-    /// <param name="expression">The index argument expression.</param>
-    /// <remarks>
-    /// A from-end index (`[^1]`) keeps taking the regular-property path, whose element
-    /// access lowering understands the from-end form; the plain-index path added for
-    /// integer index initializers only understands ordinary expressions.
-    /// </remarks>
-    private static bool IsFromEndIndex(ExpressionSyntax expression) =>
-        expression is PrefixUnaryExpressionSyntax unary && unary.IsKind(SyntaxKind.IndexExpression);
-
     private static bool HasDeclarativeLowering(IMethodSymbol symbol)
     {
         foreach (AttributeData attribute in symbol.GetAttributes())
@@ -106,6 +95,43 @@ internal partial class MethodConvert
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Emits an index-initializer argument while the target instance is on the stack.
+    /// </summary>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="elementAccess">The implicit index access from the initializer.</param>
+    /// <remarks>
+    /// A from-end index must use the receiver's C# <c>Length</c>/<c>Count</c> pattern,
+    /// not the VM size of the object that contains the indexer. C# evaluates the index
+    /// operand before the length getter, so the operand stays on the stack while a copy of
+    /// the receiver is used to fetch the length.
+    /// </remarks>
+    private void ConvertIndexerInitializerArgument(SemanticModel model, ImplicitElementAccessSyntax elementAccess)
+    {
+        if (elementAccess.ArgumentList.Arguments.Count != 1)
+            throw new CompilationException(elementAccess.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported indexer rank: {elementAccess.ArgumentList}");
+
+        ExpressionSyntax argument = elementAccess.ArgumentList.Arguments[0].Expression;
+        if (argument is not PrefixUnaryExpressionSyntax unary || !unary.IsKind(SyntaxKind.IndexExpression))
+        {
+            ConvertExpression(model, argument);
+            return;
+        }
+
+        IImplicitIndexerReferenceOperation? implicitIndexer = model.GetOperation(elementAccess) as IImplicitIndexerReferenceOperation;
+        if (implicitIndexer is null && model.GetOperation(elementAccess.Parent!) is ISimpleAssignmentOperation assignment)
+            implicitIndexer = assignment.Target as IImplicitIndexerReferenceOperation;
+        if (implicitIndexer?.LengthSymbol is not IPropertySymbol { GetMethod: not null } lengthProperty)
+            throw CompilationException.UnsupportedSyntax(argument,
+                "From-end index initializers require an accessible Length or Count property.");
+
+        ConvertExpression(model, unary.Operand);
+        AddInstruction(OpCode.OVER);
+        CallMethodWithConvention(model, lengthProperty.GetMethod);
+        AddInstruction(OpCode.SWAP);
+        AddInstruction(OpCode.SUB);
     }
 
     /// <summary>
@@ -325,8 +351,7 @@ internal partial class MethodConvert
                         AddInstruction(OpCode.SETITEM);
                     }
                     else if (ae.Left is ImplicitElementAccessSyntax elementAccess &&
-                             ae.Right is not InitializerExpressionSyntax &&
-                             !IsFromEndIndex(elementAccess.ArgumentList.Arguments[0].Expression))
+                             ae.Right is not InitializerExpressionSyntax)
                     {
                         // An index initializer (`new Table { [1] = a }`) targets the indexer
                         // setter, which takes the index in addition to the instance. Treating
@@ -334,10 +359,8 @@ internal partial class MethodConvert
                         // the stack misaligned. The instance is duplicated so it survives the
                         // call for the remaining initializer elements; the setter wants
                         // [value, index, obj] with the copy of the instance on top.
-                        if (elementAccess.ArgumentList.Arguments.Count != 1)
-                            throw new CompilationException(elementAccess.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported indexer rank: {elementAccess.ArgumentList}");
                         AddInstruction(OpCode.DUP);
-                        ConvertExpression(model, elementAccess.ArgumentList.Arguments[0].Expression);
+                        ConvertIndexerInitializerArgument(model, elementAccess);
                         ConvertExpression(model, ae.Right);
                         AddInstruction(OpCode.REVERSE3);
                         CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);

@@ -15,14 +15,29 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_ObjectInitializer : SmartContract.Framework.SmartContract
     {
+        private static int _initializerOrder;
+
         public class Table
         {
             private int[] _data = new int[8];
 
+            public int Count
+            {
+                get
+                {
+                    RecordInitializerStep(2);
+                    return _data.Length;
+                }
+            }
+
             public int this[int i]
             {
                 get { return _data[i]; }
-                set { _data[i] = value; }
+                set
+                {
+                    RecordInitializerStep(4);
+                    _data[i] = value;
+                }
             }
         }
 
@@ -37,6 +52,27 @@ namespace Neo.Compiler.CSharp.TestContracts
             var t = new Table { [1] = a, [2] = a + 1 };
             return t[1] * 10 + t[2];
         }
+
+        public static int FromEndIndexInitializer(int a)
+        {
+            _initializerOrder = 0;
+            var t = new Table { [^RecordInitializerIndex()] = RecordInitializerValue(a) };
+            return t[7] * 10000 + _initializerOrder;
+        }
+
+        private static int RecordInitializerIndex()
+        {
+            RecordInitializerStep(1);
+            return 1;
+        }
+
+        private static int RecordInitializerValue(int value)
+        {
+            RecordInitializerStep(3);
+            return value;
+        }
+
+        private static void RecordInitializerStep(int step) => _initializerOrder = _initializerOrder * 10 + step;
 
         public static int PropertyInitializer(int a)
         {
