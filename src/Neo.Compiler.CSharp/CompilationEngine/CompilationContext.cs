@@ -53,6 +53,8 @@ namespace Neo.Compiler
         private readonly MethodConvertCollection _methodsConverted = new();
         private readonly MethodConvertCollection _methodsForward = new();
         private readonly System.Collections.Generic.List<MethodConvert> _methodsByRefAliases = new();
+        private readonly Dictionary<(MethodConvert Method, int Signature), MethodConvert> _byRefAliasMethods = new();
+        private readonly System.Collections.Generic.List<IReadOnlyDictionary<byte, byte>> _byRefAliasSignatures = new();
         private readonly System.Collections.Generic.List<MethodToken> _methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> _staticFields = new(SymbolEqualityComparer.Default);
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
@@ -85,6 +87,7 @@ namespace Neo.Compiler
 
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => _vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
+        internal IReadOnlyList<IReadOnlyDictionary<byte, byte>> ByRefAliasSignatures => _byRefAliasSignatures;
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
         private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
@@ -189,6 +192,7 @@ namespace Neo.Compiler
             }
             if (Success)
             {
+                FinalizeByRefAliasMethods();
                 RemoveEmptyInitialize();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
@@ -780,9 +784,58 @@ namespace Neo.Compiler
 
         internal MethodConvert AddByRefAliasMethod(MethodConvert method, IReadOnlyDictionary<byte, byte> aliases)
         {
-            MethodConvert alias = method.CloneWithCapturedStaticFields(aliases);
+            int signature = GetOrAddByRefAliasSignature(aliases);
+            return AddByRefAliasMethod(method, signature);
+        }
+
+        private MethodConvert AddByRefAliasMethod(MethodConvert method, int signature)
+        {
+            if (_byRefAliasMethods.TryGetValue((method, signature), out MethodConvert? existing))
+                return existing;
+
+            MethodConvert alias = new(this, method.Symbol);
+            _byRefAliasMethods.Add((method, signature), alias);
             _methodsByRefAliases.Add(alias);
             return alias;
+        }
+
+        private void FinalizeByRefAliasMethods()
+        {
+            var pending = new Queue<(MethodConvert Method, int Signature)>(
+                _byRefAliasMethods.Keys);
+
+            while (pending.Count > 0)
+            {
+                (MethodConvert method, int signature) = pending.Dequeue();
+                MethodConvert alias = _byRefAliasMethods[(method, signature)];
+                if (alias.Instructions.Count > 0)
+                    continue;
+
+                MethodConvert clone = method.CloneWithCapturedStaticFields(_byRefAliasSignatures[signature]);
+                alias.CopyAliasFrom(clone);
+                foreach (MethodConvert callee in method.Callees)
+                {
+                    if (_byRefAliasMethods.Values.Contains(callee))
+                        continue;
+                    MethodConvert aliasCallee = AddByRefAliasMethod(callee, signature);
+                    alias.ReplaceByRefAliasCallee(callee, aliasCallee);
+                    if (aliasCallee.Instructions.Count == 0)
+                        pending.Enqueue((callee, signature));
+                }
+            }
+        }
+
+        internal int GetOrAddByRefAliasSignature(IReadOnlyDictionary<byte, byte> aliases)
+        {
+            var signature = aliases.OrderBy(p => p.Key).ToArray();
+            for (int i = 0; i < _byRefAliasSignatures.Count; i++)
+            {
+                if (_byRefAliasSignatures[i].OrderBy(p => p.Key).SequenceEqual(signature))
+                    return i;
+            }
+
+            _byRefAliasSignatures.Add(signature.ToDictionary(p => p.Key, p => p.Value));
+            return _byRefAliasSignatures.Count - 1;
         }
 
         internal ushort AddMethodToken(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags)
@@ -825,6 +878,7 @@ namespace Neo.Compiler
 
         internal byte GetOrAddCapturedStaticField(ISymbol symbol)
         {
+            symbol = CanonicalizeCapturedSymbol(symbol);
             if (_capturedStaticFields.TryGetValue(symbol, out var field))
             {
                 return field;
@@ -837,7 +891,17 @@ namespace Neo.Compiler
 
         internal bool TryGetCapturedStaticField(ISymbol local, out byte staticFieldIndex)
         {
-            return _capturedStaticFields.TryGetValue(local, out staticFieldIndex);
+            return _capturedStaticFields.TryGetValue(CanonicalizeCapturedSymbol(local), out staticFieldIndex);
+        }
+
+        private static ISymbol CanonicalizeCapturedSymbol(ISymbol symbol)
+        {
+            if (symbol is not IParameterSymbol { RefKind: RefKind.Ref or RefKind.Out } parameter)
+                return symbol;
+
+            while (parameter.ContainingSymbol is IMethodSymbol { OverriddenMethod: not null } method)
+                parameter = method.OverriddenMethod.Parameters[parameter.Ordinal];
+            return parameter;
         }
 
         internal byte AddVTable(ITypeSymbol type)
@@ -864,7 +928,7 @@ namespace Neo.Compiler
 
         internal void AssociateCapturedStaticField(ISymbol symbol, byte index)
         {
-            _capturedStaticFields[symbol] = index;
+            _capturedStaticFields[CanonicalizeCapturedSymbol(symbol)] = index;
         }
 
         internal UInt160? GetContractHash() => Script.ToScriptHash();
