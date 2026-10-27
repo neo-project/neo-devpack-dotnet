@@ -396,6 +396,11 @@ internal partial class MethodConvert
                 receiver = parenthesized.Expression;
             else if (receiver is PostfixUnaryExpressionSyntax { OperatorToken.ValueText: "!" } nullForgiving)
                 receiver = nullForgiving.Operand;
+            else if (receiver is CastExpressionSyntax cast &&
+                model.GetTypeInfo(cast.Type).Type is ITypeSymbol targetType &&
+                model.ClassifyConversion(cast.Expression, targetType).IsIdentity)
+                // An identity cast does not create a receiver argument for this/base.
+                receiver = cast.Expression;
             else
                 break;
         }

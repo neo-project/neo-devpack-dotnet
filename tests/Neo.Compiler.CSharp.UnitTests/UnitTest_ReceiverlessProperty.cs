@@ -21,6 +21,12 @@ public class UnitTest_ReceiverlessProperty
         using System.ComponentModel;
         public class Contract : SmartContract
         {
+            private static int _receiverCalls;
+            private static Contract ObserveReceiver()
+            {
+                _receiverCalls++;
+                return new Contract();
+            }
             private BigInteger Total
             {
                 get => (BigInteger)Storage.Get(Storage.CurrentContext, "total");
@@ -75,6 +81,17 @@ public class UnitTest_ReceiverlessProperty
     [DataRow("return --this[\"total\"];", 9, 9)]
     [DataRow("return this[\"total\"]++;", 10, 11)]
     [DataRow("return this[\"total\"]--;", 10, 9)]
+    [DataRow("((Contract)this).Total = 42; return Total;", 42, 42)]
+    [DataRow("return ((Contract)this).Total = 42;", 42, 42)]
+    [DataRow("return ((Contract)((Contract)this)!).Total += 5;", 15, 15)]
+    [DataRow("return ++((Contract)this).Total;", 11, 11)]
+    [DataRow("return ((Contract)this).Total++;", 10, 11)]
+    [DataRow("(((Contract)this).Total, _) = (42, 0); return Total;", 42, 42)]
+    [DataRow("return ((Contract)this)[\"total\"] = 42;", 42, 42)]
+    [DataRow("return ((Contract)this)[\"total\"] += 5;", 15, 15)]
+    [DataRow("return ++((Contract)this)[\"total\"];", 11, 11)]
+    [DataRow("return ((Contract)this)[\"total\"]++;", 10, 11)]
+    [DataRow("((Contract)ObserveReceiver()).Total = 42; return Total + _receiverCalls * 100;", 142, 42)]
     public void MutationsPreserveResultAndStorage(string mutation, int result, int stored)
     {
         foreach (var optimization in new[] { CompilationOptions.OptimizationType.None, CompilationOptions.OptimizationType.All })
