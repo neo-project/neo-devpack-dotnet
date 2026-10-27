@@ -256,13 +256,41 @@ namespace Neo.Compiler
             return clone;
         }
 
+        internal void CopyAliasFrom(MethodConvert source)
+        {
+            foreach (Instruction instruction in source._instructions)
+                _instructions.Add(instruction);
+            foreach (MethodConvert callee in source._callees)
+                _callees.Add(callee);
+            _variableSymbols.AddRange(source._variableSymbols);
+            CapturedLocalSymbols.UnionWith(source.CapturedLocalSymbols);
+            if (_instructions.Count > 0)
+                _startTarget.Instruction = _instructions[0];
+        }
+
+        internal void ReplaceByRefAliasCallee(MethodConvert original, MethodConvert alias)
+        {
+            _callees.Remove(original);
+            _callees.Add(alias);
+            foreach (Instruction instruction in _instructions)
+            {
+                if (instruction.OpCode is OpCode.CALL or OpCode.CALL_L &&
+                    instruction.Target?.Instruction == original._startTarget.Instruction)
+                {
+                    instruction.Target = alias._startTarget;
+                }
+            }
+        }
+
         private static JumpTarget? CloneJumpTarget(JumpTarget? target, IReadOnlyDictionary<Instruction, Instruction> instructions)
         {
             if (target is null)
                 return null;
+            if (target.Instruction is null)
+                return target;
             return new JumpTarget
             {
-                Instruction = target.Instruction is not null && instructions.TryGetValue(target.Instruction, out Instruction? copy)
+                Instruction = instructions.TryGetValue(target.Instruction, out Instruction? copy)
                     ? copy
                     : target.Instruction
             };
