@@ -316,7 +316,8 @@ internal partial class MethodConvert
                     {
                         // For regular properties:
                         ConvertExpression(model, ae.Right);
-                        AddInstruction(OpCode.OVER);
+                        if (NeedInstanceConstructor(property.SetMethod!))
+                            AddInstruction(OpCode.OVER);
                         CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                     }
                     break;
