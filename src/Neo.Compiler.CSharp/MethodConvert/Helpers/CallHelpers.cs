@@ -740,14 +740,14 @@ internal partial class MethodConvert
 
     private void EmitMethodCall(MethodConvert? convert, IMethodSymbol symbol)
     {
+        Dictionary<byte, byte>? aliases = _byRefAliasParameters.Count > 0 && _byRefAliasParameters.Peek().Count > 0
+            ? _byRefAliasParameters.Peek().ToDictionary(p => p.Value.Original, p => p.Value.Alias)
+            : null;
+
         if (convert is null)
-            CallVirtual(symbol);
-        else if (_byRefAliasParameters.Count > 0 && _byRefAliasParameters.Peek().Count > 0)
-        {
-            Dictionary<byte, byte> aliases = _byRefAliasParameters.Peek()
-                .ToDictionary(p => p.Value.Original, p => p.Value.Alias);
+            CallVirtual(symbol, aliases is null ? -1 : _context.GetOrAddByRefAliasSignature(aliases));
+        else if (aliases is not null)
             EmitCall(_context.AddByRefAliasMethod(convert, aliases));
-        }
         else
             EmitCall(convert);
 
@@ -755,10 +755,22 @@ internal partial class MethodConvert
     }
 
     // Helper method to get MethodConvert and CallingConvention
+    private void RegisterVirtualByRefParameters(IMethodSymbol symbol)
+    {
+        foreach (IParameterSymbol parameter in symbol.Parameters)
+        {
+            if (parameter.RefKind is RefKind.Ref or RefKind.Out)
+                _context.GetOrAddCapturedStaticField(parameter);
+        }
+    }
+
     private (MethodConvert? convert, CallingConvention methodCallingConvention) GetMethodConvertAndCallingConvention(SemanticModel model, IMethodSymbol symbol)
     {
         if (symbol.IsVirtualMethod())
+        {
+            RegisterVirtualByRefParameters(symbol);
             return (null, CallingConvention.Cdecl);
+        }
 
         var convert = _context.ConvertMethod(model, symbol);
         return (convert, convert._callingConvention);
@@ -792,7 +804,10 @@ internal partial class MethodConvert
     private (MethodConvert? convert, CallingConvention methodCallingConvention) GetMethodConvertAndCallingConvention(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression)
     {
         if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
+        {
+            RegisterVirtualByRefParameters(symbol);
             return (null, CallingConvention.Cdecl);
+        }
 
         var convert = symbol.ReducedFrom is null
             ? _context.ConvertMethod(model, symbol)
@@ -827,7 +842,10 @@ internal partial class MethodConvert
             AddInstruction(target._instructions[i].Clone());
     }
 
-    private void CallVirtual(IMethodSymbol symbol)
+    private static bool HasByRefAliasVariants(IMethodSymbol symbol)
+        => symbol.Parameters.Count(p => p.RefKind is RefKind.Ref or RefKind.Out) > 1;
+
+    private void CallVirtual(IMethodSymbol symbol, int byRefAliasIndex = -1)
     {
         if (symbol.ContainingType.TypeKind == TypeKind.Interface)
             throw new CompilationException(symbol.ContainingType, DiagnosticId.InterfaceCall, "Interfaces are not supported.");
@@ -847,6 +865,11 @@ internal partial class MethodConvert
         AddInstruction(OpCode.PICKITEM);
         Push(index);
         AddInstruction(OpCode.PICKITEM);
+        if (HasByRefAliasVariants(symbol))
+        {
+            Push(byRefAliasIndex + 1);
+            AddInstruction(OpCode.PICKITEM);
+        }
         AddInstruction(OpCode.CALLA);
     }
 

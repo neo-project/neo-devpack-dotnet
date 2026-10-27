@@ -19,6 +19,15 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Out : DebugAndTestBase<Contract_Out>
     {
+
+        // The by-ref dispatch contract grew past the default 20 GAS deployment budget;
+        // raise the transaction fee for this test class only.
+        protected override TestEngine CreateTestEngine()
+        {
+            var engine = base.CreateTestEngine();
+            engine.Fee = 200_00000000;
+            return engine;
+        }
         [TestMethod]
         public void Test_BasicOut()
         {
@@ -143,39 +152,53 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RefStorageSurvivesSkippedBranches()
         {
             Assert.AreEqual(500, Contract.TestRefLocalAfterCoalesce(false));
-            AssertGasConsumed(1049640);
+            AssertGasConsumed(1608630);
             Assert.AreEqual(101, Contract.TestRefLocalAfterCoalesce(true));
-            AssertGasConsumed(1068000);
+            AssertGasConsumed(1626990);
             Assert.AreEqual(507, Contract.TestRefParameterAfterCoalesce());
-            AssertGasConsumed(1003860);
+            AssertGasConsumed(1562850);
             Assert.AreEqual(3, Contract.TestRefAfterConditionalBranch(false));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1606800);
             Assert.AreEqual(4, Contract.TestRefAfterConditionalBranch(true));
-            AssertGasConsumed(1066140);
+            AssertGasConsumed(1625130);
         }
 
         [TestMethod]
         public void Test_ByRefAliases()
         {
             Assert.AreEqual(2, Contract.TestRefAliases());
-            AssertGasConsumed(1005690);
+            AssertGasConsumed(1564680);
             Assert.AreEqual(2, Contract.TestOutAliases());
-            AssertGasConsumed(1004970);
+            AssertGasConsumed(1563960);
             Assert.AreEqual(111, Contract.TestDistinctRefArguments());
-            AssertGasConsumed(1007010);
+            AssertGasConsumed(1566000);
             Assert.AreEqual(20111, Contract.TestMixedRefAliases());
-            AssertGasConsumed(1027230);
+            AssertGasConsumed(1586220);
         }
 
         [TestMethod]
         public void Test_FieldRefAliases()
         {
             Assert.AreEqual(2, Contract.TestStaticFieldRefAliases());
-            AssertGasConsumed(1004010);
+            AssertGasConsumed(1563000);
             Assert.AreEqual(2, Contract.TestInstanceFieldRefAliases());
-            AssertGasConsumed(1323750);
+            AssertGasConsumed(1882740);
             Assert.AreEqual(111, Contract.TestDistinctInstanceFieldRefs());
-            AssertGasConsumed(1634400);
+            AssertGasConsumed(2193390);
+            Assert.AreEqual(12311, Contract.TestRecursiveRefAliases());
+        }
+
+        [TestMethod]
+        public void Test_VirtualByRefArguments()
+        {
+            Assert.AreEqual(14313, Contract.TestVirtualRefAliases());
+            Assert.AreEqual(77617, Contract.TestVirtualDistinctRefArguments());
+            Assert.AreEqual(143207617, Contract.TestVirtualRefAliasesThenDistinctCalls());
+            Assert.AreEqual(13006017, Contract.TestVirtualRefAliasWritebackIsolation());
+            Assert.AreEqual(1463340849, Contract.TestVirtualRefAliasSignatures());
+            Assert.AreEqual(679818, Contract.TestVirtualRefAliasesThroughBaseCall());
+            Assert.AreEqual(201718, Contract.TestVirtualRecursiveRefAliasesThroughBaseCall());
+            Assert.AreEqual(238204823, Contract.TestVirtualOutArguments());
         }
     }
 }
