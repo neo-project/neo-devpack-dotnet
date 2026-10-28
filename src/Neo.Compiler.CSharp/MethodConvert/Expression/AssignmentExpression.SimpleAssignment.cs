@@ -390,6 +390,16 @@ internal partial class MethodConvert
         if (property.IsStatic)
             return;
 
+        receiver = UnwrapIdentityReceiver(model, receiver);
+        if (receiver is not (ThisExpressionSyntax or BaseExpressionSyntax))
+        {
+            ConvertExpression(model, receiver);
+            AddInstruction(OpCode.DROP);
+        }
+    }
+
+    private static ExpressionSyntax UnwrapIdentityReceiver(SemanticModel model, ExpressionSyntax receiver)
+    {
         while (true)
         {
             if (receiver is ParenthesizedExpressionSyntax parenthesized)
@@ -405,11 +415,7 @@ internal partial class MethodConvert
                 break;
         }
 
-        if (receiver is not (ThisExpressionSyntax or BaseExpressionSyntax))
-        {
-            ConvertExpression(model, receiver);
-            AddInstruction(OpCode.DROP);
-        }
+        return receiver;
     }
 
     private void ConvertTupleMemberAccessAssignment(SemanticModel model, MemberAccessExpressionSyntax left)
@@ -522,7 +528,17 @@ internal partial class MethodConvert
         JumpTarget nullSkipTarget = new();
         JumpTarget endTarget = new();
 
-        ConvertExpression(model, chain[0].Expression);
+        if (!NeedInstanceConstructor(Symbol) &&
+            UnwrapIdentityReceiver(model, chain[0].Expression) is ThisExpressionSyntax)
+        {
+            // Receiverless methods have no hidden argument slot. Their stateless this is
+            // nevertheless non-null; represent it as an empty instance for the guard.
+            AddInstruction(OpCode.NEWARRAY0);
+        }
+        else
+        {
+            ConvertExpression(model, chain[0].Expression);
+        }
 
         byte receiverSlot = 0;
         for (int i = 0; i < chain.Count; i++)

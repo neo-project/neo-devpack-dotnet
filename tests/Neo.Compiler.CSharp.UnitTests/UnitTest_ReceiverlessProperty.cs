@@ -27,6 +27,11 @@ public class UnitTest_ReceiverlessProperty
                 _receiverCalls++;
                 return new Contract();
             }
+            private static string _text;
+            private static string ObserveText() { _receiverCalls++; return "first"; }
+            private static int ObserveIndex() { _receiverCalls++; return 0; }
+            private string Text { get => _text; set => _text = value; }
+            public string this[int key] { get => _text; set => _text = value; }
             private BigInteger Total
             {
                 get => (BigInteger)Storage.Get(Storage.CurrentContext, "total");
@@ -55,6 +60,12 @@ public class UnitTest_ReceiverlessProperty
                     _ = checked(min / divisor);
                 }
                 catch (Exception) { }
+            }
+            [DisplayName("conditionalWithArgument")]
+            public void ConditionalWithArgument(string unused)
+            {
+                this?.Total = 42;
+                this?["total"] += 5;
             }
         }
         """;
@@ -92,13 +103,35 @@ public class UnitTest_ReceiverlessProperty
     [DataRow("return ++((Contract)this)[\"total\"];", 11, 11)]
     [DataRow("return ((Contract)this)[\"total\"]++;", 10, 11)]
     [DataRow("((Contract)ObserveReceiver()).Total = 42; return Total + _receiverCalls * 100;", 142, 42)]
+    [DataRow("this?.Total = 42; return Total;", 42, 42)]
+    [DataRow("this?.Total += 5; return Total;", 15, 15)]
+    [DataRow("this?[\"total\"] = 42; return Total;", 42, 42)]
+    [DataRow("this?[\"total\"] += 5; return Total;", 15, 15)]
+    [DataRow("((Contract)this)?.Total = 42; return Total;", 42, 42)]
+    [DataRow("((Contract)((Contract)this)!)?[\"total\"] += 5; return Total;", 15, 15)]
+    [DataRow("this?.Text ??= \"first\"; this?.Text ??= \"second\"; return Text == \"first\" ? 1 : 0;", 1, 10)]
+    [DataRow("this?[0] ??= \"first\"; this?[0] ??= \"second\"; return this[0] == \"first\" ? 1 : 0;", 1, 10)]
+    [DataRow("ObserveReceiver()?.Total += 5; return Total + _receiverCalls * 100;", 115, 15)]
+    [DataRow("Contract receiver = null; receiver?.Total = 42; receiver?[\"total\"] += 5; receiver?.Text ??= \"unused\"; receiver?[0] ??= \"unused\"; return Total;", 10, 10)]
+    [DataRow("this?.Text ??= ObserveText(); this?.Text ??= ObserveText(); return _receiverCalls;", 1, 10)]
+    [DataRow("this?[ObserveIndex()] ??= ObserveText(); this?[ObserveIndex()] ??= ObserveText(); return _receiverCalls;", 3, 10)]
+    [DataRow("Contract receiver = null; receiver?[ObserveIndex()] ??= ObserveText(); return _receiverCalls;", 0, 10)]
+    [DataRow("Text ??= \"first\"; Text ??= \"second\"; return Text == \"first\" ? 1 : 0;", 1, 10)]
+    [DataRow("this.Text ??= \"first\"; this.Text ??= \"second\"; return Text == \"first\" ? 1 : 0;", 1, 10)]
+    [DataRow("this[0] ??= \"first\"; this[0] ??= \"second\"; return this[0] == \"first\" ? 1 : 0;", 1, 10)]
+    [DataRow("ObserveReceiver().Text ??= ObserveText(); ObserveReceiver().Text ??= ObserveText(); return _receiverCalls;", 3, 10)]
     public void MutationsPreserveResultAndStorage(string mutation, int result, int stored)
     {
         foreach (var optimization in new[] { CompilationOptions.OptimizationType.None, CompilationOptions.OptimizationType.All })
         {
-            var contract = Deploy(mutation, optimization);
-            Assert.AreEqual(new BigInteger(result), contract.Run(), $"{optimization}: expression result");
-            Assert.AreEqual(new BigInteger(stored), contract.Read("total"), $"{optimization}: stored value");
+            // Exercise both calling conventions so receiverless fixes cannot break real receivers.
+            foreach (bool explicitConstructor in new[] { false, true })
+            {
+                var contract = Deploy(mutation, optimization, explicitConstructor);
+                string scenario = $"{optimization}, explicit constructor: {explicitConstructor}";
+                Assert.AreEqual(new BigInteger(result), contract.Run(), $"{scenario}: expression result");
+                Assert.AreEqual(new BigInteger(stored), contract.Read("total"), $"{scenario}: stored value");
+            }
         }
     }
 
@@ -110,13 +143,18 @@ public class UnitTest_ReceiverlessProperty
         var contract = Deploy("return Total;", optimization);
         contract.WriteInTry(888888, 42, -1);
         Assert.AreEqual(new BigInteger(42), contract.Read("total"));
+        contract.ConditionalWithArgument(null);
+        Assert.AreEqual(new BigInteger(47), contract.Read("total"));
     }
 
-    private static MutationContract Deploy(string mutation, CompilationOptions.OptimizationType optimization)
+    private static MutationContract Deploy(string mutation, CompilationOptions.OptimizationType optimization, bool explicitConstructor = false)
     {
         var options = TestHelper.CreateDefaultOptions();
         options.Optimize = optimization;
-        var context = TestHelper.CompileSingleContract(Source.Replace("MUTATION", mutation), options);
+        string source = Source.Replace("MUTATION", mutation);
+        if (explicitConstructor)
+            source = source.Replace("private static int _receiverCalls;", "public Contract() { } private static int _receiverCalls;");
+        var context = TestHelper.CompileSingleContract(source, options);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
         var engine = new TestEngine(true);
         return engine.Deploy<MutationContract>(context.CreateExecutable(), context.CreateManifest());
@@ -127,5 +165,6 @@ public class UnitTest_ReceiverlessProperty
         [DisplayName("run")] public abstract BigInteger? Run();
         [DisplayName("read")] public abstract BigInteger? Read(string key);
         [DisplayName("writeInTry")] public abstract void WriteInTry(BigInteger callerTag, BigInteger value, int divisor);
+        [DisplayName("conditionalWithArgument")] public abstract void ConditionalWithArgument(string? unused);
     }
 }
