@@ -219,15 +219,29 @@ internal partial class MethodConvert
         {
             if (operand.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
-            ConvertExpression(model, operand.Expression);
-            ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
-            EmitIncrementOrDecrement(operatorToken, property.Type, model);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            if (!NeedInstanceConstructor(property.GetMethod!))
+            {
+                EmitIgnoredReceiverIfNeeded(model, property, operand.Expression);
+                ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.DUP);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                EmitIncrementOrDecrement(operatorToken, property.Type, model);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE3);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
+            else
+            {
+                ConvertExpression(model, operand.Expression);
+                ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                EmitIncrementOrDecrement(operatorToken, property.Type, model);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
         }
         else
         {
@@ -330,7 +344,7 @@ internal partial class MethodConvert
 
     private void ConvertPropertyIdentifierNamePreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IPropertySymbol symbol)
     {
-        if (symbol.IsStatic)
+        if (!NeedInstanceConstructor(symbol.GetMethod!))
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
@@ -391,8 +405,9 @@ internal partial class MethodConvert
 
     private void ConvertPropertyMemberAccessPreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, MemberAccessExpressionSyntax operand, IPropertySymbol symbol)
     {
-        if (symbol.IsStatic)
+        if (!NeedInstanceConstructor(symbol.GetMethod!))
         {
+            EmitIgnoredReceiverIfNeeded(model, symbol, operand.Expression);
             CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type, model);
             AddInstruction(OpCode.DUP);

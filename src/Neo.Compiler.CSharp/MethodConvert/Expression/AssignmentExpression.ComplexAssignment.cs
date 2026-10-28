@@ -75,15 +75,29 @@ internal partial class MethodConvert
         {
             if (left.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
-            EmitComplexAssignmentOperator(model, type, operatorToken, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            if (!NeedInstanceConstructor(property.GetMethod!))
+            {
+                EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.DUP);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                EmitComplexAssignmentOperator(model, type, operatorToken, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE3);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
+            else
+            {
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                EmitComplexAssignmentOperator(model, type, operatorToken, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
         }
         else
         {
@@ -202,7 +216,7 @@ internal partial class MethodConvert
 
     private void ConvertPropertyIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IPropertySymbol left, ExpressionSyntax right)
     {
-        if (left.IsStatic)
+        if (!NeedInstanceConstructor(left.GetMethod!))
         {
             CallMethodWithConvention(model, left.GetMethod!);
             EmitComplexAssignmentOperator(model, type, operatorToken, right);
@@ -247,8 +261,9 @@ internal partial class MethodConvert
 
     private void ConvertPropertyMemberAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, MemberAccessExpressionSyntax left, ExpressionSyntax right, IPropertySymbol property)
     {
-        if (property.IsStatic)
+        if (!NeedInstanceConstructor(property.GetMethod!))
         {
+            EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
             CallMethodWithConvention(model, property.GetMethod!);
             EmitComplexAssignmentOperator(model, type, operatorToken, right);
             AddInstruction(OpCode.DUP);

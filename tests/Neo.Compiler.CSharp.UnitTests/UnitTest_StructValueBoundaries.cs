@@ -117,6 +117,39 @@ public class UnitTest_StructValueBoundaries
         }
     }
 
+    [TestMethod]
+    [DataRow("var holder = new Contract { Value = point }; point.X = 99; return holder.Value.X * 1000 + point.X;")]
+    [DataRow("var holder = new Contract(); holder[0] = point; point.X = 99; return holder[0].X * 1000 + point.X;")]
+    [DataRow("var holder = new Contract(); var result = holder[0] = point; result.X = 42; point.X = 99; return holder[0].X * 1000 + point.X;")]
+    public void StructCopiesComposeWithReceiverlessSetters(string body)
+    {
+        foreach (var optimization in new[] { CompilationOptions.OptimizationType.None, CompilationOptions.OptimizationType.Basic, CompilationOptions.OptimizationType.All })
+            foreach (bool explicitConstructor in new[] { false, true })
+            {
+                var source = $$"""
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+                public class Contract : SmartContract
+                {
+                    public struct Point { public int X; }
+                    {{(explicitConstructor ? "public Contract() { }" : "")}}
+                    private static Point _value;
+                    private Point Value { get => _value; set => _value = value; }
+                    public Point this[int index] { get => _value; set => _value = value; }
+                    [DisplayName("run")]
+                    public static int Run() { var point = new Point { X = 7 }; {{body}} }
+                }
+                """;
+                var options = TestHelper.CreateDefaultOptions();
+                options.Optimize = optimization;
+                var context = TestHelper.CompileSingleContract(source, options);
+                Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+                var engine = new TestEngine(true);
+                var contract = engine.Deploy<BoundaryContract>(context.CreateExecutable(), context.CreateManifest());
+                Assert.AreEqual(new BigInteger(7099), contract.Run(), $"{body} / {optimization} / constructor: {explicitConstructor}");
+            }
+    }
+
     public abstract class BoundaryContract(SmartContractInitialize initialize) : SmartContract.Testing.SmartContract(initialize)
     {
         [DisplayName("run")] public abstract BigInteger? Run();
