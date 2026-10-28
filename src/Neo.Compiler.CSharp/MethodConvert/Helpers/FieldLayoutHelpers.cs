@@ -17,6 +17,9 @@ internal partial class MethodConvert
 {
     private static int GetInstanceFieldIndex(IFieldSymbol field)
     {
+        int tupleIndex = GetTupleElementIndex(field.ContainingType, field);
+        if (tupleIndex >= 0)
+            return tupleIndex;
         int index = System.Array.IndexOf(field.ContainingType.GetFields(), field);
         if (index < 0)
             throw new CompilationException(field, DiagnosticId.SyntaxNotSupported, $"Field '{field.Name}' was not found on containing type '{field.ContainingType.Name}'.");
@@ -28,10 +31,9 @@ internal partial class MethodConvert
     /// given tuple type.
     /// </summary>
     /// <remarks>
-    /// A tuple is packed from its elements in order, but <see cref="GetInstanceFieldIndex"/> walks
-    /// every member of the type, and a tuple reports members merged in from the interfaces it
-    /// implements. From the third element on the two orders no longer line up, so the element list
-    /// is read directly.
+    /// Tuples are packed in element order. Their member list can also include named aliases,
+    /// so member positions must not be used as storage indices. Both a named element and its
+    /// corresponding ItemN field resolve to the same slot.
     /// </remarks>
     private static int GetTupleElementIndex(ITypeSymbol? receiverType, IFieldSymbol field)
     {
@@ -40,7 +42,9 @@ internal partial class MethodConvert
 
         System.Collections.Immutable.ImmutableArray<IFieldSymbol> elements = tuple.TupleElements;
         for (int i = 0; i < elements.Length; i++)
-            if (SymbolEqualityComparer.Default.Equals(elements[i], field))
+            if (SymbolEqualityComparer.Default.Equals(elements[i], field) ||
+                SymbolEqualityComparer.Default.Equals(
+                    elements[i].CorrespondingTupleField ?? elements[i], field.CorrespondingTupleField ?? field))
                 return i;
         return -1;
     }
