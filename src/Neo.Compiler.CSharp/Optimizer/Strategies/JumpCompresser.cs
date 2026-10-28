@@ -238,24 +238,16 @@ namespace Neo.Optimizer
 
         /// <summary>
         /// Removes JMP and JMP_L that targets the next instruction after the JMP or JMP_L.
-        /// Replace JMPIF/JMPIFNOT with DROP if it jumps to the next instruction
         /// If the removed JMP or JMP_L itself is a jump target,
-        /// re-target to the instruction after the JMP or JMP_L
+        /// re-target to the instruction after the JMP or JMP_L.
+        /// Conditional jumps are intentionally kept even when they target the next instruction:
+        /// they convert their operands (GetInteger/GetBoolean) and may FAULT, so replacing them
+        /// with DROPs would change VM behavior (and cost more GAS for two-operand jumps).
         /// </summary>
         /// <param name="nef">Nef file</param>
         /// <param name="manifest">Manifest</param>
         /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
-        /// <summary>
-        /// Conditional jumps that consume two operands from the evaluation stack
-        /// (comparison-based jumps such as JMPEQ and their long forms).
-        /// JMPIF / JMPIFNOT consume a single operand and are not included.
-        /// </summary>
-        private static readonly HashSet<OpCode> twoOperandConditionalJump = new()
-        {
-            OpCode.JMPEQ, OpCode.JMPNE, OpCode.JMPGT, OpCode.JMPGE, OpCode.JMPLT, OpCode.JMPLE,
-            OpCode.JMPEQ_L, OpCode.JMPNE_L, OpCode.JMPGT_L, OpCode.JMPGE_L, OpCode.JMPLT_L, OpCode.JMPLE_L,
-        };
 
         [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveUnnecessaryJumps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -267,7 +259,6 @@ namespace Neo.Optimizer
                 Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
                 Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
                 FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
-            Dictionary<int, int> oldSequencePointAddressToNew = new();
 
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
@@ -279,7 +270,7 @@ namespace Neo.Optimizer
                     if (target - a == i.Size)
                     {
                         // Just jumping to the instruction after the jump itself
-                        // This is unnecessary jump. The jump should be deleted.
+                        // This is unnecessary jump.
                         // And, if this JMP is the target of other jump instructions,
                         // re-target to the next instruction after this JMP.
                         Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
@@ -290,32 +281,6 @@ namespace Neo.Optimizer
                         continue;  // do not add this JMP into simplified instructions
                     }
                 }
-                if (conditionalJump.Contains(i.OpCode) || conditionalJump_L.Contains(i.OpCode))
-                {
-                    int target = ComputeJumpTarget(a, i);
-                    if (target - a == i.Size)
-                    {
-                        // The conditional jump branches to the very next instruction, so its
-                        // branch and fall-through paths coincide. Replace it with one DROP for
-                        // JMPIF/JMPIFNOT and two DROPs for comparison-based jumps, preserving the
-                        // operand count each conditional consumes from the evaluation stack.
-                        int dropCount = twoOperandConditionalJump.Contains(i.OpCode) ? 2 : 1;
-                        for (int d = 0; d < dropCount; d++)
-                        {
-                            Instruction drop = new Script(new byte[] { (byte)OpCode.DROP }).GetInstruction(0);
-                            simplifiedInstructionsToAddress.Add(drop, currentAddress);
-                            currentAddress += drop.Size;
-                            if (d == 0)
-                            {
-                                oldSequencePointAddressToNew.Add(a, currentAddress);
-                                OptimizedScriptBuilder.RetargetJump(i, drop, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
-                            }
-                        }
-
-                        jumpSourceToTargets.Remove(i);
-                        continue;
-                    }
-                }
                 simplifiedInstructionsToAddress.Add(i, currentAddress);
                 currentAddress += i.Size;
             }
@@ -323,7 +288,7 @@ namespace Neo.Optimizer
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
-                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+                oldAddressToInstruction);
         }
 
         /// <summary>

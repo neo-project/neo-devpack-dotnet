@@ -91,13 +91,13 @@ namespace Neo.Compiler
                     catchTarget.Instruction = exceptionSymbol is null
                         ? AccessSlot(OpCode.STLOC, exceptionIndex)
                         : StLocSlot(exceptionSymbol);
-                    // An in-flight exception abandons the try block at an arbitrary point, so
-                    // the values the aborted expressions had already pushed stay on the
-                    // evaluation stack under the exception object the VM just pushed. The
-                    // exception is stored above, so restoring the statement-level depth now
-                    // drops exactly those leftovers; on any normal entry the depth already
-                    // matches and the restore loop does nothing.
-                    RestoreMethodStackDepth();
+                // An in-flight exception abandons the try block at an arbitrary point, so
+                // the values the aborted expressions had already pushed stay on the
+                // evaluation stack under the exception object the VM just pushed. The
+                // exception is stored above, so restoring the statement-level depth now
+                // drops exactly those leftovers; on any normal entry the depth already
+                // matches and the restore loop does nothing.
+                RestoreMethodStackDepth();
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);
