@@ -458,9 +458,9 @@ internal partial class MethodConvert
     private void CopyStructReturn(SemanticModel model, ExpressionSyntax expression)
     {
         model = model.GetModelForNode(expression);
-        var typeInfo = model.GetTypeInfo(expression);
-        if (typeInfo.Type?.IsStructArray() == true)
-            CopyStructValue(typeInfo.Type);
+        var type = GetStoredStructType(model, null, expression);
+        if (type is not null)
+            CopyConvertedStructValue(model, expression, type);
     }
 
     /// <summary>
@@ -485,18 +485,43 @@ internal partial class MethodConvert
     /// </remarks>
     private void CopyStructValueBeforeStore(SemanticModel model, ITypeSymbol? targetType, ExpressionSyntax? value)
     {
-        ITypeSymbol? structType = null;
-        if (value is not null && model.GetTypeInfo(value).Type?.IsStructArray() == true)
-            structType = model.GetTypeInfo(value).Type;
-        if (structType is null && targetType?.IsStructArray() == true)
-            structType = targetType;
+        if (value is not null)
+            model = model.GetModelForNode(value);
+        ITypeSymbol? structType = GetStoredStructType(model, targetType, value);
         if (structType is null)
             return;
         // An object creation, a default value, and a with-expression all produce a new array,
         // so copying them again would only add instructions.
-        if (value is BaseObjectCreationExpressionSyntax or WithExpressionSyntax or DefaultExpressionSyntax ||
-            value?.IsKind(SyntaxKind.DefaultLiteralExpression) == true)
+        if (value is not null && !model.GetConversion(value).IsUserDefined &&
+            (value is BaseObjectCreationExpressionSyntax or WithExpressionSyntax or DefaultExpressionSyntax ||
+             value.IsKind(SyntaxKind.DefaultLiteralExpression)))
             return;
-        CopyStructValue(structType);
+        CopyConvertedStructValue(model, value, structType);
+    }
+
+    private void CopyConvertedStructValue(SemanticModel model, ExpressionSyntax? value, ITypeSymbol type)
+    {
+        // A lifted operator leaves null on the stack when its nullable input is null.
+        var resultType = value is not null && model.GetConversion(value).IsUserDefined
+            ? model.GetTypeInfo(value).ConvertedType : null;
+        EmitLiftedUnaryOperation(resultType, () => CopyStructValue(type));
+    }
+
+    private static ITypeSymbol? GetStoredStructType(SemanticModel model, ITypeSymbol? targetType, ExpressionSyntax? value)
+    {
+        if (value is not null)
+        {
+            var conversion = model.GetConversion(value);
+            // ConvertExpression has already called the operator. Boxing, in contrast, retains
+            // the source struct layout. Do not copy the operator result using its input layout.
+            if (conversion.IsUserDefined && conversion.MethodSymbol is { } method &&
+                value.Parent is not (ParenthesizedExpressionSyntax or CastExpressionSyntax))
+                return method.ReturnType.IsStructArray() ? method.ReturnType : null;
+
+            var sourceType = model.GetTypeInfo(value).Type;
+            if (sourceType?.IsStructArray() == true)
+                return sourceType;
+        }
+        return targetType?.IsStructArray() == true ? targetType : null;
     }
 }

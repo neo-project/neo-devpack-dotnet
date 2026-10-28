@@ -241,7 +241,9 @@ internal partial class MethodConvert
         if (dimension == lengthSlots.Length - 1)
         {
             AccessSlot(OpCode.LDLOC, lenSlot);
-            if (elementType.SpecialType == SpecialType.System_Byte)
+            if (elementType.IsStructArray())
+                EmitCreateStructArray(elementType);
+            else if (elementType.SpecialType == SpecialType.System_Byte)
                 AddInstruction(OpCode.NEWBUFFER);
             else if (elementType.SpecialType == SpecialType.System_String)
                 AddInstruction(OpCode.NEWARRAY);
