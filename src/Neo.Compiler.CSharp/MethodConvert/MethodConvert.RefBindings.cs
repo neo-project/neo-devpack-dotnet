@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Neo.VM;
 
 namespace Neo.Compiler;
@@ -178,13 +179,41 @@ internal partial class MethodConvert
         }
     }
 
+    private static bool IsRefBindingScope(SyntaxNode node) =>
+        node is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax or
+            LocalFunctionStatementSyntax or AnonymousFunctionExpressionSyntax;
+
+    private static void ValidateRefReassignment(AssignmentExpressionSyntax expression)
+    {
+        // Bindings describe storage at compile time. A branch or a back edge cannot
+        // select a different binding at runtime, so reject it instead of miscompiling.
+        const string message = "Ref reassignment is only supported in straight-line statements without branches, loops, exception handlers, or jumps.";
+        SyntaxNode? scope = expression.Parent;
+        while (scope is ParenthesizedExpressionSyntax or EqualsValueClauseSyntax or
+            VariableDeclaratorSyntax or VariableDeclarationSyntax)
+            scope = scope.Parent;
+        if (scope is not (ExpressionStatementSyntax or LocalDeclarationStatementSyntax))
+            throw CompilationException.UnsupportedSyntax(expression, message);
+        scope = scope.Parent;
+        while (scope is not null && !IsRefBindingScope(scope))
+        {
+            if (scope is not (BlockSyntax or CheckedStatementSyntax))
+                throw CompilationException.UnsupportedSyntax(expression, message);
+            scope = scope.Parent;
+        }
+
+        if (scope is null || scope.DescendantNodes(node => ReferenceEquals(node, scope) || !IsRefBindingScope(node))
+            .Any(node => node is GotoStatementSyntax or LabeledStatementSyntax))
+            throw CompilationException.UnsupportedSyntax(expression, message);
+    }
+
     private void BindRefLocal(SemanticModel model, ILocalSymbol symbol, RefExpressionSyntax refExpression)
     {
+        RefBinding binding = CreateRefBinding(model, refExpression.Expression);
         if (HasRefBinding(symbol))
             RemoveRefBinding(symbol);
         // Ref assignments (`ref alias = ref source`) simply attach a new binding to the local;
         // subsequent loads/stores will reuse whatever storage CreateRefBinding resolved here.
-        RefBinding binding = CreateRefBinding(model, refExpression.Expression);
         SetRefBinding(symbol, binding);
     }
 

@@ -84,6 +84,7 @@ internal partial class MethodConvert
                     "Ref assignments are only supported for previously-declared ref locals.");
             }
 
+            ValidateRefReassignment(expression);
             BindRefLocal(model, local, refExpression);
             if (leaveResultOnStack)
                 LdLocSlot(local);
