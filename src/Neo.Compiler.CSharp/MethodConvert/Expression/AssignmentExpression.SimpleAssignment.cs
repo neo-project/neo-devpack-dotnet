@@ -158,8 +158,8 @@ internal partial class MethodConvert
             {
                 case SingleVariableDesignationSyntax singleVariableDesignation:
                     ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
-                    byte index = AddLocalVariable(local);
-                    AccessSlot(OpCode.STLOC, index);
+                    AddLocalVariable(local);
+                    StLocSlot(local);
                     break;
                 case DiscardDesignationSyntax:
                     AddInstruction(OpCode.DROP);
@@ -411,8 +411,8 @@ internal partial class MethodConvert
                     {
                         case SingleVariableDesignationSyntax singleVariableDesignation:
                             ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
-                            byte index = AddLocalVariable(local);
-                            AccessSlot(OpCode.STLOC, index);
+                            AddLocalVariable(local);
+                            StLocSlot(local);
                             break;
                         case DiscardDesignationSyntax:
                             AddInstruction(OpCode.DROP);

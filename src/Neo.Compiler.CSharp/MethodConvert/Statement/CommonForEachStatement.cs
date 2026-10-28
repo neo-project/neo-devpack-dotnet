@@ -88,7 +88,7 @@ namespace Neo.Compiler
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
             byte iteratorIndex = AddAnonymousVariable();
-            byte elementIndex = AddLocalVariable(elementSymbol);
+            AddLocalVariable(elementSymbol);
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
             StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
@@ -105,7 +105,7 @@ namespace Neo.Compiler
                 CallInteropMethod(ApplicationEngine.System_Iterator_Value);
                 if (elementSymbol.Type.IsStructArray())
                     CopyStructValue(elementSymbol.Type);
-                AccessSlot(OpCode.STLOC, elementIndex);
+                StLocSlot(elementSymbol);
             }
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
@@ -208,10 +208,10 @@ namespace Neo.Compiler
                     }
                     else
                     {
-                        byte variableIndex = AddLocalVariable(symbols[i]!);
                         if (symbols[i]!.Type.IsStructArray())
                             CopyStructValue(symbols[i]!.Type);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        AddLocalVariable(symbols[i]!);
+                        StLocSlot(symbols[i]!);
                     }
                 }
             }
@@ -260,7 +260,7 @@ namespace Neo.Compiler
             byte arrayIndex = AddAnonymousVariable();
             byte lengthIndex = AddAnonymousVariable();
             byte iIndex = AddAnonymousVariable();
-            byte elementIndex = AddLocalVariable(elementSymbol);
+            AddLocalVariable(elementSymbol);
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
             StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
@@ -285,7 +285,7 @@ namespace Neo.Compiler
                 // inside the loop body is not visible through it.
                 if (elementSymbol.Type.IsStructArray())
                     CopyStructValue(elementSymbol.Type);
-                AccessSlot(OpCode.STLOC, elementIndex);
+                StLocSlot(elementSymbol);
             }
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
@@ -318,7 +318,7 @@ namespace Neo.Compiler
             byte arrayIndex = AddAnonymousVariable();
             byte lengthIndex = AddAnonymousVariable();
             byte iIndex = AddAnonymousVariable();
-            byte elementIndex = AddLocalVariable(elementSymbol);
+            AddLocalVariable(elementSymbol);
             byte bindingArraySlot = AddAnonymousVariable();
             byte bindingIndexSlot = AddAnonymousVariable();
             // The loop variable itself is just a ref alias. Record the underlying array + index slots
@@ -440,10 +440,10 @@ namespace Neo.Compiler
                     }
                     else
                     {
-                        byte variableIndex = AddLocalVariable(symbols[i]!);
                         if (symbols[i]!.Type.IsStructArray())
                             CopyStructValue(symbols[i]!.Type);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        AddLocalVariable(symbols[i]!);
+                        StLocSlot(symbols[i]!);
                     }
                 }
             }
@@ -483,7 +483,7 @@ namespace Neo.Compiler
             _generalStatementStack.Push(sc);
 
             byte rootArraySlot = AddAnonymousVariable();
-            byte elementSlot = AddLocalVariable(elementSymbol);
+            AddLocalVariable(elementSymbol);
             byte[] indexSlots = new byte[arrayType.Rank];
             for (int i = 0; i < indexSlots.Length; i++)
                 indexSlots[i] = AddAnonymousVariable();
@@ -500,7 +500,7 @@ namespace Neo.Compiler
                 {
                     if (elementSymbol.Type.IsStructArray())
                         CopyStructValue(elementSymbol.Type);
-                    AccessSlot(OpCode.STLOC, elementSlot);
+                    StLocSlot(elementSymbol);
                 }
                 ConvertStatement(model, syntax.Statement);
             });
@@ -560,10 +560,10 @@ namespace Neo.Compiler
                         }
                         else
                         {
-                            byte variableIndex = AddLocalVariable(symbols[i]!);
                             if (symbols[i]!.Type.IsStructArray())
                                 CopyStructValue(symbols[i]!.Type);
-                            AccessSlot(OpCode.STLOC, variableIndex);
+                            AddLocalVariable(symbols[i]!);
+                            StLocSlot(symbols[i]!);
                         }
                     }
                 }

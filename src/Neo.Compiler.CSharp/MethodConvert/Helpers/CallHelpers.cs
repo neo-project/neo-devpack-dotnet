@@ -26,7 +26,25 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private readonly record struct ByRefAliasLocation(ISymbol Symbol, ISymbol? Receiver, bool IsThisReceiver);
+
+    private sealed class ByRefAliasLocationComparer : IEqualityComparer<ByRefAliasLocation>
+    {
+        public bool Equals(ByRefAliasLocation x, ByRefAliasLocation y)
+            => SymbolEqualityComparer.Default.Equals(x.Symbol, y.Symbol) &&
+               SymbolEqualityComparer.Default.Equals(x.Receiver, y.Receiver) &&
+               x.IsThisReceiver == y.IsThisReceiver;
+
+        public int GetHashCode(ByRefAliasLocation obj)
+            => HashCode.Combine(
+                SymbolEqualityComparer.Default.GetHashCode(obj.Symbol),
+                obj.Receiver is null ? 0 : SymbolEqualityComparer.Default.GetHashCode(obj.Receiver),
+                obj.IsThisReceiver);
+    }
+
     private readonly Stack<Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>> _outStaticFieldSyncScopes = new();
+    private readonly Stack<Dictionary<ByRefAliasLocation, IParameterSymbol>> _byRefAliasScopes = new();
+    private readonly Stack<Dictionary<IParameterSymbol, (byte Original, byte Alias)>> _byRefAliasParameters = new();
     private ExpressionSyntax? _preEvaluatedInstanceExpression;
     private byte? _preEvaluatedInstanceSlot;
 
@@ -270,6 +288,8 @@ internal partial class MethodConvert
     private void PushOutStaticFieldSyncScope()
     {
         _outStaticFieldSyncScopes.Push(new Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>>(SymbolEqualityComparer.Default));
+        _byRefAliasScopes.Push(new Dictionary<ByRefAliasLocation, IParameterSymbol>(new ByRefAliasLocationComparer()));
+        _byRefAliasParameters.Push(new Dictionary<IParameterSymbol, (byte Original, byte Alias)>(SymbolEqualityComparer.Default));
     }
 
     private void PopOutStaticFieldSyncScope()
@@ -277,6 +297,9 @@ internal partial class MethodConvert
         if (_outStaticFieldSyncScopes.Count == 0)
             throw new CompilationException(DiagnosticId.SyntaxNotSupported, "Internal compiler error: out-parameter synchronization scope underflow.");
         _outStaticFieldSyncScopes.Pop();
+        _byRefAliasScopes.Pop();
+        foreach (var alias in _byRefAliasParameters.Pop())
+            _context.AssociateCapturedStaticField(alias.Key, alias.Value.Original);
     }
 
     private Dictionary<IParameterSymbol, List<CompilationContext.OutSyncTarget>> GetCurrentOutStaticFieldSyncScope()
@@ -540,7 +563,18 @@ internal partial class MethodConvert
             PushDefault(field.Type);
         }
 
-        ProcessOutSymbol(parameter, field, instanceSlot, capturedInstanceSlotIsLocal);
+        ExpressionSyntax? receiverExpression = instanceExpression ?? syntaxNode switch
+        {
+            MemberAccessExpressionSyntax member => member.Expression,
+            ArgumentSyntax { Expression: MemberAccessExpressionSyntax member } => member.Expression,
+            _ => null,
+        };
+        bool usesImplicitThis = receiverExpression is null && syntaxNode is IdentifierNameSyntax or
+            ArgumentSyntax { Expression: IdentifierNameSyntax };
+        bool hasStableReceiver = TryGetStableReceiver(model, receiverExpression, usesImplicitThis,
+            out ISymbol? receiverSymbol, out bool isThisReceiver);
+        ProcessOutSymbol(parameter, field, instanceSlot, capturedInstanceSlotIsLocal,
+            hasStableReceiver ? receiverSymbol : null, hasStableReceiver && isThisReceiver);
         if (!_context.TryGetCapturedStaticField(field, out var fieldStorageIndex))
             fieldStorageIndex = _context.GetOrAddCapturedStaticField(field);
         AddInstruction(OpCode.DUP);
@@ -549,8 +583,59 @@ internal partial class MethodConvert
         AccessSlot(OpCode.STSFLD, fieldStorageIndex);
     }
 
-    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null, bool instanceSlotIsLocal = false)
+    private static bool TryGetStableReceiver(SemanticModel model, ExpressionSyntax? receiver,
+        bool usesImplicitThis, out ISymbol? receiverSymbol, out bool isThisReceiver)
     {
+        while (receiver is ParenthesizedExpressionSyntax parenthesized)
+            receiver = parenthesized.Expression;
+
+        if (usesImplicitThis || receiver is ThisExpressionSyntax or BaseExpressionSyntax)
+        {
+            receiverSymbol = null;
+            isThisReceiver = true;
+            return true;
+        }
+
+        receiverSymbol = receiver is IdentifierNameSyntax identifier
+            ? model.GetSymbolInfo(identifier).Symbol
+            : null;
+        isThisReceiver = false;
+        return receiverSymbol is ILocalSymbol or IParameterSymbol or IFieldSymbol;
+    }
+
+    private bool TryShareByRefAlias(IParameterSymbol parameter, ISymbol symbol,
+        ISymbol? receiverSymbol = null, bool isThisReceiver = false)
+    {
+        if (symbol is not ILocalSymbol and not IParameterSymbol and not IFieldSymbol)
+            return false;
+
+        if (symbol is IFieldSymbol { IsStatic: false } && receiverSymbol is null && !isThisReceiver)
+            return false;
+
+        var scope = _byRefAliasScopes.Peek();
+        ByRefAliasLocation location = new(symbol, receiverSymbol, isThisReceiver);
+        if (scope.TryGetValue(location, out IParameterSymbol? alias))
+        {
+            byte index = _context.GetOrAddCapturedStaticField(alias);
+            byte original = _context.GetOrAddCapturedStaticField(parameter);
+            if (original != index)
+            {
+                _byRefAliasParameters.Peek()[parameter] = (original, index);
+                _context.AssociateCapturedStaticField(parameter, index);
+            }
+            return true;
+        }
+
+        scope.Add(location, parameter);
+        return false;
+    }
+
+    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null,
+        bool instanceSlotIsLocal = false, ISymbol? receiverSymbol = null, bool isThisReceiver = false)
+    {
+        if (TryShareByRefAlias(parameter, symbol, receiverSymbol, isThisReceiver))
+            return;
+
         if (symbol is IFieldSymbol fieldSymbol)
         {
             ProcessOutFieldSymbol(parameter, fieldSymbol, instanceSlot, instanceSlotIsLocal);
@@ -655,8 +740,14 @@ internal partial class MethodConvert
 
     private void EmitMethodCall(MethodConvert? convert, IMethodSymbol symbol)
     {
+        Dictionary<byte, byte>? aliases = _byRefAliasParameters.Count > 0 && _byRefAliasParameters.Peek().Count > 0
+            ? _byRefAliasParameters.Peek().ToDictionary(p => p.Value.Original, p => p.Value.Alias)
+            : null;
+
         if (convert is null)
-            CallVirtual(symbol);
+            CallVirtual(symbol, aliases is null ? -1 : _context.GetOrAddByRefAliasSignature(aliases));
+        else if (aliases is not null)
+            EmitCall(_context.AddByRefAliasMethod(convert, aliases));
         else
             EmitCall(convert);
 
@@ -664,10 +755,22 @@ internal partial class MethodConvert
     }
 
     // Helper method to get MethodConvert and CallingConvention
+    private void RegisterVirtualByRefParameters(IMethodSymbol symbol)
+    {
+        foreach (IParameterSymbol parameter in symbol.Parameters)
+        {
+            if (parameter.RefKind is RefKind.Ref or RefKind.Out)
+                _context.GetOrAddCapturedStaticField(parameter);
+        }
+    }
+
     private (MethodConvert? convert, CallingConvention methodCallingConvention) GetMethodConvertAndCallingConvention(SemanticModel model, IMethodSymbol symbol)
     {
         if (symbol.IsVirtualMethod())
+        {
+            RegisterVirtualByRefParameters(symbol);
             return (null, CallingConvention.Cdecl);
+        }
 
         var convert = _context.ConvertMethod(model, symbol);
         return (convert, convert._callingConvention);
@@ -701,7 +804,10 @@ internal partial class MethodConvert
     private (MethodConvert? convert, CallingConvention methodCallingConvention) GetMethodConvertAndCallingConvention(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression)
     {
         if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
+        {
+            RegisterVirtualByRefParameters(symbol);
             return (null, CallingConvention.Cdecl);
+        }
 
         var convert = symbol.ReducedFrom is null
             ? _context.ConvertMethod(model, symbol)
@@ -736,7 +842,10 @@ internal partial class MethodConvert
             AddInstruction(target._instructions[i].Clone());
     }
 
-    private void CallVirtual(IMethodSymbol symbol)
+    private static bool HasByRefAliasVariants(IMethodSymbol symbol)
+        => symbol.Parameters.Count(p => p.RefKind is RefKind.Ref or RefKind.Out) > 1;
+
+    private void CallVirtual(IMethodSymbol symbol, int byRefAliasIndex = -1)
     {
         if (symbol.ContainingType.TypeKind == TypeKind.Interface)
             throw new CompilationException(symbol.ContainingType, DiagnosticId.InterfaceCall, "Interfaces are not supported.");
@@ -756,6 +865,11 @@ internal partial class MethodConvert
         AddInstruction(OpCode.PICKITEM);
         Push(index);
         AddInstruction(OpCode.PICKITEM);
+        if (HasByRefAliasVariants(symbol))
+        {
+            Push(byRefAliasIndex + 1);
+            AddInstruction(OpCode.PICKITEM);
+        }
         AddInstruction(OpCode.CALLA);
     }
 

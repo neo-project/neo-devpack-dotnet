@@ -82,5 +82,44 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return checked(a / b);
         }
+
+        public static int IntDivRemCaught(int left, int right)
+        {
+            try
+            {
+                var (quotient, remainder) = int.DivRem(left, right);
+                return quotient * 100 + remainder;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        public static int MathDivRemCaught(int left, int right)
+        {
+            try
+            {
+                var (quotient, remainder) = System.Math.DivRem(left, right);
+                return quotient * 100 + remainder;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        public static BigInteger BigIntegerDivRemCaught(BigInteger left, BigInteger right)
+        {
+            try
+            {
+                var (quotient, remainder) = BigInteger.DivRem(left, right);
+                return quotient * 100 + remainder;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
     }
 }

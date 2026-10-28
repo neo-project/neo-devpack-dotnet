@@ -252,10 +252,58 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
+        if (RequiresZeroDivRemGuard(model, symbol, arguments))
+            EmitZeroDivRemGuard(methodConvert);
+
         if (RequiresSignedDivRemOverflowGuard(model, symbol, arguments, minValue))
             EmitSignedDivRemOverflowGuard(methodConvert, minValue);
 
         EmitDivRem(methodConvert);
+    }
+
+    /// <summary>
+    /// Determines whether a DivRem call needs an explicit zero-divisor check.
+    /// </summary>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="symbol">The DivRem method symbol.</param>
+    /// <param name="arguments">The call arguments.</param>
+    /// <remarks>
+    /// The VM raises a non-catchable engine fault when DIV or MOD receives a zero divisor,
+    /// so a C# catch block would never observe a DivideByZeroException from a DivRem call.
+    /// A constant non-zero divisor cannot fault, so the check is skipped for it.
+    /// </remarks>
+    private static bool RequiresZeroDivRemGuard(SemanticModel model, IMethodSymbol symbol,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null) return true;
+
+        var argumentExpressions = MapArgumentExpressionsToParameters(symbol, arguments);
+        if (argumentExpressions.TryGetValue(symbol.Parameters[1], out var divisor) &&
+            TryGetIntegerConstant(model, divisor, out var divisorValue) &&
+            divisorValue != 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Emits the zero-divisor guard for arguments prepared with the Cdecl convention.
+    /// The stack order is divisor followed by dividend, with the dividend on top, so
+    /// <see cref="MethodConvert.Pick"/>(1) duplicates the divisor without disturbing it.
+    /// </summary>
+    private static void EmitZeroDivRemGuard(MethodConvert methodConvert)
+    {
+        var endTarget = new JumpTarget();
+        methodConvert.Pick(1);
+        methodConvert.Push(0);
+        methodConvert.JumpIfNotEqual(endTarget);
+
+        methodConvert.RestoreMethodStackDepth();
+        methodConvert.Push("Divide by zero");
+        methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static bool RequiresSignedDivRemOverflowGuard(SemanticModel model, IMethodSymbol symbol,

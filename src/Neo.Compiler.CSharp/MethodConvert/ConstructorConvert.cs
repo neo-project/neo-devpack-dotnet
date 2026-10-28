@@ -71,7 +71,7 @@ internal partial class MethodConvert
     private void ProcessStaticFields(SemanticModel model)
     {
         HashSet<INamedTypeSymbol> initializedClasses = new(SymbolEqualityComparer.Default);
-        HashSet<ITypeSymbol> initializedVTables = new(SymbolEqualityComparer.Default);
+        Dictionary<ITypeSymbol, int> initializedVTables = new(SymbolEqualityComparer.Default);
         int staticFieldInitializationStart = _instructions.Count;
         bool initializedAny;
 
@@ -84,20 +84,43 @@ internal partial class MethodConvert
             int vTableInitializationStart = _instructions.Count;
             foreach (var (fieldIndex, type) in _context.VTables.ToArray())
             {
-                if (!initializedVTables.Add(type)) continue;
+                int aliasCount = _context.ByRefAliasSignatures.Count;
+                if (initializedVTables.TryGetValue(type, out int initializedAliasCount) && initializedAliasCount == aliasCount)
+                    continue;
+                initializedVTables[type] = aliasCount;
                 initializedAny = true;
                 IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
                 for (int i = virtualMethods.Length - 1; i >= 0; i--)
                 {
                     IMethodSymbol method = virtualMethods[i];
+                    if (!HasByRefAliasVariants(method))
+                    {
+                        if (method.IsAbstract)
+                            Push((object?)null);
+                        else
+                            InvokeMethod(model, method);
+                        continue;
+                    }
+
+                    for (int aliasIndex = aliasCount - 1; aliasIndex >= 0; aliasIndex--)
+                    {
+                        if (method.IsAbstract)
+                        {
+                            Push((object?)null);
+                        }
+                        else
+                        {
+                            MethodConvert convert = _context.ConvertMethod(model, method);
+                            MethodConvert alias = _context.AddByRefAliasMethod(convert, _context.ByRefAliasSignatures[aliasIndex]);
+                            InvokeMethod(alias);
+                        }
+                    }
                     if (method.IsAbstract)
-                    {
                         Push((object?)null);
-                    }
                     else
-                    {
                         InvokeMethod(model, method);
-                    }
+                    Push(aliasCount + 1);
+                    AddInstruction(OpCode.PACK);
                 }
                 Push(virtualMethods.Length);
                 AddInstruction(OpCode.PACK);
