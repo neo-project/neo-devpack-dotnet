@@ -49,6 +49,7 @@ namespace Neo.Compiler
             var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
                 .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
                 .ToArray();
+            RegisterCapturedSymbolsUsedByLoopControl(model, syntax);
             foreach (ExpressionSyntax expression in syntax.Initializers)
             {
                 using (InsertSequencePoint(expression))
@@ -117,6 +118,29 @@ namespace Neo.Compiler
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
                 throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in for statement handling. This is a compiler bug that should be reported.");
+        }
+
+        private void RegisterCapturedSymbolsUsedByLoopControl(SemanticModel model, ForStatementSyntax syntax)
+        {
+            if (syntax.Statement is null)
+                return;
+
+            var captured = model.AnalyzeDataFlow(syntax.Statement).Captured;
+            var controlExpressions = syntax.Incrementors.AsEnumerable();
+            if (syntax.Condition is not null)
+                controlExpressions = controlExpressions.Append(syntax.Condition);
+
+            foreach (ExpressionSyntax expression in controlExpressions)
+            {
+                foreach (ISymbol symbol in model.AnalyzeDataFlow(expression).ReadInside)
+                {
+                    if (symbol is not ILocalSymbol and not IParameterSymbol ||
+                        !captured.Any(capturedSymbol => SymbolEqualityComparer.Default.Equals(capturedSymbol, symbol)))
+                        continue;
+
+                    _context.GetOrAddCapturedStaticField(symbol);
+                }
+            }
         }
 
         private bool TryProcessIntegerCompareCondition(SemanticModel model, ExpressionSyntax syntax, JumpTarget startTarget)
