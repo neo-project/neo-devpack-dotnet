@@ -465,6 +465,7 @@ internal partial class MethodConvert
             }
 
             ConvertExpression(model, expression);
+            CopyStructValueBeforeStore(model, parameter.Type, expression);
             byte slot = AddAnonymousVariable();
             AccessSlot(OpCode.STLOC, slot);
             anonymousSlots.Add(slot);
@@ -543,6 +544,7 @@ internal partial class MethodConvert
             }
 
             ConvertExpression(model, expression);
+            CopyStructValueBeforeStore(model, parameter.Type, expression);
             byte slot = AddAnonymousVariable();
             AccessSlot(OpCode.STLOC, slot);
             anonymousSlots.Add(slot);
@@ -602,7 +604,10 @@ internal partial class MethodConvert
         for (int i = 0; i < symbol.Parameters.Length; i++)
         {
             if (orderedExpressions[i] is { } expression)
+            {
                 ConvertExpression(model, expression);
+                CopyStructValueBeforeStore(model, symbol.Parameters[i].Type, expression);
+            }
             else
                 Push(symbol.Parameters[i].ExplicitDefaultValue);
         }
@@ -713,6 +718,7 @@ internal partial class MethodConvert
     {
         if (!namedArguments.TryGetValue(parameter, out var expression)) return false;
         ConvertExpression(model, expression);
+        CopyStructValueBeforeStore(model, parameter.Type, expression);
         return true;
     }
 
@@ -743,10 +749,12 @@ internal partial class MethodConvert
 
     private void ProcessMultipleParamsArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
     {
+        var elementType = ((IArrayTypeSymbol)parameter.Type).ElementType;
         for (int i = arguments.Count - 1; i >= parameter.Ordinal; i--)
         {
             var expression = ExtractExpression(arguments[i]);
             ConvertExpression(model, expression);
+            CopyStructValueBeforeStore(model, elementType, expression);
         }
         Push(arguments.Count - parameter.Ordinal);
         AddInstruction(OpCode.PACK);
@@ -755,7 +763,10 @@ internal partial class MethodConvert
     private void ProcessRegularArgument(SemanticModel model, IReadOnlyDictionary<IParameterSymbol, ExpressionSyntax> argumentExpressions, IParameterSymbol parameter)
     {
         if (argumentExpressions.TryGetValue(parameter, out var expression))
+        {
             ConvertExpression(model, expression);
+            CopyStructValueBeforeStore(model, parameter.Type, expression);
+        }
         else
             Push(parameter.ExplicitDefaultValue);
     }

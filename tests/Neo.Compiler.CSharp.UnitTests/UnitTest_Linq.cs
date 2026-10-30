@@ -287,12 +287,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.IsTrue(Contract.ContainsPersonS(array, 0));
-            AssertGasConsumed(8584620);
+            AssertGasConsumed(8650230);
             array.Add(1);
             Assert.IsFalse(Contract.ContainsPersonS(array, 10));
-            AssertGasConsumed(10556010);
+            AssertGasConsumed(10621620);
             Assert.IsTrue(Contract.ContainsPersonS(array, -100));
-            AssertGasConsumed(10534530);
+            AssertGasConsumed(10600140);
         }
 
         [TestMethod]
@@ -351,7 +351,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 new BigInteger(5)
             };
             var result = (Array)Contract.SelectPersonS(array)!;
-            AssertGasConsumed(12087810);
+            AssertGasConsumed(12350250);
             Assert.AreEqual(4, result.Count);
             Assert.AreEqual(array[0], ((Struct)result[0])[1].GetInteger());
             Assert.AreEqual(array[1], ((Struct)result[1])[1].GetInteger());
@@ -488,7 +488,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 new BigInteger(5)
             };
             var result = (Map)Contract.ToMap(array)!;
-            AssertGasConsumed(10077300);
+            AssertGasConsumed(10602180);
             Assert.AreEqual(4, result.Count);
             Assert.AreEqual(array[0], ((Struct)result[array[0]!.ToString()!])[1].GetInteger());
             Assert.AreEqual(array[1], ((Struct)result[array[1]!.ToString()!])[1].GetInteger());

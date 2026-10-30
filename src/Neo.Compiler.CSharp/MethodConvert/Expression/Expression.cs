@@ -80,11 +80,20 @@ internal partial class MethodConvert
             !IsDeclaredByCurrentCompilation(model, method))
             return;
 
+        void EmitConversion()
+        {
+            var parameterType = method.Parameters[0].Type;
+            var valueType = GetNonNullableValueType(parameterType);
+            if (valueType.IsStructArray())
+                EmitLiftedUnaryOperation(parameterType, () => CopyStructValue(valueType));
+            EmitCall(_context.ConvertMethod(model, method));
+        }
+
         var sourceType = model.GetTypeInfo(syntax).Type;
         if (IsNullableValueType(sourceType) && !IsNullableValueType(method.Parameters[0].Type))
-            EmitLiftedUnaryOperation(sourceType, () => EmitCall(_context.ConvertMethod(model, method)));
+            EmitLiftedUnaryOperation(sourceType, EmitConversion);
         else
-            EmitCall(_context.ConvertMethod(model, method));
+            EmitConversion();
     }
 
     private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)
