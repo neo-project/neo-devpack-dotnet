@@ -176,7 +176,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1238430);
 
             Assert.AreEqual(-1, (int)(BigInteger)Contract.IntDivRemCaught(10, 0)!);
-            AssertGasConsumed(1064130);
+            AssertGasConsumed(1064310);
         }
 
         [TestMethod]
@@ -186,7 +186,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1238430);
 
             Assert.AreEqual(-1, (int)(BigInteger)Contract.MathDivRemCaught(10, 0)!);
-            AssertGasConsumed(1064130);
+            AssertGasConsumed(1064310);
         }
 
         [TestMethod]
@@ -196,7 +196,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1237740);
 
             Assert.AreEqual(BigInteger.MinusOne, Contract.BigIntegerDivRemCaught(10, 0));
-            AssertGasConsumed(1064130);
+            AssertGasConsumed(1064310);
         }
 
         #endregion

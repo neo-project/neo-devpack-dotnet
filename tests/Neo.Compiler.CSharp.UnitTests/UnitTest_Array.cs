@@ -321,5 +321,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2326320);
             Assert.AreEqual(new BigInteger(42), value);
         }
+
+        [TestMethod]
+        public void Test_MultiDimensionalStructFields()
+        {
+            var value = Contract.MultiDimensionalStructFields();
+            Assert.AreEqual(new BigInteger(7), value);
+        }
     }
 }
