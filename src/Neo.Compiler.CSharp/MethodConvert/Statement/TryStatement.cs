@@ -91,6 +91,13 @@ namespace Neo.Compiler
                     catchTarget.Instruction = exceptionSymbol is null
                         ? AccessSlot(OpCode.STLOC, exceptionIndex)
                         : StLocSlot(exceptionSymbol);
+                // An in-flight exception abandons the try block at an arbitrary point, so
+                // the values the aborted expressions had already pushed stay on the
+                // evaluation stack under the exception object the VM just pushed. The
+                // exception is stored above, so restoring the statement-level depth now
+                // drops exactly those leftovers; on any normal entry the depth already
+                // matches and the restore loop does nothing.
+                RestoreMethodStackDepth();
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);
@@ -110,6 +117,11 @@ namespace Neo.Compiler
                 _tryStack.Peek().State = ExceptionHandlingState.Finally;
                 sc.TryState = ExceptionHandlingState.Finally;
                 finallyTarget.Instruction = AddInstruction(OpCode.NOP);
+                // The finally entry depth is not uniform: a `return` inside the try keeps
+                // its result value on the stack while the finally block runs, and the
+                // uncaught path jumps here with abandoned values still below. The finally
+                // body only balances its own operations, and the catch handler (when
+                // present) has already restored the depth, so nothing is cleaned here.
                 ConvertStatement(model, syntax.Finally.Block);
                 AddInstruction(OpCode.ENDFINALLY);
             }

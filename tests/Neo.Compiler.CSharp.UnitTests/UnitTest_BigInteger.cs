@@ -44,104 +44,104 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Sbyte()
         {
             Assert.AreEqual(127, Contract.Testsbyte(127));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.AreEqual(-128, Contract.Testsbyte(-128));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.ThrowsExactly<TestException>(() => Contract.Testsbyte(128));
-            AssertGasConsumed(1078440);
+            AssertGasConsumed(1078740);
             Assert.ThrowsExactly<TestException>(() => Contract.Testsbyte(-129));
-            AssertGasConsumed(1078440);
+            AssertGasConsumed(1078740);
         }
 
         [TestMethod]
         public void Test_byte()
         {
             Assert.AreEqual(0, Contract.Testbyte(0));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047930);
             Assert.AreEqual(255, Contract.Testbyte(255));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047930);
             Assert.ThrowsExactly<TestException>(() => Contract.Testbyte(-1));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078890);
             Assert.ThrowsExactly<TestException>(() => Contract.Testbyte(256));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078890);
         }
 
         [TestMethod]
         public void Test_short()
         {
             Assert.AreEqual(32767, Contract.Testshort(32767));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.AreEqual(-32768, Contract.Testshort(-32768));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.ThrowsExactly<TestException>(() => Contract.Testshort(32768));
-            AssertGasConsumed(1078440);
+            AssertGasConsumed(1078740);
             Assert.ThrowsExactly<TestException>(() => Contract.Testshort(-32769));
-            AssertGasConsumed(1078440);
+            AssertGasConsumed(1078740);
         }
 
         [TestMethod]
         public void Test_ushort()
         {
             Assert.AreEqual(0, Contract.Testushort(0));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047930);
             Assert.AreEqual(65535, Contract.Testushort(65535));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047930);
             Assert.ThrowsExactly<TestException>(() => Contract.Testushort(-1));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078890);
             Assert.ThrowsExactly<TestException>(() => Contract.Testushort(65536));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078890);
         }
 
         [TestMethod]
         public void Test_int()
         {
             Assert.AreEqual(-2147483648, Contract.Testint(-2147483648));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.AreEqual(2147483647, Contract.Testint(2147483647));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.ThrowsExactly<TestException>(() => Contract.Testint(-2147483649));
-            AssertGasConsumed(1078440);
+            AssertGasConsumed(1078740);
             Assert.ThrowsExactly<TestException>(() => Contract.Testint(2147483648));
-            AssertGasConsumed(1078440);
+            AssertGasConsumed(1078740);
         }
 
         [TestMethod]
         public void Test_uint()
         {
             Assert.AreEqual(0, Contract.Testuint(0));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047930);
             Assert.AreEqual(4294967295, Contract.Testuint(4294967295));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047930);
             Assert.ThrowsExactly<TestException>(() => Contract.Testuint(-1));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078890);
             Assert.ThrowsExactly<TestException>(() => Contract.Testuint(4294967296));
-            AssertGasConsumed(1078590);
+            AssertGasConsumed(1078890);
         }
 
         [TestMethod]
         public void Test_long()
         {
             Assert.AreEqual(-9223372036854775808, Contract.Testlong(-9223372036854775808));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.AreEqual(9223372036854775807, Contract.Testlong(9223372036854775807));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047780);
             Assert.ThrowsExactly<TestException>(() => Contract.Testlong(BigInteger.Parse("-9223372036854775809")));
-            AssertGasConsumed(1078530);
+            AssertGasConsumed(1078830);
             Assert.ThrowsExactly<TestException>(() => Contract.Testlong(9223372036854775808));
-            AssertGasConsumed(1078530);
+            AssertGasConsumed(1078830);
         }
 
         [TestMethod]
         public void Test_ulong()
         {
             Assert.AreEqual(0, Contract.Testulong(0));
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(1048020);
             Assert.AreEqual(18446744073709551615, Contract.Testulong(18446744073709551615));
-            AssertGasConsumed(1047990);
+            AssertGasConsumed(1048110);
             Assert.ThrowsExactly<TestException>(() => Contract.Testulong(BigInteger.Parse("18446744073709551616")));
-            AssertGasConsumed(1078770);
+            AssertGasConsumed(1079070);
             Assert.ThrowsExactly<TestException>(() => Contract.Testulong(-1));
-            AssertGasConsumed(1078680);
+            AssertGasConsumed(1078980);
         }
 
         [TestMethod]
