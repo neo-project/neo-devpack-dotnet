@@ -139,26 +139,26 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestToUInt160()
         {
             Assert.IsTrue(Contract.ToUInt160(new byte[20]));
-            AssertGasConsumed(1293780);
+            AssertGasConsumed(1293900);
             Assert.IsFalse(Contract.ToUInt160(new byte[19]));
-            AssertGasConsumed(1309140);
+            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToUInt160(new byte[21]));
-            AssertGasConsumed(1309140);
+            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToUInt160(null));
-            AssertGasConsumed(1062900);
+            AssertGasConsumed(1063200);
         }
 
         [TestMethod]
         public void TestToUInt256()
         {
             Assert.IsTrue(Contract.ToUInt256(new byte[32]));
-            AssertGasConsumed(1293780);
+            AssertGasConsumed(1293900);
             Assert.IsFalse(Contract.ToUInt256(new byte[31]));
-            AssertGasConsumed(1309140);
+            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToUInt256(new byte[33]));
-            AssertGasConsumed(1309140);
+            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToUInt256(null));
-            AssertGasConsumed(1062900);
+            AssertGasConsumed(1063200);
         }
 
         [TestMethod]
