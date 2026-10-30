@@ -104,7 +104,9 @@ internal partial class MethodConvert
     {
         foreach (IParameterSymbol parameter in Symbol.Parameters)
         {
-            if (IsByRef(parameter.RefKind) || !_byRefCapturedSymbols.Contains(parameter))
+            if (IsByRef(parameter.RefKind) ||
+                !_byRefCapturedSymbols.Contains(parameter) &&
+                !_context.TryGetCapturedStaticField(parameter, out _))
                 continue;
 
             AccessSlot(OpCode.LDARG, _parameters[parameter]);
