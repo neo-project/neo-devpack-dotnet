@@ -113,16 +113,16 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
             // ABI. Pushing it as a single value made the call fail before entering the contract,
             // so a method with an array parameter could never run.
             case System.Collections.IEnumerable items:
-            {
-                var list = items.Cast<object?>().ToList();
-                for (int i = list.Count - 1; i >= 0; i--)
                 {
-                    PushArgument(script, list[i]);
+                    var list = items.Cast<object?>().ToList();
+                    for (int i = list.Count - 1; i >= 0; i--)
+                    {
+                        PushArgument(script, list[i]);
+                    }
+                    script.EmitPush(list.Count);
+                    script.Emit(OpCode.PACK);
+                    break;
                 }
-                script.EmitPush(list.Count);
-                script.Emit(OpCode.PACK);
-                break;
-            }
             default:
                 throw new ArgumentException($"Unsupported argument type '{arg.GetType().FullName}'.", nameof(arg));
         }
