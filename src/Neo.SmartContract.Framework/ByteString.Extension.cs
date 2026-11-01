@@ -25,9 +25,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (value is < 48 or > 57)
-                return false;
+            BigInteger value = byteString[i];
+            if (!value.Within(48, 58)) return false;
         }
         return true;
     }
@@ -41,9 +40,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (value is < 97 or > 122)
-                return false;
+            BigInteger value = byteString[i];
+            if (!value.Within(97, 123)) return false;
         }
         return true;
     }
@@ -57,9 +55,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (value is < 65 or > 90)
-                return false;
+            BigInteger value = byteString[i];
+            if (!value.Within(65, 91)) return false;
         }
         return true;
     }
@@ -73,8 +70,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (!((value >= 65 && value <= 90) || (value >= 97 && value <= 122)))
+            BigInteger value = byteString[i];
+            if (!(value.Within(65, 91) || value.Within(97, 123)))
                 return false;
         }
         return true;
