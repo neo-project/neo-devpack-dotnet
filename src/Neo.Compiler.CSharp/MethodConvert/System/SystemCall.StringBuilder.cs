@@ -109,6 +109,11 @@ internal partial class MethodConvert
 
     private static void HandleStringBuilderAppendLineWithValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? constantValue) && constantValue is not null)
+        {
+            AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: false, includeArgument: false, constantText: constantValue + StringBuilderNewLine);
+            return;
+        }
         AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: true, includeArgument: true);
     }
 
@@ -142,7 +147,7 @@ internal partial class MethodConvert
         methodConvert.SetItem();
     }
 
-    private static void AppendStringBuilderValue(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments, ITypeSymbol? parameterType, bool appendNewLine, bool includeArgument)
+    private static void AppendStringBuilderValue(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments, ITypeSymbol? parameterType, bool appendNewLine, bool includeArgument, string? constantText = null)
     {
         byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
         byte currentSlot = methodConvert.AddAnonymousVariable();
@@ -159,6 +164,12 @@ internal partial class MethodConvert
         if (valueSlot.HasValue)
         {
             methodConvert.AccessSlot(OpCode.LDLOC, valueSlot.Value);
+            methodConvert.Cat();
+        }
+
+        if (constantText is not null)
+        {
+            methodConvert.Push(constantText);
             methodConvert.Cat();
         }
 

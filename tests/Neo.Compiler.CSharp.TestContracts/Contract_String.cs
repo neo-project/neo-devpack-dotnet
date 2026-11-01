@@ -365,6 +365,56 @@ namespace Neo.Compiler.CSharp.TestContracts
             return builder.ToString();
         }
 
+        public static string TestStringBuilderAppendLineConstants(string dynamicValue)
+        {
+            const string message = "Neo";
+            var builder = new StringBuilder("start:");
+            builder.AppendLine("Hello");
+            builder.AppendLine("");
+            builder.AppendLine("Hello" + " World");
+            builder.AppendLine(message);
+            builder.AppendLine("héllo 你好 \0 end");
+            builder.AppendLine(dynamicValue);
+            builder.AppendLine((string?)null);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineHello()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("Hello");
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineEmpty()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("");
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineConstString()
+        {
+            const string message = "Neo";
+            var builder = new StringBuilder("a");
+            builder.AppendLine(message);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineDynamic(string value)
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine(value);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineLong()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
+            return builder.ToString();
+        }
+
         public static string TestStringBuilderAppendBuilder()
         {
             var builder = new StringBuilder("neo");
