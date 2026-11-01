@@ -128,6 +128,8 @@ public class TestBase<T> where T : SmartContract, IContractInfo
         Assert.AreEqual(0, _contractLogs.Count, $"Expected no runtime logs, but captured: {FormatDiagnosticSequence(_contractLogs)}.");
     }
 
+    protected void AssertGasConsumedCore(long gasConsumed) => AssertGasConsumedInRangeCore(gasConsumed, gasConsumed);
+
     protected void AssertGasConsumedInRangeCore(long minimumGasConsumed, long maximumGasConsumed)
     {
         if (minimumGasConsumed > maximumGasConsumed)

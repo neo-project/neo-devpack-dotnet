@@ -45,15 +45,19 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep11
 
             var tokenId = Contract.Mint(Bob.Account, "Sword", "Rare sword", "ipfs://sword");
             Assert.IsNotNull(tokenId);
+            AssertGasConsumedCore(36248260);
 
             Assert.AreEqual("EXAMPLE", Contract.Symbol);
             Assert.AreEqual(BigInteger.Zero, Contract.Decimals);
             Assert.IsNotNull(Contract.Tokens);
             Assert.IsNotNull(Contract.TokensOf(Bob.Account));
+            AssertGasConsumedCore(2469240);
 
             CollectionAssert.AreEqual(Bob.Account.ToArray(), Contract.OwnerOf(tokenId)!.ToArray());
             Assert.AreEqual(BigInteger.One, Contract.BalanceOf(Bob.Account));
+            AssertGasConsumedCore(2715150);
             Assert.AreEqual(BigInteger.Zero, Contract.BalanceOf(Alice.Account));
+            AssertGasConsumedCore(2469480);
 
             var properties = Contract.Properties(tokenId);
             Assert.IsNotNull(properties);
@@ -64,6 +68,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep11
 
             Engine.SetTransactionSigners(Bob);
             Assert.IsTrue(Contract.Transfer(Alice.Account, tokenId, null)!.Value);
+            AssertGasConsumedCore(26806410);
 
             CollectionAssert.AreEqual(Alice.Account.ToArray(), Contract.OwnerOf(tokenId)!.ToArray());
             Assert.AreEqual(BigInteger.Zero, Contract.BalanceOf(Bob.Account));
