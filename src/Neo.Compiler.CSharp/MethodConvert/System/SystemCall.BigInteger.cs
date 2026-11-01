@@ -126,7 +126,7 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Push(1);
         methodConvert.And();                                       // Calculate value & 1 (least significant bit)
-        methodConvert.Not(); 
+        methodConvert.Not();
     }
 
     /// <summary>
@@ -657,7 +657,7 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Push(1);
         methodConvert.And();                                       // Calculate value & 1 (least significant bit)
-        methodConvert.Nz(); 
+        methodConvert.Nz();
     }
 
     /// <summary>
