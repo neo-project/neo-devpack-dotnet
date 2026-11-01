@@ -63,6 +63,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return ((ByteString)"ABCxyz1").IsAlphabet();
         }
 
+        public static bool TestAlphabetInput(ByteString input)
+        {
+            return input.IsAlphabet();
+        }
+
         public static bool TestLowerAlphabetRejectsUpper()
         {
             return ((ByteString)"abcZ").IsLowerAlphabet();

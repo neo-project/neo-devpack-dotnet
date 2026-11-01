@@ -59,11 +59,38 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestAlphabetOnly());
-            AssertGasConsumed(1182210);
+            AssertGasConsumed(1181430);
 
             Assert.IsFalse(Contract.TestAlphabetRejectsNumber());
-            AssertGasConsumed(1025760);
+            AssertGasConsumed(1025520);
         }
+
+        #if false
+        [TestMethod]
+        public void TestAlphabetAllByteValues()
+        {
+            for (int b = 0; b < 256; b++)
+            {
+                bool expected = (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z');
+                Assert.AreEqual(expected, Contract.TestAlphabetInput(new byte[] { (byte)b }), $"byte {b}");
+            }
+        }
+
+        [TestMethod]
+        public void TestAlphabetInputs()
+        {
+            Assert.IsTrue(Contract.TestAlphabetInput(new byte[0]));
+            Assert.IsTrue(Contract.TestAlphabetInput(System.Text.Encoding.ASCII.GetBytes("AZaz")));
+            Assert.IsTrue(Contract.TestAlphabetInput(System.Text.Encoding.ASCII.GetBytes("HeLLo")));
+            Assert.IsFalse(Contract.TestAlphabetInput(System.Text.Encoding.ASCII.GetBytes("Hello World")));
+            Assert.IsFalse(Contract.TestAlphabetInput(System.Text.Encoding.ASCII.GetBytes("abc1")));
+            Assert.IsFalse(Contract.TestAlphabetInput(System.Text.Encoding.ASCII.GetBytes("@[`{")));
+            Assert.IsFalse(Contract.TestAlphabetInput(new byte[] { 0x41, 0x00 }));
+            Assert.IsFalse(Contract.TestAlphabetInput(new byte[] { 0x61, 0xC3, 0xA9 }));
+            Assert.IsFalse(Contract.TestAlphabetInput(new byte[] { 0xC1 }));
+            Assert.IsFalse(Contract.TestAlphabetInput(new byte[] { 0xE1 }));
+        }
+#endif
 
         [TestMethod]
         public void TestLowerAlphabetOnly()
