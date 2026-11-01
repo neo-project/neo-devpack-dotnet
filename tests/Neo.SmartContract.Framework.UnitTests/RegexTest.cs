@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2026 The Neo Project.
+﻿// Copyright (C) 2015-2026 The Neo Project.
 //
 // RegexTest.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -65,7 +65,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             AssertGasConsumed(1025520);
         }
 
-        #if false
         [TestMethod]
         public void TestAlphabetAllByteValues()
         {
@@ -90,7 +89,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsFalse(Contract.TestAlphabetInput(new byte[] { 0xC1 }));
             Assert.IsFalse(Contract.TestAlphabetInput(new byte[] { 0xE1 }));
         }
-#endif
 
         [TestMethod]
         public void TestLowerAlphabetOnly()
