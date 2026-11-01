@@ -148,12 +148,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_char()
         {
             Assert.AreEqual(0, Contract.Testchar(0));
+            AssertGasConsumed(1047930);
             Assert.AreEqual(65535, Contract.Testchar(char.MaxValue));
+            AssertGasConsumed(1047930);
             Assert.ThrowsExactly<TestException>(() => Contract.Testchar(-1));
+            AssertGasConsumed(1078890);
             Assert.ThrowsExactly<TestException>(() => Contract.Testchar(65536));
+            AssertGasConsumed(1078890);
 
             Assert.AreEqual(char.MaxValue.ToString(), Contract.Testchartostring(char.MaxValue));
+            AssertGasConsumed(1296930);
             Assert.AreEqual("A", Contract.Testchartostring('A'));
+            AssertGasConsumed(1293720);
         }
 
         [TestMethod]
@@ -252,22 +258,36 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047900);
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(0, 0), Contract.TestGreatestCommonDivisor(0, 0));
             AssertGasConsumed(1047420);
+
             // Coprime numbers
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(17, 13), Contract.TestGreatestCommonDivisor(17, 13));
+            AssertGasConsumed(1048860);
             Assert.AreEqual(BigInteger.One, Contract.TestGreatestCommonDivisor(17, 13));
+            AssertGasConsumed(1048860);
+
             // Equal arguments
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(42, 42), Contract.TestGreatestCommonDivisor(42, 42));
+            AssertGasConsumed(1047900);
             Assert.AreEqual((BigInteger)42, Contract.TestGreatestCommonDivisor(42, 42));
+            AssertGasConsumed(1047900);
+
             // BigInteger.One
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(BigInteger.One, BigInteger.One), Contract.TestGreatestCommonDivisor(BigInteger.One, BigInteger.One));
+            AssertGasConsumed(1047900);
             Assert.AreEqual(BigInteger.One, Contract.TestGreatestCommonDivisor(BigInteger.One, BigInteger.One));
+            AssertGasConsumed(1047900);
+
             // Second argument already zero: only the initial comparison is executed
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(10, 0), Contract.TestGreatestCommonDivisor(10, 0));
             AssertGasConsumed(1047420);
             Assert.AreEqual((BigInteger)10, Contract.TestGreatestCommonDivisor(10, 0));
+            AssertGasConsumed(1047420);
+
             // Second argument initially non-zero
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(0, 10), Contract.TestGreatestCommonDivisor(0, 10));
+            AssertGasConsumed(1047900);
             Assert.AreEqual((BigInteger)10, Contract.TestGreatestCommonDivisor(0, 10));
+            AssertGasConsumed(1047900);
         }
 
         // New test methods
@@ -275,7 +295,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CharToString()
         {
             Assert.AreEqual("A", Contract.Testchartostring(65)); // 'A' has ASCII value 65
+            AssertGasConsumed(1293720);
             Assert.ThrowsExactly<TestException>(() => Contract.Testchartostring(65536)); // Invalid char value
+            AssertGasConsumed(1062810);
         }
 
         [TestMethod]
