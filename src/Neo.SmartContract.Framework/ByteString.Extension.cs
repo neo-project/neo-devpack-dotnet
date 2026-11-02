@@ -71,7 +71,7 @@ public static class ByteStringExtension
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
             BigInteger value = byteString[i];
-            if (!(value.Within(65, 91) || value.Within(97, 123)))
+            if (!(value | 0x20).Within(97, 123))
                 return false;
         }
         return true;
