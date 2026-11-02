@@ -9,8 +9,10 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -36,6 +38,12 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             Assert.IsTrue(Contract.TestEndWith());
             AssertGasConsumed(1988820);
+
+            Assert.IsTrue(Contract.TestEndsWith(Encoding.UTF8.GetBytes("Hello World")));
+            AssertGasConsumed(2051790);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEndsWith(null));
+            AssertGasConsumed(1064970);
         }
 
         [TestMethod]
