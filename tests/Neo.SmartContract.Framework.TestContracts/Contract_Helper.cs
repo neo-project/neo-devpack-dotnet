@@ -128,8 +128,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return hashResult;
         }
 
-        public static sbyte BigIntegerToSbyte(BigInteger value) => value.AsSbyte();
+        public static byte BigIntegerAsByte(BigInteger value) => value.AsByte();
 
-        public static sbyte IntToSbyte(int value) => value.AsSbyte();
+        public static byte IntAsByte(int value) => value.AsByte();
+
+        public static sbyte BigIntegerAsSbyte(BigInteger value) => value.AsSbyte();
+
+        public static sbyte IntAsSbyte(int value) => value.AsSbyte();
     }
 }
