@@ -111,7 +111,7 @@ internal partial class MethodConvert
     {
         if (TryGetConstantArgument(model, symbol, "value", arguments, out string? constantValue) && constantValue is not null)
         {
-            AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: false, includeArgument: false, constantText: constantValue + StringBuilderNewLine);
+            AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: true, includeArgument: false, constantText: constantValue);
             return;
         }
         AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: true, includeArgument: true);
@@ -169,11 +169,10 @@ internal partial class MethodConvert
 
         if (constantText is not null)
         {
-            methodConvert.Push(constantText);
+            methodConvert.Push(appendNewLine ? constantText + StringBuilderNewLine : constantText);
             methodConvert.Cat();
         }
-
-        if (appendNewLine)
+        else if (appendNewLine)
         {
             methodConvert.Push(StringBuilderNewLine);
             methodConvert.Cat();
