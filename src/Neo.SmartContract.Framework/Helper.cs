@@ -124,35 +124,37 @@ namespace Neo.SmartContract.Framework
         public extern static byte AsByte(this int source);
 
         /// <summary>
-        /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range.
-        /// Examples: 256 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
+        /// Converts parameter to sbyte from (big)integer range [-128, 255]; faults if out-of-range.
+        /// Values in [128, 255] are converted to their signed byte representation [-128, -1].
+        /// Examples: 256 -> fault; -129 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.PUSHINT8, "80")]
+        [OpCode(OpCode.PUSHINT16, "0001")]
+        [OpCode(OpCode.WITHIN)]
+        [OpCode(OpCode.ASSERT)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.PUSHINT8, "7f")]
         [OpCode(OpCode.JMPLE, "06")]
         [OpCode(OpCode.PUSHINT16, "0001")]
         [OpCode(OpCode.SUB)]
-        [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.PUSHINT8, "80")]
-        [OpCode(OpCode.PUSHINT16, "8000")]
-        [OpCode(OpCode.WITHIN)]
-        [OpCode(OpCode.ASSERT)]
         public static extern sbyte ToSbyte(this BigInteger source);
 
         /// <summary>
-        /// Converts parameter to sbyte from (big)integer range -128-255; faults if out-of-range.
-        /// Examples: 256 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
+        /// Converts parameter to sbyte from (big)integer range [-128, 255]; faults if out-of-range.
+        /// Values in [128, 255] are converted to their signed byte representation [-128, -1].
+        /// Examples: 256 -> fault; -129 -> fault; -1 -> -1 [0xff]; 255 -> -1 [0xff]; 0 -> 0 [0x00]; 10 -> 10 [0x0a]; 127 -> 127 [0x7f]; 128 -> -128 [0x80]
         /// </summary>
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.PUSHINT8, "80")]
+        [OpCode(OpCode.PUSHINT16, "0001")]
+        [OpCode(OpCode.WITHIN)]
+        [OpCode(OpCode.ASSERT)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.PUSHINT8, "7f")]
         [OpCode(OpCode.JMPLE, "06")]
         [OpCode(OpCode.PUSHINT16, "0001")]
         [OpCode(OpCode.SUB)]
-        [OpCode(OpCode.DUP)]
-        [OpCode(OpCode.PUSHINT8, "80")]
-        [OpCode(OpCode.PUSHINT16, "8000")]
-        [OpCode(OpCode.WITHIN)]
-        [OpCode(OpCode.ASSERT)]
         public static extern sbyte ToSbyte(this int source);
 
         /// <summary>
