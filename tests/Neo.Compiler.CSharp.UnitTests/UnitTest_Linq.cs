@@ -210,8 +210,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var expected = new Dictionary<int, long>
             {
-                [0] = 1082940, [1] = 1143960, [2] = 1143990, [5] = 1144080,
-                [10] = 1144230, [50] = 1145430, [100] = 1146930
+                [0] = 1082940,
+                [1] = 1143960,
+                [2] = 1143990,
+                [5] = 1144080,
+                [10] = 1144230,
+                [50] = 1145430,
+                [100] = 1146930
             };
             foreach (var (n, gas) in expected)
             {
@@ -227,7 +232,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var expected = new Dictionary<int, long>
             {
-                [0] = 1083990, [1] = 1147890, [5] = 1159530, [100] = 1435980
+                [0] = 1083990,
+                [1] = 1147890,
+                [5] = 1159530,
+                [100] = 1435980
             };
             foreach (var (n, gas) in expected)
             {
