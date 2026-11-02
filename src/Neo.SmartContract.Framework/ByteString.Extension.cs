@@ -130,9 +130,10 @@ public static class ByteStringExtension
     /// <returns>True if ends with</returns>
     public static bool EndsWith(this ByteString byteString, ByteString toFind)
     {
-        if (toFind.Length == 0) return true;
-        int startIndex = byteString.Length - toFind.Length;
+        var toLength = toFind.Length;
+        var startIndex = byteString.Length - toLength;
         if (startIndex < 0) return false;
+        if (toLength == 0) return true;
         return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind, startIndex), startIndex);
     }
 
