@@ -51,6 +51,8 @@ public static class OracleSelfTest
         failures += CheckMultiContractOracle(harness);
         failures += CheckNotificationOracle(harness);
         failures += CheckFailureTriage();
+        failures += CheckFindingSignature();
+        failures += CheckDeploymentBudget(harness);
 
         Console.WriteLine();
         Console.WriteLine(failures == 0
@@ -108,7 +110,7 @@ public static class OracleSelfTest
         (Neo.SmartContract.NefFile nef, Neo.SmartContract.Manifest.ContractManifest manifest, _) = context.CreateResults();
         using var analyzer = new BehaviorDifferentialAnalyzer();
         var calls = new List<(string Method, object?[] Args)> { ("echoEvent", [2, 3]) };
-        (List<(bool Ok, string? Error, Neo.VM.Types.StackItem? Value)> results, _, _, List<IReadOnlyList<string>> notifications) =
+        (List<(bool Ok, string? Error, Neo.VM.Types.StackItem? Value)> results, _, _, List<IReadOnlyList<string>> notifications, _) =
             analyzer.ExecuteBatchWithNotifications(new ArtifactSet(nef, manifest), calls);
 
         if (!results[0].Ok)
@@ -467,7 +469,7 @@ public static class OracleSelfTest
         using var analyzer = new BehaviorDifferentialAnalyzer();
         var bundle = new BehaviorDifferentialAnalyzer.ArtifactBundle(artifacts);
         (List<(bool Ok, string? Error, StackItem? Value)> results, IReadOnlyCollection<int> coverage,
-         IReadOnlyDictionary<string, string> storage) =
+         IReadOnlyDictionary<string, string> storage, _) =
             analyzer.ExecuteBundleWithCoverage(bundle, "ContractA", calls);
 
         if (results.All(r => !r.Ok))
@@ -549,6 +551,136 @@ public static class OracleSelfTest
         }
 
         return failures;
+    }
+
+    /// <summary>
+    /// Verifies that the finding signature groups the same defect found through different
+    /// inputs, without merging distinct methods.
+    /// </summary>
+    /// <remarks>
+    /// A systematic defect is hit by nearly every input a campaign generates. If the
+    /// signature kept the concrete arguments and return values, that one defect would be
+    /// reported thousands of times and bury everything else; if it dropped the method
+    /// name, two methods failing the same way would be reported as one.
+    /// </remarks>
+    private static int CheckFindingSignature()
+    {
+        var first = new FuzzFinding(FuzzOutcome.DifferentialMismatch, "a",
+            "Method 'compute' with args [1, -1] returned 5 in optimized but 6 in unoptimized.");
+        var sameDefect = new FuzzFinding(FuzzOutcome.DifferentialMismatch, "b",
+            "Method 'compute' with args [7, 42] returned -3 in optimized but 100 in unoptimized.");
+        var otherMethod = new FuzzFinding(FuzzOutcome.DifferentialMismatch, "c",
+            "Method 'compute2' with args [1, -1] returned 5 in optimized but 6 in unoptimized.");
+        var otherOutcome = new FuzzFinding(FuzzOutcome.SuspiciousFailure, "a", first.Detail);
+
+        int failures = 0;
+
+        if (!string.Equals(first.Signature, sameDefect.Signature, StringComparison.Ordinal))
+        {
+            Console.WriteLine("  [FAIL] finding signature kept the same defect apart when found through other values.");
+            failures++;
+        }
+
+        if (string.Equals(first.Signature, otherMethod.Signature, StringComparison.Ordinal))
+        {
+            Console.WriteLine("  [FAIL] finding signature merged two methods that differ in a numeric suffix.");
+            failures++;
+        }
+
+        if (string.Equals(first.Signature, otherOutcome.Signature, StringComparison.Ordinal))
+        {
+            Console.WriteLine("  [FAIL] finding signature merged two different outcomes.");
+            failures++;
+        }
+
+        if (failures == 0)
+        {
+            Console.WriteLine("  [ OK ] finding signature groups one defect across inputs and keeps methods apart.");
+        }
+
+        return failures;
+    }
+
+    /// <summary>
+    /// Verifies that deployment is not bounded by the per-call gas budget, and that an
+    /// artifact which genuinely cannot be deployed is reported as such.
+    /// </summary>
+    /// <remarks>
+    /// Deploying charges 0.001 GAS per byte, so a contract of about 20 KB costs the whole
+    /// default budget of a call. The two builds of one source straddle that size easily,
+    /// and before deployment got its own budget the larger one failed to deploy — which
+    /// the batch then reported as every one of its calls faulting, and the differential as
+    /// a mismatch per call. The check deploys a padded contract that costs more than the
+    /// per-call budget and expects a call to succeed; it then breaks the artifact and
+    /// expects the failure to surface as a deployment error with no call having run.
+    /// </remarks>
+    private static int CheckDeploymentBudget(CompilerHarness harness)
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+
+            public class Probe : SmartContract
+            {
+                public static int Compute(int a, int b) => a + b;
+            }
+            """;
+
+        (FuzzOutcome outcome, CompilationContext? context, _) = harness.Compile(source);
+        if (outcome != FuzzOutcome.Clean || context is null)
+        {
+            Console.WriteLine($"  [FAIL] deployment budget: the probe contract did not compile ({outcome}).");
+            return 1;
+        }
+
+        (NefFile nef, ContractManifest manifest, _) = context.CreateResults();
+
+        // Pad the script well past the size whose deployment fee exceeds the default
+        // budget. NOP is a complete instruction, so the padded script still passes the
+        // deployment-time script check, and the methods keep their offsets.
+        byte[] padded = new byte[24_000];
+        nef.Script.Span.CopyTo(padded);
+        padded.AsSpan(nef.Script.Length).Fill((byte)Neo.VM.OpCode.NOP);
+        nef.Script = padded;
+        nef.CheckSum = NefFile.ComputeChecksum(nef);
+
+        using var analyzer = new BehaviorDifferentialAnalyzer();
+        var calls = new List<(string Method, object?[] Args)> { ("compute", [2, 3]) };
+        (List<(bool Ok, string? Error, StackItem? Value)> results, _, _, _, string? deploymentError) =
+            analyzer.ExecuteBatchWithNotifications(new ArtifactSet(nef, manifest), calls);
+
+        if (deploymentError is not null)
+        {
+            Console.WriteLine($"  [FAIL] deployment budget: a {padded.Length} byte contract did not deploy ({deploymentError}).");
+            return 1;
+        }
+
+        if (!results[0].Ok || !string.Equals(BehaviorDifferentialAnalyzer.Render(results[0].Value!), "5", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"  [FAIL] deployment budget: the call on the padded contract did not return 5 ({results[0].Error}).");
+            return 1;
+        }
+
+        // An artifact the network would reject must come back as a deployment error, not
+        // as a failure of each call.
+        nef.CheckSum = 0;
+        (results, _, _, _, deploymentError) =
+            analyzer.ExecuteBatchWithNotifications(new ArtifactSet(nef, manifest), calls);
+
+        if (deploymentError is null)
+        {
+            Console.WriteLine("  [FAIL] deployment budget: a corrupt artifact was not reported as a deployment error.");
+            return 1;
+        }
+
+        if (results.Count != calls.Count || results.Any(r => r.Ok))
+        {
+            Console.WriteLine("  [FAIL] deployment budget: a corrupt artifact still produced per-call results.");
+            return 1;
+        }
+
+        Console.WriteLine($"  [ OK ] deployment runs under its own budget ({padded.Length} byte contract deployed and answered) " +
+                          $"and a corrupt artifact is reported once: {deploymentError}");
+        return 0;
     }
 
     private static string RenderValue(object? value) => value switch

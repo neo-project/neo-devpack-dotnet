@@ -129,6 +129,21 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     }
 
     /// <summary>
+    /// The gas budget a deployment runs under, in datoshi.
+    /// </summary>
+    /// <remarks>
+    /// <c>ContractManagement.Deploy</c> charges a storage fee of 0.001 GAS per byte of NEF
+    /// plus manifest, so a contract of about 20 KB costs as much as the engine's default
+    /// 20 GAS budget. The two builds of one source differ in size, and when that threshold
+    /// falls between them exactly one of them deploys — a resource limit of the test
+    /// engine, not a semantic difference, yet it would surface as one. Deployment therefore
+    /// runs under its own budget, large enough for the biggest contract the network accepts
+    /// (512 KB of script plus a 64 KB manifest), while every call keeps the default budget
+    /// so that a runaway loop is still cut short quickly.
+    /// </remarks>
+    private const long DeploymentGasBudget = 1_000L * 100_000_000L;
+
+    /// <summary>
     /// Deploys an artifact set and returns its contract hash.
     /// </summary>
     /// <param name="artifacts">The artifacts to deploy.</param>
@@ -147,8 +162,18 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
         }
 
         byte[] manifest = System.Text.Encoding.UTF8.GetBytes(artifacts.Manifest.ToJson().ToString(false));
-        ContractState state = _engine.Native.ContractManagement.Deploy(nefBytes, manifest);
-        return state.Hash;
+
+        long callBudget = _engine.Fee;
+        _engine.Fee = DeploymentGasBudget;
+        try
+        {
+            ContractState state = _engine.Native.ContractManagement.Deploy(nefBytes, manifest);
+            return state.Hash;
+        }
+        finally
+        {
+            _engine.Fee = callBudget;
+        }
     }
 
     /// <summary>
@@ -256,9 +281,12 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     /// <param name="bundle">The contracts to deploy.</param>
     /// <param name="entryContract">The contract whose methods are invoked.</param>
     /// <param name="calls">The methods and arguments to invoke.</param>
-    /// <returns>The results, the coverage reached, and the storage of every contract.</returns>
+    /// <returns>
+    /// The results, the coverage reached, the storage of every contract, and the deployment
+    /// error when one of the contracts could not be deployed.
+    /// </returns>
     public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<int> Coverage,
-             IReadOnlyDictionary<string, string> Storage)
+             IReadOnlyDictionary<string, string> Storage, string? DeploymentError)
         ExecuteBundleWithCoverage(
             ArtifactBundle bundle,
             string entryContract,
@@ -270,16 +298,31 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
 
         if (calls.Count == 0 || !bundle.Contracts.ContainsKey(entryContract))
         {
-            return (results, coverage, storage);
+            return (results, coverage, storage, null);
         }
 
         EngineCheckpoint checkpoint = _engine.Checkpoint();
         try
         {
             var hashes = new Dictionary<string, UInt160>(StringComparer.Ordinal);
-            foreach ((string name, ArtifactSet artifacts) in bundle.Contracts)
+            try
             {
-                hashes[name] = Deploy(artifacts);
+                foreach ((string name, ArtifactSet artifacts) in bundle.Contracts)
+                {
+                    hashes[name] = Deploy(artifacts);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Nothing ran, so there is no per-call result to report. The error is
+                // returned on its own, and mirrored into every slot so that a caller which
+                // indexes the results by call still sees the failure.
+                string deploymentError = DescribeException(ex);
+                for (int i = 0; i < calls.Count; i++)
+                {
+                    results.Add((false, deploymentError, null));
+                }
+                return (results, coverage, storage, deploymentError);
             }
 
             UInt160 entryHash = hashes[entryContract];
@@ -314,8 +357,10 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
         }
         catch (Exception ex)
         {
+            // Capturing coverage or storage failed after the calls ran. The per-call results
+            // are kept; only a call that has no result yet is attributed the failure.
             string error = $"{ex.GetType().Name}: {ex.Message}";
-            for (int i = 0; i < calls.Count; i++)
+            while (results.Count < calls.Count)
             {
                 results.Add((false, error, null));
             }
@@ -325,7 +370,7 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
             _engine.Restore(checkpoint);
         }
 
-        return (results, coverage, storage);
+        return (results, coverage, storage, null);
     }
 
     /// <summary>
@@ -530,15 +575,18 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     /// </remarks>
     /// <param name="artifacts">The artifacts to deploy.</param>
     /// <param name="calls">The methods and arguments to invoke.</param>
-    /// <returns>The call results, the executed instruction pointers, and the storage state.</returns>
+    /// <returns>
+    /// The call results, the executed instruction pointers, the storage state, and the
+    /// deployment error when the contract could not be deployed.
+    /// </returns>
     public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<int> Coverage,
-             IReadOnlyDictionary<string, string> Storage)
+             IReadOnlyDictionary<string, string> Storage, string? DeploymentError)
         ExecuteBatchWithCoverage(
             ArtifactSet artifacts,
             IReadOnlyList<(string Method, object?[] Args)> calls)
     {
-        var (results, coverage, storage, _) = ExecuteBatchWithNotifications(artifacts, calls);
-        return (results, coverage, storage);
+        var (results, coverage, storage, _, deploymentError) = ExecuteBatchWithNotifications(artifacts, calls);
+        return (results, coverage, storage, deploymentError);
     }
 
     /// <summary>
@@ -552,9 +600,13 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     /// </remarks>
     /// <param name="artifacts">The artifacts to deploy.</param>
     /// <param name="calls">The methods and arguments to invoke.</param>
-    /// <returns>The call results, coverage, storage, and the rendered notifications per call.</returns>
+    /// <returns>
+    /// The call results, coverage, storage, the rendered notifications per call, and the
+    /// deployment error when the contract could not be deployed.
+    /// </returns>
     public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<int> Coverage,
-             IReadOnlyDictionary<string, string> Storage, List<IReadOnlyList<string>> Notifications)
+             IReadOnlyDictionary<string, string> Storage, List<IReadOnlyList<string>> Notifications,
+             string? DeploymentError)
         ExecuteBatchWithNotifications(
             ArtifactSet artifacts,
             IReadOnlyList<(string Method, object?[] Args)> calls)
@@ -566,14 +618,31 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
 
         if (calls.Count == 0)
         {
-            return (results, coverage, storage, notifications);
+            return (results, coverage, storage, notifications, null);
         }
 
         EngineCheckpoint checkpoint = _engine.Checkpoint();
         using var watcher = new NotificationWatcher(_engine);
         try
         {
-            UInt160 hash = Deploy(artifacts);
+            UInt160 hash;
+            try
+            {
+                hash = Deploy(artifacts);
+            }
+            catch (Exception ex)
+            {
+                // Nothing ran, so there is no per-call result to report. The error is
+                // returned on its own, and mirrored into every slot so that a caller which
+                // indexes the results by call still sees the failure.
+                string deploymentError = DescribeException(ex);
+                for (int i = 0; i < calls.Count; i++)
+                {
+                    results.Add((false, deploymentError, null));
+                    notifications.Add([]);
+                }
+                return (results, coverage, storage, notifications, deploymentError);
+            }
 
             foreach ((string method, object?[] args) in calls)
             {
@@ -599,11 +668,15 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
         }
         catch (Exception ex)
         {
-            // The deployment itself failed; every call in the batch fails the same way.
+            // Capturing coverage or storage failed after the calls ran. The per-call results
+            // are kept; only a call that has no result yet is attributed the failure.
             string error = $"{ex.GetType().Name}: {ex.Message}";
-            for (int i = 0; i < calls.Count; i++)
+            while (results.Count < calls.Count)
             {
                 results.Add((false, error, null));
+            }
+            while (notifications.Count < calls.Count)
+            {
                 notifications.Add([]);
             }
         }
@@ -612,7 +685,57 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
             _engine.Restore(checkpoint);
         }
 
-        return (results, coverage, storage, notifications);
+        return (results, coverage, storage, notifications, null);
+    }
+
+    /// <summary>
+    /// Re-runs a single call on two builds under a larger gas budget and reports whether
+    /// they then agree.
+    /// </summary>
+    /// <remarks>
+    /// A call can exhaust the default budget in one build and not in the other without any
+    /// semantic difference, because the unoptimized build spends more gas per instruction
+    /// executed. When exactly one side faults on gas, the comparison is repeated with ten
+    /// times the budget: if both sides now succeed and return the same value, the
+    /// divergence was the budget, not the code. The contract is deployed afresh for each
+    /// side so that the batch's state cannot leak into the re-run.
+    /// </remarks>
+    /// <param name="a">The first build.</param>
+    /// <param name="b">The second build.</param>
+    /// <param name="method">The method to invoke.</param>
+    /// <param name="args">The arguments to pass.</param>
+    /// <returns><see langword="true"/> when both builds succeed with the same result under the larger budget.</returns>
+    public bool AgreeUnderLargerBudget(ArtifactSet a, ArtifactSet b, string method, object?[] args)
+    {
+        (bool Ok, string Rendered) resultA = InvokeUnderBudget(a, method, args, _engine.Fee * 10);
+        if (!resultA.Ok)
+        {
+            return false;
+        }
+
+        (bool Ok, string Rendered) resultB = InvokeUnderBudget(b, method, args, _engine.Fee * 10);
+        return resultB.Ok && string.Equals(resultA.Rendered, resultB.Rendered, StringComparison.Ordinal);
+    }
+
+    private (bool Ok, string Rendered) InvokeUnderBudget(ArtifactSet artifacts, string method, object?[] args, long budget)
+    {
+        EngineCheckpoint checkpoint = _engine.Checkpoint();
+        long callBudget = _engine.Fee;
+        try
+        {
+            UInt160 hash = Deploy(artifacts);
+            _engine.Fee = budget;
+            return (true, Render(Invoke(hash, method, args)));
+        }
+        catch (Exception)
+        {
+            return (false, string.Empty);
+        }
+        finally
+        {
+            _engine.Fee = callBudget;
+            _engine.Restore(checkpoint);
+        }
     }
 
     /// <summary>

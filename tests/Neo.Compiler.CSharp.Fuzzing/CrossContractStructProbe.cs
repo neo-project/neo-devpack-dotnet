@@ -128,7 +128,7 @@ public static class CrossContractStructProbe
             ("forwardMixed", [reference, 7]),
             ("forwardPair", [reference, 7, 3]),
         };
-        (List<(bool Ok, string? Error, Neo.VM.Types.StackItem? Value)> results, _, _) =
+        (List<(bool Ok, string? Error, Neo.VM.Types.StackItem? Value)> results, _, _, _) =
             analyzer.ExecuteBundleWithCoverage(bundle, "StructCaller", calls);
         string[] expected = ["7003", "7219", "7003"];
         int failures = 0;

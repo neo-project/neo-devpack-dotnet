@@ -83,7 +83,7 @@ public static class FamilyCoverageProbe
 
                 using var analyzer = new BehaviorDifferentialAnalyzer();
                 (List<(bool Ok, string? Error, Neo.VM.Types.StackItem? Value)> results,
-                 IReadOnlyCollection<int> coverage, _) = analyzer.ExecuteBatchWithCoverage(
+                 IReadOnlyCollection<int> coverage, _, _) = analyzer.ExecuteBatchWithCoverage(
                     new ArtifactSet(nef, manifest), callList);
 
                 calls += results.Count;

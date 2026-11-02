@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler.Fuzzing;
 
@@ -65,6 +66,20 @@ public enum FuzzOutcome
     /// hides.
     /// </remarks>
     SuspiciousFailure,
+
+    /// <summary>
+    /// <c>ContractManagement.Deploy</c> rejected a compiled artifact, so none of its methods
+    /// could be exercised.
+    /// </summary>
+    /// <remarks>
+    /// Deployment runs under a budget that covers the largest contract the network accepts,
+    /// so a failure here is a defect in the artifact itself — an invalid script, a manifest
+    /// the native contract refuses — rather than a resource limit. It is reported once per
+    /// build instead of once per call: a batch that never deployed has no per-call result,
+    /// and attributing the deployment error to every call would turn one defect into
+    /// hundreds of apparent semantic divergences.
+    /// </remarks>
+    DeploymentFailure,
 }
 
 /// <summary>
@@ -82,6 +97,28 @@ public sealed record FuzzFinding(
     string? Exception = null,
     string? StackTrace = null)
 {
-    /// <summary>Short, stable identifier used to group identical findings.</summary>
-    public string Signature => $"{Outcome}|{Exception ?? Detail}";
+    /// <summary>
+    /// Matches either a quoted method name, which must survive normalisation, or a number,
+    /// which must not.
+    /// </summary>
+    private static readonly Regex SignatureToken = new(@"Method '[^']*'|-?\d+", RegexOptions.Compiled);
+
+    /// <summary>Short, stable identifier used to group findings that differ only in their concrete values.</summary>
+    /// <remarks>
+    /// The detail of a finding embeds the arguments it was found with and the values the
+    /// builds returned, so two inputs that hit the same defect produce two distinct details.
+    /// Grouping on the raw detail would report a systematic defect once per input — thousands
+    /// of times over a long campaign — and bury everything else. The signature therefore
+    /// replaces every number with a placeholder, which collapses those into one finding; the
+    /// first source that triggered it is kept as the reproducer and <see cref="Occurrences"/>
+    /// counts the rest. Method names are kept verbatim so that two methods differing only in
+    /// a numeric suffix stay distinct.
+    /// </remarks>
+    public string Signature => $"{Outcome}|{Normalize(Exception ?? Detail)}";
+
+    /// <summary>How many times a finding with this signature was observed.</summary>
+    public int Occurrences { get; set; } = 1;
+
+    private static string Normalize(string text) =>
+        SignatureToken.Replace(text, m => m.Value.StartsWith("Method '", StringComparison.Ordinal) ? m.Value : "N");
 }

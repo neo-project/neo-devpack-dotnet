@@ -194,6 +194,13 @@ public static class Program
                 "Only new failure signatures are reported.");
         }
 
+        if (runner.GasDivergencesDismissed > 0)
+        {
+            Console.WriteLine(
+                $"Dismissed {runner.GasDivergencesDismissed} gas exhaustion(s) that only one build hit: " +
+                "both builds agreed under a larger budget.");
+        }
+
         if (runner.RestoredCorpusSize > 0)
         {
             Console.WriteLine($"Corpus: restored {runner.RestoredCorpusSize} entries " +
@@ -266,7 +273,7 @@ public static class Program
         }
 
         Console.WriteLine();
-        Console.WriteLine($"=== {findings.Count} distinct finding(s) ===");
+        Console.WriteLine($"=== {findings.Count} distinct finding(s), {findings.Sum(f => f.Occurrences)} occurrence(s) ===");
 
         var grouped = findings
             .GroupBy(f => f.Outcome)
@@ -279,7 +286,9 @@ public static class Program
 
             foreach (FuzzFinding finding in group.Take(5))
             {
-                Console.WriteLine($"  - {finding.Detail}");
+                Console.WriteLine(finding.Occurrences > 1
+                    ? $"  - ({finding.Occurrences}x) {finding.Detail}"
+                    : $"  - {finding.Detail}");
                 if (finding.StackTrace is { } trace)
                 {
                     foreach (string line in trace.Split('\n').Take(12))
@@ -325,6 +334,7 @@ public static class Program
             FuzzFinding f = findings[i];
             sb.AppendLine("    {");
             sb.AppendLine($"      \"outcome\": {Json(f.Outcome.ToString())},");
+            sb.AppendLine($"      \"occurrences\": {f.Occurrences},");
             sb.AppendLine($"      \"detail\": {Json(f.Detail)},");
             sb.AppendLine($"      \"exception\": {Json(f.Exception ?? string.Empty)},");
             sb.AppendLine($"      \"source\": {Json(f.Source)}");

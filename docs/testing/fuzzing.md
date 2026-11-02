@@ -162,6 +162,35 @@ campaign:
   `SlowExecution` finding with a reproducer, and ends the campaign. A fuzzer that
   silently burns its whole time budget on one input would hide that it had stalled.
 
+### Resource limits are not divergences
+
+The test engine runs every call under the default 20 GAS budget, and the two builds of
+one source do not cost the same: the unoptimized build is bigger and spends more gas for
+the same work. A limit that one build hits and the other does not is therefore a fact
+about the budget, not about the code, and the harness is careful to keep it out of the
+findings:
+
+- **Deployment has its own budget.** `ContractManagement.Deploy` charges 0.001 GAS per
+  byte of NEF plus manifest, so a contract of about 20 KB costs the whole call budget.
+  Mutation pushes sources past that size routinely, and the unoptimized build crossed
+  the line first — in one campaign that produced about nine thousand "succeeded in
+  optimized but faulted in unoptimized (Insufficient GAS)" findings from contracts that
+  behaved identically. Deployment now runs under 1000 GAS, enough for the largest
+  contract the network accepts, while calls keep the default so a runaway loop is still
+  cut short.
+- **A build that did not deploy is reported once.** Previously the deployment error was
+  copied into every call of the batch, and the differential then reported each call as
+  a mismatch. A failed deployment is now a `DeploymentFailure` finding on its own; the
+  calls are not compared. Under the larger budget it means the artifact itself was
+  rejected, which is a real defect signal rather than noise.
+- **A single-sided gas exhaustion is re-checked.** When exactly one build faults with
+  `Insufficient GAS` on a call, the call is repeated on both builds with ten times the
+  budget. If they then agree, the divergence was the budget and is dismissed (the
+  summary reports how many); if they still disagree, it is reported as usual.
+
+`--self-test` deploys a padded 24 KB contract to prove the deployment budget is in
+effect, and breaks an artifact to prove the failure comes back as a deployment error.
+
 ## Cross-contract calls
 
 Ten percent of the iterations generate a two-contract source: `ContractA` calls
@@ -309,7 +338,7 @@ dotnet .../neofuzz.dll --seed 12345 --iterations 100
 | `--seed <n>` | Random seed (default `20261021`). A failing seed reproduces exactly. |
 | `--iterations <n>` | Number of fuzz iterations (default `500`). |
 | `--timeout <sec>` | Wall-clock budget. |
-| `--output <dir>` | Writes `findings.json` plus one `repro-NNN-<outcome>.cs` per finding. |
+| `--output <dir>` | Writes `findings.json` (one entry per distinct signature, with its `occurrences`) plus one `repro-NNN-<outcome>.cs` per finding. |
 | `--self-test` | Verify the oracles are live; exits `3` on failure. |
 | `--rejection-probe` | Show why generated sources are rejected, grouped by diagnostic id. |
 | `--reference-coverage` | Verify every feature family produces a compilable plain C# reference. |
@@ -407,6 +436,11 @@ byte-identical to the one the test harness writes itself.
 - **Storage isolation.** Each artifact set is deployed and executed inside its own
   `EngineCheckpoint`, so the two sides of a comparison cannot influence each other and
   repeated deployments do not collide.
+- **Finding signatures.** Findings are grouped by `FuzzFinding.Signature`, which is the
+  outcome plus the detail with every number replaced by a placeholder; quoted method
+  names are kept verbatim. The first input that hits a signature is the reproducer, and
+  later hits increment its `occurrences` (also written to `findings.json`). Without this a
+  systematic defect is reported once per input and drowns everything else.
 - **Reference set.** The metadata references come from `TRUSTED_PLATFORM_ASSEMBLIES`
   plus the local `Neo.SmartContract.Framework` assembly. No MSBuild or NuGet restore is
   involved, which is what keeps the throughput high.

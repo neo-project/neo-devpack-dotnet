@@ -28,7 +28,12 @@ namespace Neo.Compiler.Fuzzing;
 public sealed class FuzzRunner : IDisposable
 {
     private readonly List<FuzzFinding> _findings = [];
-    private readonly HashSet<string> _seenSignatures = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The reported finding for every signature seen so far, so that a repeat of a known
+    /// signature counts towards that finding instead of being reported again.
+    /// </summary>
+    private readonly Dictionary<string, FuzzFinding> _seenSignatures = new(StringComparer.Ordinal);
 
     /// <summary>
     /// The corpus of inputs that are worth mutating further.
@@ -72,6 +77,11 @@ public sealed class FuzzRunner : IDisposable
     /// The number of findings that matched an already-reported defect.
     /// </summary>
     private int _suppressedKnownDefects;
+
+    /// <summary>
+    /// The number of single-sided gas exhaustions that disappeared under a larger budget.
+    /// </summary>
+    private int _gasDivergencesDismissed;
 
     /// <summary>
     /// Creates a runner with the given seed.
@@ -397,8 +407,19 @@ public sealed class FuzzRunner : IDisposable
             return;
         }
 
-        List<(bool Ok, string? Error, StackItem? Value)> vmResults = _behavior.ExecuteBatch(
-            artifacts, calls.Select(c => (c.AbiName, c.Args)).ToList());
+        (List<(bool Ok, string? Error, StackItem? Value)> vmResults, _, _, string? deploymentError) =
+            _behavior.ExecuteBatchWithCoverage(artifacts, calls.Select(c => (c.AbiName, c.Args)).ToList());
+
+        // The contract never deployed, so there is no VM behaviour to hold against the
+        // reference; reporting every call as a divergence would misstate one defect as many.
+        if (deploymentError is not null)
+        {
+            Record(new FuzzFinding(
+                FuzzOutcome.DeploymentFailure,
+                contractSource,
+                $"The optimized build failed to deploy: {deploymentError}"));
+            return;
+        }
 
         for (int i = 0; i < calls.Count; i++)
         {
@@ -563,11 +584,22 @@ public sealed class FuzzRunner : IDisposable
         if (calls.Count > 0)
         {
             (List<(bool Ok, string? Error, StackItem? Value)> resultsA, IReadOnlyCollection<int> coverage,
-             IReadOnlyDictionary<string, string> storageA, List<IReadOnlyList<string>> notificationsA) =
+             IReadOnlyDictionary<string, string> storageA, List<IReadOnlyList<string>> notificationsA,
+             string? deploymentA) =
                 _behavior.ExecuteBatchWithNotifications(optimized, calls);
             (List<(bool Ok, string? Error, StackItem? Value)> resultsB, _,
-             IReadOnlyDictionary<string, string> storageB, List<IReadOnlyList<string>> notificationsB) =
+             IReadOnlyDictionary<string, string> storageB, List<IReadOnlyList<string>> notificationsB,
+             string? deploymentB) =
                 _behavior.ExecuteBatchWithNotifications(unoptimized, calls);
+
+            // A build that did not deploy has no per-call behaviour to compare. Report the
+            // deployment itself and stop here: comparing the mirrored failures against the
+            // other build would turn the one defect into a mismatch per call.
+            if (deploymentA is not null || deploymentB is not null)
+            {
+                RecordDeploymentFailure(source, deploymentA, deploymentB);
+                return;
+            }
 
             CheckNotifications(source, calls, resultsA, notificationsA, "optimized");
             CheckNotifications(source, calls, resultsB, notificationsB, "unoptimized");
@@ -622,6 +654,16 @@ public sealed class FuzzRunner : IDisposable
                 }
                 if (!a.Ok || !b.Ok)
                 {
+                    // One build ran out of gas where the other finished. The unoptimized
+                    // build spends more gas for the same work, so first check whether the
+                    // two agree once the budget stops being the limiting factor.
+                    if (IsGasExhaustion(a.Ok ? b.Error : a.Error)
+                        && _behavior.AgreeUnderLargerBudget(optimized, unoptimized, method, args))
+                    {
+                        _gasDivergencesDismissed++;
+                        continue;
+                    }
+
                     Record(new FuzzFinding(
                         FuzzOutcome.DifferentialMismatch,
                         source,
@@ -747,11 +789,18 @@ public sealed class FuzzRunner : IDisposable
         var unoptimizedBundle = new BehaviorDifferentialAnalyzer.ArtifactBundle(unoptimized);
 
         (List<(bool Ok, string? Error, StackItem? Value)> resultsA, IReadOnlyCollection<int> coverage,
-         IReadOnlyDictionary<string, string> storageA) =
+         IReadOnlyDictionary<string, string> storageA, string? deploymentA) =
             _behavior.ExecuteBundleWithCoverage(optimizedBundle, entry, calls);
         (List<(bool Ok, string? Error, StackItem? Value)> resultsB, _,
-         IReadOnlyDictionary<string, string> storageB) =
+         IReadOnlyDictionary<string, string> storageB, string? deploymentB) =
             _behavior.ExecuteBundleWithCoverage(unoptimizedBundle, entry, calls);
+
+        // Same as for a single contract: a bundle that did not deploy has nothing to compare.
+        if (deploymentA is not null || deploymentB is not null)
+        {
+            RecordDeploymentFailure(source, deploymentA, deploymentB);
+            return;
+        }
 
         // Coverage retention works the same way as for a single contract.
         bool reachedNewInstructions = false;
@@ -1182,12 +1231,53 @@ public sealed class FuzzRunner : IDisposable
             return;
         }
 
-        if (!_seenSignatures.Add(finding.Signature))
+        // A repeat of a signature is the same defect found through another input. Count
+        // it on the first finding, which keeps its source as the reproducer, instead of
+        // reporting it again.
+        if (_seenSignatures.TryGetValue(finding.Signature, out FuzzFinding? existing))
         {
+            existing.Occurrences++;
             return;
         }
+
+        _seenSignatures.Add(finding.Signature, finding);
         _findings.Add(finding);
     }
+
+    /// <summary>
+    /// Reports a build that <c>ContractManagement.Deploy</c> rejected, once per source.
+    /// </summary>
+    /// <remarks>
+    /// Which builds failed matters for the triage: a failure of exactly one build is a
+    /// divergence the optimizer introduced, whereas a failure of both points at the source
+    /// or the compiler's artifact generation as a whole.
+    /// </remarks>
+    /// <param name="source">The source whose builds were deployed.</param>
+    /// <param name="optimizedError">The deployment error of the optimized build, if it failed.</param>
+    /// <param name="unoptimizedError">The deployment error of the unoptimized build, if it failed.</param>
+    private void RecordDeploymentFailure(string source, string? optimizedError, string? unoptimizedError)
+    {
+        string detail = (optimizedError, unoptimizedError) switch
+        {
+            (not null, not null) when string.Equals(optimizedError, unoptimizedError, StringComparison.Ordinal) =>
+                $"Neither build deployed: {optimizedError}",
+            (not null, not null) =>
+                $"Neither build deployed, and for different reasons: optimized='{optimizedError}', unoptimized='{unoptimizedError}'.",
+            (not null, null) =>
+                $"The optimized build failed to deploy ({optimizedError}) while the unoptimized build deployed.",
+            _ =>
+                $"The unoptimized build failed to deploy ({unoptimizedError}) while the optimized build deployed.",
+        };
+
+        Record(new FuzzFinding(FuzzOutcome.DeploymentFailure, source, detail));
+    }
+
+    /// <summary>
+    /// Tells whether a call error is the engine running out of gas rather than the contract
+    /// faulting.
+    /// </summary>
+    private static bool IsGasExhaustion(string? error) =>
+        error is not null && error.Contains("Insufficient GAS", StringComparison.Ordinal);
 
     /// <summary>
     /// Identifies already-reported defects so they do not drown out new findings.
@@ -1254,6 +1344,12 @@ public sealed class FuzzRunner : IDisposable
 
     /// <summary>The number of known defects that were suppressed.</summary>
     public int SuppressedKnownDefects => _suppressedKnownDefects;
+
+    /// <summary>
+    /// The number of single-sided gas exhaustions that were dismissed because both builds
+    /// agreed under a larger budget.
+    /// </summary>
+    public int GasDivergencesDismissed => _gasDivergencesDismissed;
 
     /// <summary>
     /// Releases the harnesses held by this runner.
