@@ -12,6 +12,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -169,6 +171,39 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 Assert.AreEqual(new BigInteger(i).IsEven, Contract.TestIsEven(i));
                 AssertGasConsumed(1047420);
+            }
+        }
+
+        [TestMethod]
+        public void Test_IsEvenIsOdd_Parity()
+        {
+            var max = BigInteger.Pow(2, 255) - 1;
+            var min = -BigInteger.Pow(2, 255);
+            var values = new List<BigInteger>
+            {
+                0, 1, -1, 2, -2, 3, -3, 4, -4, 255, -255, 256, -256,
+                long.MaxValue, long.MinValue, (BigInteger)long.MaxValue + 1, (BigInteger)long.MinValue - 1,
+                (BigInteger)ulong.MaxValue, (BigInteger)ulong.MaxValue + 1,
+                max, max - 1, min, min + 1
+            };
+            for (int n = 1; n < 255; n++)
+            {
+                var p = BigInteger.Pow(2, n);
+                values.Add(p); values.Add(-p);
+                values.Add(p - 1); values.Add(-(p - 1));
+                values.Add(p + 1); values.Add(-(p + 1));
+            }
+
+            foreach (var v in values.Distinct())
+            {
+                bool even = v.IsEven;
+                Assert.AreEqual(even, Contract.TestIsEven(v), $"IsEven {v}");
+                Assert.AreEqual(!even, Contract.TestIsOdd(v), $"IsOdd {v}");
+                Assert.AreEqual(v % 2 == 0, Contract.TestModIsEven(v), $"ModIsEven {v}");
+                Assert.AreEqual((v & BigInteger.One) == 0, Contract.TestAndIsEven(v), $"AndIsEven {v}");
+                Assert.AreEqual(v % 2 != 0, Contract.TestModIsOdd(v), $"ModIsOdd {v}");
+                Assert.AreEqual((v & BigInteger.One) != 0, Contract.TestAndIsOdd(v), $"AndIsOdd {v}");
+                Assert.AreNotEqual(Contract.TestIsEven(v), Contract.TestIsOdd(v));
             }
         }
 

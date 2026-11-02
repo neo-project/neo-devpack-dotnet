@@ -842,7 +842,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringBuilderBasic()
         {
             Assert.AreEqual("neo compiler\nruntime\n", Contract.TestStringBuilderBasic());
-            AssertGasConsumed(2662530);
+            AssertGasConsumed(2600550);
         }
 
         [TestMethod]
@@ -856,7 +856,48 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringBuilderClear()
         {
             Assert.AreEqual("neo\ncontracts", Contract.TestStringBuilderClear());
-            AssertGasConsumed(1978440);
+            AssertGasConsumed(1916460);
+        }
+
+        [TestMethod]
+        public void Test_StringBuilderAppendLineConstants()
+        {
+            Assert.AreEqual("start:Hello\n\nHello World\nNeo\nhéllo 你好 \0 end\nrt\n\n", Contract.TestStringBuilderAppendLineConstants("rt"));
+        }
+
+        [TestMethod]
+        public void Test_AppendLineHelloGas()
+        {
+            Assert.AreEqual("aHello\n", Contract.TestAppendLineHello());
+            AssertGasConsumed(1359930);
+        }
+
+        [TestMethod]
+        public void Test_AppendLineEmptyGas()
+        {
+            Assert.AreEqual("a\n", Contract.TestAppendLineEmpty());
+            AssertGasConsumed(1359930);
+        }
+
+        [TestMethod]
+        public void Test_AppendLineConstStringGas()
+        {
+            Assert.AreEqual("aNeo\n", Contract.TestAppendLineConstString());
+            AssertGasConsumed(1359930);
+        }
+
+        [TestMethod]
+        public void Test_AppendLineDynamicGas()
+        {
+            Assert.AreEqual("art\n", Contract.TestAppendLineDynamic("rt"));
+            AssertGasConsumed(1482960);
+        }
+
+        [TestMethod]
+        public void Test_AppendLineLongGas()
+        {
+            Assert.AreEqual("a0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\n", Contract.TestAppendLineLong());
+            AssertGasConsumed(1359930);
         }
 
         [TestMethod]
