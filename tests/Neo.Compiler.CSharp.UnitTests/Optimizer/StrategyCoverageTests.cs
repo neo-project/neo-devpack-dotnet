@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Extensions;
+using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -27,65 +28,112 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         public void UseIsNull_RewritesEqualityWithNull()
         {
-            var (optimizedNef, _, _) = Peephole.UseIsNull(
+            var (optimizedNef, _, _) = Strategies.ApplyPeephole(
                 CreateNefFile([(byte)OpCode.PUSHNULL, (byte)OpCode.EQUAL, (byte)OpCode.RET]),
-                CreateManifest());
-
-            CollectionAssert.AreEqual(
-                new[] { OpCode.ISNULL, OpCode.RET },
-                GetOpCodes(optimizedNef));
+                CreateManifest(), null, PeepholeRule.UseIsNull);
+            CollectionAssert.AreEqual(new[] { OpCode.ISNULL, OpCode.RET }, GetOpCodes(optimizedNef));
         }
 
         [TestMethod]
         public void FoldNotInEqual_FoldsEqualityNegation()
         {
-            var (optimizedNef, _, _) = Peephole.FoldNotInEqual(
+            var (optimizedNef, _, _) = Strategies.ApplyPeephole(
                 CreateNefFile([(byte)OpCode.EQUAL, (byte)OpCode.NOT, (byte)OpCode.RET]),
-                CreateManifest());
-
-            CollectionAssert.AreEqual(
-                new[] { OpCode.NOTEQUAL, OpCode.RET },
-                GetOpCodes(optimizedNef));
+                CreateManifest(), null, PeepholeRule.FoldNotInEqual);
+            CollectionAssert.AreEqual(new[] { OpCode.NOTEQUAL, OpCode.RET }, GetOpCodes(optimizedNef));
         }
 
         [TestMethod]
         public void FoldNotInJmp_FoldsNegatedConditionalJump()
         {
-            var (optimizedNef, _, _) = Peephole.FoldNotInJmp(
+            var (optimizedNef, _, _) = Strategies.ApplyPeephole(
                 CreateNefFile([(byte)OpCode.PUSH1, (byte)OpCode.NOT, (byte)OpCode.JMPIF, 0x02, (byte)OpCode.PUSH0, (byte)OpCode.RET]),
-                CreateManifest());
+                CreateManifest(), null, PeepholeRule.FoldNotInJmp);
+            CollectionAssert.AreEqual(new[] { OpCode.PUSH1, OpCode.JMPIFNOT, OpCode.PUSH0, OpCode.RET }, GetOpCodes(optimizedNef));
+        }
 
-            CollectionAssert.AreEqual(
-                new[] { OpCode.PUSH1, OpCode.JMPIFNOT, OpCode.PUSH0, OpCode.RET },
-                GetOpCodes(optimizedNef));
+        [TestMethod]
+        public void NopBufferPeephole_PreservesScriptLengthUntilCompaction()
+        {
+            NefFile nef = CreateNefFile([(byte)OpCode.PUSH1, (byte)OpCode.ADD, (byte)OpCode.RET]);
+            int originalLength = nef.Script.Length;
+            NefFile rewritten = Peephole.Rewrite(nef, CreateManifest(), PeepholeRule.All);
+            Assert.AreEqual(originalLength, rewritten.Script.Length);
+            CollectionAssert.AreEqual(new[] { OpCode.INC, OpCode.NOP, OpCode.RET }, GetOpCodes(rewritten));
         }
 
         [TestMethod]
         public void ReplaceJumpWithRet_RewritesJumpToReturn()
         {
-            var (optimizedNef, _, _) = JumpCompresser.ReplaceJumpWithRet(
-                CreateNefFile([(byte)OpCode.JMP, 0x02, (byte)OpCode.RET]),
-                CreateManifest());
-
-            CollectionAssert.AreEqual(
-                new[] { OpCode.RET, OpCode.RET },
-                GetOpCodes(optimizedNef));
+            var (optimizedNef, _, _) = Strategies.ReplaceJumpWithRet(
+                CreateNefFile([(byte)OpCode.JMP, 0x02, (byte)OpCode.RET]), CreateManifest(), null);
+            CollectionAssert.AreEqual(new[] { OpCode.RET, OpCode.RET }, GetOpCodes(optimizedNef));
         }
 
         [TestMethod]
         public void RemoveMultiRet_CollapsesAdjacentReturns()
         {
-            var (optimizedNef, _, _) = Reachability.RemoveMultiRet(
-                CreateNefFile([(byte)OpCode.RET, (byte)OpCode.RET, (byte)OpCode.RET]),
-                CreateManifest());
-
-            CollectionAssert.AreEqual(
-                new[] { OpCode.RET },
-                GetOpCodes(optimizedNef));
+            var (optimizedNef, _, _) = Strategies.CollapseAdjacentReturns(
+                CreateNefFile([(byte)OpCode.RET, (byte)OpCode.RET, (byte)OpCode.RET]), CreateManifest(), null);
+            CollectionAssert.AreEqual(new[] { OpCode.RET }, GetOpCodes(optimizedNef));
         }
 
-        private static readonly OpCode[] OneOperandJumps =
-            [OpCode.JMPIF, OpCode.JMPIFNOT, OpCode.JMPIF_L, OpCode.JMPIFNOT_L];
+        [TestMethod]
+        public void RemoveUnreachable_PreservesTrailingReturn()
+        {
+            var (optimizedNef, _, _) = Strategies.RemoveUnreachable(
+                CreateNefFile([(byte)OpCode.RET, (byte)OpCode.PUSH1, (byte)OpCode.RET]), CreateManifest(), null);
+            CollectionAssert.AreEqual(new[] { OpCode.RET, OpCode.RET }, GetOpCodes(optimizedNef));
+        }
+
+        [TestMethod]
+        public void CollapseAdjacentReturns_PreservesMethodBoundaries()
+        {
+            var (optimizedNef, optimizedManifest, _) = Strategies.CollapseAdjacentReturns(
+                CreateNefFile([(byte)OpCode.RET, (byte)OpCode.RET, (byte)OpCode.RET]), CreateManifest(0, 1), null);
+            CollectionAssert.AreEqual(new[] { OpCode.RET, OpCode.RET }, GetOpCodes(optimizedNef));
+            CollectionAssert.AreEqual(new[] { 0, 1 }, optimizedManifest.Abi.Methods.Select(static method => method.Offset).ToArray());
+        }
+
+        [TestMethod]
+        public void CollapseAdjacentReturns_PreservesPushaMethodEntry()
+        {
+            byte[] script = [(byte)OpCode.RET, (byte)OpCode.RET, (byte)OpCode.PUSHA, 0xff, 0xff, 0xff, 0xff, (byte)OpCode.RET];
+            var (optimizedNef, _, _) = Strategies.CollapseAdjacentReturns(CreateNefFile(script), CreateManifest(), null);
+            CollectionAssert.AreEqual(script, optimizedNef.Script.ToArray());
+        }
+
+        [TestMethod]
+        public void CollapseAdjacentReturns_IgnoresRemovedMethodEntries()
+        {
+            ContractManifest manifest = CreateManifest(0, 1);
+            manifest.Abi.Methods[1].Name = "_initialize";
+            ScriptGraph graph = ScriptGraph.Parse(
+                CreateNefFile([(byte)OpCode.RET, (byte)OpCode.INITSSLOT, 0, (byte)OpCode.RET, (byte)OpCode.RET]), manifest);
+
+            graph.RemoveUnusedInitialize();
+            Assert.IsFalse(manifest.Abi.Methods.Any(static method => method.Name == "_initialize"));
+
+            graph.CollapseAdjacentReturns();
+            var (optimizedNef, _, _) = graph.Emit();
+            CollectionAssert.AreEqual(new[] { OpCode.RET }, GetOpCodes(optimizedNef));
+        }
+
+        [TestMethod]
+        public void CollapseAdjacentReturns_IgnoresUnreachableDebugMethodEntries()
+        {
+            JObject debugInfo = new()
+            {
+                ["methods"] = new JArray(new JObject { ["range"] = "1-1" })
+            };
+            ScriptGraph graph = ScriptGraph.Parse(
+                CreateNefFile([(byte)OpCode.RET, (byte)OpCode.RET]), CreateManifest(), debugInfo);
+            graph.CollapseAdjacentReturns();
+
+            CollectionAssert.AreEqual(new[] { OpCode.RET }, graph.Instructions.Select(static instruction => instruction.OpCode).ToArray());
+        }
+
+        private static readonly OpCode[] OneOperandJumps = [OpCode.JMPIF, OpCode.JMPIFNOT, OpCode.JMPIF_L, OpCode.JMPIFNOT_L];
 
         private static readonly OpCode[] TwoOperandJumps =
         [
@@ -122,7 +170,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 
         private static byte[] OptimizeJumps(byte[] script)
         {
-            var (nef, _, _) = JumpCompresser.RemoveUnnecessaryJumps(CreateNefFile(script), CreateManifest());
+            var (nef, _, _) = Strategies.RemoveUnnecessaryJumps(CreateNefFile(script), CreateManifest(), null);
             return nef.Script.ToArray();
         }
 
@@ -183,15 +231,16 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 
         [TestMethod]
         [DynamicData(nameof(AllConditionalJumps))]
-        public void RemoveUnnecessaryJumps_KeepsConditionalJumpToNextInstruction(OpCode op)
+        public void RemoveUnnecessaryJumps_PreservesConditionalJumpBehavior(OpCode op)
         {
             byte[] prefix = OneOperandJumps.Contains(op)
                 ? [(byte)OpCode.PUSH1]
                 : [(byte)OpCode.PUSH1, (byte)OpCode.PUSH2];
             byte[] script = FallThroughJump(prefix, op);
-
             byte[] optimized = OptimizeJumps(script);
-            Assert.AreSequenceEqual(script, optimized);
+            Assert.IsTrue(
+                OpCodesOf(optimized).Any(candidate => OneOperandJumps.Contains(candidate) || TwoOperandJumps.Contains(candidate)),
+                "Conditional jump must remain because it performs operand conversion and can fault.");
             AssertSameBehavior(script, OptimizeJumps, OptimizeAll);
         }
 
@@ -240,10 +289,39 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 
             byte[] optimized = OptimizeJumps(script);
             Assert.AreSequenceEqual(script, optimized);
+
             var nef = CreateNefFile(optimized);
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             Assert.IsNotNull(NefFile.Parse(nef.ToArray(), true));
             AssertSameBehavior(script, OptimizeJumps, OptimizeAll);
+        }
+
+        [TestMethod]
+        public void NormalizeJumps_PreservesPushaPointerIdentity()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.PUSHA, 12, 0, 0, 0,       // target A at 12
+                (byte)OpCode.PUSHA, 11, 0, 0, 0,       // target B at 16
+                (byte)OpCode.EQUAL,
+                (byte)OpCode.RET,
+                (byte)OpCode.JMP, 4,                   // A -> B
+                (byte)OpCode.PUSH2,
+                (byte)OpCode.RET,
+                (byte)OpCode.PUSH1,                    // B
+                (byte)OpCode.RET
+            ];
+            var expected = Run(script);
+            var (normalizedNef, _, _) = Strategies.NormalizeJumps(CreateNefFile(script), CreateManifest(0, 14), null);
+            var normalized = Run(normalizedNef.Script.ToArray());
+            Assert.AreEqual(expected.State, normalized.State);
+            Assert.AreSequenceEqual(expected.Stack, normalized.Stack);
+
+            var (optimizedNef, _, _) = Neo.Optimizer.Optimizer.Optimize(
+                CreateNefFile(script), CreateManifest(0, 14), null, CompilationOptions.OptimizationType.All);
+            var optimized = Run(optimizedNef.Script.ToArray());
+            Assert.AreEqual(expected.State, optimized.State);
+            Assert.AreSequenceEqual(expected.Stack, optimized.Stack);
         }
 
         [TestMethod]
@@ -258,8 +336,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         }
 
         private static OpCode[] GetOpCodes(NefFile nef)
-            => new Script(nef.Script.ToArray()).EnumerateInstructions()
-                .Select(static item => item.instruction.OpCode).ToArray();
+            => new Script(nef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray();
 
         private static NefFile CreateNefFile(byte[] script)
         {
@@ -267,34 +344,32 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             {
                 Compiler = "test",
                 Source = "test.cs",
-                Tokens = Array.Empty<MethodToken>(),
+                Tokens = [],
                 Script = script
             };
         }
 
-        private static ContractManifest CreateManifest()
+        private static ContractManifest CreateManifest(params int[] methodOffsets)
         {
+            if (methodOffsets.Length == 0) methodOffsets = [0];
             return new ContractManifest
             {
                 Name = "TestContract",
-                Groups = Array.Empty<ContractGroup>(),
-                SupportedStandards = Array.Empty<string>(),
+                Groups = [],
+                SupportedStandards = [],
                 Abi = new ContractAbi
                 {
-                    Methods =
-                    [
-                        new ContractMethodDescriptor
-                        {
-                            Name = "main",
-                            Offset = 0,
-                            Parameters = Array.Empty<ContractParameterDefinition>(),
-                            ReturnType = ContractParameterType.Any,
-                            Safe = false
-                        }
-                    ],
-                    Events = Array.Empty<ContractEventDescriptor>()
+                    Methods = methodOffsets.Select((offset, index) => new ContractMethodDescriptor
+                    {
+                        Name = index == 0 ? "main" : $"method{index}",
+                        Offset = offset,
+                        Parameters = [],
+                        ReturnType = ContractParameterType.Any,
+                        Safe = false
+                    }).ToArray(),
+                    Events = [],
                 },
-                Permissions = Array.Empty<ContractPermission>(),
+                Permissions = [],
                 Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
                 Extra = null
             };

@@ -47,7 +47,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             string methodName,
             JToken? debugInfo = null)
         {
-            (nef, manifest, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
+            (nef, manifest, _) = Strategies.RemoveUnreachable(nef, manifest, null);
             (int addr, VM.Instruction instruction)[] instructions = ((Script)nef.Script).EnumerateInstructions().ToArray();
             byte[] methodBytes = System.Text.Encoding.UTF8.GetBytes(methodName);
             for (int i = 0; i < instructions.Length; ++i)
