@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod()
         {
             var arr = Contract.TestProperty()!;
-            AssertGasConsumed(1622700);
+            AssertGasConsumed(1688310);
 
             Assert.AreEqual(2, arr.Count);
             Assert.AreEqual("NEO3", (arr[0] as StackItem)!.GetString());
@@ -84,7 +84,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyInit()
         {
             var arr = Contract.TestPropertyInit()!;
-            AssertGasConsumed(1870860);
+            AssertGasConsumed(1938510);
 
             Assert.AreEqual(3, arr.Count);
             Assert.AreEqual("NEO3", (arr[0] as StackItem)!.GetString());

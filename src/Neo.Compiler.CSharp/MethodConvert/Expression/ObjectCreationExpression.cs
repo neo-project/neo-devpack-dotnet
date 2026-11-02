@@ -210,14 +210,18 @@ internal partial class MethodConvert
         var slots = new List<(Action Emit, bool CanDefer)>(fields.Length + (needVirtualMethodTable ? 1 : 0));
         for (int i = 0; i < fields.Length; i++)
         {
+            ITypeSymbol fieldType = fields[i].Type;
             if (indexToValue.TryGetValue(i, out ExpressionSyntax? right))
             {
                 ExpressionSyntax value = right;
-                slots.Add((() => ConvertExpression(model, value), CanDeferExpressionEmission(model, value)));
+                slots.Add((() =>
+                {
+                    ConvertExpression(model, value);
+                    CopyStructValueBeforeStore(model, fieldType, value);
+                }, CanDeferExpressionEmission(model, value)));
             }
             else
             {
-                ITypeSymbol fieldType = fields[i].Type;
                 slots.Add((() => PushDefault(fieldType), true));
             }
         }
@@ -322,6 +326,7 @@ internal partial class MethodConvert
                     int index = GetInstanceFieldIndex(field);
                     Push(index);
                     ConvertExpression(model, ae.Right);
+                    CopyStructValueBeforeStore(model, field.Type, ae.Right);
                     AddInstruction(OpCode.SETITEM);
                     break;
                 case IPropertySymbol property:
@@ -369,6 +374,7 @@ internal partial class MethodConvert
                     {
                         // For regular properties:
                         ConvertExpression(model, ae.Right);
+                        CopyStructValueBeforeStore(model, property.Type, ae.Right);
                         if (NeedInstanceConstructor(property.SetMethod!))
                             AddInstruction(OpCode.OVER);
                         CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
