@@ -92,6 +92,26 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.StartsWith("/");
         }
 
+        public static bool TestStartsWith2(string str)
+        {
+            return str.StartsWith("ab");
+        }
+
+        public static bool TestStartsWith50(string str)
+        {
+            return str.StartsWith("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        }
+
+        public static bool TestStartsWithUtf8(string str)
+        {
+            return str.StartsWith("éx");
+        }
+
+        public static bool TestStartsWithEmbeddedNull(string str)
+        {
+            return str.StartsWith("a\0b");
+        }
+
         public static int TestCompare(string left, string right)
         {
             return string.Compare(left, right);
