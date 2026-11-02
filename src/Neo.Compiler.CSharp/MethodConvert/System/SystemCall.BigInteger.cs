@@ -116,7 +116,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Performs modulo 2 operation and checks if result is zero (even number)
+    /// Algorithm: Performs bitwise AND with 1 and checks if result is zero (even number)
     /// </remarks>
     private static void HandleBigIntegerIsEven(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -124,9 +124,9 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(2);
-        methodConvert.Mod();                                       // Calculate value % 2
-        methodConvert.Not();                                       // BigInteger GetBoolean() => !value.IsZero;
+        methodConvert.Push(1);
+        methodConvert.And();                                       // Calculate value & 1 (least significant bit)
+        methodConvert.Not();
     }
 
     /// <summary>
@@ -647,7 +647,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Performs modulo 2 operation and checks if result is non-zero (odd number)
+    /// Algorithm: Performs bitwise AND with 1 and checks if result is non-zero (odd number)
     /// </remarks>
     private static void HandleBigIntegerIsOdd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -655,9 +655,9 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(2);
-        methodConvert.Mod();                                       // Calculate value % 2
-        methodConvert.Nz();                                        // Check if non-zero (odd)
+        methodConvert.Push(1);
+        methodConvert.And();                                       // Calculate value & 1 (least significant bit)
+        methodConvert.Nz();
     }
 
     /// <summary>

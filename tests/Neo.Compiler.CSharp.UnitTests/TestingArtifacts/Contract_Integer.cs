@@ -18,7 +18,7 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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OhBLETIJnEtLqREs+0ZAVwABeEoQLgM6EEsRMgmcS0upESz7RkBXAAF4ShAuAzoQSxEyCZxLS6kRLPtGQFcAAXhKEC4DOhBLETIJnEtLqREs+0ZAVwABeEoQLgM6EEsRMgmcS0upESz7RkBXAgJ4eXBxaQP/////AAAAAJFoAB+RqAP/////AAAAAJFpA/////8AAAAAkWibAB+RqZID/////wAAAACRSgMAAACAAAAAADAMAwAAAAABAAAAn0BXBAJ4nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3B5nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FoaXJzawP/////AAAAAJFqAB+RqAP/////AAAAAJFrA/////8AAAAAkWqbAB+RqZID/////wAAAACRSgMAAACAAAAAADAMAwAAAAABAAAAn0BXAgJ4eXBxaQP/////AAAAAJFoAB+RqAP/////AAAAAJFpA/////8AAAAAkWibAB+RqZID/////wAAAACRQFcEAnicA/////8AAAAAkXB5nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FoaXJzawP/////AAAAAJFqAB+RqAP/////AAAAAJFrA/////8AAAAAkWqbAB+RqZID/////wAAAACRQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kagE//////////8AAAAAAAAAAJFpBP//////////AAAAAAAAAACRaJsAP5GpkgT//////////wAAAAAAAAAAkUoEAAAAAAAAAIAAAAAAAAAAADAUBAAAAAAAAAAAAQAAAAAAAACfQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kagE//////////8AAAAAAAAAAJFpBP//////////AAAAAAAAAACRaJsAP5GpkgT//////////wAAAAAAAAAAkUBXAgJ4eXBxaQL//wAAkWgfkagC//8AAJFpAv//AACRaJsfkamSAv//AACRSgIAgAAAMAgCAAABAJ9AVwICeHlwcWkC//8AAJFoH5GoAv//AACRaQL//wAAkWibH5GpkgL//wAAkUBXAgJ4eXBxaQH/AJFoF5GoAf8AkWkB/wCRaJsXkamSAf8AkUBXAgJ4eXBxaQH/AJFoF5GoAf8AkWkB/wCRaJsXkamSAf8AkUoBgAAwBgEAAZ9AVwICeHlwcWkD/////wAAAACRaAAfkalpA/////8AAAAAkWibAB+RqJID/////wAAAACRSgMAAACAAAAAADAMAwAAAAABAAAAn0BXBAJ4nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3B5nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FoaXJzawP/////AAAAAJFqAB+RqWsD/////wAAAACRapsAH5GokgP/////AAAAAJFKAwAAAIAAAAAAMAwDAAAAAAEAAACfQFcCAnh5cHFpA/////8AAAAAkWgAH5GpaQP/////AAAAAJFomwAfkaiSA/////8AAAAAkUBXBAJ4nAP/////AAAAAJFweZxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xaGlyc2sD/////wAAAACRagAfkalrA/////8AAAAAkWqbAB+RqJID/////wAAAACRQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kalpBP//////////AAAAAAAAAACRaJsAP5GokgT//////////wAAAAAAAAAAkUoEAAAAAAAAAIAAAAAAAAAAADAUBAAAAAAAAAAAAQAAAAAAAACfQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kalpBP//////////AAAAAAAAAACRaJsAP5GokgT//////////wAAAAAAAAAAkUBXAgJ4eXBxaQL//wAAkWgfkalpAv//AACRaJsfkaiSAv//AACRSgIAgAAAMAgCAAABAJ9AVwICeHlwcWkC//8AAJFoH5GpaQL//wAAkWibH5GokgL//wAAkUBXAgJ4eXBxaQH/AJFoF5GpaQH/AJFomxeRqJIB/wCRQFcCAnh5cHFpAf8AkWgXkalpAf8AkWibF5GokgH/AJFKAYAAMAYBAAGfQFcAAXgB/wCREEsmCkudUZFQnCL3RkBXAAF4Af8AkRBLJgpLnVGRUJwi90ZAVwABeAL//wAAkRBLJgpLnVGRUJwi90ZAVwABeAL//wAAkRBLJgpLnVGRUJwi90ZAVwABeAP/////AAAAAJEQSyYKS51RkVCcIvdGQFcAAXgD/////wAAAACREEsmCkudUZFQnCL3RkBXAAF4BP//////////AAAAAAAAAACREEsmCkudUZFQnCL3RkBXAAF4BP//////////AAAAAAAAAACREEsmCkudUZFQnCL3RkBXAAF4ShAuJkrKFCwOA/////8AAAAAkSIVDBBPdXQgb2YgaW50IHJhbmdlOhBLJgpLnVGRUJwi90ZAVwABeEoQLAVFCUBKnZGqQCQVKuk=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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OhBLETIJnEtLqREs+0ZAVwABeEoQLgM6EEsRMgmcS0upESz7RkBXAAF4ShAuAzoQSxEyCZxLS6kRLPtGQFcAAXhKEC4DOhBLETIJnEtLqREs+0ZAVwABeEoQLgM6EEsRMgmcS0upESz7RkBXAgJ4eXBxaQP/////AAAAAJFoAB+RqAP/////AAAAAJFpA/////8AAAAAkWibAB+RqZID/////wAAAACRSgMAAACAAAAAADAMAwAAAAABAAAAn0BXBAJ4nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3B5nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FoaXJzawP/////AAAAAJFqAB+RqAP/////AAAAAJFrA/////8AAAAAkWqbAB+RqZID/////wAAAACRSgMAAACAAAAAADAMAwAAAAABAAAAn0BXAgJ4eXBxaQP/////AAAAAJFoAB+RqAP/////AAAAAJFpA/////8AAAAAkWibAB+RqZID/////wAAAACRQFcEAnicA/////8AAAAAkXB5nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FoaXJzawP/////AAAAAJFqAB+RqAP/////AAAAAJFrA/////8AAAAAkWqbAB+RqZID/////wAAAACRQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kagE//////////8AAAAAAAAAAJFpBP//////////AAAAAAAAAACRaJsAP5GpkgT//////////wAAAAAAAAAAkUoEAAAAAAAAAIAAAAAAAAAAADAUBAAAAAAAAAAAAQAAAAAAAACfQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kagE//////////8AAAAAAAAAAJFpBP//////////AAAAAAAAAACRaJsAP5GpkgT//////////wAAAAAAAAAAkUBXAgJ4eXBxaQL//wAAkWgfkagC//8AAJFpAv//AACRaJsfkamSAv//AACRSgIAgAAAMAgCAAABAJ9AVwICeHlwcWkC//8AAJFoH5GoAv//AACRaQL//wAAkWibH5GpkgL//wAAkUBXAgJ4eXBxaQH/AJFoF5GoAf8AkWkB/wCRaJsXkamSAf8AkUBXAgJ4eXBxaQH/AJFoF5GoAf8AkWkB/wCRaJsXkamSAf8AkUoBgAAwBgEAAZ9AVwICeHlwcWkD/////wAAAACRaAAfkalpA/////8AAAAAkWibAB+RqJID/////wAAAACRSgMAAACAAAAAADAMAwAAAAABAAAAn0BXBAJ4nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3B5nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FoaXJzawP/////AAAAAJFqAB+RqWsD/////wAAAACRapsAH5GokgP/////AAAAAJFKAwAAAIAAAAAAMAwDAAAAAAEAAACfQFcCAnh5cHFpA/////8AAAAAkWgAH5GpaQP/////AAAAAJFomwAfkaiSA/////8AAAAAkUBXBAJ4nAP/////AAAAAJFweZxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xaGlyc2sD/////wAAAACRagAfkalrA/////8AAAAAkWqbAB+RqJID/////wAAAACRQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kalpBP//////////AAAAAAAAAACRaJsAP5GokgT//////////wAAAAAAAAAAkUoEAAAAAAAAAIAAAAAAAAAAADAUBAAAAAAAAAAAAQAAAAAAAACfQFcCAnh5cHFpBP//////////AAAAAAAAAACRaAA/kalpBP//////////AAAAAAAAAACRaJsAP5GokgT//////////wAAAAAAAAAAkUBXAgJ4eXBxaQL//wAAkWgfkalpAv//AACRaJsfkaiSAv//AACRSgIAgAAAMAgCAAABAJ9AVwICeHlwcWkC//8AAJFoH5GpaQL//wAAkWibH5GokgL//wAAkUBXAgJ4eXBxaQH/AJFoF5GpaQH/AJFomxeRqJIB/wCRQFcCAnh5cHFpAf8AkWgXkalpAf8AkWibF5GokgH/AJFKAYAAMAYBAAGfQFcAAXgB/wCREEsmCkudUZFQnCL3RkBXAAF4Af8AkRBLJgpLnVGRUJwi90ZAVwABeAL//wAAkRBLJgpLnVGRUJwi90ZAVwABeAL//wAAkRBLJgpLnVGRUJwi90ZAVwABeAP/////AAAAAJEQSyYKS51RkVCcIvdGQFcAAXgD/////wAAAACREEsmCkudUZFQnCL3RkBXAAF4BP//////////AAAAAAAAAACREEsmCkudUZFQnCL3RkBXAAF4BP//////////AAAAAAAAAACREEsmCkudUZFQnCL3RkBXAAF4ShAuJkrKFCwOA/////8AAAAAkSIVDBBPdXQgb2YgaW50IHJhbmdlOhBLJgpLnVGRUJwi90ZAVwABeEoQLAVFCUBKnZGqQNgKRdI=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -954,11 +954,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -969,11 +969,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -984,11 +984,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -999,11 +999,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1014,11 +1014,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1029,11 +1029,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1044,11 +1044,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1059,11 +1059,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKiqkA=
+    /// Script: VwABeBGRqkA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NOT [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1130,11 +1130,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1145,11 +1145,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1160,11 +1160,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1175,11 +1175,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1190,11 +1190,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1205,11 +1205,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1220,11 +1220,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -1235,11 +1235,11 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeBKisUA=
+    /// Script: VwABeBGRsUA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// MOD [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// AND [8 datoshi]
     /// NZ [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
