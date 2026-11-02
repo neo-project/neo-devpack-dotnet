@@ -184,6 +184,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestBigIntegerAsByte()
         {
+
             Assert.AreEqual(127, Contract.BigIntegerAsByte(127));
             AssertGasConsumed(1047510);
 
@@ -231,7 +232,23 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(0, Contract.BigIntegerAsSbyte(0));
             AssertGasConsumed(1047420);
 
+
             Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(128));
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(256));
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(-129));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(-128, Contract.BigIntegerToSbyte(128));
+            AssertGasConsumed(1047840);
+
+            Assert.AreEqual(-1, Contract.BigIntegerToSbyte(255));
+            AssertGasConsumed(1047840);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerToSbyte(256));
+
             AssertGasConsumed(1047420);
 
             Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(-129));
@@ -251,6 +268,20 @@ namespace Neo.SmartContract.Framework.UnitTests
             AssertGasConsumed(1047420);
 
             Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(128));
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(256));
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(-129));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(-128, Contract.IntToSbyte(128));
+            AssertGasConsumed(1047840);
+
+            Assert.AreEqual(-1, Contract.IntToSbyte(255));
+            AssertGasConsumed(1047840);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntToSbyte(256));
+
             AssertGasConsumed(1047420);
 
             Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(-129));
