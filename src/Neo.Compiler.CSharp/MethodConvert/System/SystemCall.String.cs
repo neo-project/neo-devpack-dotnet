@@ -200,6 +200,12 @@ internal partial class MethodConvert
                 endTarget.Instruction = methodConvert.Nop();
                 return;
             }
+
+            if (valueBytes.Length > 1)
+            {
+                HandleStringStartsWithConstant(methodConvert, model, instanceExpression, valueBytes);
+                return;
+            }
         }
 
         if (arguments is not null)
@@ -208,6 +214,30 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
         methodConvert.Not();
+    }
+
+    private static void HandleStringStartsWithConstant(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, byte[] valueBytes)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        JumpTarget validCountTarget = new();
+        JumpTarget endTarget = new();
+        methodConvert.Dup();                                      // [source, source]
+        methodConvert.Size();                                     // [source, sourceSize]
+        methodConvert.Push(valueBytes.Length);                    // [source, sourceSize, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);     // [source]
+        methodConvert.Drop();                                     // []
+        methodConvert.PushF();                                    // source shorter than value.
+        methodConvert.JumpAlways(endTarget);
+
+        validCountTarget.Instruction = methodConvert.Push(valueBytes.Length); // [source, valueSize]
+        methodConvert.Left(null);                                 // [prefix]
+        methodConvert.ChangeType(StackItemType.ByteString);       // [prefix]
+        methodConvert.Push(valueBytes);                           // [prefix, value]
+        methodConvert.Equal();                                    // [bool]
+
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
