@@ -257,6 +257,19 @@ namespace Neo.SmartContract.Framework.Linq
         }
 
         /// <summary>
+        /// Returns the number of elements in an array.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">An array that contains elements to be counted.</param>
+        /// <returns>The number of elements in the array.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
+        public static int Count<T>(this T[] source)
+        {
+            AssertSourceNotNull(source);
+            return source.Length;
+        }
+
+        /// <summary>
         /// Returns the number of elements in a sequence.
         /// </summary>
         /// <typeparam name="T"></typeparam>
