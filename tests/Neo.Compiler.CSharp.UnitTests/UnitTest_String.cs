@@ -201,10 +201,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestStartsWith()
         {
             Assert.IsTrue(Contract.TestStartsWith("worldwide"));
-            AssertGasConsumed(2032590);
+            AssertGasConsumed(1355940);
 
             Assert.IsFalse(Contract.TestStartsWith("hello world"));
-            AssertGasConsumed(2032590);
+            AssertGasConsumed(1355940);
 
             Assert.IsFalse(Contract.TestStartsWithOneByte("hello"));
             AssertGasConsumed(1049700);
@@ -217,6 +217,37 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsFalse(Contract.TestStartsWithOneByte(""));
             AssertGasConsumed(1047570);
+        }
+
+        [TestMethod]
+        public void Test_TestStartsWithConstantPrefixGas()
+        {
+            var p50 = new string('x', 50);
+            Assert.IsTrue(Contract.TestStartsWith2("abcd"));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith2("xxcd"));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith2("a"));
+            AssertGasConsumed(1047600);
+            Assert.IsTrue(Contract.TestStartsWith50(p50 + "yz"));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith50("y" + p50));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith50("xx"));
+            AssertGasConsumed(1047600);
+        }
+
+        [TestMethod]
+        public void Test_TestStartsWithConstantPrefix()
+        {
+            Assert.IsTrue(Contract.TestStartsWith("world"));
+            Assert.IsFalse(Contract.TestStartsWith("worl"));
+            Assert.IsFalse(Contract.TestStartsWith(""));
+            Assert.IsTrue(Contract.TestStartsWithUtf8("éxito"));
+            Assert.IsFalse(Contract.TestStartsWithUtf8("éy"));
+            Assert.IsFalse(Contract.TestStartsWithUtf8("e"));
+            Assert.IsTrue(Contract.TestStartsWithEmbeddedNull("a\0bc"));
+            Assert.IsFalse(Contract.TestStartsWithEmbeddedNull("a\0c"));
         }
 
         [TestMethod]
