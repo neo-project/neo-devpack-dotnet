@@ -188,7 +188,6 @@ public static class ByteStringExtension
     [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
     public extern static ByteString Concat(this ByteString first, ByteString second);
 
-
     /// <summary>
     /// Returns ByteString from start to start + count. Faults if start or start + count out of range.
     /// </summary>
