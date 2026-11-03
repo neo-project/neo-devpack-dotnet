@@ -194,7 +194,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(3, Contract.Count(array));
-            AssertGasConsumed(1153590);
+            AssertGasConsumed(1144020);
 
             array.Add(1);
             array.Add(-8);
@@ -202,7 +202,64 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(56);
 
             Assert.AreEqual(7, Contract.Count(array));
-            AssertGasConsumed(1165230);
+            AssertGasConsumed(1144140);
+        }
+
+        [TestMethod]
+        public void Test_CountArrayOverload()
+        {
+            var expected = new Dictionary<int, long>
+            {
+                [0] = 1082940,
+                [1] = 1143960,
+                [2] = 1143990,
+                [5] = 1144080,
+                [10] = 1144230,
+                [50] = 1145430,
+                [100] = 1146930
+            };
+            foreach (var (n, gas) in expected)
+            {
+                var list = new List<object>();
+                for (int i = 0; i < n; i++) list.Add(i);
+                Assert.AreEqual(n, Contract.Count(list));
+                AssertGasConsumed(gas);
+            }
+        }
+
+        [TestMethod]
+        public void Test_CountEnumerableStillIterates()
+        {
+            var expected = new Dictionary<int, long>
+            {
+                [0] = 1083990,
+                [1] = 1147890,
+                [5] = 1159530,
+                [100] = 1435980
+            };
+            foreach (var (n, gas) in expected)
+            {
+                var list = new List<object>();
+                for (int i = 0; i < n; i++) list.Add(i);
+                Assert.AreEqual(n, Contract.CountEnumerable(list));
+                AssertGasConsumed(gas);
+            }
+        }
+
+        [TestMethod]
+        public void Test_CountArrayElementTypes()
+        {
+            Assert.AreEqual(3, Contract.CountStrings(new List<object> { "a", "b", "c" }));
+            Assert.AreEqual(3, Contract.CountBigIntegers(new List<object> { 1, 2, 3 }));
+            Assert.AreEqual(2, Contract.CountStructs(new List<object> { new List<object> { "a", 1 }, new List<object> { "b", 2 } }));
+            Assert.AreEqual(3, Contract.CountNullable(new List<object> { "a", null!, "c" }));
+            Assert.AreEqual(4, Contract.CountGeneric(new List<object> { 1, 2, 3, 4 }));
+        }
+
+        [TestMethod]
+        public void Test_CountNullArray()
+        {
+            Assert.Throws<TestException>(() => Contract.CountNull());
         }
 
         [TestMethod]
