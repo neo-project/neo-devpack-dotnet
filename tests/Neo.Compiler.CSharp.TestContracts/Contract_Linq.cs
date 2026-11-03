@@ -11,6 +11,7 @@
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
@@ -68,6 +69,48 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int Count(int[] array)
         {
             return array.Count();
+        }
+
+        public static int CountEnumerable(int[] array)
+        {
+            System.Collections.Generic.IEnumerable<int> source = array;
+            return source.Count();
+        }
+
+        public static int CountStrings(string[] array)
+        {
+            return array.Count();
+        }
+
+        public static int CountBigIntegers(BigInteger[] array)
+        {
+            return array.Count();
+        }
+
+        public static int CountStructs(PersonS[] array)
+        {
+            return array.Count();
+        }
+
+        public static int CountNullable(string?[] array)
+        {
+            return array.Count();
+        }
+
+        public static int CountGeneric(int[] array)
+        {
+            return CountGenericHelper(array);
+        }
+
+        private static int CountGenericHelper<T>(T[] array)
+        {
+            return array.Count();
+        }
+
+        public static int CountNull()
+        {
+            int[]? array = null;
+            return array!.Count();
         }
 
         public static int CountGreaterThanZero(int[] array)
