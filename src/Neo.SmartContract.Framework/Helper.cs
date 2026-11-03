@@ -217,7 +217,17 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.REVERSEITEMS)]
+        [Obsolete("Use Reverse(this byte[]) or Array.Reverse(Array) instead.")]
         public extern static byte[] Reverse(this Array source);
+
+        /// <summary>
+        /// Reverses 'source' in place and returns the same reference.
+        /// The argument is mutated, so do not keep using 'source' expecting its original order.
+        /// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
+        /// </summary>
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.REVERSEITEMS)]
+        public extern static byte[] Reverse(this byte[] source);
 
         /// <summary>
         /// Returns the square root of number x
