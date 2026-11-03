@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.TestContracts
@@ -52,5 +53,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return value.Split(separator, removeEmptyEntries);
         }
+
+        public static ByteString ByteStringSub(ByteString value, int start, int count) => value.Substring(start, count);
+
+        public static ByteString ByteStringTake(ByteString value, int count) => value.Take(count);
+
+        public static ByteString ByteStringLast(ByteString value, int count) => value.Last(count);
     }
 }

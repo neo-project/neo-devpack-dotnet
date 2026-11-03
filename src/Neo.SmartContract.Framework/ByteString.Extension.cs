@@ -11,6 +11,7 @@
 
 using System;
 using System.Numerics;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 namespace Neo.SmartContract.Framework;
 
@@ -182,4 +183,29 @@ public static class ByteStringExtension
     {
         return StdLib.StrLen(byteString);
     }
+
+    [OpCode(OpCode.CAT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Concat(this ByteString first, ByteString second);
+
+    /// <summary>
+    /// Returns ByteString from start to start + count. Faults if start or start + count out of range.
+    /// </summary>
+    [OpCode(OpCode.SUBSTR)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Substring(this ByteString source, BigInteger start, BigInteger count);
+
+    /// <summary>
+    /// Returns ByteString with first 'count' elements from 'source'. Faults if count out of range.
+    /// </summary>
+    [OpCode(OpCode.LEFT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Take(this ByteString source, BigInteger count);
+
+    /// <summary>
+    /// Returns ByteString with last 'count' elements from 'source'. Faults if count out of range.
+    /// </summary>
+    [OpCode(OpCode.RIGHT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Last(this ByteString source, BigInteger count);
 }
