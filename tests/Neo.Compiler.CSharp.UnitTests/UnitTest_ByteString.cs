@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
 using System.Text;
 
@@ -119,6 +120,36 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             value = Encoding.UTF8.GetBytes("👩🏻‍❤️‍👨🏻");
             Assert.AreEqual(Contract.TextElementCount(value), 1);
+        }
+
+        [TestMethod]
+        public void Test_ByteStringSub()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello, World!");
+            Assert.AreEqual("H", Encoding.UTF8.GetString(Contract.ByteStringSub(value, 0, 1)!));
+            Assert.AreEqual("", Encoding.UTF8.GetString(Contract.ByteStringSub(value, 0, 0)!));
+            Assert.AreEqual("Hello, World!", Encoding.UTF8.GetString(Contract.ByteStringSub(value, 0, value.Length)!));
+            Assert.ThrowsExactly<TestException>(() => Encoding.UTF8.GetString(Contract.ByteStringSub(value, 0, value.Length + 1)!));
+        }
+
+        [TestMethod]
+        public void Test_ByteStringTake()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello, World!");
+            Assert.AreEqual("H", Encoding.UTF8.GetString(Contract.ByteStringTake(value, 1)!));
+            Assert.AreEqual("", Encoding.UTF8.GetString(Contract.ByteStringTake(value, 0)!));
+            Assert.AreEqual("Hello, World!", Encoding.UTF8.GetString(Contract.ByteStringTake(value, value.Length)!));
+            Assert.ThrowsExactly<TestException>(() => Encoding.UTF8.GetString(Contract.ByteStringTake(value, value.Length + 1)!));
+        }
+
+        [TestMethod]
+        public void Test_ByteStringLast()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello, World!");
+            Assert.AreEqual("!", Encoding.UTF8.GetString(Contract.ByteStringLast(value, 1)!));
+            Assert.AreEqual("", Encoding.UTF8.GetString(Contract.ByteStringLast(value, 0)!));
+            Assert.AreEqual("Hello, World!", Encoding.UTF8.GetString(Contract.ByteStringLast(value, value.Length)!));
+            Assert.ThrowsExactly<TestException>(() => Encoding.UTF8.GetString(Contract.ByteStringLast(value, value.Length + 1)!));
         }
     }
 }
