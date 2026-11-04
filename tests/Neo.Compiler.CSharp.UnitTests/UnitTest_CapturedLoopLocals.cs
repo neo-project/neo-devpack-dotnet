@@ -23,8 +23,25 @@ public class UnitTest_CapturedLoopLocals
     private const string Source = """
         using Neo.SmartContract.Framework;
         using System;
+        public static class Extensions
+        {
+            extension(int value)
+            {
+                public int CapturedInLoop()
+                {
+                    int sum = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Func<int> f = () => value;
+                        sum += f();
+                    }
+                    return sum;
+                }
+            }
+        }
         public class Contract : SmartContract
         {
+            public static int V14(int value) => value.CapturedInLoop();
             public static int V1(int n)
             {
                 int i = 0; int t = 0;
@@ -130,6 +147,8 @@ public class UnitTest_CapturedLoopLocals
         Assert.AreEqual(new BigInteger(5), contract.V12(false));
         Assert.AreEqual(new BigInteger(10), contract.V12(true));
         Assert.AreEqual(new BigInteger(7), contract.V13());
+        Assert.AreEqual(new BigInteger(12), contract.V14(4));
+        Assert.AreEqual(new BigInteger(21), contract.V14(7));
     }
 
     public abstract class LoopContract(SmartContractInitialize initialize)
@@ -147,5 +166,6 @@ public class UnitTest_CapturedLoopLocals
         [DisplayName("v11")] public abstract BigInteger? V11();
         [DisplayName("v12")] public abstract BigInteger? V12(bool enter);
         [DisplayName("v13")] public abstract BigInteger? V13();
+        [DisplayName("v14")] public abstract BigInteger? V14(BigInteger value);
     }
 }
