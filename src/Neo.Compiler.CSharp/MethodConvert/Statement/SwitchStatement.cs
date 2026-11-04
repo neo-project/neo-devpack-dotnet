@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,11 +85,15 @@ namespace Neo.Compiler
                 AccessSlot(OpCode.STLOC, anonymousIndex);
             }
 
-            bool nullableValue = model.GetTypeInfo(syntax.Expression).Type is INamedTypeSymbol
+            ITypeSymbol? switchType = model.GetTypeInfo(syntax.Expression).Type;
+            bool nullableValue = switchType is INamedTypeSymbol
             {
                 OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
             };
+            ITypeSymbol? valueType = nullableValue ? ((INamedTypeSymbol)switchType!).TypeArguments[0] : switchType;
+            bool integerValue = valueType?.GetStackItemType() == StackItemType.Integer;
             bool emittedOptimizedDispatch = _context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic)
+                && integerValue
                 && TryEmitOptimizedIntegerSwitchDispatch(model, labels, anonymousIndex, breakTarget, nullableValue);
 
             JumpTarget? defaultTarget = null;
@@ -117,7 +122,7 @@ namespace Neo.Compiler
                         case CaseSwitchLabelSyntax caseSwitchLabel:
                             using (InsertSequencePoint(caseSwitchLabel))
                             {
-                                if (TryGetIntegerConstant(model, caseSwitchLabel.Value, out _))
+                                if (integerValue && TryGetIntegerConstant(model, caseSwitchLabel.Value, out _))
                                 {
                                     JumpTarget? nextLabel = null;
                                     if (nullableValue)
