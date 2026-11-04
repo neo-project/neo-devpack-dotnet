@@ -122,6 +122,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.IndexOf("world");
         }
 
+        public static int TestIndexOfEmpty(string value)
+        {
+            return value.IndexOf("");
+        }
+
         public static int TestLastIndexOf(string str)
         {
             return str.LastIndexOf("world");
