@@ -301,6 +301,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestIndexOfEmpty()
+        {
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty(""));
+            AssertGasConsumed(1047510);
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("a"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("hello"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("éxito"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("a\0b"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty(new string('x', 500)));
+            Assert.AreEqual(6, Contract.TestIndexOf("hello world"));
+        }
+
+        [TestMethod]
+        public void Test_TestIndexOfEmptyNullReceiver()
+        {
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIndexOfEmpty(null));
+        }
+
+        [TestMethod]
         public void Test_TestLastIndexOf()
         {
             var method = Contract_String.Manifest.Abi.GetMethod("testLastIndexOf", 1);
