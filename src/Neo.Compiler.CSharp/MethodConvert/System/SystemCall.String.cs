@@ -242,6 +242,28 @@ internal partial class MethodConvert
 
     private static void HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null &&
+            symbol.Parameters.Length == 1 &&
+            symbol.Parameters[0].Type.SpecialType == SpecialType.System_String &&
+            TryGetConstantArgument(model, symbol, "value", arguments, out string? constantValue) &&
+            constantValue is { Length: 0 })
+        {
+            JumpTarget nonNullTarget = new();
+            JumpTarget endTarget = new();
+            methodConvert.ConvertExpression(model, instanceExpression); // [source]
+            methodConvert.Dup();                                        // [source, source]
+            methodConvert.IsNull();                                     // [source, isNull]
+            methodConvert.JumpIfNot(nonNullTarget);                     // [source]
+            methodConvert.Push("");                                     // [null, ""]
+            methodConvert.Swap();                                       // ["", null]
+            methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+            methodConvert.JumpAlways(endTarget);
+            nonNullTarget.Instruction = methodConvert.Drop();           // []
+            methodConvert.Push(0);                                      // [0]
+            endTarget.Instruction = methodConvert.Nop();
+            return;
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         if (instanceExpression is not null)
