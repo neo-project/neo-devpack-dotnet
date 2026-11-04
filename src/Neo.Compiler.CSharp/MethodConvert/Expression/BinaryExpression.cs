@@ -54,6 +54,14 @@ internal partial class MethodConvert
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
         var operatorToken = expression.OperatorToken.ValueText;
+        if (model.GetSymbolInfo(expression).Symbol is IMethodSymbol
+            { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } userOperator &&
+            IsDeclaredByCurrentCompilation(model, userOperator))
+        {
+            ConvertUserDefinedBinaryOperator(model, expression, userOperator);
+            return;
+        }
+
         switch (operatorToken)
         {
             case "||":
@@ -112,6 +120,75 @@ internal partial class MethodConvert
         EmitBinaryOperator(model, expression, type);
     }
 
+    private void ConvertUserDefinedBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, IMethodSymbol symbol)
+    {
+        string token = expression.OperatorToken.ValueText;
+        ConvertExpression(model, expression.Left);
+        if (token is "&&" or "||")
+        {
+            string truthOperatorName = token == "&&" ? "op_False" : "op_True";
+            var truthOperator = symbol.ContainingType.GetMembers(truthOperatorName).OfType<IMethodSymbol>()
+                .Single(method => SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, symbol.Parameters[0].Type));
+            var endTarget = new JumpTarget();
+            Dup();
+            EmitCall(_context.ConvertMethod(model, truthOperator));
+            JumpIfTrue(endTarget);
+            ConvertExpression(model, expression.Right);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            endTarget.Instruction = Nop();
+            return;
+        }
+
+        ConvertExpression(model, expression.Right);
+        if (model.GetOperation(expression) is not IBinaryOperation { IsLifted: true })
+        {
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            return;
+        }
+
+        JumpTarget leftNullTarget = new(), rightNullTarget = new(), end = new();
+        Over();
+        IsNull();
+        JumpIfTrue(leftNullTarget);
+        Dup();
+        IsNull();
+        JumpIfTrue(rightNullTarget);
+        Swap();
+        EmitCall(_context.ConvertMethod(model, symbol));
+        Jump(OpCode.JMP_L, end);
+
+        rightNullTarget.Instruction = Drop();
+        Drop();
+        PushLiftedUserOperatorNullResult(token);
+        Jump(OpCode.JMP_L, end);
+
+        leftNullTarget.Instruction = Nop();
+        if (token is "==" or "!=")
+        {
+            IsNull();
+            Swap();
+            Drop();
+            if (token == "!=")
+                Not();
+        }
+        else
+        {
+            Drop(2);
+            PushLiftedUserOperatorNullResult(token);
+        }
+        end.Instruction = Nop();
+    }
+
+    private void PushLiftedUserOperatorNullResult(string token)
+    {
+        if (token is "==" or "!=" or "<" or ">" or "<=" or ">=")
+            Push(token == "!=");
+        else
+            Push((object?)null);
+    }
+
     private void EmitBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, ITypeSymbol type)
     {
         type = GetNonNullableValueType(type);
@@ -141,6 +218,7 @@ internal partial class MethodConvert
 
         if (expression.OperatorToken.ValueText is "/" or "%")
         {
+            CheckDivisionByZero(model, expression.Right);
             CheckSignedDivisionOverflow(model, type, expression.Left, expression.Right);
         }
         else if (expression.OperatorToken.ValueText == "<<")
@@ -416,6 +494,34 @@ internal partial class MethodConvert
         {
             _checkedStack.Pop();
         }
+    }
+
+    /// <summary>
+    /// Emits an explicit zero-divisor check in front of a division or remainder.
+    /// </summary>
+    /// <param name="model">The semantic model of the compilation.</param>
+    /// <param name="rightExpr">The divisor expression.</param>
+    /// <remarks>
+    /// The VM raises a non-catchable engine fault when DIV or MOD receives a zero divisor,
+    /// so a C# <c>catch (Exception)</c> that must observe <see cref="System.DivideByZeroException"/>
+    /// never runs. Throwing explicitly routes the failure through the catchable THROW
+    /// path instead, mirroring the signed-overflow check. A constant non-zero divisor
+    /// cannot fault, so the check is skipped for it.
+    /// </remarks>
+    private void CheckDivisionByZero(SemanticModel model, ExpressionSyntax? rightExpr)
+    {
+        if (rightExpr is not null && TryGetIntegerConstant(model, rightExpr, out var value) && value != 0)
+            return;
+
+        var endTarget = new JumpTarget();
+        Dup();
+        Push(0);
+        JumpIfNotEqual(endTarget);
+
+        RestoreMethodStackDepth();
+        Push("Divide by zero");
+        Throw();
+        endTarget.Instruction = Nop();
     }
 
     /// <summary>

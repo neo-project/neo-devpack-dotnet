@@ -11,6 +11,7 @@
 
 using System;
 using System.Numerics;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 namespace Neo.SmartContract.Framework;
 
@@ -25,9 +26,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (value is < 48 or > 57)
-                return false;
+            BigInteger value = byteString[i];
+            if (!value.Within(48, 58)) return false;
         }
         return true;
     }
@@ -41,9 +41,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (value is < 97 or > 122)
-                return false;
+            BigInteger value = byteString[i];
+            if (!value.Within(97, 123)) return false;
         }
         return true;
     }
@@ -57,9 +56,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (value is < 65 or > 90)
-                return false;
+            BigInteger value = byteString[i];
+            if (!value.Within(65, 91)) return false;
         }
         return true;
     }
@@ -73,8 +71,8 @@ public static class ByteStringExtension
     {
         for (BigInteger i = 0; i < byteString.Length; i++)
         {
-            byte value = byteString[i];
-            if (!((value >= 65 && value <= 90) || (value >= 97 && value <= 122)))
+            BigInteger value = byteString[i];
+            if (!(value | 0x20).Within(97, 123))
                 return false;
         }
         return true;
@@ -133,9 +131,10 @@ public static class ByteStringExtension
     /// <returns>True if ends with</returns>
     public static bool EndsWith(this ByteString byteString, ByteString toFind)
     {
-        if (toFind.Length == 0) return true;
-        int startIndex = byteString.Length - toFind.Length;
+        var toLength = toFind.Length;
+        var startIndex = byteString.Length - toLength;
         if (startIndex < 0) return false;
+        if (toLength == 0) return true;
         return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind, startIndex), startIndex);
     }
 
@@ -184,4 +183,29 @@ public static class ByteStringExtension
     {
         return StdLib.StrLen(byteString);
     }
+
+    [OpCode(OpCode.CAT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Concat(this ByteString first, ByteString second);
+
+    /// <summary>
+    /// Returns ByteString from start to start + count. Faults if start or start + count out of range.
+    /// </summary>
+    [OpCode(OpCode.SUBSTR)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Substring(this ByteString source, BigInteger start, BigInteger count);
+
+    /// <summary>
+    /// Returns ByteString with first 'count' elements from 'source'. Faults if count out of range.
+    /// </summary>
+    [OpCode(OpCode.LEFT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Take(this ByteString source, BigInteger count);
+
+    /// <summary>
+    /// Returns ByteString with last 'count' elements from 'source'. Faults if count out of range.
+    /// </summary>
+    [OpCode(OpCode.RIGHT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Last(this ByteString source, BigInteger count);
 }

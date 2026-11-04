@@ -200,6 +200,12 @@ internal partial class MethodConvert
                 endTarget.Instruction = methodConvert.Nop();
                 return;
             }
+
+            if (valueBytes.Length > 1)
+            {
+                HandleStringStartsWithConstant(methodConvert, model, instanceExpression, valueBytes);
+                return;
+            }
         }
 
         if (arguments is not null)
@@ -210,8 +216,54 @@ internal partial class MethodConvert
         methodConvert.Not();
     }
 
+    private static void HandleStringStartsWithConstant(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, byte[] valueBytes)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        JumpTarget validCountTarget = new();
+        JumpTarget endTarget = new();
+        methodConvert.Dup();                                      // [source, source]
+        methodConvert.Size();                                     // [source, sourceSize]
+        methodConvert.Push(valueBytes.Length);                    // [source, sourceSize, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);     // [source]
+        methodConvert.Drop();                                     // []
+        methodConvert.PushF();                                    // source shorter than value.
+        methodConvert.JumpAlways(endTarget);
+
+        validCountTarget.Instruction = methodConvert.Push(valueBytes.Length); // [source, valueSize]
+        methodConvert.Left(null);                                 // [prefix]
+        methodConvert.ChangeType(StackItemType.ByteString);       // [prefix]
+        methodConvert.Push(valueBytes);                           // [prefix, value]
+        methodConvert.Equal();                                    // [bool]
+
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
     private static void HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null &&
+            symbol.Parameters.Length == 1 &&
+            symbol.Parameters[0].Type.SpecialType == SpecialType.System_String &&
+            TryGetConstantArgument(model, symbol, "value", arguments, out string? constantValue) &&
+            constantValue is { Length: 0 })
+        {
+            JumpTarget nonNullTarget = new();
+            JumpTarget endTarget = new();
+            methodConvert.ConvertExpression(model, instanceExpression); // [source]
+            methodConvert.Dup();                                        // [source, source]
+            methodConvert.IsNull();                                     // [source, isNull]
+            methodConvert.JumpIfNot(nonNullTarget);                     // [source]
+            methodConvert.Push("");                                     // [null, ""]
+            methodConvert.Swap();                                       // ["", null]
+            methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+            methodConvert.JumpAlways(endTarget);
+            nonNullTarget.Instruction = methodConvert.Drop();           // []
+            methodConvert.Push(0);                                      // [0]
+            endTarget.Instruction = methodConvert.Nop();
+            return;
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         if (instanceExpression is not null)

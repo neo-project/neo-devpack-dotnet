@@ -51,7 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("f")!).GetInteger());
             AssertGasConsumed(1056090);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("g")!).GetInteger());
-            AssertGasConsumed(1057380);
+            AssertGasConsumed(1057410);
         }
 
         [TestMethod]

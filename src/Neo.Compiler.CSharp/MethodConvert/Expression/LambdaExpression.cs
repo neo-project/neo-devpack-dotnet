@@ -77,12 +77,26 @@ internal partial class MethodConvert
             switch (local)
             {
                 case ILocalSymbol localSymbol:
-                    var localIndex = _localVariables[localSymbol];
-                    AccessSlot(OpCode.LDLOC, localIndex);
+                    if (_byRefCapturedSymbols.Contains(localSymbol))
+                    {
+                        LdLocSlot(localSymbol);
+                    }
+                    else
+                    {
+                        var localIndex = _localVariables[localSymbol];
+                        AccessSlot(OpCode.LDLOC, localIndex);
+                    }
                     break;
                 case IParameterSymbol parameterSymbol:
-                    var paraIndex = _parameters[parameterSymbol];
-                    AccessSlot(OpCode.LDARG, paraIndex);
+                    if (_byRefCapturedSymbols.Contains(parameterSymbol))
+                    {
+                        LdArgSlot(parameterSymbol);
+                    }
+                    else
+                    {
+                        var paraIndex = _parameters[parameterSymbol];
+                        AccessSlot(OpCode.LDARG, paraIndex);
+                    }
                     break;
             }
             AccessSlot(OpCode.STSFLD, staticFieldIndex);

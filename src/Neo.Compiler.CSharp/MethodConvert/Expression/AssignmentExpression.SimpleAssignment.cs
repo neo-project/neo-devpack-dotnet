@@ -24,6 +24,8 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private readonly Dictionary<SyntaxNode, byte> _tupleAssignmentReceiverSlots = new();
+
     /// <summary>
     /// Converts the code for simple assignment expression into OpCodes.
     /// The assignment operator = assigns the value of its right-hand operand to a variable,
@@ -49,6 +51,28 @@ internal partial class MethodConvert
     /// </param>
     private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression, bool leaveResultOnStack = true)
     {
+        if (expression.Left is TupleExpressionSyntax tupleLeft)
+        {
+            // C# evaluates tuple assignment receivers before the right-hand side. Capture
+            // instance receivers in temporary slots so a side-effecting RHS cannot change
+            // which object or value is updated by the tuple writeback.
+            using var scope = PreserveAnonymousVariables();
+            try
+            {
+                CaptureTupleAssignmentReceivers(model, tupleLeft);
+                ConvertExpression(model, expression.Right);
+                if (leaveResultOnStack)
+                    AddInstruction(OpCode.DUP);
+                ConvertTupleAssignment(model, tupleLeft);
+                return;
+            }
+            finally
+            {
+                foreach (ArgumentSyntax argument in tupleLeft.Arguments)
+                    _tupleAssignmentReceiverSlots.Remove(argument.Expression);
+            }
+        }
+
         ITypeSymbol assignedType = model.GetTypeInfo(expression).Type ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
 
         if (expression.Right is RefExpressionSyntax refExpression &&
@@ -60,6 +84,7 @@ internal partial class MethodConvert
                     "Ref assignments are only supported for previously-declared ref locals.");
             }
 
+            ValidateRefReassignment(expression);
             BindRefLocal(model, local, refExpression);
             if (leaveResultOnStack)
                 LdLocSlot(local);
@@ -133,8 +158,8 @@ internal partial class MethodConvert
             {
                 case SingleVariableDesignationSyntax singleVariableDesignation:
                     ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
-                    byte index = AddLocalVariable(local);
-                    AccessSlot(OpCode.STLOC, index);
+                    AddLocalVariable(local);
+                    StLocSlot(local);
                     break;
                 case DiscardDesignationSyntax:
                     AddInstruction(OpCode.DROP);
@@ -153,17 +178,35 @@ internal partial class MethodConvert
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             if (property.SetMethod is null)
                 throw CompilationException.UnsupportedSyntax(left, $"Element assignment through indexer '{property.Name}' is not supported because the indexer does not expose a setter.");
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            ConvertExpression(model, right);
-            if (leaveResultOnStack)
+            if (!NeedInstanceConstructor(property.SetMethod))
             {
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.REVERSE4);
+                EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                ConvertExpression(model, right);
+                if (leaveResultOnStack)
+                {
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.REVERSE3);
+                }
+                else
+                {
+                    AddInstruction(OpCode.SWAP);
+                }
             }
             else
             {
-                AddInstruction(OpCode.REVERSE3);
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                ConvertExpression(model, right);
+                if (leaveResultOnStack)
+                {
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.REVERSE4);
+                }
+                else
+                {
+                    AddInstruction(OpCode.REVERSE3);
+                }
             }
             CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
         }
@@ -272,7 +315,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = GetInstanceFieldIndex(field);
+                    int index = GetFieldIndex(model.GetTypeInfo(left.Expression).Type, field);
                     ConvertExpression(model, left.Expression);
                     Push(index);
                     ConvertExpression(model, right);
@@ -286,8 +329,9 @@ internal partial class MethodConvert
                 }
                 break;
             case IPropertySymbol property:
-                if (property.IsStatic)
+                if (!NeedInstanceConstructor(property.SetMethod!))
                 {
+                    EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
                     ConvertExpression(model, right);
                     if (leaveResultOnStack)
                         AddInstruction(OpCode.DUP);
@@ -313,6 +357,68 @@ internal partial class MethodConvert
         }
     }
 
+    private void CaptureTupleAssignmentReceivers(SemanticModel model, TupleExpressionSyntax tuple)
+    {
+        foreach (ArgumentSyntax argument in tuple.Arguments)
+        {
+            if (argument.Expression is not MemberAccessExpressionSyntax memberAccess)
+                continue;
+
+            ISymbol? symbol = model.GetSymbolInfo(memberAccess.Name).Symbol;
+            if (symbol is IPropertySymbol propertySymbol && !NeedInstanceConstructor(propertySymbol.SetMethod!))
+            {
+                EmitIgnoredReceiverIfNeeded(model, propertySymbol, memberAccess.Expression);
+                continue;
+            }
+            bool instanceMember = symbol switch
+            {
+                IFieldSymbol field => !field.IsStatic,
+                IPropertySymbol property => !property.IsStatic,
+                _ => false,
+            };
+            if (!instanceMember)
+                continue;
+
+            byte slot = AddAnonymousVariable();
+            ConvertExpression(model, memberAccess.Expression);
+            AccessSlot(OpCode.STLOC, slot);
+            _tupleAssignmentReceiverSlots.Add(memberAccess, slot);
+        }
+    }
+
+    private void EmitIgnoredReceiverIfNeeded(SemanticModel model, IPropertySymbol property, ExpressionSyntax receiver)
+    {
+        if (property.IsStatic)
+            return;
+
+        receiver = UnwrapIdentityReceiver(model, receiver);
+        if (receiver is not (ThisExpressionSyntax or BaseExpressionSyntax))
+        {
+            ConvertExpression(model, receiver);
+            AddInstruction(OpCode.DROP);
+        }
+    }
+
+    private static ExpressionSyntax UnwrapIdentityReceiver(SemanticModel model, ExpressionSyntax receiver)
+    {
+        while (true)
+        {
+            if (receiver is ParenthesizedExpressionSyntax parenthesized)
+                receiver = parenthesized.Expression;
+            else if (receiver is PostfixUnaryExpressionSyntax { OperatorToken.ValueText: "!" } nullForgiving)
+                receiver = nullForgiving.Operand;
+            else if (receiver is CastExpressionSyntax cast &&
+                model.GetTypeInfo(cast.Type).Type is ITypeSymbol targetType &&
+                model.ClassifyConversion(cast.Expression, targetType).IsIdentity)
+                // An identity cast does not create a receiver argument for this/base.
+                receiver = cast.Expression;
+            else
+                break;
+        }
+
+        return receiver;
+    }
+
     private void ConvertTupleMemberAccessAssignment(SemanticModel model, MemberAccessExpressionSyntax left)
     {
         ISymbol symbol = model.GetSymbolInfo(left.Name).Symbol!;
@@ -326,15 +432,16 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = GetInstanceFieldIndex(field);
-                    ConvertExpression(model, left.Expression);
+                    int index = GetFieldIndex(model.GetTypeInfo(left.Expression).Type, field);
+                    AccessSlot(OpCode.LDLOC, _tupleAssignmentReceiverSlots[left]);
                     Push(index);
                     AddInstruction(OpCode.ROT);
                     AddInstruction(OpCode.SETITEM);
                 }
                 break;
             case IPropertySymbol property:
-                if (!property.IsStatic) ConvertExpression(model, left.Expression);
+                if (NeedInstanceConstructor(property.SetMethod!))
+                    AccessSlot(OpCode.LDLOC, _tupleAssignmentReceiverSlots[left]);
                 CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                 break;
             default:
@@ -355,8 +462,8 @@ internal partial class MethodConvert
                     {
                         case SingleVariableDesignationSyntax singleVariableDesignation:
                             ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
-                            byte index = AddLocalVariable(local);
-                            AccessSlot(OpCode.STLOC, index);
+                            AddLocalVariable(local);
+                            StLocSlot(local);
                             break;
                         case DiscardDesignationSyntax:
                             AddInstruction(OpCode.DROP);
@@ -422,7 +529,17 @@ internal partial class MethodConvert
         JumpTarget nullSkipTarget = new();
         JumpTarget endTarget = new();
 
-        ConvertExpression(model, chain[0].Expression);
+        if (!NeedInstanceConstructor(Symbol) &&
+            UnwrapIdentityReceiver(model, chain[0].Expression) is ThisExpressionSyntax)
+        {
+            // Receiverless methods have no hidden argument slot. Their stateless this is
+            // nevertheless non-null; represent it as an empty instance for the guard.
+            AddInstruction(OpCode.NEWARRAY0);
+        }
+        else
+        {
+            ConvertExpression(model, chain[0].Expression);
+        }
 
         byte receiverSlot = 0;
         for (int i = 0; i < chain.Count; i++)
@@ -514,7 +631,8 @@ internal partial class MethodConvert
         {
             case IPropertySymbol property when property.SetMethod is not null:
                 AccessSlot(OpCode.LDLOC, valueSlot);
-                AccessSlot(OpCode.LDLOC, receiverSlot);
+                if (NeedInstanceConstructor(property.SetMethod))
+                    AccessSlot(OpCode.LDLOC, receiverSlot);
                 CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
                 break;
             case IFieldSymbol field:
@@ -548,7 +666,7 @@ internal partial class MethodConvert
         switch (symbol)
         {
             case IPropertySymbol property when property.GetMethod is not null:
-                if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
+                if (NeedInstanceConstructor(property.GetMethod)) AccessSlot(OpCode.LDLOC, receiverSlot);
                 CallMethodWithConvention(model, property.GetMethod);
                 break;
             case IFieldSymbol field:
@@ -603,11 +721,11 @@ internal partial class MethodConvert
         switch (symbol)
         {
             case IPropertySymbol property when property.GetMethod is not null && property.SetMethod is not null:
-                if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
+                if (NeedInstanceConstructor(property.GetMethod)) AccessSlot(OpCode.LDLOC, receiverSlot);
                 CallMethodWithConvention(model, property.GetMethod);
                 EmitComplexAssignmentOperator(model, type, operatorToken, right);
                 AddInstruction(OpCode.DUP);
-                if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
+                if (NeedInstanceConstructor(property.SetMethod)) AccessSlot(OpCode.LDLOC, receiverSlot);
                 CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
                 break;
             case IFieldSymbol field:
@@ -737,7 +855,8 @@ internal partial class MethodConvert
         {
             if (property.GetMethod is null)
                 throw CompilationException.UnsupportedSyntax(elementBinding, $"Element access through indexer '{property.Name}' is not supported because the indexer does not expose a getter.");
-            AccessSlot(OpCode.LDLOC, receiverSlot);
+            if (NeedInstanceConstructor(property.GetMethod))
+                AccessSlot(OpCode.LDLOC, receiverSlot);
             AccessSlot(OpCode.LDLOC, indexSlots[0]);
             CallMethodWithConvention(model, property.GetMethod, CallingConvention.StdCall);
             return;
@@ -762,7 +881,8 @@ internal partial class MethodConvert
                 throw CompilationException.UnsupportedSyntax(elementBinding, $"Element assignment through indexer '{property.Name}' is not supported because the indexer does not expose a setter.");
             AccessSlot(OpCode.LDLOC, valueSlot);
             AccessSlot(OpCode.LDLOC, indexSlots[0]);
-            AccessSlot(OpCode.LDLOC, receiverSlot);
+            if (NeedInstanceConstructor(property.SetMethod))
+                AccessSlot(OpCode.LDLOC, receiverSlot);
             CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
             return;
         }

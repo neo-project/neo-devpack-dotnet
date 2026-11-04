@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(10, Contract.IntForeach());
             AssertGasConsumed(1061280);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1125030);
+            AssertGasConsumed(1125150);
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("abcd", Contract.IntForLoopString());
             AssertGasConsumed(2305650);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1125030);
+            AssertGasConsumed(1125150);
         }
 
         [TestMethod]

@@ -114,7 +114,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var array = new List<object>();
 
             var exception = Assert.ThrowsExactly<TestException>(() => Contract.Average(array));
-            AssertGasConsumed(1099470);
+            AssertGasConsumed(1099590);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
             array.Add(0);
@@ -122,18 +122,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(2);
 
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1155480);
+            AssertGasConsumed(1155750);
             array.Add(3);
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1158810);
+            AssertGasConsumed(1159080);
 
             array = new List<object>() { int.MaxValue, int.MaxValue };
             Assert.AreEqual(int.MaxValue, Contract.Average(array));
-            AssertGasConsumed(1152150);
+            AssertGasConsumed(1152420);
 
             array = new List<object>() { (long)int.MaxValue + 2, int.MaxValue };
             Assert.ThrowsExactly<TestException>(() => Contract.Average(array));
-            AssertGasConsumed(1167510);
+            AssertGasConsumed(1167780);
         }
 
         [TestMethod]
@@ -141,7 +141,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var array = new List<object>();
             var exception = Assert.ThrowsExactly<TestException>(() => Contract.AverageLong(array));
-            AssertGasConsumed(1099470);
+            AssertGasConsumed(1099590);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
             array.Add(0);
@@ -149,19 +149,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(2);
 
             Assert.AreEqual(1, Contract.AverageLong(array));
-            AssertGasConsumed(1155480);
+            AssertGasConsumed(1155750);
 
             array.Add(3);
             Assert.AreEqual(1, Contract.AverageLong(array));
-            AssertGasConsumed(1158810);
+            AssertGasConsumed(1159080);
 
             array = new List<object>() { long.MaxValue, long.MaxValue };
             Assert.AreEqual(long.MaxValue, Contract.AverageLong(array));
-            AssertGasConsumed(1152150);
+            AssertGasConsumed(1152420);
 
             array = new List<object>() { (BigInteger)long.MaxValue + 2, long.MaxValue };
             Assert.ThrowsExactly<TestException>(() => Contract.AverageLong(array));
-            AssertGasConsumed(1167600);
+            AssertGasConsumed(1167870);
         }
 
         [TestMethod]
@@ -170,18 +170,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             var array = new List<object>();
 
             var exception = Assert.ThrowsExactly<TestException>(() => Contract.AverageTwice(array));
-            AssertGasConsumed(1117350);
+            AssertGasConsumed(1117470);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
             array.Add(0);
             array.Add(1);
             array.Add(2);
             Assert.AreEqual(2, Contract.AverageTwice(array));
-            AssertGasConsumed(1227180);
+            AssertGasConsumed(1227450);
 
             array.Add(3);
             Assert.AreEqual(3, Contract.AverageTwice(array));
-            AssertGasConsumed(1248450);
+            AssertGasConsumed(1248720);
         }
 
         [TestMethod]
@@ -194,7 +194,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(3, Contract.Count(array));
-            AssertGasConsumed(1153590);
+            AssertGasConsumed(1144020);
 
             array.Add(1);
             array.Add(-8);
@@ -202,7 +202,64 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(56);
 
             Assert.AreEqual(7, Contract.Count(array));
-            AssertGasConsumed(1165230);
+            AssertGasConsumed(1144140);
+        }
+
+        [TestMethod]
+        public void Test_CountArrayOverload()
+        {
+            var expected = new Dictionary<int, long>
+            {
+                [0] = 1082940,
+                [1] = 1143960,
+                [2] = 1143990,
+                [5] = 1144080,
+                [10] = 1144230,
+                [50] = 1145430,
+                [100] = 1146930
+            };
+            foreach (var (n, gas) in expected)
+            {
+                var list = new List<object>();
+                for (int i = 0; i < n; i++) list.Add(i);
+                Assert.AreEqual(n, Contract.Count(list));
+                AssertGasConsumed(gas);
+            }
+        }
+
+        [TestMethod]
+        public void Test_CountEnumerableStillIterates()
+        {
+            var expected = new Dictionary<int, long>
+            {
+                [0] = 1083990,
+                [1] = 1147890,
+                [5] = 1159530,
+                [100] = 1435980
+            };
+            foreach (var (n, gas) in expected)
+            {
+                var list = new List<object>();
+                for (int i = 0; i < n; i++) list.Add(i);
+                Assert.AreEqual(n, Contract.CountEnumerable(list));
+                AssertGasConsumed(gas);
+            }
+        }
+
+        [TestMethod]
+        public void Test_CountArrayElementTypes()
+        {
+            Assert.AreEqual(3, Contract.CountStrings(new List<object> { "a", "b", "c" }));
+            Assert.AreEqual(3, Contract.CountBigIntegers(new List<object> { 1, 2, 3 }));
+            Assert.AreEqual(2, Contract.CountStructs(new List<object> { new List<object> { "a", 1 }, new List<object> { "b", 2 } }));
+            Assert.AreEqual(3, Contract.CountNullable(new List<object> { "a", null!, "c" }));
+            Assert.AreEqual(4, Contract.CountGeneric(new List<object> { 1, 2, 3, 4 }));
+        }
+
+        [TestMethod]
+        public void Test_CountNullArray()
+        {
+            Assert.Throws<TestException>(() => Contract.CountNull());
         }
 
         [TestMethod]

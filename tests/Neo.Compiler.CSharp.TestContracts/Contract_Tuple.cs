@@ -39,6 +39,25 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (1, 2, 3, 4);
         }
 
+        public static BigInteger ReadTupleElements(BigInteger a, BigInteger b)
+        {
+            var t = (a, b, 3, 4, 5, 6, 7);
+            return t.Item1 * 1000000 + t.Item3 * 10000 + t.Item4 * 1000 + t.Item7;
+        }
+
+        public static BigInteger WriteTupleElement(BigInteger a)
+        {
+            var t = (a, 2, 3, 4);
+            t.Item4 = 99;
+            return t.Item4;
+        }
+
+        public static BigInteger ReadTupleRest(BigInteger a)
+        {
+            var t = (a, 2, 3, 4, 5, 6, 7, 8);
+            return t.Item8 * 1000 + t.Item5;
+        }
+
         public static object T1()
         {
             var state = new StructA();
@@ -48,6 +67,48 @@ namespace Neo.Compiler.CSharp.TestContracts
             _ = GetResult();
             state.index = index;
             return state;
+        }
+
+        private sealed class TupleBox
+        {
+            public int X;
+            public int Y;
+            public int P { get; set; }
+            public static int StaticField;
+            public static int StaticProperty { get; set; }
+        }
+
+        private static int TupleNext(ref int state)
+        {
+            return ++state;
+        }
+
+        private static TupleBox TuplePick(TupleBox value, ref int state)
+        {
+            state++;
+            return value;
+        }
+
+        public static int TupleAssignmentEvaluationOrder(int a)
+        {
+            var left = new TupleBox();
+            var right = new TupleBox();
+            int state = a;
+            (TuplePick(left, ref state).X, _, TuplePick(right, ref state).Y) =
+                (TupleNext(ref state), TupleNext(ref state), TupleNext(ref state));
+            return left.X * 100000 + right.Y * 10000 + state;
+        }
+
+        public static int TuplePropertyAndStaticAssignment(int a)
+        {
+            var left = new TupleBox();
+            int state = a;
+            (TuplePick(left, ref state).X, TuplePick(left, ref state).P,
+             TupleBox.StaticField, TupleBox.StaticProperty) =
+                (TupleNext(ref state), TupleNext(ref state),
+                 TupleNext(ref state), TupleNext(ref state));
+            return left.X * 100000 + left.P * 10000
+                + TupleBox.StaticField * 1000 + TupleBox.StaticProperty * 100 + state;
         }
     }
 }

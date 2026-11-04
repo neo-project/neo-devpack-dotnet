@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System;
+using System.Numerics;
 using Neo.SmartContract.Framework.Native;
 
 namespace Neo.SmartContract.Framework.Helpers
@@ -19,21 +20,26 @@ namespace Neo.SmartContract.Framework.Helpers
         private static int GetHexPrefixLength(byte[] valueBytes)
         {
             if (valueBytes.Length < 2) return 0;
-            return valueBytes[0] == (byte)'0' && (valueBytes[1] == (byte)'x' || valueBytes[1] == (byte)'X') ? 2 : 0;
+            if (valueBytes[0] != (byte)'0') return 0;
+
+            byte second = valueBytes[1];
+            return (second == (byte)'x' || second == (byte)'X') ? 2 : 0;
         }
 
         internal static byte[] ParseHex(byte[] valueBytes)
         {
             var offset = GetHexPrefixLength(valueBytes);
-            if ((valueBytes.Length - offset) % 2 != 0)
+            var rawLength = (BigInteger)valueBytes.Length - offset;
+            if (rawLength % 2 != 0)
                 throw new FormatException("Invalid hex string length.");
 
-            var expectedLength = (valueBytes.Length - offset) / 2;
-            var result = new byte[expectedLength];
+            var expectedLength = rawLength / 2;
+            var result = new byte[(int)expectedLength];
             for (int i = 0; i < expectedLength; i++)
             {
-                byte high = FromHexByte(valueBytes[offset + i * 2]);
-                byte low = FromHexByte(valueBytes[offset + i * 2 + 1]);
+                var index = offset + i * 2;
+                var high = FromHexByte(valueBytes[index]);
+                var low = FromHexByte(valueBytes[index + 1]);
                 result[i] = (byte)((high << 4) | low);
             }
             return result;
@@ -51,11 +57,11 @@ namespace Neo.SmartContract.Framework.Helpers
             return Helper.Range(decoded, 1, decoded.Length - 1);
         }
 
-        private static byte FromHexByte(byte value)
+        private static BigInteger FromHexByte(BigInteger value)
         {
-            if (value >= (byte)'0' && value <= (byte)'9') return (byte)(value - (byte)'0');
-            if (value >= (byte)'a' && value <= (byte)'f') return (byte)(value - (byte)'a' + 10);
-            if (value >= (byte)'A' && value <= (byte)'F') return (byte)(value - (byte)'A' + 10);
+            if (value >= '0' && value <= '9') return value - '0';
+            if (value >= 'a' && value <= 'f') return value - 'a' + 10;
+            if (value >= 'A' && value <= 'F') return value - 'A' + 10;
             throw new FormatException("Invalid hex character.");
         }
     }

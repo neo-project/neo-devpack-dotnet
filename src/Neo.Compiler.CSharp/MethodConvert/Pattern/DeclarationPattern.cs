@@ -54,14 +54,14 @@ internal partial class MethodConvert
                 break;
             case SingleVariableDesignationSyntax variable:
                 ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
-                byte index = AddLocalVariable(local);
+                AddLocalVariable(local);
                 // Only assign the variable when the type check succeeds.
                 // DUP the IsType result so we can branch on it and still leave it on the stack.
                 AddInstruction(OpCode.DUP);
                 JumpTarget skipAssignment = new();
                 Jump(OpCode.JMPIFNOT, skipAssignment);
                 AccessSlot(OpCode.LDLOC, localIndex);
-                AccessSlot(OpCode.STLOC, index);
+                StLocSlot(local);
                 skipAssignment.Instruction = AddInstruction(OpCode.NOP);
                 break;
             default:

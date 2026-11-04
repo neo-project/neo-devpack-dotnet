@@ -155,6 +155,31 @@ namespace Neo.Compiler.CSharp.TestContracts
             return input.IsEven;
         }
 
+        public static bool testIsOdd(BigInteger input)
+        {
+            return BigInteger.IsOddInteger(input);
+        }
+
+        public static bool testModIsEven(BigInteger input)
+        {
+            return input % 2 == 0;
+        }
+
+        public static bool testAndIsEven(BigInteger input)
+        {
+            return (input & BigInteger.One) == 0;
+        }
+
+        public static bool testModIsOdd(BigInteger input)
+        {
+            return input % 2 != 0;
+        }
+
+        public static bool testAndIsOdd(BigInteger input)
+        {
+            return (input & BigInteger.One) != 0;
+        }
+
         public static bool testIsZero(BigInteger input)
         {
             return input.IsZero;

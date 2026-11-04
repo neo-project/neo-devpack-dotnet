@@ -108,7 +108,10 @@ namespace Neo.SmartContract.Analyzer
         {
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
             var constructor = semanticModel?.GetSymbolInfo(objectCreation, cancellationToken).Symbol as IMethodSymbol;
-            if (constructor is null || constructor.Parameters.Length != 1) return false;
+            if (constructor is null || constructor.Parameters.Length != 1 ||
+                objectCreation.ArgumentList?.Arguments.Count != 1 ||
+                semanticModel!.GetConversion(objectCreation.ArgumentList.Arguments[0].Expression, cancellationToken).IsUserDefined)
+                return false;
 
             var specialType = constructor.Parameters[0].Type.SpecialType;
             return specialType is SpecialType.System_SByte or

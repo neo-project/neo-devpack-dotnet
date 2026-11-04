@@ -182,40 +182,109 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
-        public void TestBigIntegerToSbyte()
+        public void TestBigIntegerAsByte()
         {
-            Assert.AreEqual(127, Contract.BigIntegerToSbyte(127));
+
+            Assert.AreEqual(127, Contract.BigIntegerAsByte(127));
+            AssertGasConsumed(1047510);
+
+            Assert.AreEqual(-128, Contract.BigIntegerAsByte(-128));
+            AssertGasConsumed(1047510);
+
+            Assert.AreEqual(0, Contract.BigIntegerAsByte(0));
+            AssertGasConsumed(1047510);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsByte(128));
+            AssertGasConsumed(1047510);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsByte(-129));
+            AssertGasConsumed(1047510);
+        }
+
+        [TestMethod]
+        public void TestIntAsByte()
+        {
+            Assert.AreEqual(127, Contract.IntAsByte(127));
+            AssertGasConsumed(1047510);
+
+            Assert.AreEqual(-128, Contract.IntAsByte(-128));
+            AssertGasConsumed(1047510);
+
+            Assert.AreEqual(0, Contract.IntAsByte(0));
+            AssertGasConsumed(1047510);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsByte(128));
+            AssertGasConsumed(1047510);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsByte(-129));
+            AssertGasConsumed(1047510);
+        }
+
+        [TestMethod]
+        public void TestBigIntegerAsSbyte()
+        {
+            Assert.AreEqual(127, Contract.BigIntegerAsSbyte(127));
             AssertGasConsumed(1047420);
 
-            Assert.AreEqual(-128, Contract.BigIntegerToSbyte(-128));
+            Assert.AreEqual(-128, Contract.BigIntegerAsSbyte(-128));
             AssertGasConsumed(1047420);
 
-            Assert.AreEqual(0, Contract.BigIntegerToSbyte(0));
+            Assert.AreEqual(0, Contract.BigIntegerAsSbyte(0));
             AssertGasConsumed(1047420);
 
-            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerToSbyte(128));
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(128));
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(256));
             AssertGasConsumed(1047420);
 
-            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerToSbyte(-129));
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(-129));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(-128, Contract.BigIntegerToSbyte(128));
+            AssertGasConsumed(1047840);
+
+            Assert.AreEqual(-1, Contract.BigIntegerToSbyte(255));
+            AssertGasConsumed(1047840);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerToSbyte(256));
+
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.BigIntegerAsSbyte(-129));
             AssertGasConsumed(1047420);
         }
 
         [TestMethod]
-        public void TestIntToSbyte()
+        public void TestIntAsSbyte()
         {
-            Assert.AreEqual(127, Contract.IntToSbyte(127));
+            Assert.AreEqual(127, Contract.IntAsSbyte(127));
             AssertGasConsumed(1047420);
 
-            Assert.AreEqual(-128, Contract.IntToSbyte(-128));
+            Assert.AreEqual(-128, Contract.IntAsSbyte(-128));
             AssertGasConsumed(1047420);
 
-            Assert.AreEqual(0, Contract.IntToSbyte(0));
+            Assert.AreEqual(0, Contract.IntAsSbyte(0));
             AssertGasConsumed(1047420);
 
-            Assert.ThrowsExactly<TestException>(() => Contract.IntToSbyte(128));
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(128));
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(256));
             AssertGasConsumed(1047420);
 
-            Assert.ThrowsExactly<TestException>(() => Contract.IntToSbyte(-129));
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(-129));
+            AssertGasConsumed(1047420);
+
+            Assert.AreEqual(-128, Contract.IntToSbyte(128));
+            AssertGasConsumed(1047840);
+
+            Assert.AreEqual(-1, Contract.IntToSbyte(255));
+            AssertGasConsumed(1047840);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntToSbyte(256));
+
+            AssertGasConsumed(1047420);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.IntAsSbyte(-129));
             AssertGasConsumed(1047420);
         }
     }

@@ -74,22 +74,42 @@ internal partial class MethodConvert
         {
             if (left.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.NIP);
-            AddInstruction(OpCode.NIP);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
-            ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            if (!NeedInstanceConstructor(property.GetMethod!))
+            {
+                EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.DUP);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.NIP);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE3);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
+            else
+            {
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.NIP);
+                AddInstruction(OpCode.NIP);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            }
         }
         else
         {
@@ -250,7 +270,7 @@ internal partial class MethodConvert
     private void ConvertPropertyIdentifierNameCoalesceAssignment(SemanticModel model, IPropertySymbol left, ExpressionSyntax right)
     {
         JumpTarget endTarget = new();
-        if (left.IsStatic)
+        if (!NeedInstanceConstructor(left.GetMethod!))
         {
             CallMethodWithConvention(model, left.GetMethod!);
             AddInstruction(OpCode.DUP);
@@ -319,8 +339,9 @@ internal partial class MethodConvert
     private void ConvertPropertyMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, IPropertySymbol property)
     {
         JumpTarget endTarget = new();
-        if (property.IsStatic)
+        if (!NeedInstanceConstructor(property.GetMethod!))
         {
+            EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
             CallMethodWithConvention(model, property.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);

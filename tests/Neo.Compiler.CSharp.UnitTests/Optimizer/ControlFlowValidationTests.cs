@@ -194,6 +194,140 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             Assert.AreEqual(BranchType.OK, coverage.coveredMap[11]);
         }
 
+        [TestMethod]
+        [DataRow(OpCode.THROW, OpCode.NOP, BranchType.THROW)]
+        [DataRow(OpCode.THROW, OpCode.ABORT, BranchType.ABORT)]
+        [DataRow(OpCode.ABORT, OpCode.NOP, BranchType.ABORT)]
+        public void CatchTerminationPreservesFaultThroughFinally(OpCode catchExit, OpCode finallyExit, BranchType expected)
+        {
+            byte[] script =
+            [
+                (byte)OpCode.TRY, 0x06, 0x09,
+                (byte)OpCode.PUSH0, (byte)OpCode.THROW, (byte)OpCode.NOP,
+                (byte)OpCode.DROP, (byte)OpCode.PUSH1, (byte)catchExit,
+                (byte)finallyExit, (byte)OpCode.ENDFINALLY,
+                (byte)OpCode.RET
+            ];
+            var nef = CreateNefFile(script);
+            var manifest = CreateManifest();
+            var coverage = new InstructionCoverage(nef, manifest);
+            Assert.AreEqual(expected, coverage.coveredMap[0]);
+            Assert.AreEqual(BranchType.UNCOVERED, coverage.coveredMap[11]);
+            var handlers = new TryCatchFinallyCoverage(nef, manifest);
+            var handler = System.Linq.Enumerable.Single(handlers.allTry.Values);
+            Assert.IsTrue(handler.catchBlocks.Contains(handler.catchBlock!));
+            Assert.AreEqual(catchExit != OpCode.ABORT, handler.finallyBlocks.Contains(handler.finallyBlock!));
+            using ExecutionEngine engine = new();
+            engine.LoadScript(new Script(script));
+            Assert.AreEqual(VMState.FAULT, engine.Execute());
+        }
+
+        [TestMethod]
+        [DataRow(OpCode.NOP, BranchType.THROW)]
+        [DataRow(OpCode.ABORT, BranchType.ABORT)]
+        public void UncaughtThrowRunsFinallyWithoutReachingContinuation(OpCode finallyExit, BranchType expected)
+        {
+            byte[] script =
+            [
+                (byte)OpCode.TRY, 0x00, 0x05,
+                (byte)OpCode.PUSH0, (byte)OpCode.THROW,
+                (byte)finallyExit, (byte)OpCode.ENDFINALLY,
+                (byte)OpCode.RET
+            ];
+            var nef = CreateNefFile(script);
+            var manifest = CreateManifest();
+            var coverage = new InstructionCoverage(nef, manifest);
+            Assert.AreEqual(expected, coverage.coveredMap[0]);
+            Assert.AreEqual(BranchType.UNCOVERED, coverage.coveredMap[7]);
+            var handlers = new TryCatchFinallyCoverage(nef, manifest);
+            var handler = System.Linq.Enumerable.Single(handlers.allTry.Values);
+            Assert.AreEqual(0, handler.catchBlocks.Count);
+            Assert.IsTrue(handler.finallyBlocks.Contains(handler.finallyBlock!));
+            using ExecutionEngine engine = new();
+            engine.LoadScript(new Script(script));
+            Assert.AreEqual(VMState.FAULT, engine.Execute());
+        }
+
+        [TestMethod]
+        public void NormalTryFinallyKeepsItsContinuationReachable()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.TRY, 0x00, 0x06,
+                (byte)OpCode.NOP, (byte)OpCode.ENDTRY, 0x04,
+                (byte)OpCode.PUSH1, (byte)OpCode.ENDFINALLY,
+                (byte)OpCode.RET
+            ];
+            var nef = CreateNefFile(script);
+            var manifest = CreateManifest();
+            var coverage = new InstructionCoverage(nef, manifest);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[0]);
+            Assert.AreEqual(BranchType.OK, coverage.coveredMap[8]);
+            var handlers = new TryCatchFinallyCoverage(nef, manifest);
+            var handler = System.Linq.Enumerable.Single(handlers.allTry.Values);
+            Assert.IsTrue(handler.finallyBlocks.Contains(handler.finallyBlock!));
+            Assert.IsTrue(handler.endingBlocks.Contains(handlers.contractInBasicBlocks.basicBlocksByStartAddr[8]));
+            using ExecutionEngine engine = new();
+            engine.LoadScript(new Script(script));
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(1, engine.ResultStack.Count);
+            Assert.AreEqual(System.Numerics.BigInteger.One, engine.ResultStack.Pop().GetInteger());
+        }
+
+        [TestMethod]
+        [DataRow(OpCode.THROW, OpCode.THROW, BranchType.THROW)]
+        [DataRow(OpCode.THROW, OpCode.ABORT, BranchType.THROW)]
+        [DataRow(OpCode.ABORT, OpCode.ABORT, BranchType.ABORT)]
+        public void ConditionalCatchTerminationHasNoSuccessfulPath(OpCode leftExit, OpCode rightExit, BranchType expected)
+        {
+            byte[] script =
+            [
+                (byte)OpCode.TRY, 0x06, 0x00,
+                (byte)OpCode.PUSH0, (byte)OpCode.THROW, (byte)OpCode.NOP,
+                (byte)OpCode.DROP, (byte)OpCode.PUSH0, (byte)OpCode.JMPIF, 0x04,
+                (byte)OpCode.PUSH0, (byte)leftExit,
+                (byte)OpCode.PUSH1, (byte)rightExit,
+                (byte)OpCode.RET
+            ];
+            var nef = CreateNefFile(script);
+            var manifest = CreateManifest();
+            var coverage = new InstructionCoverage(nef, manifest);
+            Assert.AreEqual(expected, coverage.coveredMap[0]);
+            Assert.AreEqual(BranchType.UNCOVERED, coverage.coveredMap[14]);
+            var handlers = new TryCatchFinallyCoverage(nef, manifest);
+            var handler = System.Linq.Enumerable.Single(handlers.allTry.Values);
+            Assert.IsTrue(handler.catchBlocks.Contains(handlers.contractInBasicBlocks.basicBlocksByStartAddr[10]));
+            Assert.IsTrue(handler.catchBlocks.Contains(handlers.contractInBasicBlocks.basicBlocksByStartAddr[12]));
+            using ExecutionEngine engine = new();
+            engine.LoadScript(new Script(script));
+            Assert.AreEqual(VMState.FAULT, engine.Execute());
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public void ExceptionEntryPointsPreserveHandlerAndAbortSemantics(bool hasHandler)
+        {
+            var nef = CreateNefFile(CreateTryCatchFinallyScript(OpCode.THROW));
+            var manifest = CreateManifest();
+            manifest.Abi.Methods[0].Offset = 11;
+            var coverage = new InstructionCoverage(nef, manifest);
+            var stack = new Stack<TryState>();
+            stack.Push(new TryState(-1, -1, TryType.NONE, false));
+            if (hasHandler)
+                stack.Push(new TryState(6, 9, TryType.TRY, true));
+
+            Assert.AreEqual(hasHandler ? BranchType.OK : BranchType.THROW, coverage.HandleThrow(0, 3, stack));
+            Assert.AreEqual(hasHandler ? BranchType.OK : BranchType.UNCOVERED, coverage.coveredMap[6]);
+            Assert.AreEqual(hasHandler ? BranchType.OK : BranchType.UNCOVERED, coverage.coveredMap[9]);
+            Assert.AreEqual(hasHandler ? 2 : 1, stack.Count, "Analysis must not consume the caller's handler stack.");
+
+            coverage = new InstructionCoverage(nef, manifest);
+            Assert.AreEqual(BranchType.ABORT, coverage.HandleAbort(0, 3, stack));
+            Assert.AreEqual(hasHandler ? BranchType.OK : BranchType.UNCOVERED, coverage.coveredMap[6]);
+            Assert.AreEqual(hasHandler ? 2 : 1, stack.Count);
+        }
+
         private static void AssertAbortRemainsTerminalInsideTry(OpCode abortOpCode)
         {
             var coverage = CreateTryCatchFinallyCoverage(abortOpCode);

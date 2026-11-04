@@ -28,6 +28,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return ((ByteString)"Hello World").EndsWith("World");
         }
 
+        public static bool TestEndsWith(ByteString value)
+        {
+            return value.EndsWith("World");
+        }
+
         public static bool TestContains()
         {
             return ((ByteString)"Hello World").Contains("ll");
@@ -61,6 +66,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static bool TestAlphabetRejectsNumber()
         {
             return ((ByteString)"ABCxyz1").IsAlphabet();
+        }
+
+        public static bool TestAlphabetInput(ByteString input)
+        {
+            return input.IsAlphabet();
         }
 
         public static bool TestLowerAlphabetRejectsUpper()

@@ -255,12 +255,14 @@ public class Contract : SmartContract
     {
         var context = CompileContract(optimization);
 
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeDividend("), OpCode.THROW);
+        // No overflow guard is emitted for any of these shapes; the methods with a runtime
+        // divisor keep exactly one THROW - the zero-divisor guard.
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeDividend(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.CompoundShort(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.BinaryShort(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.UnsignedInt(").Count(op => op == OpCode.THROW));
         CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeDivisor("), OpCode.THROW);
         CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.ConstantOverflow("), OpCode.THROW);
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.CompoundShort("), OpCode.THROW);
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.BinaryShort("), OpCode.THROW);
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.UnsignedInt("), OpCode.THROW);
     }
 
     private static CompilationContext CompileContract(CompilationOptions.OptimizationType optimization)

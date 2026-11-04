@@ -24,13 +24,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestToECPoint()
         {
             Assert.IsTrue(Contract.ToECPoint(new byte[33]));
-            AssertGasConsumed(1293780);
+            AssertGasConsumed(1293900);
             Assert.IsFalse(Contract.ToECPoint(new byte[32]));
-            AssertGasConsumed(1309140);
+            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToECPoint(new byte[34]));
-            AssertGasConsumed(1309140);
+            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToECPoint(null));
-            AssertGasConsumed(1062900);
+            AssertGasConsumed(1063200);
         }
 
         [TestMethod]

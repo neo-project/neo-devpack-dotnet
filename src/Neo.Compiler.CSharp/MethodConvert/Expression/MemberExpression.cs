@@ -69,7 +69,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = GetInstanceFieldIndex(field);
+                    int index = GetFieldIndex(model.GetTypeInfo(expression.Expression).Type, field);
                     ConvertExpression(model, expression.Expression);
                     Push(index);
                     AddInstruction(OpCode.PICKITEM);
