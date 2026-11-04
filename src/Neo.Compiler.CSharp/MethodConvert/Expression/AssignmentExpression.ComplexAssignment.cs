@@ -408,7 +408,7 @@ internal partial class MethodConvert
             "+=" => (OpCode.ADD, true),
             "-=" => (OpCode.SUB, true),
             "*=" => (OpCode.MUL, true),
-            "/=" => (OpCode.DIV, false),
+            "/=" => (OpCode.DIV, type.SpecialType is SpecialType.System_SByte or SpecialType.System_Int16),
             "%=" => (OpCode.MOD, false),
             "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, false),
             "^=" => (OpCode.XOR, false),
