@@ -52,13 +52,13 @@ namespace Neo.SmartContract.Framework.UnitTests
             var expected = UInt160.Parse(hex);
 
             Assert.AreEqual(expected, Contract.ParseUInt160(hex));
-            AssertGasConsumed(7695960);
+            AssertGasConsumed(7434000);
             Assert.AreEqual(expected, Contract.ParseUInt160("0x" + hex));
-            AssertGasConsumed(7695720);
+            AssertGasConsumed(7433760);
             Assert.AreEqual(expected, Contract.ParseUInt160(address));
-            AssertGasConsumed(4921140);
+            AssertGasConsumed(4674840);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160("0x1234"));
-            AssertGasConsumed(1989510);
+            AssertGasConsumed(1742130);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160(null));
             AssertGasConsumed(1080330);
         }
@@ -73,15 +73,15 @@ namespace Neo.SmartContract.Framework.UnitTests
             var wrongVersionAddress = Base58.Base58CheckEncode(data);
 
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160(wrongVersionAddress));
-            AssertGasConsumed(4628430);
+            AssertGasConsumed(4382130);
             Assert.IsFalse(Contract.TryParseUInt160(wrongVersionAddress));
-            AssertGasConsumed(4629060);
+            AssertGasConsumed(4382760);
 
             var wrongLengthAddress = Base58.Base58CheckEncode(new byte[10]);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160(wrongLengthAddress));
-            AssertGasConsumed(3154920);
+            AssertGasConsumed(2903760);
             Assert.IsFalse(Contract.TryParseUInt160(wrongLengthAddress));
-            AssertGasConsumed(3155550);
+            AssertGasConsumed(2904390);
         }
 
         [TestMethod]
@@ -91,13 +91,13 @@ namespace Neo.SmartContract.Framework.UnitTests
             var expected = UInt256.Parse(hex);
 
             Assert.AreEqual(expected, Contract.ParseUInt256(hex));
-            AssertGasConsumed(11172090);
+            AssertGasConsumed(10900410);
             Assert.AreEqual(expected, Contract.ParseUInt256(hex.Substring(2)));
-            AssertGasConsumed(11172330);
+            AssertGasConsumed(10900650);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256("abcd"));
-            AssertGasConsumed(1974390);
+            AssertGasConsumed(1727010);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256("0xzz" + new string('0', 62)));
-            AssertGasConsumed(1399020);
+            AssertGasConsumed(1152720);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256(null));
             AssertGasConsumed(1080210);
         }
@@ -108,9 +108,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             const string publicKey = "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9";
             var expected = CryptoECPoint.Parse(publicKey, ECCurve.Secp256r1);
             Assert.AreEqual(expected, Contract.ParseECPoint(publicKey));
-            AssertGasConsumed(11219340);
+            AssertGasConsumed(10946850);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseECPoint("03deadbeef"));
-            AssertGasConsumed(2837100);
+            AssertGasConsumed(2587290);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseECPoint(null));
             AssertGasConsumed(1080210);
         }
@@ -125,22 +125,22 @@ namespace Neo.SmartContract.Framework.UnitTests
             const string invalidHex160 = "0xgg00000000000000000000000000000000000000";
 
             Assert.IsTrue(Contract.TryParseUInt160(validHash));
-            AssertGasConsumed(7696410);
+            AssertGasConsumed(7434450);
             Assert.IsTrue(Contract.TryParseUInt160(validAddress));
-            AssertGasConsumed(4921590);
+            AssertGasConsumed(4675290);
             Assert.IsTrue(Contract.TryParseUInt256(validUInt256));
-            AssertGasConsumed(11172540);
+            AssertGasConsumed(10900860);
             Assert.IsTrue(Contract.TryParseECPoint(validECPoint));
-            AssertGasConsumed(11219790);
+            AssertGasConsumed(10947300);
 
             Assert.IsFalse(Contract.TryParseUInt160(invalidHex160));
-            AssertGasConsumed(1416360);
+            AssertGasConsumed(1170060);
             Assert.IsFalse(Contract.TryParseUInt256("1234"));
-            AssertGasConsumed(1970820);
+            AssertGasConsumed(1723440);
             Assert.IsFalse(Contract.TryParseUInt256("0xzz" + new string('0', 62)));
-            AssertGasConsumed(1399650);
+            AssertGasConsumed(1153350);
             Assert.IsFalse(Contract.TryParseECPoint("1234"));
-            AssertGasConsumed(1955460);
+            AssertGasConsumed(1708080);
         }
 
         [TestMethod]
