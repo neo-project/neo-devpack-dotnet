@@ -38,6 +38,18 @@ public class UnitTest_SemanticDifferentialMatrix
 
             [DisplayName("contains")]
             public static bool Contains(string value, char character) => value.Contains(character);
+
+            [DisplayName("arrayLength")]
+            public static int ArrayLength() => new int[2, 3].Length;
+
+            [DisplayName("arrayLengthRank3")]
+            public static int ArrayLengthRank3() => new int[2, 3, 4].Length;
+
+            [DisplayName("arrayLengthEmptyOuter")]
+            public static int ArrayLengthEmptyOuter() => new int[0, 3].Length;
+
+            [DisplayName("arrayLengthEmptyInner")]
+            public static int ArrayLengthEmptyInner() => new int[2, 0, 3].Length;
         }
         """;
 
@@ -67,6 +79,11 @@ public class UnitTest_SemanticDifferentialMatrix
         {
             Assert.AreEqual(value.Contains(character), contract.Contains(value, character));
         }
+
+        Assert.AreEqual(new BigInteger(6), contract.ArrayLength());
+        Assert.AreEqual(new BigInteger(24), contract.ArrayLengthRank3());
+        Assert.AreEqual(BigInteger.Zero, contract.ArrayLengthEmptyOuter());
+        Assert.AreEqual(BigInteger.Zero, contract.ArrayLengthEmptyInner());
     }
 
     public abstract class SemanticDifferentialContract(SmartContractInitialize initialize)
@@ -83,5 +100,17 @@ public class UnitTest_SemanticDifferentialMatrix
 
         [DisplayName("contains")]
         public abstract bool? Contains(string value, char character);
+
+        [DisplayName("arrayLength")]
+        public abstract BigInteger? ArrayLength();
+
+        [DisplayName("arrayLengthRank3")]
+        public abstract BigInteger? ArrayLengthRank3();
+
+        [DisplayName("arrayLengthEmptyOuter")]
+        public abstract BigInteger? ArrayLengthEmptyOuter();
+
+        [DisplayName("arrayLengthEmptyInner")]
+        public abstract BigInteger? ArrayLengthEmptyInner();
     }
 }

@@ -148,45 +148,51 @@ internal partial class MethodConvert
             return;
         }
 
-        JumpTarget leftNullTarget = new(), rightNullTarget = new(), end = new();
-        Over();
-        IsNull();
-        JumpIfTrue(leftNullTarget);
-        Dup();
-        IsNull();
-        JumpIfTrue(rightNullTarget);
-        Swap();
-        EmitCall(_context.ConvertMethod(model, symbol));
-        Jump(OpCode.JMP_L, end);
-
-        rightNullTarget.Instruction = Drop();
-        Drop();
-        PushLiftedUserOperatorNullResult(token);
-        Jump(OpCode.JMP_L, end);
-
-        leftNullTarget.Instruction = Nop();
-        if (token is "==" or "!=")
-        {
-            IsNull();
-            Swap();
-            Drop();
-            if (token == "!=")
-                Not();
-        }
-        else
-        {
-            Drop(2);
-            PushLiftedUserOperatorNullResult(token);
-        }
-        end.Instruction = Nop();
-    }
-
-    private void PushLiftedUserOperatorNullResult(string token)
-    {
         if (token is "==" or "!=" or "<" or ">" or "<=" or ">=")
-            Push(token == "!=");
+        {
+            // Comparison operators can share one null result target. Equality compares
+            // nullness when either operand is null, while relational operators return false.
+            JumpTarget nullTarget = new(), comparisonEnd = new();
+            Over();
+            IsNull();
+            JumpIfTrue(nullTarget);
+            Dup();
+            IsNull();
+            JumpIfTrue(nullTarget);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            Jump(OpCode.JMP_L, comparisonEnd);
+            if (token is "==" or "!=")
+            {
+                nullTarget.Instruction = AddInstruction(token == "==" ? OpCode.EQUAL : OpCode.NOTEQUAL);
+            }
+            else // Lifted relational operators return false when either operand is null.
+            {
+                nullTarget.Instruction = Drop();
+                Drop();
+                Push(false);
+            }
+            comparisonEnd.Instruction = Nop();
+        }
         else
-            Push((object?)null);
+        {
+            // The remaining lifted user-defined binary operators are '+', '-', '*', '/', '%', '&', '|', '^', '<<', '>>', '>>>'.
+            // Their lifted forms propagate null, so the null paths skip the operator call and leave a null operand as the result.
+            JumpTarget leftNullTarget = new(), rightNullTarget = new(), end = new();
+            Over();
+            IsNull();
+            JumpIfTrue(leftNullTarget); // [left, right]
+            Dup();
+            IsNull();
+            JumpIfTrue(rightNullTarget);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            Jump(OpCode.JMP_L, end);
+
+            leftNullTarget.Instruction = Swap(); // [null, right]
+            rightNullTarget.Instruction = Nip(); // [left or right, null]
+            end.Instruction = Nop();
+        }
     }
 
     private void EmitBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, ITypeSymbol type)
