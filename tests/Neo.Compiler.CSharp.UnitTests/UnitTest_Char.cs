@@ -107,14 +107,35 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestCharIsSurrogateBoundaries()
+        {
+            char[] values = ['\u0000', '\uD7FF', '\uD800', '\uDBFF', '\uDC00', '\uDFFF', '\uE000', '\uFFFF'];
+            foreach (char value in values)
+                Assert.AreEqual(char.IsSurrogate(value), Contract.TestCharIsSurrogate(value),
+                    $"Unexpected result for U+{(int)value:X4}");
+        }
+
+        [TestMethod]
+        public void TestCharIsSurrogateRangeEquivalence()
+        {
+            for (int i = char.MinValue; i <= char.MaxValue; i++)
+            {
+                bool original = (i >= 0xD800 && i <= 0xDBFF) || (i >= 0xDC00 && i <= 0xDFFF);
+                bool optimized = i >= 0xD800 && i <= 0xDFFF;
+                Assert.AreEqual(original, optimized);
+                Assert.AreEqual(char.IsSurrogate((char)i), optimized);
+            }
+        }
+
+        [TestMethod]
         public void TestCharSurrogates()
         {
             Assert.IsTrue(Contract.TestCharIsSurrogate('\uD800'));
-            AssertGasConsumed(1048470);
+            AssertGasConsumed(1047810);
             Assert.IsTrue(Contract.TestCharIsSurrogate('\uDFFF'));
-            AssertGasConsumed(1048470);
+            AssertGasConsumed(1047810);
             Assert.IsFalse(Contract.TestCharIsSurrogate('a'));
-            AssertGasConsumed(1048470);
+            AssertGasConsumed(1047810);
 
             Assert.IsTrue(Contract.TestCharIsHighSurrogate('\uD800'));
             AssertGasConsumed(1047810);
