@@ -51,8 +51,23 @@ public static class OracleSelfTest
         failures += CheckMultiContractOracle(harness);
         failures += CheckNotificationOracle(harness);
         failures += CheckFailureTriage();
+        failures += CheckResourceFailureEquivalence();
         failures += CheckFindingSignature();
+        failures += CheckKnownDefectSuppression();
         failures += CheckDeploymentBudget(harness);
+        failures += CheckCrossLanguageFailureDirections();
+        failures += CheckCoverageIdentity(harness);
+        failures += CheckOverloadAbi(harness);
+        failures += CheckOverloadDispatch();
+        failures += CheckReferenceIsolation();
+        failures += CheckReferenceCacheBound();
+        failures += CheckRecursiveReferenceBounds();
+        failures += CheckModPowBounds();
+        failures += CheckCorpusMigration();
+        failures += CheckCorpusReplay();
+        failures += CheckIterationBudget();
+        failures += CheckLoopControlMutation();
+        failures += CheckCorpusEviction();
 
         Console.WriteLine();
         Console.WriteLine(failures == 0
@@ -468,7 +483,7 @@ public static class OracleSelfTest
 
         using var analyzer = new BehaviorDifferentialAnalyzer();
         var bundle = new BehaviorDifferentialAnalyzer.ArtifactBundle(artifacts);
-        (List<(bool Ok, string? Error, StackItem? Value)> results, IReadOnlyCollection<int> coverage,
+        (List<(bool Ok, string? Error, StackItem? Value)> results, IReadOnlyCollection<string> coverage,
          IReadOnlyDictionary<string, string> storage, _) =
             analyzer.ExecuteBundleWithCoverage(bundle, "ContractA", calls);
 
@@ -545,11 +560,75 @@ public static class OracleSelfTest
             failures++;
         }
 
+        var platformFailures = new List<(bool Ok, string? Error)>
+        {
+            (false, "TestException: The index of VMArray is out of range"),
+            (false, "TestException: Invalid shift value: 65536/256"),
+            (false, "TestException: Unable to translate bytes [FF] at index 0"),
+            (false, "TestException: MaxInvocationStackSize exceed: 1024"),
+        };
+        if (FailureTriage.Inspect("platformFailures", platformFailures) is not null)
+        {
+            Console.WriteLine("  [FAIL] failure triage reported expected index, shift, and encoding boundaries.");
+            failures++;
+        }
+
+        var mixedFailures = new List<(bool Ok, string? Error)>
+        {
+            (false, "TestException: The index of VMArray is out of range"),
+            (false, "InvalidOperationException: synthetic failure"),
+        };
+        if (FailureTriage.Inspect("mixedFailures", mixedFailures) is not { } mixedDetail ||
+            !mixedDetail.Contains("synthetic failure", StringComparison.Ordinal))
+        {
+            Console.WriteLine("  [FAIL] failure triage hid the unexpected error behind an expected one.");
+            failures++;
+        }
+
         if (failures == 0)
         {
             Console.WriteLine("  [ OK ] failure triage flags systematic failures and stays quiet on boundary ones.");
         }
 
+        return failures;
+    }
+
+    /// <summary>
+    /// Verifies that only the observed depth is ignored when both executions exceed the
+    /// same VM stack limit. Different faults and different limits must remain visible.
+    /// </summary>
+    private static int CheckResourceFailureEquivalence()
+    {
+        var cases = new (string A, string B, bool Expected)[]
+        {
+            ("TestException: MaxStackSize exceed: 2166/2048",
+             "TestException: MaxStackSize exceed: 2168/2048", true),
+            ("TestException: MaxStackSize exceed: 2166/2048",
+             "TestException: MaxStackSize exceed: 2166/4096", false),
+            ("TestException: MaxStackSize exceed: 2166/2048",
+             "InvalidOperationException: MaxStackSize exceed: 2168/2048", false),
+            ("TestException: MaxStackSize exceed: 2166/2048 trailing",
+             "TestException: MaxStackSize exceed: 2168/2048 trailing", false),
+            ("InvalidOperationException: 2166/2048",
+             "InvalidOperationException: 2168/2048", false),
+        };
+
+        int failures = 0;
+        foreach ((string a, string b, bool expected) in cases)
+        {
+            bool actual = BehaviorDifferentialAnalyzer.FailuresEquivalent(a, b);
+            if (actual == expected)
+                continue;
+
+            Console.WriteLine($"  [FAIL] resource failure equivalence returned {actual}, expected {expected}: " +
+                              $"'{a}' versus '{b}'.");
+            failures++;
+        }
+
+        if (failures == 0)
+        {
+            Console.WriteLine("  [ OK ] resource failure comparison ignores only observed stack depth.");
+        }
         return failures;
     }
 
@@ -596,6 +675,48 @@ public static class OracleSelfTest
         if (failures == 0)
         {
             Console.WriteLine("  [ OK ] finding signature groups one defect across inputs and keeps methods apart.");
+        }
+
+        return failures;
+    }
+
+    /// <summary>
+    /// Verifies that known-defect suppression covers both struct-copy spellings without
+    /// hiding a different failure or a different method.
+    /// </summary>
+    private static int CheckKnownDefectSuppression()
+    {
+        MethodInfo? method = typeof(FuzzRunner).GetMethod(
+            "IsKnownDefect", BindingFlags.NonPublic | BindingFlags.Static);
+        if (method is null)
+        {
+            Console.WriteLine("  [FAIL] known-defect suppression predicate was not found.");
+            return 1;
+        }
+
+        (string Detail, bool Expected)[] cases =
+        [
+            ("Method 'structCopyIsIndependent' returned 106 in C# but 198 in NeoVM.", true),
+            ("Method 'conditionalStructCopy' returned 199 in C# but 9999 in NeoVM.", true),
+            ("Method 'conditionalStructCopy' faulted with PICKITEM.", false),
+            ("Method 'otherStructMethod' returned 1 in C# but 2 in NeoVM.", false),
+        ];
+
+        int failures = 0;
+        foreach ((string detail, bool expected) in cases)
+        {
+            var finding = new FuzzFinding(FuzzOutcome.DifferentialMismatch, "source", detail);
+            bool actual = (bool)(method.Invoke(null, new object[] { finding }) ?? false);
+            if (actual == expected)
+                continue;
+
+            Console.WriteLine($"  [FAIL] known-defect suppression returned {actual} for '{detail}'.");
+            failures++;
+        }
+
+        if (failures == 0)
+        {
+            Console.WriteLine("  [ OK ] known-defect suppression is narrow and covers both struct-copy probes.");
         }
 
         return failures;
@@ -680,6 +801,529 @@ public static class OracleSelfTest
 
         Console.WriteLine($"  [ OK ] deployment runs under its own budget ({padded.Length} byte contract deployed and answered) " +
                           $"and a corrupt artifact is reported once: {deploymentError}");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies both success/failure directions of the cross-language oracle.
+    /// </summary>
+    private static int CheckCrossLanguageFailureDirections()
+    {
+        var vmValue = new Integer(123);
+        string? clrFault = FuzzRunner.CompareCrossLanguageOutcome(
+            "compute", [0], false, null, "DivideByZeroException", true, null, vmValue);
+        string? vmFault = FuzzRunner.CompareCrossLanguageOutcome(
+            "compute", [0], true, 123, null, false, "VM fault", null);
+        string? bothFault = FuzzRunner.CompareCrossLanguageOutcome(
+            "compute", [0], false, null, "DivideByZeroException", false, "VM fault", null);
+        string? incompatible = FuzzRunner.CompareCrossLanguageOutcome(
+            "compute", [0], false, null, "HarnessError: incompatible integer", true, null, vmValue);
+
+        if (clrFault is null || vmFault is null || bothFault is not null || incompatible is not null)
+        {
+            Console.WriteLine("  [FAIL] cross-language failure comparison does not handle both directions correctly.");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] cross-language oracle detects CLR-only and VM-only failures.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Reproduces the former offset collision: ADD and SUB at the same script offset
+    /// must contribute different global coverage identities.
+    /// </summary>
+    private static int CheckCoverageIdentity(CompilerHarness harness)
+    {
+        const string template = """
+            using Neo.SmartContract.Framework;
+            public class CoverageContract : SmartContract
+            {
+                public static int Compute(int a, int b) => a OPERATOR b;
+            }
+            """;
+
+        var coverages = new List<IReadOnlyCollection<string>>();
+        using var analyzer = new BehaviorDifferentialAnalyzer();
+        foreach (string operation in new[] { "+", "-" })
+        {
+            string source = template.Replace("OPERATOR", operation, StringComparison.Ordinal);
+            (FuzzOutcome outcome, CompilationContext? context, _) = harness.Compile(source);
+            if (outcome != FuzzOutcome.Clean || context is null)
+            {
+                Console.WriteLine($"  [FAIL] coverage identity: the '{operation}' probe did not compile ({outcome}).");
+                return 1;
+            }
+
+            (NefFile nef, ContractManifest manifest, _) = context.CreateResults();
+            var calls = new List<(string Method, object?[] Args)> { ("compute", [2, 3]) };
+            coverages.Add(analyzer.ExecuteBatchWithCoverage(new ArtifactSet(nef, manifest), calls).Coverage);
+        }
+
+        var union = coverages.SelectMany(c => c).ToHashSet(StringComparer.Ordinal);
+        bool hasAdd = union.Contains("I:ADD:");
+        bool hasSub = union.Contains("I:SUB:");
+        if (!hasAdd || !hasSub || union.Count <= coverages[0].Count)
+        {
+            Console.WriteLine($"  [FAIL] coverage identity: ADD={hasAdd}, SUB={hasSub}, " +
+                              $"first={coverages[0].Count}, union={union.Count}.");
+            return 1;
+        }
+
+        Console.WriteLine($"  [ OK ] coverage distinguishes ADD from SUB at identical offsets " +
+                          $"({coverages[0].Count} + {coverages[1].Count} signals, {union.Count} unique).");
+        return 0;
+    }
+
+    /// <summary>
+    /// Reproduces the former ABI false positive: comparing an overloaded contract
+    /// with itself must not pair a method with a different arity.
+    /// </summary>
+    private static int CheckOverloadAbi(CompilerHarness harness)
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            public class OverloadContract : SmartContract
+            {
+                public static int Compute(int value) => value;
+                public static int Compute(int first, int second) => first + second;
+            }
+            """;
+
+        (FuzzOutcome outcome, CompilationContext? context, _) = harness.Compile(source);
+        if (outcome != FuzzOutcome.Clean || context is null)
+        {
+            Console.WriteLine($"  [FAIL] overload ABI: the probe did not compile ({outcome}).");
+            return 1;
+        }
+
+        (NefFile nef, ContractManifest manifest, _) = context.CreateResults();
+        var artifacts = new ArtifactSet(nef, manifest);
+        List<DifferentialDivergence> divergences = DifferentialAnalyzers.Compare("A", artifacts, "B", artifacts)
+            .Where(d => d.Kind.StartsWith("Abi", StringComparison.Ordinal))
+            .ToList();
+        if (divergences.Count != 0)
+        {
+            Console.WriteLine($"  [FAIL] overload ABI reported a self-comparison mismatch: {divergences[0].Detail}");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] ABI comparison keeps overloaded methods matched by name and signature.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies same-arity CLR overload selection and checked integer conversion.
+    /// </summary>
+    private static int CheckOverloadDispatch()
+    {
+        const string source = """
+            public static class OverloadReference
+            {
+                public static string Compute(int value) => "int:" + value;
+                public static string Compute(string value) => "string:" + value;
+                public static string ObjectType(object value) => value is int ? "int" : value is string ? "string" : "other";
+            }
+            """;
+
+        using var oracle = new CrossLanguageOracle();
+        Assembly? assembly = oracle.TryCompileReference(source);
+        if (assembly is null)
+        {
+            Console.WriteLine("  [FAIL] overload dispatch: the reference did not compile.");
+            return 1;
+        }
+
+        (bool intOk, object? intValue, string? intError) = oracle.TryInvoke(
+            assembly, "OverloadReference", "Compute", [new System.Numerics.BigInteger(7)]);
+        (bool stringOk, object? stringValue, string? stringError) = oracle.TryInvoke(
+            assembly, "OverloadReference", "Compute", ["neo"]);
+        (bool objectIntOk, object? objectIntValue, _) = oracle.TryInvoke(
+            assembly, "OverloadReference", "ObjectType", [new System.Numerics.BigInteger(1)]);
+        (bool objectStringOk, object? objectStringValue, _) = oracle.TryInvoke(
+            assembly, "OverloadReference", "ObjectType", ["1"]);
+
+        if (!intOk || !stringOk || !objectIntOk || !objectStringOk ||
+            !string.Equals(intValue as string, "int:7", StringComparison.Ordinal) ||
+            !string.Equals(stringValue as string, "string:neo", StringComparison.Ordinal) ||
+            !string.Equals(objectIntValue as string, "int", StringComparison.Ordinal) ||
+            !string.Equals(objectStringValue as string, "string", StringComparison.Ordinal))
+        {
+            Console.WriteLine($"  [FAIL] overload dispatch: int=({intOk}, {intValue}, {intError}), " +
+                              $"string=({stringOk}, {stringValue}, {stringError}), " +
+                              $"objectInt={objectIntValue}, objectString={objectStringValue}.");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] CLR dispatch selects same-arity overloads by argument type.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies that mutable static reference state does not leak between independent calls.
+    /// </summary>
+    private static int CheckReferenceIsolation()
+    {
+        const string source = """
+            public static class FuzzReference
+            {
+                private static int counter;
+                public static int StaticState(int value)
+                {
+                    counter += value;
+                    return counter;
+                }
+            }
+            """;
+
+        using var oracle = new CrossLanguageOracle();
+        Assembly? assembly = oracle.TryCompileReference(source);
+        if (assembly is null)
+        {
+            Console.WriteLine("  [FAIL] reference isolation: the reference did not compile.");
+            return 1;
+        }
+
+        var first = oracle.TryInvoke(assembly, "FuzzReference", "StaticState", [new System.Numerics.BigInteger(5)]);
+        var second = oracle.TryInvoke(assembly, "FuzzReference", "StaticState", [new System.Numerics.BigInteger(-1)]);
+        if (!first.Ok || !second.Ok || first.Value is not int firstValue ||
+            second.Value is not int secondValue || firstValue != 5 || secondValue != -1)
+        {
+            Console.WriteLine($"  [FAIL] reference isolation: first=({first.Ok}, {first.Value}), " +
+                              $"second=({second.Ok}, {second.Value}, {second.Error}).");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] CLR reference calls isolate mutable static state like fresh VM executions.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies that unique reference sources cannot grow the loaded-assembly cache without bound.
+    /// </summary>
+    private static int CheckReferenceCacheBound()
+    {
+        using var oracle = new CrossLanguageOracle(cacheCapacity: 2);
+        for (int i = 0; i < 5; i++)
+        {
+            string source = $"public static class CacheProbe{i} {{ public static int Value() => {i}; }}";
+            if (oracle.TryCompileReference(source) is null)
+            {
+                Console.WriteLine($"  [FAIL] reference cache: probe {i} did not compile.");
+                return 1;
+            }
+        }
+
+        if (oracle.CachedAssemblyCount != 2 || oracle.EvictedAssemblyCount != 3)
+        {
+            Console.WriteLine($"  [FAIL] reference cache: retained={oracle.CachedAssemblyCount}, " +
+                              $"evicted={oracle.EvictedAssemblyCount}, expected 2 and 3.");
+            return 1;
+        }
+
+        Assembly? retained = oracle.TryCompileReference(
+            "public static class CacheProbe4 { public static int Value() => 4; }");
+        oracle.CollectUnloadedAssemblies();
+        var invocation = retained is null
+            ? (Ok: false, Value: (object?)null, Error: "missing assembly")
+            : oracle.TryInvoke(retained, "CacheProbe4", "Value", []);
+        if (oracle.CachedAssemblyCount != 2 || !invocation.Ok || invocation.Value is not int value || value != 4)
+        {
+            Console.WriteLine("  [FAIL] reference collection invalidated a retained assembly.");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] reference cache bounds memory and collection preserves retained assemblies.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Exercises every generated recursive entry point with inputs that formerly caused
+    /// unbounded CLR recursion and terminated the fuzzer process.
+    /// </summary>
+    private static int CheckRecursiveReferenceBounds()
+    {
+        (_, string reference) = new SourceGenerator(20261104).GeneratePair(FeatureFamily.RecursiveCalls);
+        using var oracle = new CrossLanguageOracle();
+        Assembly? assembly = oracle.TryCompileReference(reference);
+        if (assembly is null)
+        {
+            Console.WriteLine("  [FAIL] recursive bounds: the generated reference did not compile.");
+            return 1;
+        }
+
+        var calls = new (string Method, object?[] Args)[]
+        {
+            ("RecFactorial", [new System.Numerics.BigInteger(int.MaxValue)]),
+            ("RecSum", [new System.Numerics.BigInteger(int.MinValue)]),
+            ("RecEven", [new System.Numerics.BigInteger(int.MaxValue)]),
+            ("RecOdd", [new System.Numerics.BigInteger(int.MinValue)]),
+            ("RecAccumulate", [new System.Numerics.BigInteger(int.MaxValue), new System.Numerics.BigInteger(0)]),
+            ("RecEarlyExit", [new System.Numerics.BigInteger(int.MinValue)]),
+        };
+
+        foreach ((string method, object?[] args) in calls)
+        {
+            (bool ok, _, string? error) = oracle.TryInvoke(assembly, "FuzzReference", method, args);
+            if (!ok)
+            {
+                Console.WriteLine($"  [FAIL] recursive bounds: {method} failed for a boundary input ({error}).");
+                return 1;
+            }
+        }
+
+        (_, reference) = new SourceGenerator(20261104).GeneratePair(FeatureFamily.DeepLoops);
+        assembly = oracle.TryCompileReference(reference);
+        (bool loopOk, _, string? loopError) = assembly is null
+            ? (false, null, "reference compilation failed")
+            : oracle.TryInvoke(assembly, "FuzzReference", "WhileInsideFor",
+                [new System.Numerics.BigInteger(int.MaxValue)]);
+        if (!loopOk)
+        {
+            Console.WriteLine($"  [FAIL] loop bounds: WhileInsideFor failed for int.MaxValue ({loopError}).");
+            return 1;
+        }
+
+        Console.WriteLine($"  [ OK ] all {calls.Length} recursive entries and the nested loop terminate on extreme inputs.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies that generated modular exponentiation rejects invalid or unbounded exponents
+    /// without disabling valid calls.
+    /// </summary>
+    private static int CheckModPowBounds()
+    {
+        (_, string reference) = new SourceGenerator(20261104).GeneratePair(FeatureFamily.BigMath);
+        using var oracle = new CrossLanguageOracle();
+        Assembly? assembly = oracle.TryCompileReference(reference);
+        if (assembly is null)
+        {
+            Console.WriteLine("  [FAIL] ModPow bounds: the generated reference did not compile.");
+            return 1;
+        }
+
+        var negative = oracle.TryInvoke(assembly, "FuzzReference", "BigModPow",
+            [new System.Numerics.BigInteger(2), new System.Numerics.BigInteger(-1), new System.Numerics.BigInteger(2)]);
+        var huge = oracle.TryInvoke(assembly, "FuzzReference", "BigModPow",
+            [new System.Numerics.BigInteger(2), new System.Numerics.BigInteger(long.MaxValue), new System.Numerics.BigInteger(2)]);
+        var valid = oracle.TryInvoke(assembly, "FuzzReference", "BigModPow",
+            [new System.Numerics.BigInteger(2), new System.Numerics.BigInteger(3), new System.Numerics.BigInteger(5)]);
+
+        if (!negative.Ok || negative.Value is not System.Numerics.BigInteger negativeValue || !negativeValue.IsZero ||
+            !huge.Ok || huge.Value is not System.Numerics.BigInteger hugeValue || !hugeValue.IsZero ||
+            !valid.Ok || valid.Value is not System.Numerics.BigInteger validValue || validValue != 3)
+        {
+            Console.WriteLine($"  [FAIL] ModPow bounds: negative=({negative.Ok}, {negative.Value}), " +
+                              $"huge=({huge.Ok}, {huge.Value}), valid=({valid.Ok}, {valid.Value}).");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] generated ModPow calls bound exponents and preserve valid arithmetic.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies that an offset-only corpus entry is upgraded atomically when semantic
+    /// coverage becomes available, and that an equivalent rewrite is a no-op.
+    /// </summary>
+    private static int CheckCorpusMigration()
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "neofuzz-selftest-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var store = new CorpusStore(directory);
+            const string source = "class CorpusProbe { }";
+            bool legacyWritten = store.Save(new PersistedEntry(source, 2, [0, 4]));
+            bool upgraded = store.Save(new PersistedEntry(source, 1, [])
+            {
+                Coverage = ["I:ADD:"],
+            });
+            bool duplicate = store.Save(new PersistedEntry(source, 1, [])
+            {
+                Coverage = ["I:ADD:"],
+            });
+            bool downgraded = store.Save(new PersistedEntry(source, 3, [8]));
+            PersistedEntry? loaded = store.Load().SingleOrDefault();
+
+            if (!legacyWritten || !upgraded || duplicate || downgraded || loaded?.Coverage is not ["I:ADD:"])
+            {
+                Console.WriteLine($"  [FAIL] corpus migration: legacyWritten={legacyWritten}, upgraded={upgraded}, " +
+                                  $"duplicate={duplicate}, downgraded={downgraded}, coverage={loaded?.Coverage?.Length ?? -1}.");
+                return 1;
+            }
+
+            Console.WriteLine("  [ OK ] corpus upgrades legacy offsets once and preserves semantic coverage.");
+            return 0;
+        }
+        finally
+        {
+            if (Directory.Exists(directory))
+            {
+                Directory.Delete(directory, recursive: true);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Verifies that zero-iteration mode executes persisted sources rather than only
+    /// loading their coverage and generating the ordinary seed probes.
+    /// </summary>
+    private static int CheckCorpusReplay()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            public class FuzzContract : SmartContract
+            {
+                public static int ReturnOne() => 1;
+            }
+            """;
+        string directory = Path.Combine(Path.GetTempPath(), "neofuzz-replay-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            const string excessive = """
+                class LoopProbe
+                {
+                    static int Run()
+                    {
+                        for (int i = int.MinValue; i < 10; i++) { }
+                        return 0;
+                    }
+                }
+                """;
+            var store = new CorpusStore(directory);
+            store.Save(new PersistedEntry(source, 1, []) { Coverage = ["I:RET:"] });
+            store.Save(new PersistedEntry(excessive, 1, []) { Coverage = ["I:NOP:"] });
+
+            using var runner = new FuzzRunner(20261104, corpusDirectory: directory);
+            runner.Run(0);
+
+            if (runner.ReplayedCorpusSize != 1 || runner.Compiled != 1 ||
+                runner.Iterations != 0 || runner.Findings.Count != 0 || runner.SkippedCorpusSize != 1)
+            {
+                Console.WriteLine($"  [FAIL] corpus replay: replayed={runner.ReplayedCorpusSize}, " +
+                                  $"compiled={runner.Compiled}, iterations={runner.Iterations}, " +
+                                  $"findings={runner.Findings.Count}, skipped={runner.SkippedCorpusSize}.");
+                return 1;
+            }
+
+            Console.WriteLine("  [ OK ] zero-iteration mode replays the persisted source exactly once.");
+            return 0;
+        }
+        finally
+        {
+            if (Directory.Exists(directory))
+            {
+                Directory.Delete(directory, recursive: true);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Verifies that an over-budget end-to-end iteration stops the campaign with a reproducer.
+    /// </summary>
+    private static int CheckIterationBudget()
+    {
+        using var runner = new FuzzRunner(20261104, iterationBudget: TimeSpan.FromMilliseconds(10));
+        runner.CheckIterationBudget("class SlowProbe { }", TimeSpan.FromMilliseconds(11));
+        FuzzFinding? finding = runner.Findings.SingleOrDefault(f => f.Outcome == FuzzOutcome.SlowExecution);
+
+        if (!runner.StoppedOnSlowExecution || finding is null ||
+            !string.Equals(finding.Source, "class SlowProbe { }", StringComparison.Ordinal))
+        {
+            Console.WriteLine("  [FAIL] iteration budget did not stop with a SlowExecution reproducer.");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] iteration budget records the offending input and stops the campaign.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies that mutation cannot turn bounded loops into unbounded loops by changing
+    /// their conditions, initializers, or incrementors.
+    /// </summary>
+    private static int CheckLoopControlMutation()
+    {
+        const string source = """
+            class LoopProbe
+            {
+                static int Run(int total)
+                {
+                    for (int i = 0; i < 10; i++) { total += i; }
+                    while (total > 1000) { total /= 2; }
+                    return total;
+                }
+            }
+            """;
+        string invalid = source.Replace("int i = 0", "int i = int.MinValue", StringComparison.Ordinal);
+        if (SyntaxAwareMutator.PreservesLoopControl(source, invalid) ||
+            !SyntaxAwareMutator.HasExcessiveLoop(invalid) ||
+            SyntaxAwareMutator.HasExcessiveLoop(source))
+        {
+            Console.WriteLine("  [FAIL] loop-control validation did not isolate the excessive initializer.");
+            return 1;
+        }
+
+        for (int seed = 0; seed < 16; seed++)
+        {
+            var syntaxMutator = new SyntaxAwareMutator(seed);
+            string? syntaxEdited = syntaxMutator.Apply(SyntaxAwareMutator.KindSyntaxBinary, source);
+            if (syntaxEdited is not null && !SyntaxAwareMutator.PreservesLoopControl(source, syntaxEdited))
+            {
+                Console.WriteLine("  [FAIL] syntax mutation rewrote a loop condition.");
+                return 1;
+            }
+
+            string edited = new SourceMutator(seed).Mutate(source);
+            if (!SyntaxAwareMutator.PreservesLoopControl(source, edited))
+            {
+                Console.WriteLine($"  [FAIL] combined mutation changed loop control for seed {seed}.");
+                return 1;
+            }
+        }
+
+        Console.WriteLine("  [ OK ] text and syntax mutation preserve loop control.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies that corpus retention stays bounded and evicts the least instructive
+    /// entry only in favor of a strictly more instructive input.
+    /// </summary>
+    private static int CheckCorpusEviction()
+    {
+        using var runner = new FuzzRunner(20261105);
+
+        for (int i = 0; i < FuzzRunner.MaxCorpusEntries; i++)
+        {
+            runner.TryAddCorpusEntry($"class C{i} {{ }}", 10, []);
+        }
+
+        if (runner.CorpusSize != FuzzRunner.MaxCorpusEntries)
+        {
+            Console.WriteLine($"  [FAIL] corpus eviction: capacity fill reached {runner.CorpusSize} entries.");
+            return 1;
+        }
+
+        // Equal and weaker inputs must not change a full corpus.
+        bool weakAdded = runner.TryAddCorpusEntry("class Weak { }", 5, []);
+        bool equalAdded = runner.TryAddCorpusEntry("class Equal { }", 10, []);
+        if (weakAdded || equalAdded || runner.CorpusSize != FuzzRunner.MaxCorpusEntries)
+        {
+            Console.WriteLine($"  [FAIL] corpus eviction: a weaker or equal input was retained " +
+                              $"(weak={weakAdded}, equal={equalAdded}, size={runner.CorpusSize}).");
+            return 1;
+        }
+
+        // A strictly more instructive input replaces the weakest entry.
+        if (!runner.TryAddCorpusEntry("class Strong { }", 11, []))
+        {
+            Console.WriteLine("  [FAIL] corpus eviction: a stronger input was rejected at capacity.");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] corpus retention stays bounded and evicts only weaker entries.");
         return 0;
     }
 

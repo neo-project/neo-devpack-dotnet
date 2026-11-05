@@ -79,7 +79,10 @@ public static class FailureTriage
         "out of valid range",
         "exceeds maximum allowed size",
         "MaxStackSize exceed",
+        "MaxInvocationStackSize exceed",        // mutation made a recursive base case unreachable
         "too large or too small for an Int32",
+        "Invalid shift value",                 // BigInteger counts outside NeoVM's 0..255 domain
+        "Unable to translate bytes",           // invalid UTF-8 from boundary character arguments
         "An unhandled exception",
     ];
 
@@ -129,7 +132,8 @@ public static class FailureTriage
                 return null;
             }
 
-            string sample = Shorten(errors.FirstOrDefault() ?? "<no message>");
+            string sample = Shorten(errors.FirstOrDefault(error => !ExpectedFailureIndicators.Any(
+                indicator => error.Contains(indicator, StringComparison.OrdinalIgnoreCase))) ?? "<no message>");
             return $"Method '{method}' failed on all {results.Count} inputs without succeeding once, " +
                    $"which points at a systematic problem rather than a boundary condition: {sample}";
         }

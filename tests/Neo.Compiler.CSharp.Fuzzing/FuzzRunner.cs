@@ -27,6 +27,8 @@ namespace Neo.Compiler.Fuzzing;
 /// </summary>
 public sealed class FuzzRunner : IDisposable
 {
+    private const int ReferenceCollectionInterval = 500;
+
     private readonly List<FuzzFinding> _findings = [];
 
     /// <summary>
@@ -36,20 +38,31 @@ public sealed class FuzzRunner : IDisposable
     private readonly Dictionary<string, FuzzFinding> _seenSignatures = new(StringComparer.Ordinal);
 
     /// <summary>
+    /// The maximum number of entries retained in the corpus.
+    /// </summary>
+    /// <remarks>
+    /// At capacity the least instructive entry yields to a strictly more instructive
+    /// input, so a long campaign keeps absorbing new coverage instead of freezing at
+    /// the cap.
+    /// </remarks>
+    internal const int MaxCorpusEntries = 8192;
+
+    /// <summary>
     /// The corpus of inputs that are worth mutating further.
     /// </summary>
     /// <remarks>
     /// An entry is retained when it reached instructions the fuzzer had not seen
     /// before, which is the standard coverage-guided retention rule. Entries that add
     /// nothing new are dropped so that the corpus converges on inputs that actually
-    /// exercise new compiler output.
+    /// exercise new compiler output. Retention is bounded: at capacity the least
+    /// instructive entry is evicted in favor of strictly more instructive inputs.
     /// </remarks>
     private readonly List<CorpusEntry> _corpus = [];
 
     /// <summary>
-    /// The instruction offsets the fuzzer has already observed.
+    /// Opcode/operand and branch-outcome identities the fuzzer has already observed.
     /// </summary>
-    private readonly HashSet<int> _seenOffsets = [];
+    private readonly HashSet<string> _seenCoverage = new(StringComparer.Ordinal);
 
     private readonly CompilerHarness _compiler;
     private readonly CompilerHarness _compilerNoOpt;
@@ -69,9 +82,9 @@ public sealed class FuzzRunner : IDisposable
     private readonly CorpusStore? _corpusStore;
 
     /// <summary>
-    /// Coverage offsets restored from a previous campaign.
+    /// Coverage identities restored from a previous campaign.
     /// </summary>
-    private readonly HashSet<int> _restoredOffsets = [];
+    private readonly HashSet<string> _restoredCoverage = new(StringComparer.Ordinal);
 
     /// <summary>
     /// The number of findings that matched an already-reported defect.
@@ -96,8 +109,19 @@ public sealed class FuzzRunner : IDisposable
     /// When set, the corpus is loaded from this directory before the campaign and saved
     /// back to it afterwards, so coverage accumulates across runs.
     /// </param>
-    public FuzzRunner(int seed, bool coverageGuided = true, string? corpusDirectory = null)
+    /// <param name="iterationBudget">End-to-end budget for one iteration; defaults to 30 seconds.</param>
+    public FuzzRunner(
+        int seed,
+        bool coverageGuided = true,
+        string? corpusDirectory = null,
+        TimeSpan? iterationBudget = null)
     {
+        if (iterationBudget <= TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(iterationBudget));
+        }
+
+        _iterationBudget = iterationBudget ?? TimeSpan.FromSeconds(30);
         _coverageGuided = coverageGuided;
         _corpusStore = string.IsNullOrWhiteSpace(corpusDirectory) ? null : new CorpusStore(corpusDirectory);
         _generator = new SourceGenerator(seed);
@@ -120,13 +144,13 @@ public sealed class FuzzRunner : IDisposable
     public IReadOnlyList<FuzzFinding> Findings => _findings;
 
     /// <summary>
-    /// The number of distinct instruction offsets the fuzzer has observed.
+    /// The number of distinct opcode/operand and branch-outcome identities observed.
     /// </summary>
     /// <remarks>
     /// This is the coverage signal. A rising value means the fuzzer is still reaching
     /// new compiler output; a flat value means the search has saturated.
     /// </remarks>
-    public int CoveredInstructions => _seenOffsets.Count;
+    public int CoveredInstructions => _seenCoverage.Count;
 
     /// <summary>The number of entries retained in the corpus.</summary>
     public int CorpusSize => _corpus.Count;
@@ -156,6 +180,13 @@ public sealed class FuzzRunner : IDisposable
         var stopwatch = Stopwatch.StartNew();
         var features = (FeatureFamily[])Enum.GetValues(typeof(FeatureFamily));
 
+        if (iterations == 0 && _corpus.Count > 0)
+        {
+            ReplayCorpus(stopwatch, timeBudget, cancellation);
+            onProgress?.Invoke(this);
+            return;
+        }
+
         // Seed the corpus with one source per feature family so the loop starts from a
         // diverse, already-valid baseline.
         foreach (FeatureFamily feature in features)
@@ -177,6 +208,7 @@ public sealed class FuzzRunner : IDisposable
             }
 
             (string source, string? reference) = NextInput(features);
+            var iterationStopwatch = Stopwatch.StartNew();
 
             if (reference is null && IsMultiContract(source))
             {
@@ -189,10 +221,17 @@ public sealed class FuzzRunner : IDisposable
             }
 
             Iterations++;
+            CheckIterationBudget(source, iterationStopwatch.Elapsed);
 
             if (StoppedOnSlowExecution)
             {
                 break;
+            }
+
+            if (Iterations % ReferenceCollectionInterval == 0)
+            {
+                _crossLanguage.CollectUnloadedAssemblies();
+                ReferenceCollectionCount++;
             }
 
             if (onProgress is not null && Iterations % 50 == 0)
@@ -292,7 +331,7 @@ public sealed class FuzzRunner : IDisposable
     /// on one input cannot make progress, and silently burning the whole time budget on
     /// it would hide that.
     /// </remarks>
-    private static readonly TimeSpan IterationBudget = TimeSpan.FromSeconds(30);
+    private readonly TimeSpan _iterationBudget;
 
     /// <summary>
     /// Whether the campaign was stopped because an iteration exceeded the budget.
@@ -306,9 +345,13 @@ public sealed class FuzzRunner : IDisposable
     /// <param name="referenceSource">The matching plain C# reference, when available.</param>
     private void Process(string source, string? referenceSource)
     {
-        var stopwatch = Stopwatch.StartNew();
+        if (SyntaxAwareMutator.HasExcessiveLoop(source))
+        {
+            Rejected++;
+            return;
+        }
+
         (FuzzOutcome outcome, CompilationContext? context, FuzzFinding? finding) = _compiler.Compile(source);
-        stopwatch.Stop();
 
         if (finding is not null)
         {
@@ -349,16 +392,24 @@ public sealed class FuzzRunner : IDisposable
                 $"{ex.GetType().FullName}: {ex.Message}",
                 ex.ToString()));
         }
+    }
 
-        if (stopwatch.Elapsed > IterationBudget)
+    /// <summary>
+    /// Applies one wall-clock budget to compilation and every differential execution.
+    /// </summary>
+    internal void CheckIterationBudget(string source, TimeSpan elapsed)
+    {
+        if (elapsed <= _iterationBudget)
         {
-            StoppedOnSlowExecution = true;
-            Record(new FuzzFinding(
-                FuzzOutcome.SlowExecution,
-                source,
-                $"The iteration took {stopwatch.Elapsed.TotalSeconds:F1}s, over the " +
-                $"{IterationBudget.TotalSeconds:F0}s per-iteration budget."));
+            return;
         }
+
+        StoppedOnSlowExecution = true;
+        Record(new FuzzFinding(
+            FuzzOutcome.SlowExecution,
+            source,
+            $"The iteration took {elapsed.TotalSeconds:F1}s, over the " +
+            $"{_iterationBudget.TotalSeconds:F3}s per-iteration budget."));
     }
 
     /// <summary>
@@ -427,39 +478,65 @@ public sealed class FuzzRunner : IDisposable
 
             (bool okRef, object? refValue, string? refError) =
                 _crossLanguage.TryInvoke(referenceAssembly, "FuzzReference", clrName, clrArgs);
-
-            if (!okRef)
+            if (CrossLanguageOracle.IsHarnessError(refError))
             {
-                // A division by zero throws in C# too; the Neo VM raises the same
-                // fault, so this is not a divergence.
+                // An ABI integer has no CLR width. If it cannot be converted to the
+                // generated method's parameter type, there is no C# invocation to compare.
                 continue;
             }
 
             var vm = vmResults[i];
-
-            if (!vm.Ok)
+            string? mismatch = CompareCrossLanguageOutcome(
+                clrName, args, okRef, refValue, refError, vm.Ok, vm.Error, vm.Value);
+            if (mismatch is not null)
             {
-                // The VM faulted where C# succeeded. This is a divergence.
-                Record(new FuzzFinding(
-                    FuzzOutcome.DifferentialMismatch,
-                    contractSource,
-                    $"Method '{clrName}' with args [{string.Join(", ", args.Select(a => a?.ToString() ?? "null"))}] " +
-                    $"returned {refValue} in C# but faulted in the Neo VM ({vm.Error})."));
-                continue;
-            }
-
-            string renderedRef = RenderClrValue(refValue);
-            string renderedVm = BehaviorDifferentialAnalyzer.Render(vm.Value!);
-
-            if (!string.Equals(renderedRef, renderedVm, StringComparison.Ordinal))
-            {
-                Record(new FuzzFinding(
-                    FuzzOutcome.DifferentialMismatch,
-                    contractSource,
-                    $"Method '{clrName}' with args [{string.Join(", ", args.Select(a => a?.ToString() ?? "null"))}] " +
-                    $"returned {renderedRef} in C# but {renderedVm} in the Neo VM."));
+                Record(new FuzzFinding(FuzzOutcome.DifferentialMismatch, contractSource, mismatch));
             }
         }
+    }
+
+    /// <summary>
+    /// Compares CLR and VM outcomes in both directions, including success/failure mismatches.
+    /// </summary>
+    internal static string? CompareCrossLanguageOutcome(
+        string methodName,
+        object?[] args,
+        bool okRef,
+        object? refValue,
+        string? refError,
+        bool okVm,
+        string? vmError,
+        StackItem? vmValue)
+    {
+        if (CrossLanguageOracle.IsHarnessError(refError))
+        {
+            return null;
+        }
+
+        string renderedArgs = string.Join(", ", args.Select(a => a?.ToString() ?? "null"));
+        if (okRef && !okVm)
+        {
+            return $"Method '{methodName}' with args [{renderedArgs}] returned {RenderClrValue(refValue)} in C# " +
+                   $"but faulted in the Neo VM ({vmError}).";
+        }
+
+        if (!okRef && okVm)
+        {
+            return $"Method '{methodName}' with args [{renderedArgs}] faulted in C# ({refError}) " +
+                   $"but returned {BehaviorDifferentialAnalyzer.Render(vmValue!)} in the Neo VM.";
+        }
+
+        if (!okRef)
+        {
+            return null;
+        }
+
+        string renderedRef = RenderClrValue(refValue);
+        string renderedVm = BehaviorDifferentialAnalyzer.Render(vmValue!);
+        return string.Equals(renderedRef, renderedVm, StringComparison.Ordinal)
+            ? null
+            : $"Method '{methodName}' with args [{renderedArgs}] returned {renderedRef} in C# " +
+              $"but {renderedVm} in the Neo VM.";
     }
 
     /// <summary>
@@ -583,7 +660,7 @@ public sealed class FuzzRunner : IDisposable
 
         if (calls.Count > 0)
         {
-            (List<(bool Ok, string? Error, StackItem? Value)> resultsA, IReadOnlyCollection<int> coverage,
+            (List<(bool Ok, string? Error, StackItem? Value)> resultsA, IReadOnlyCollection<string> coverage,
              IReadOnlyDictionary<string, string> storageA, List<IReadOnlyList<string>> notificationsA,
              string? deploymentA) =
                 _behavior.ExecuteBatchWithNotifications(optimized, calls);
@@ -614,9 +691,9 @@ public sealed class FuzzRunner : IDisposable
             // corpus keeps every input that compiled, which is the baseline to compare
             // against.
             bool reachedNewInstructions = false;
-            foreach (int offset in coverage)
+            foreach (string coverageKey in coverage)
             {
-                if (_seenOffsets.Add(offset))
+                if (_seenCoverage.Add(coverageKey))
                 {
                     reachedNewInstructions = true;
                 }
@@ -629,9 +706,9 @@ public sealed class FuzzRunner : IDisposable
                 _mutator.RewardKinds(_ => true);
             }
 
-            if ((!_coverageGuided || reachedNewInstructions) && _corpus.Count < 4096)
+            if (!_coverageGuided || reachedNewInstructions)
             {
-                _corpus.Add(new CorpusEntry(source, coverage.Count, coverage.ToArray()));
+                TryAddCorpusEntry(source, coverage.Count, CanonicalCoverage(coverage));
             }
 
             for (int i = 0; i < calls.Count; i++)
@@ -642,7 +719,7 @@ public sealed class FuzzRunner : IDisposable
 
                 if (!a.Ok && !b.Ok)
                 {
-                    if (!string.Equals(a.Error, b.Error, StringComparison.Ordinal))
+                    if (!BehaviorDifferentialAnalyzer.FailuresEquivalent(a.Error, b.Error))
                     {
                         Record(new FuzzFinding(
                             FuzzOutcome.DifferentialMismatch,
@@ -788,7 +865,7 @@ public sealed class FuzzRunner : IDisposable
         var optimizedBundle = new BehaviorDifferentialAnalyzer.ArtifactBundle(optimized);
         var unoptimizedBundle = new BehaviorDifferentialAnalyzer.ArtifactBundle(unoptimized);
 
-        (List<(bool Ok, string? Error, StackItem? Value)> resultsA, IReadOnlyCollection<int> coverage,
+        (List<(bool Ok, string? Error, StackItem? Value)> resultsA, IReadOnlyCollection<string> coverage,
          IReadOnlyDictionary<string, string> storageA, string? deploymentA) =
             _behavior.ExecuteBundleWithCoverage(optimizedBundle, entry, calls);
         (List<(bool Ok, string? Error, StackItem? Value)> resultsB, _,
@@ -804,9 +881,9 @@ public sealed class FuzzRunner : IDisposable
 
         // Coverage retention works the same way as for a single contract.
         bool reachedNewInstructions = false;
-        foreach (int offset in coverage)
+        foreach (string coverageKey in coverage)
         {
-            if (_seenOffsets.Add(offset))
+            if (_seenCoverage.Add(coverageKey))
             {
                 reachedNewInstructions = true;
             }
@@ -817,9 +894,9 @@ public sealed class FuzzRunner : IDisposable
             _mutator.RewardKinds(_ => true);
         }
 
-        if (reachedNewInstructions && _corpus.Count < 4096)
+        if (reachedNewInstructions)
         {
-            _corpus.Add(new CorpusEntry(source, coverage.Count, coverage.ToArray()));
+            TryAddCorpusEntry(source, coverage.Count, CanonicalCoverage(coverage));
         }
 
         CompareStorage(source, storageA, storageB);
@@ -832,7 +909,7 @@ public sealed class FuzzRunner : IDisposable
 
             if (!a.Ok && !b.Ok)
             {
-                if (!string.Equals(a.Error, b.Error, StringComparison.Ordinal))
+                if (!BehaviorDifferentialAnalyzer.FailuresEquivalent(a.Error, b.Error))
                 {
                     Record(new FuzzFinding(
                         FuzzOutcome.DifferentialMismatch,
@@ -1150,6 +1227,11 @@ public sealed class FuzzRunner : IDisposable
             // conversion, which silently disabled the families that declare one.
             Neo.SmartContract.ContractParameterType.Array => new object?[] { value, value + 1 },
 
+            // Any/object parameters need both runtime shapes to cover type patterns.
+            Neo.SmartContract.ContractParameterType.Any => value.IsEven
+                ? value
+                : value.ToString(System.Globalization.CultureInfo.InvariantCulture),
+
             // A Hash160 parameter is a cross-contract call target. The hash only exists
             // after the callee is deployed, so a placeholder is passed here and resolved
             // at deployment time.
@@ -1160,10 +1242,62 @@ public sealed class FuzzRunner : IDisposable
     }
 
     /// <summary>
+    /// Shares the canonical string instance already retained by the global coverage set.
+    /// Corpus entries contain many repeated identities, so retaining each deserialized
+    /// copy needlessly grows the working set during long campaigns and full replays.
+    /// </summary>
+    private string[] CanonicalCoverage(IEnumerable<string> coverage) => coverage
+        .Select(key => _seenCoverage.TryGetValue(key, out string? canonical) ? canonical : key)
+        .ToArray();
+
+    /// <summary>
+    /// Retains an input in the corpus, evicting the least instructive entry when the
+    /// corpus is at capacity.
+    /// </summary>
+    /// <remarks>
+    /// A plain growth stop freezes the corpus once the cap is reached even while the
+    /// campaign still reaches new instructions. Evicting the entry with the smallest
+    /// instruction count keeps the corpus bounded without throttling new coverage: an
+    /// input is only replaced when something that reached strictly more instructions
+    /// takes its place.
+    /// </remarks>
+    /// <param name="source">The input source.</param>
+    /// <param name="instructionCount">The number of instructions the input reached.</param>
+    /// <param name="coverage">The canonical coverage identities of the input.</param>
+    /// <returns><c>true</c> when the corpus changed.</returns>
+    internal bool TryAddCorpusEntry(string source, int instructionCount, string[] coverage)
+    {
+        if (_corpus.Count < MaxCorpusEntries)
+        {
+            _corpus.Add(new CorpusEntry(source, instructionCount, coverage));
+            return true;
+        }
+
+        int weakest = 0;
+        for (int i = 1; i < _corpus.Count; i++)
+        {
+            if (_corpus[i].InstructionCount < _corpus[weakest].InstructionCount)
+            {
+                weakest = i;
+            }
+        }
+
+        // Only evict for a strictly more instructive input; an equal or weaker input
+        // would churn the corpus without improving it.
+        if (instructionCount <= _corpus[weakest].InstructionCount)
+        {
+            return false;
+        }
+
+        _corpus[weakest] = new CorpusEntry(source, instructionCount, coverage);
+        return true;
+    }
+
+    /// <summary>
     /// Loads the persisted corpus and restores the coverage it already reached.
     /// </summary>
     /// <remarks>
-    /// Restoring the coverage offsets is what makes a new campaign continue from the
+    /// Restoring coverage identities is what makes a new campaign continue from the
     /// previous one: without it every persisted entry would look like it adds nothing and
     /// the corpus would never be mutated again.
     /// </remarks>
@@ -1176,18 +1310,24 @@ public sealed class FuzzRunner : IDisposable
 
         foreach (PersistedEntry entry in _corpusStore.Load())
         {
-            if (_corpus.Count >= 4096)
+            if (_corpus.Count >= MaxCorpusEntries)
             {
                 break;
             }
 
-            _corpus.Add(new CorpusEntry(entry.Source, entry.InstructionCount, entry.CoveredOffsets));
-
-            foreach (int offset in entry.CoveredOffsets)
+            string[] coverage = entry.Coverage ?? [];
+            foreach (string coverageKey in coverage)
             {
-                _seenOffsets.Add(offset);
-                _restoredOffsets.Add(offset);
+                _seenCoverage.Add(coverageKey);
+                _restoredCoverage.Add(coverageKey);
             }
+
+            if (SyntaxAwareMutator.HasExcessiveLoop(entry.Source))
+            {
+                SkippedCorpusSize++;
+                continue;
+            }
+            _corpus.Add(new CorpusEntry(entry.Source, coverage.Length, CanonicalCoverage(coverage)));
         }
 
         RestoredCorpusSize = _corpus.Count;
@@ -1204,12 +1344,61 @@ public sealed class FuzzRunner : IDisposable
             return 0;
         }
 
-        var entries = _corpus.Select(e => new PersistedEntry(e.Source, e.InstructionCount, e.CoveredOffsets));
+        var entries = _corpus
+            .Where(e => e.Coverage.Length > 0)
+            .Select(e => new PersistedEntry(e.Source, e.InstructionCount, [])
+            {
+                Coverage = e.Coverage,
+            });
         return _corpusStore.SaveAll(entries);
     }
 
     /// <summary>The number of corpus entries loaded from a previous campaign.</summary>
     public int RestoredCorpusSize { get; private set; }
+
+    /// <summary>The number of persisted sources skipped because they contain excessive loops.</summary>
+    public int SkippedCorpusSize { get; private set; }
+
+    /// <summary>The number of persisted sources executed by a zero-iteration replay.</summary>
+    public int ReplayedCorpusSize { get; private set; }
+
+    /// <summary>
+    /// Executes persisted reproducers instead of merely restoring their coverage metadata.
+    /// </summary>
+    private void ReplayCorpus(
+        Stopwatch stopwatch,
+        TimeSpan? timeBudget,
+        CancellationToken cancellation)
+    {
+        foreach (CorpusEntry entry in _corpus.ToArray())
+        {
+            if (cancellation.IsCancellationRequested ||
+                timeBudget is { } budget && stopwatch.Elapsed > budget ||
+                StoppedOnSlowExecution)
+            {
+                break;
+            }
+
+            var iterationStopwatch = Stopwatch.StartNew();
+            if (IsMultiContract(entry.Source))
+            {
+                MultiContractIterations++;
+                ProcessMultiContract(entry.Source);
+            }
+            else
+            {
+                Process(entry.Source, null);
+            }
+
+            ReplayedCorpusSize++;
+            if (ReplayedCorpusSize % ReferenceCollectionInterval == 0)
+            {
+                _crossLanguage.CollectUnloadedAssemblies();
+                ReferenceCollectionCount++;
+            }
+            CheckIterationBudget(entry.Source, iterationStopwatch.Elapsed);
+        }
+    }
 
     /// <summary>
     /// The number of iterations that took the multi-contract path.
@@ -1220,8 +1409,20 @@ public sealed class FuzzRunner : IDisposable
     /// </remarks>
     public int MultiContractIterations { get; private set; }
 
-    /// <summary>The number of coverage offsets restored from a previous campaign.</summary>
-    public int RestoredCoverage => _restoredOffsets.Count;
+    /// <summary>The number of coverage identities restored from a previous campaign.</summary>
+    public int RestoredCoverage => _restoredCoverage.Count;
+
+    /// <summary>The configured end-to-end budget for one iteration.</summary>
+    public TimeSpan IterationBudget => _iterationBudget;
+
+    /// <summary>The number of CLR reference assemblies currently cached.</summary>
+    public int CachedReferenceCount => _crossLanguage.CachedAssemblyCount;
+
+    /// <summary>The number of CLR reference load contexts evicted and unloaded.</summary>
+    public long EvictedReferenceCount => _crossLanguage.EvictedAssemblyCount;
+
+    /// <summary>The number of periodic collections used to reclaim unloaded references.</summary>
+    public long ReferenceCollectionCount { get; private set; }
 
     private void Record(FuzzFinding finding)
     {
@@ -1299,7 +1500,7 @@ public sealed class FuzzRunner : IDisposable
     /// <returns><c>true</c> when the finding is a known defect.</returns>
     private static bool IsKnownDefect(FuzzFinding finding)
     {
-        if (finding.Detail.Contains("structNested", StringComparison.Ordinal) &&
+        if (finding.Detail.Contains("structNested", StringComparison.OrdinalIgnoreCase) &&
             (finding.Detail.Contains("SETITEM", StringComparison.Ordinal) ||
              finding.Detail.Contains("PICKITEM", StringComparison.Ordinal)))
         {
@@ -1307,15 +1508,16 @@ public sealed class FuzzRunner : IDisposable
         }
 
         if (finding.Detail.Contains("Return value count mismatch", StringComparison.Ordinal) &&
-            (finding.Detail.Contains("structClosure", StringComparison.Ordinal) ||
-             finding.Detail.Contains("voidCompound", StringComparison.Ordinal) ||
-             finding.Detail.Contains("voidIncrement", StringComparison.Ordinal) ||
-             finding.Detail.Contains("voidNestedAssignment", StringComparison.Ordinal)))
+            (finding.Detail.Contains("structClosure", StringComparison.OrdinalIgnoreCase) ||
+             finding.Detail.Contains("voidCompound", StringComparison.OrdinalIgnoreCase) ||
+             finding.Detail.Contains("voidIncrement", StringComparison.OrdinalIgnoreCase) ||
+             finding.Detail.Contains("voidNestedAssignment", StringComparison.OrdinalIgnoreCase)))
         {
             return true;
         }
 
-        if (finding.Detail.Contains("structCopyIsIndependent", StringComparison.Ordinal) &&
+        if ((finding.Detail.Contains("structCopyIsIndependent", StringComparison.OrdinalIgnoreCase) ||
+             finding.Detail.Contains("conditionalStructCopy", StringComparison.OrdinalIgnoreCase)) &&
             finding.Detail.Contains("in C# but", StringComparison.Ordinal))
         {
             return true;
@@ -1324,20 +1526,20 @@ public sealed class FuzzRunner : IDisposable
         // User-defined operators (see docs/testing/fuzz-findings/user-defined-operators.md):
         // ==/!= compare structurally instead of calling op_Equality, < faults with a cast
         // error, and the implicit conversion faults with the PrimitiveType range error.
-        if (finding.Detail.Contains("vecEqPartial", StringComparison.Ordinal) &&
+        if (finding.Detail.Contains("vecEqPartial", StringComparison.OrdinalIgnoreCase) &&
             finding.Detail.Contains("in C# but", StringComparison.Ordinal))
         {
             return true;
         }
 
-        if ((finding.Detail.Contains("vecRelational", StringComparison.Ordinal) ||
-             finding.Detail.Contains("vecMixed", StringComparison.Ordinal)) &&
+        if ((finding.Detail.Contains("vecRelational", StringComparison.OrdinalIgnoreCase) ||
+             finding.Detail.Contains("vecMixed", StringComparison.OrdinalIgnoreCase)) &&
             finding.Detail.Contains("Specified cast is not valid", StringComparison.Ordinal))
         {
             return true;
         }
 
-        return finding.Detail.Contains("vecImplicit", StringComparison.Ordinal) &&
+        return finding.Detail.Contains("vecImplicit", StringComparison.OrdinalIgnoreCase) &&
                (finding.Detail.Contains("PrimitiveType is out of range", StringComparison.Ordinal) ||
                 finding.Detail.Contains("in C# but", StringComparison.Ordinal));
     }
@@ -1358,6 +1560,8 @@ public sealed class FuzzRunner : IDisposable
     {
         _compiler.Dispose();
         _compilerNoOpt.Dispose();
+        _behavior.Dispose();
+        _crossLanguage.Dispose();
     }
 }
 
@@ -1366,8 +1570,8 @@ public sealed class FuzzRunner : IDisposable
 /// </summary>
 /// <param name="Source">The contract source that produced the coverage.</param>
 /// <param name="InstructionCount">The number of distinct instructions the source reached.</param>
-/// <param name="CoveredOffsets">The instruction offsets the source reached.</param>
-public sealed record CorpusEntry(string Source, int InstructionCount, int[] CoveredOffsets);
+/// <param name="Coverage">The opcode/operand and branch-outcome identities the source reached.</param>
+public sealed record CorpusEntry(string Source, int InstructionCount, string[] Coverage);
 
 /// <summary>
 /// Minimal view of a callable contract method.

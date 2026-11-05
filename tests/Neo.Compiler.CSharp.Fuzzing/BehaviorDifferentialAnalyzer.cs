@@ -177,6 +177,55 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     }
 
     /// <summary>
+    /// Compares failures, treating different observed depths at the same VM stack limit
+    /// as the same resource-boundary outcome.
+    /// </summary>
+    public static bool FailuresEquivalent(string? errorA, string? errorB)
+    {
+        if (string.Equals(errorA, errorB, StringComparison.Ordinal))
+            return true;
+
+        string? signatureA = StackLimitSignature(errorA);
+        return signatureA is not null &&
+               string.Equals(signatureA, StackLimitSignature(errorB), StringComparison.Ordinal);
+    }
+
+    private static string? StackLimitSignature(string? error)
+    {
+        const string marker = "MaxStackSize exceed: ";
+        if (error is null)
+            return null;
+
+        int markerIndex = error.IndexOf(marker, StringComparison.Ordinal);
+        if (markerIndex < 0)
+            return null;
+
+        int observedStart = markerIndex + marker.Length;
+        int slash = error.IndexOf('/', observedStart);
+        if (slash < 0 ||
+            !IsDigits(error.AsSpan(observedStart, slash - observedStart)) ||
+            !IsDigits(error.AsSpan(slash + 1)))
+        {
+            return null;
+        }
+
+        return string.Concat(error.AsSpan(0, observedStart), error.AsSpan(slash + 1));
+    }
+
+    private static bool IsDigits(ReadOnlySpan<char> value)
+    {
+        if (value.IsEmpty)
+            return false;
+
+        foreach (char c in value)
+        {
+            if (c is < '0' or > '9')
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
     /// Compares the behaviour of two artifact sets for a given method and argument set.
     /// </summary>
     /// <param name="labelA">Label of the first artifact set.</param>
@@ -204,7 +253,7 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
         {
             // Both failed the same way: not a divergence. The failure itself is only
             // interesting if the two sides disagree about whether it happened.
-            if (!string.Equals(errorA, errorB, StringComparison.Ordinal))
+            if (!FailuresEquivalent(errorA, errorB))
             {
                 result.Add(new DifferentialDivergence(
                     "BehaviorMismatch",
@@ -285,7 +334,7 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     /// The results, the coverage reached, the storage of every contract, and the deployment
     /// error when one of the contracts could not be deployed.
     /// </returns>
-    public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<int> Coverage,
+    public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<string> Coverage,
              IReadOnlyDictionary<string, string> Storage, string? DeploymentError)
         ExecuteBundleWithCoverage(
             ArtifactBundle bundle,
@@ -293,7 +342,7 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
             IReadOnlyList<(string Method, object?[] Args)> calls)
     {
         var results = new List<(bool Ok, string? Error, StackItem? Value)>(calls.Count);
-        IReadOnlyCollection<int> coverage = [];
+        IReadOnlyCollection<string> coverage = [];
         IReadOnlyDictionary<string, string> storage = new Dictionary<string, string>(StringComparer.Ordinal);
 
         if (calls.Count == 0 || !bundle.Contracts.ContainsKey(entryContract))
@@ -472,28 +521,56 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     }
 
     /// <summary>
-    /// Returns the instruction pointers that were executed for a deployed contract.
+    /// Returns semantic coverage identities for instructions executed by a deployed contract.
     /// </summary>
     /// <remarks>
-    /// The coverage data is what turns the fuzzer from a random search into a
-    /// coverage-guided one: the set of executed instructions tells the harness which
-    /// parts of the compiler's output are actually being exercised, so corpus entries
-    /// that reach new instructions can be preferred and retained.
+    /// Offsets are local to one script and therefore collide across unrelated contracts.
+    /// An opcode and its operand identify the operation itself, while branch identities
+    /// retain which side of a conditional executed. This distinguishes ADD from SUB at
+    /// the same offset without treating every newly generated script as wholly new coverage.
     /// </remarks>
     /// <param name="contractHash">The hash of the deployed contract.</param>
-    /// <returns>The executed instruction pointers, or an empty set when no coverage was captured.</returns>
-    public IReadOnlyCollection<int> GetExecutedInstructions(UInt160 contractHash)
+    /// <returns>The executed coverage identities, or an empty set when no coverage was captured.</returns>
+    public IReadOnlyCollection<string> GetExecutedInstructions(UInt160 contractHash)
     {
         if (!_engine.Coverage.TryGetValue(contractHash, out CoveredContract? covered))
         {
             return [];
         }
 
-        return covered.Lines
+        var instructions = covered.Lines
             .Where(l => l.Hits > 0)
-            .Select(l => l.Offset)
-            .ToHashSet();
+            .ToDictionary(l => l.Offset);
+        var coverage = instructions.Values
+            .Select(l => "I:" + CreateCoverageKey(l.Instruction))
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (CoverageBranch branch in covered.Branches)
+        {
+            if (!instructions.TryGetValue(branch.Offset, out CoverageHit? line))
+            {
+                continue;
+            }
+
+            string key = CreateCoverageKey(line.Instruction);
+            if (branch.HitsPath1 > 0)
+            {
+                coverage.Add("B:" + key + ":true");
+            }
+            if (branch.HitsPath2 > 0)
+            {
+                coverage.Add("B:" + key + ":false");
+            }
+        }
+
+        return coverage;
     }
+
+    /// <summary>
+    /// Builds a script-independent identity for an instruction.
+    /// </summary>
+    public static string CreateCoverageKey(Instruction instruction) =>
+        $"{instruction.OpCode}:{Convert.ToHexString(instruction.Operand.Span)}";
 
     /// <summary>
     /// Captures the storage state of a deployed contract.
@@ -579,7 +656,7 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     /// The call results, the executed instruction pointers, the storage state, and the
     /// deployment error when the contract could not be deployed.
     /// </returns>
-    public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<int> Coverage,
+    public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<string> Coverage,
              IReadOnlyDictionary<string, string> Storage, string? DeploymentError)
         ExecuteBatchWithCoverage(
             ArtifactSet artifacts,
@@ -604,7 +681,7 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     /// The call results, coverage, storage, the rendered notifications per call, and the
     /// deployment error when the contract could not be deployed.
     /// </returns>
-    public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<int> Coverage,
+    public (List<(bool Ok, string? Error, StackItem? Value)> Results, IReadOnlyCollection<string> Coverage,
              IReadOnlyDictionary<string, string> Storage, List<IReadOnlyList<string>> Notifications,
              string? DeploymentError)
         ExecuteBatchWithNotifications(
@@ -613,7 +690,7 @@ public sealed class BehaviorDifferentialAnalyzer : IDisposable
     {
         var results = new List<(bool Ok, string? Error, StackItem? Value)>(calls.Count);
         var notifications = new List<IReadOnlyList<string>>(calls.Count);
-        IReadOnlyCollection<int> coverage = [];
+        IReadOnlyCollection<string> coverage = [];
         IReadOnlyDictionary<string, string> storage = new Dictionary<string, string>(StringComparer.Ordinal);
 
         if (calls.Count == 0)

@@ -1777,11 +1777,11 @@ public sealed class SourceGenerator
         // to the method currently being converted, and the base case must terminate before
         // the VM invocation-stack limit. Depths are kept small and derived from the
         // arguments so arbitrary fuzz inputs converge.
-        sb.AppendLine("    public static int RecFactorial(int n) { return n <= 1 ? 1 : n * RecFactorial(n - 1); }");
-        sb.AppendLine("    public static int RecSum(int n) { return n <= 0 ? 0 : n + RecSum(n - 1); }");
-        sb.AppendLine("    public static int RecEven(int n) { return n == 0 ? 1 : RecOdd(n < 0 ? n + 1 : n - 1); }");
-        sb.AppendLine("    public static int RecOdd(int n) { return n == 0 ? 0 : RecEven(n < 0 ? n + 1 : n - 1); }");
-        sb.AppendLine("    public static int RecAccumulate(int n, int acc) { return n <= 0 ? acc : RecAccumulate(n - 1, acc + n); }");
+        sb.AppendLine("    public static int RecFactorial(int n) { n = Math.Abs(n % 7); return n <= 1 ? 1 : n * RecFactorial(n - 1); }");
+        sb.AppendLine("    public static int RecSum(int n) { n = Math.Abs(n % 8); return n <= 0 ? 0 : n + RecSum(n - 1); }");
+        sb.AppendLine("    public static int RecEven(int n) { n = Math.Abs(n % 8); return n == 0 ? 1 : RecOdd(n - 1); }");
+        sb.AppendLine("    public static int RecOdd(int n) { n = Math.Abs(n % 8); return n == 0 ? 0 : RecEven(n - 1); }");
+        sb.AppendLine("    public static int RecAccumulate(int n, int acc) { n = Math.Abs(n % 8); return n <= 0 ? acc : RecAccumulate(n - 1, acc + n); }");
         sb.AppendLine("    public static int RecArraySum(int[] values, int index)");
         sb.AppendLine("    {");
         sb.AppendLine("        if (values == null || index >= values.Length) return 0;");
@@ -1789,7 +1789,8 @@ public sealed class SourceGenerator
         sb.AppendLine("    }");
         sb.AppendLine("    public static int RecEarlyExit(int n)");
         sb.AppendLine("    {");
-        sb.AppendLine("        if (n >= 100) return -1;");
+        sb.AppendLine("        n = Math.Abs(n % 16);");
+        sb.AppendLine("        if (n >= 15) return -1;");
         sb.AppendLine("        if (n % 7 == 0 && n > 0) return n;");
         sb.AppendLine("        return RecEarlyExit(n + 1);");
         sb.AppendLine("    }");
@@ -1853,10 +1854,11 @@ public sealed class SourceGenerator
         sb.AppendLine("    {");
         sb.AppendLine("        int total = 0;");
         sb.AppendLine("        int i = 0;");
+        sb.AppendLine("        int limit = Math.Abs(a % 8);");
         sb.AppendLine("        while (i < 5)");
         sb.AppendLine("        {");
         sb.AppendLine("            int j = 0;");
-        sb.AppendLine("            while (j < a)");
+        sb.AppendLine("            while (j < limit)");
         sb.AppendLine("            {");
         sb.AppendLine("                total += j;");
         sb.AppendLine("                j++;");
@@ -1965,7 +1967,7 @@ public sealed class SourceGenerator
         sb.AppendLine("    public static BigInteger BigPow(BigInteger a, int e) { return e >= 0 && e <= 8 ? BigInteger.Pow(a, e) : BigInteger.Zero; }");
         sb.AppendLine("    public static BigInteger BigModPow(BigInteger b, BigInteger e, BigInteger m)");
         sb.AppendLine("    {");
-        sb.AppendLine("        return m != 0 ? BigInteger.ModPow(b, e, m) : BigInteger.Zero;");
+        sb.AppendLine("        return e >= 0 && e <= 8 && m != 0 ? BigInteger.ModPow(b, e, m) : BigInteger.Zero;");
         sb.AppendLine("    }");
         sb.AppendLine("    public static BigInteger BigGcd(BigInteger a, BigInteger b) { return BigInteger.GreatestCommonDivisor(a, b); }");
         sb.AppendLine("    public static bool BigEquals(BigInteger a, BigInteger b) { return a.Equals(b); }");

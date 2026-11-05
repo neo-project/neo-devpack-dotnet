@@ -118,9 +118,9 @@ public static class DifferentialAnalyzers
         ContractMethodDescriptor[] methodsA = a.Manifest.Abi.Methods;
         ContractMethodDescriptor[] methodsB = b.Manifest.Abi.Methods;
 
-        string[] namesA = methodsA.Where(m => !IsConstructor(m)).Select(m => m.Name)
+        string[] namesA = methodsA.Where(m => !IsConstructor(m)).Select(MethodSignature)
             .OrderBy(n => n, StringComparer.Ordinal).ToArray();
-        string[] namesB = methodsB.Where(m => !IsConstructor(m)).Select(m => m.Name)
+        string[] namesB = methodsB.Where(m => !IsConstructor(m)).Select(MethodSignature)
             .OrderBy(n => n, StringComparer.Ordinal).ToArray();
 
         if (!namesA.SequenceEqual(namesB, StringComparer.Ordinal))
@@ -133,13 +133,25 @@ public static class DifferentialAnalyzers
 
         foreach (ContractMethodDescriptor ma in methodsA.Where(m => !IsConstructor(m)))
         {
-            ContractMethodDescriptor mb = methodsB.First(m => m.Name == ma.Name);
-            if (ma.Parameters.Length != mb.Parameters.Length)
+            ContractMethodDescriptor? mb = methodsB.FirstOrDefault(m =>
+                string.Equals(MethodSignature(m), MethodSignature(ma), StringComparison.Ordinal));
+            if (mb is null)
             {
-                result.Add(new DifferentialDivergence(
-                    "AbiParameterCount",
-                    $"Method '{ma.Name}' has {ma.Parameters.Length} parameters in {labelA} but {mb.Parameters.Length} in {labelB}."));
+                int[] counts = methodsB
+                    .Where(m => m.Name == ma.Name)
+                    .Select(m => m.Parameters.Length)
+                    .OrderBy(static count => count)
+                    .ToArray();
+                if (counts.Length > 0)
+                {
+                    result.Add(new DifferentialDivergence(
+                        "AbiParameterCount",
+                        $"Method '{ma.Name}' has {ma.Parameters.Length} parameters in {labelA} " +
+                        $"but overloads [{string.Join(", ", counts)}] in {labelB}."));
+                }
+                continue;
             }
+
             if (ma.ReturnType != mb.ReturnType)
             {
                 result.Add(new DifferentialDivergence(
@@ -163,6 +175,13 @@ public static class DifferentialAnalyzers
     /// <returns><c>true</c> when the method is <c>_initialize</c>.</returns>
     private static bool IsConstructor(ContractMethodDescriptor method) =>
         string.Equals(method.Name, "_initialize", StringComparison.Ordinal);
+
+    /// <summary>
+    /// Identifies an ABI method by name, arity, and parameter types so same-arity
+    /// overloads cannot be paired incorrectly when manifest order differs.
+    /// </summary>
+    private static string MethodSignature(ContractMethodDescriptor method) =>
+        $"{method.Name}/{method.Parameters.Length}({string.Join(",", method.Parameters.Select(p => p.Type))})";
 
     /// <summary>
     /// Verifies that compiling the same source twice yields byte-identical artifacts.

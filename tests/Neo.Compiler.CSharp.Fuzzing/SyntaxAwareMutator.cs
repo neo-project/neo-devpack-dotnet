@@ -73,6 +73,88 @@ public sealed class SyntaxAwareMutator
     private static SyntaxTree Parse(string source) =>
         CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Latest));
 
+    /// <summary>
+    /// Checks that mutation did not alter the bounds or progress of any loop.
+    /// </summary>
+    public static bool PreservesLoopControl(string originalSource, string mutatedSource)
+    {
+        var original = LoopControlNodes(Parse(originalSource).GetRoot()).ToArray();
+        var mutated = LoopControlNodes(Parse(mutatedSource).GetRoot()).ToArray();
+        if (original.Length != mutated.Length)
+            return false;
+
+        for (int i = 0; i < original.Length; i++)
+        {
+            if (!SyntaxFactory.AreEquivalent(original[i], mutated[i]))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Detects the legacy boundary mutation that starts a ++ loop at Int32.MinValue or
+    /// Int64.MinValue and runs toward a non-negative literal bound.
+    /// </summary>
+    public static bool HasExcessiveLoop(string source) => Parse(source).GetRoot()
+        .DescendantNodes().OfType<ForStatementSyntax>().Any(HasExcessiveTripCount);
+
+    private static bool HasExcessiveTripCount(ForStatementSyntax loop)
+    {
+        if (loop.Declaration is not { Variables.Count: 1 } declaration)
+            return false;
+
+        VariableDeclaratorSyntax variable = declaration.Variables[0];
+        if (variable.Initializer?.Value.ToString() is not ("int.MinValue" or "long.MinValue"))
+            return false;
+
+        if (loop.Condition is not BinaryExpressionSyntax condition ||
+            !(condition.IsKind(SyntaxKind.LessThanExpression) ||
+              condition.IsKind(SyntaxKind.LessThanOrEqualExpression)) ||
+            condition.Left is not IdentifierNameSyntax left ||
+            left.Identifier.ValueText != variable.Identifier.ValueText ||
+            condition.Right is not LiteralExpressionSyntax bound ||
+            !bound.IsKind(SyntaxKind.NumericLiteralExpression))
+        {
+            return false;
+        }
+
+        string name = variable.Identifier.ValueText;
+        return loop.Incrementors.Any(incrementor => incrementor switch
+        {
+            PostfixUnaryExpressionSyntax postfix when postfix.IsKind(SyntaxKind.PostIncrementExpression) =>
+                postfix.Operand is IdentifierNameSyntax id && id.Identifier.ValueText == name,
+            PrefixUnaryExpressionSyntax prefix when prefix.IsKind(SyntaxKind.PreIncrementExpression) =>
+                prefix.Operand is IdentifierNameSyntax id && id.Identifier.ValueText == name,
+            _ => false,
+        });
+    }
+
+    private static IEnumerable<SyntaxNode> LoopControlNodes(SyntaxNode root)
+    {
+        foreach (SyntaxNode node in root.DescendantNodes())
+        {
+            switch (node)
+            {
+                case ForStatementSyntax loop:
+                    if (loop.Declaration is not null)
+                        yield return loop.Declaration;
+                    foreach (ExpressionSyntax initializer in loop.Initializers)
+                        yield return initializer;
+                    if (loop.Condition is not null)
+                        yield return loop.Condition;
+                    foreach (ExpressionSyntax incrementor in loop.Incrementors)
+                        yield return incrementor;
+                    break;
+                case WhileStatementSyntax loop:
+                    yield return loop.Condition;
+                    break;
+                case DoStatementSyntax loop:
+                    yield return loop.Condition;
+                    break;
+            }
+        }
+    }
+
     private SyntaxNode? RewriteRandomLiteral(SyntaxNode root)
     {
         var literals = root.DescendantNodes()
@@ -89,7 +171,7 @@ public sealed class SyntaxAwareMutator
     private SyntaxNode? RewriteRandomBinaryOperator(SyntaxNode root)
     {
         var binaries = root.DescendantNodes().OfType<BinaryExpressionSyntax>()
-            .Where(b => BinaryOperators.Contains(b.OperatorToken.ValueText))
+            .Where(b => BinaryOperators.Contains(b.OperatorToken.ValueText) && !IsLoopCondition(b))
             .ToList();
         if (binaries.Count == 0)
             return null;
@@ -103,6 +185,14 @@ public sealed class SyntaxAwareMutator
         var rewritten = victim.WithOperatorToken(SyntaxFactory.ParseToken($" {op} ").WithTriviaFrom(victim.OperatorToken));
         return root.ReplaceNode(victim, rewritten);
     }
+
+    private static bool IsLoopCondition(SyntaxNode node) => node.Ancestors().Any(ancestor => ancestor switch
+    {
+        WhileStatementSyntax loop => loop.Condition.Span.Contains(node.Span),
+        DoStatementSyntax loop => loop.Condition.Span.Contains(node.Span),
+        ForStatementSyntax loop => loop.Condition is { } condition && condition.Span.Contains(node.Span),
+        _ => false,
+    });
 
     private SyntaxNode? NegateRandomIfCondition(SyntaxNode root)
     {

@@ -19,8 +19,12 @@ namespace Neo.Compiler.Fuzzing;
 /// </summary>
 /// <param name="Source">The contract source.</param>
 /// <param name="InstructionCount">How many distinct instructions the source reached.</param>
-/// <param name="CoveredOffsets">The instruction offsets the source reached.</param>
-public sealed record PersistedEntry(string Source, int InstructionCount, int[] CoveredOffsets);
+/// <param name="CoveredOffsets">Legacy instruction offsets, retained only to read old corpus files.</param>
+public sealed record PersistedEntry(string Source, int InstructionCount, int[] CoveredOffsets)
+{
+    /// <summary>Opcode/operand and branch-outcome coverage identities.</summary>
+    public string[]? Coverage { get; init; }
+}
 
 /// <summary>
 /// Reads and writes the coverage-guided corpus.
@@ -104,12 +108,45 @@ public sealed class CorpusStore
         string path = Path.Combine(_directory, Hash(entry.Source) + ".json");
         if (File.Exists(path))
         {
-            return false;
+            try
+            {
+                PersistedEntry? existing = JsonSerializer.Deserialize<PersistedEntry>(File.ReadAllText(path, Encoding.UTF8));
+                if (existing is not null)
+                {
+                    if (existing.Coverage is { } coverage)
+                    {
+                        if (entry.Coverage is not { } upgraded || coverage.Length >= upgraded.Length)
+                        {
+                            return false;
+                        }
+                    }
+                    else if (entry.Coverage is not { Length: > 0 })
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
+            {
+                return false;
+            }
         }
 
         var options = new JsonSerializerOptions { WriteIndented = false };
-        File.WriteAllText(path, JsonSerializer.Serialize(entry, options), new UTF8Encoding(false));
-        return true;
+        string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temporary, JsonSerializer.Serialize(entry, options), new UTF8Encoding(false));
+            File.Move(temporary, path, overwrite: true);
+            return true;
+        }
+        finally
+        {
+            if (File.Exists(temporary))
+            {
+                File.Delete(temporary);
+            }
+        }
     }
 
     /// <summary>

@@ -159,6 +159,12 @@ public sealed class SourceMutator
             _attempts[kind] = _attempts.GetValueOrDefault(kind) + 1;
         }
 
+        if (!SyntaxAwareMutator.PreservesLoopControl(source, current))
+        {
+            LastKinds = [];
+            return source;
+        }
+
         LastKinds = kinds;
         return current;
     }

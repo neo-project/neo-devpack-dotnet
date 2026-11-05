@@ -148,6 +148,7 @@ public static class Program
         Console.WriteLine($"  seed       : {options.Seed}");
         Console.WriteLine($"  iterations : {options.Iterations}");
         Console.WriteLine($"  timeout    : {(options.Timeout is { } t ? t.ToString() : "none")}");
+        Console.WriteLine($"  iter budget: {options.IterationTimeout.TotalSeconds:F3}s");
         Console.WriteLine();
 
         using var cancellation = new CancellationTokenSource();
@@ -160,7 +161,8 @@ public static class Program
         using var runner = new FuzzRunner(
             options.Seed,
             coverageGuided: !options.NoCoverageGuidance,
-            corpusDirectory: options.CorpusDirectory);
+            corpusDirectory: options.CorpusDirectory,
+            iterationBudget: options.IterationTimeout);
         var stopwatch = Stopwatch.StartNew();
 
         try
@@ -181,7 +183,7 @@ public static class Program
         Console.WriteLine();
         Console.WriteLine($"Completed {runner.Iterations} iterations in {stopwatch.Elapsed.TotalSeconds:F1}s " +
                           $"(compiled={runner.Compiled}, rejected={runner.Rejected}).");
-        Console.WriteLine($"Coverage: {runner.CoveredInstructions} distinct instructions reached, " +
+        Console.WriteLine($"Coverage: {runner.CoveredInstructions} distinct instruction/branch signals reached, " +
                           $"corpus={runner.CorpusSize} entries. " +
                           "(A flat instruction count means the search has saturated.)");
         Console.WriteLine($"Multi-contract iterations: {runner.MultiContractIterations}. " +
@@ -201,10 +203,26 @@ public static class Program
                 "both builds agreed under a larger budget.");
         }
 
+        if (runner.ReferenceCollectionCount > 0)
+        {
+            Console.WriteLine($"Reference cleanup: {runner.ReferenceCollectionCount} periodic collection(s), " +
+                              $"{runner.EvictedReferenceCount} load context(s) evicted.");
+        }
+
         if (runner.RestoredCorpusSize > 0)
         {
             Console.WriteLine($"Corpus: restored {runner.RestoredCorpusSize} entries " +
-                              $"and {runner.RestoredCoverage} coverage offsets from the previous campaign.");
+                              $"and {runner.RestoredCoverage} coverage identities from the previous campaign.");
+        }
+
+        if (runner.SkippedCorpusSize > 0)
+        {
+            Console.WriteLine($"Corpus: skipped {runner.SkippedCorpusSize} persisted source(s) with excessive loops.");
+        }
+
+        if (runner.ReplayedCorpusSize > 0)
+        {
+            Console.WriteLine($"Corpus: replayed {runner.ReplayedCorpusSize} persisted source(s).");
         }
 
         int stored = runner.SaveCorpus();
@@ -249,8 +267,9 @@ public static class Program
         double rate = stopwatch.Elapsed.TotalSeconds > 0 ? runner.Iterations / stopwatch.Elapsed.TotalSeconds : 0;
         Console.WriteLine(
             $"[{runner.Iterations,7} it] {rate,8:F1}/s  compiled={runner.Compiled,6}  rejected={runner.Rejected,6}  " +
-            $"corpus={runner.CorpusSize,4}  instr={runner.CoveredInstructions,6}  " +
-            $"multi={runner.MultiContractIterations,4}  findings={runner.Findings.Count,3}");
+            $"corpus={runner.CorpusSize,4}  signals={runner.CoveredInstructions,6}  " +
+            $"multi={runner.MultiContractIterations,4}  findings={runner.Findings.Count,3}  " +
+            $"refcache={runner.CachedReferenceCount,3}  mem={Environment.WorkingSet / 1048576.0,6:F0}MB");
     }
 
     private static int WriteFindings(IReadOnlyList<FuzzFinding> findings, string? outputDirectory)
@@ -307,6 +326,11 @@ public static class Program
         if (!string.IsNullOrWhiteSpace(outputDirectory))
         {
             Directory.CreateDirectory(outputDirectory);
+            foreach (string stale in Directory.EnumerateFiles(outputDirectory, "repro-*.cs"))
+            {
+                File.Delete(stale);
+            }
+
             string path = Path.Combine(outputDirectory, "findings.json");
             File.WriteAllText(path, BuildJson(findings), new UTF8Encoding(false));
             Console.WriteLine();
@@ -387,6 +411,9 @@ public sealed record FuzzOptions
 
     /// <summary>Optional wall-clock budget.</summary>
     public TimeSpan? Timeout { get; init; }
+
+    /// <summary>End-to-end budget for one fuzz iteration.</summary>
+    public TimeSpan IterationTimeout { get; init; } = TimeSpan.FromSeconds(30);
 
     /// <summary>Directory that receives the findings report and reproducers.</summary>
     public string? OutputDirectory { get; init; }
@@ -475,6 +502,7 @@ public sealed record FuzzOptions
           --seed <n>          Random seed (default 20261021)
           --iterations <n>    Number of fuzz iterations (default 500)
           --timeout <sec>     Wall-clock budget in seconds
+          --iteration-timeout <sec>  End-to-end budget per iteration (default 30)
           --output <dir>      Directory for the findings report and reproducers
           --help              Show this help
 
@@ -494,6 +522,7 @@ public sealed record FuzzOptions
         int seed = 20261021;
         int iterations = 500;
         TimeSpan? timeout = null;
+        TimeSpan iterationTimeout = TimeSpan.FromSeconds(30);
         string? output = null;
         bool help = false;
         bool abiProbe = false;
@@ -532,6 +561,9 @@ public sealed record FuzzOptions
                     break;
                 case "--timeout":
                     timeout = TimeSpan.FromSeconds(double.Parse(args[++i]));
+                    break;
+                case "--iteration-timeout":
+                    iterationTimeout = TimeSpan.FromSeconds(double.Parse(args[++i]));
                     break;
                 case "--output":
                     output = args[++i];
@@ -617,6 +649,7 @@ public sealed record FuzzOptions
             Seed = seed,
             Iterations = iterations,
             Timeout = timeout,
+            IterationTimeout = iterationTimeout,
             OutputDirectory = output,
             ShowHelp = help,
             AbiProbe = abiProbe,

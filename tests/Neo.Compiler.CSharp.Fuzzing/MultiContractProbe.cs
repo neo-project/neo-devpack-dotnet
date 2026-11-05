@@ -88,7 +88,7 @@ public static class MultiContractProbe
             }))
             .ToList();
 
-        (List<(bool Ok, string? Error, StackItem? Value)> results, IReadOnlyCollection<int> coverage,
+        (List<(bool Ok, string? Error, StackItem? Value)> results, IReadOnlyCollection<string> coverage,
          IReadOnlyDictionary<string, string> storage, _) =
             analyzer.ExecuteBundleWithCoverage(bundle, "ContractA", calls);
 
