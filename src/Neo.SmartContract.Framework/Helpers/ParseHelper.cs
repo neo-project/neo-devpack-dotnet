@@ -17,19 +17,19 @@ namespace Neo.SmartContract.Framework.Helpers
 {
     internal static class ParseHelper
     {
-        private static int GetHexPrefixLength(byte[] valueBytes)
+        private static int GetHexPrefixLength(ByteString value)
         {
-            if (valueBytes.Length < 2) return 0;
-            if (valueBytes[0] != (byte)'0') return 0;
+            if (value.Length < 2) return 0;
+            if (value[0] != (byte)'0') return 0;
 
-            byte second = valueBytes[1];
+            byte second = value[1];
             return (second == (byte)'x' || second == (byte)'X') ? 2 : 0;
         }
 
-        internal static byte[] ParseHex(byte[] valueBytes)
+        internal static byte[] ParseHex(ByteString value)
         {
-            var offset = GetHexPrefixLength(valueBytes);
-            var rawLength = (BigInteger)valueBytes.Length - offset;
+            var offset = GetHexPrefixLength(value);
+            var rawLength = (BigInteger)value.Length - offset;
             if (rawLength % 2 != 0)
                 throw new FormatException("Invalid hex string length.");
 
@@ -37,9 +37,9 @@ namespace Neo.SmartContract.Framework.Helpers
             var result = new byte[(int)expectedLength];
             for (int i = 0; i < expectedLength; i++)
             {
-                var index = offset + i * 2;
-                var high = FromHexByte(valueBytes[index]);
-                var low = FromHexByte(valueBytes[index + 1]);
+                var index = offset + (BigInteger)i * 2;
+                var high = FromHexByte(value[index]);
+                var low = FromHexByte(value[index + 1]);
                 result[i] = (byte)((high << 4) | low);
             }
             return result;
