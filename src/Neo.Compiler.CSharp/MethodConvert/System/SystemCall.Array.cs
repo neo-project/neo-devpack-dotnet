@@ -56,6 +56,42 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleArrayLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null &&
+            model.GetTypeInfo(instanceExpression).Type is IArrayTypeSymbol { Rank: > 1 } arrayType)
+        {
+            using var tempScope = methodConvert.PreserveAnonymousVariables();
+            byte arraySlot = methodConvert.AddAnonymousVariable();
+            byte lengthSlot = methodConvert.AddAnonymousVariable();
+            JumpTarget endTarget = new();
+
+            methodConvert.ConvertExpression(model, instanceExpression);
+            methodConvert.AccessSlot(OpCode.STLOC, arraySlot);
+            methodConvert.Push(1);
+            methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
+
+            for (int dimension = 0; dimension < arrayType.Rank; dimension++)
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+                methodConvert.AccessSlot(OpCode.LDLOC, arraySlot);
+                methodConvert.Size();
+                methodConvert.Mul();
+                methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
+
+                if (dimension + 1 == arrayType.Rank)
+                    continue;
+
+                methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+                methodConvert.JumpIfFalse(endTarget);
+                methodConvert.AccessSlot(OpCode.LDLOC, arraySlot);
+                methodConvert.Push(0);
+                methodConvert.PickItem();
+                methodConvert.AccessSlot(OpCode.STLOC, arraySlot);
+            }
+
+            endTarget.Instruction = methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+            return;
+        }
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
