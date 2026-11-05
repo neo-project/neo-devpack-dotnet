@@ -320,11 +320,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Dup();                                       // Duplicate character for second check
-        methodConvert.Within((ushort)0xD800, (ushort)0xDBFF);      // Check if within high surrogate range
-        methodConvert.Swap();                                      // Bring original character back to top
-        methodConvert.Within((ushort)0xDC00, (ushort)0xDFFF);      // Check if within low surrogate range
-        methodConvert.BoolOr();                                    // Combine both checks with OR
+        methodConvert.Within((ushort)0xD800, (ushort)0xDFFF);      // High and low surrogate ranges are contiguous
     }
 
     /// <summary>
