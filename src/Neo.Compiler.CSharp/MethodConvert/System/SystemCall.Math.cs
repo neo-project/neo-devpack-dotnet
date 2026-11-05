@@ -363,18 +363,37 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
-        var okTarget = new JumpTarget();
-        // Evaluation stack: value=5 min=0 max=10 <- top
-        methodConvert.Over();                                      // 5 0 10 0
-        methodConvert.Over();                                      // 5 0 10 0 10 <- top
-        methodConvert.JumpIfLessOrEqual(okTarget);                 // 5 0 10  // if 0 <= 10, continue execution
-        methodConvert.Drop(3);                                     // Drop the value, min, max
-        methodConvert.Push("min > max");                           // Push the error message
-        methodConvert.Throw();                                     // Throw if min > max
-        okTarget.Instruction = methodConvert.Nop();                // OK target
+        if (!HasValidConstantClampBounds(model, symbol, arguments))
+        {
+            var okTarget = new JumpTarget();
+            // Evaluation stack: value=5 min=0 max=10 <- top
+            methodConvert.Over();                                  // 5 0 10 0
+            methodConvert.Over();                                  // 5 0 10 0 10 <- top
+            methodConvert.JumpIfLessOrEqual(okTarget);             // 5 0 10  // if 0 <= 10, continue execution
+            methodConvert.Drop(3);                                 // Drop the value, min, max
+            methodConvert.Push("min > max");                       // Push the error message
+            methodConvert.Throw();                                 // Throw if min > max
+            okTarget.Instruction = methodConvert.Nop();            // OK target
+        }
         methodConvert.Reverse3();                                  // 10 0 5
         methodConvert.Max();                                       // 10 5
         methodConvert.Min();                                       // 5
+    }
+
+    /// <summary>
+    /// Returns true only when both Clamp bounds are compile-time integer constants and min &lt;= max,
+    /// so the runtime range validation can be omitted. Any other case keeps the validation.
+    /// </summary>
+    private static bool HasValidConstantClampBounds(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null || symbol.Parameters.Length != 3)
+            return false;
+        var mapped = MapArgumentExpressionsToParameters(symbol, arguments);
+        return mapped.TryGetValue(symbol.Parameters[1], out var minExpr)
+            && mapped.TryGetValue(symbol.Parameters[2], out var maxExpr)
+            && TryGetIntegerConstant(model, minExpr, out var min)
+            && TryGetIntegerConstant(model, maxExpr, out var max)
+            && min <= max;
     }
 
     /// <summary>
