@@ -86,10 +86,7 @@ namespace Neo.Compiler
             }
 
             ITypeSymbol? switchType = model.GetTypeInfo(syntax.Expression).Type;
-            bool nullableValue = switchType is INamedTypeSymbol
-            {
-                OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-            };
+            bool nullableValue = IsNullableValueType(switchType);
             ITypeSymbol? valueType = nullableValue ? ((INamedTypeSymbol)switchType!).TypeArguments[0] : switchType;
             bool integerValue = valueType?.GetStackItemType() == StackItemType.Integer;
             bool emittedOptimizedDispatch = _context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic)
