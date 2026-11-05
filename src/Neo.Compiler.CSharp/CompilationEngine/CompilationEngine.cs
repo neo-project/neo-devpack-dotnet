@@ -184,6 +184,9 @@ namespace Neo.Compiler
             if (frameworkReference is not null && !referenceArray.Contains(frameworkReference))
                 throw new ArgumentException("The framework reference must be included in references.", nameof(frameworkReference));
 
+            // The engine instance can be reused for a different compilation; drop diagnostics
+            // cached for the previous one so stale syntax trees are not retained.
+            _semanticDiagnosticsCache.Clear();
             FrameworkReference = frameworkReference ?? referenceArray.FirstOrDefault(IsTrustedFrameworkReference);
             Compilation = CSharpCompilation.Create(null, syntaxTrees, referenceArray, compilationOptions);
             AnalyzeCompilation();
