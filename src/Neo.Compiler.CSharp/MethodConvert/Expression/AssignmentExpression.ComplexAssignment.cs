@@ -295,7 +295,20 @@ internal partial class MethodConvert
             ICompoundAssignmentOperation operation = (ICompoundAssignmentOperation)model.GetOperation(assignment)!;
             if (operation.IsLifted)
             {
-                EmitLiftedUserDefinedCompoundAssignment(model, operation, operatorSymbol);
+                // ConvertedType is already nullable for lifted compounds. Use the source type,
+                // then conservatively check user-defined conversions that may return null.
+                ITypeSymbol? rightType = model.GetTypeInfo(right).Type;
+                bool rightCanBeNull = rightType is null || !rightType.IsValueType || IsNullableValueType(rightType);
+                if (!rightCanBeNull)
+                {
+                    Conversion conversion = model.GetConversion(right);
+                    if (conversion.IsUserDefined)
+                    {
+                        ITypeSymbol? conversionType = conversion.MethodSymbol?.ReturnType;
+                        rightCanBeNull = conversionType is null || !conversionType.IsValueType || IsNullableValueType(conversionType);
+                    }
+                }
+                EmitLiftedUserDefinedCompoundAssignment(model, operation, operatorSymbol, rightCanBeNull);
             }
             else
             {
@@ -325,40 +338,39 @@ internal partial class MethodConvert
         EmitComplexAssignmentOperatorCore(model, type, operatorToken, right);
     }
 
-    private void EmitLiftedUserDefinedCompoundAssignment(
-        SemanticModel model,
-        ICompoundAssignmentOperation operation,
-        IMethodSymbol operatorSymbol)
+    private void EmitLiftedUserDefinedCompoundAssignment(SemanticModel model, ICompoundAssignmentOperation operation, IMethodSymbol operatorSymbol, bool rightCanBeNull)
     {
         JumpTarget leftNullTarget = new(), rightNullTarget = new(), endTarget = new();
-
         Over();
         IsNull();
         JumpIfTrue(leftNullTarget);
-        Dup();
-        IsNull();
-        JumpIfTrue(rightNullTarget);
+        if (!rightCanBeNull)
+        {
+            Swap();
+            EmitCall(_context.ConvertMethod(model, operatorSymbol));
+            EmitCompoundAssignmentOutConversion(model, operation, operatorSymbol.ReturnType);
+            Jump(OpCode.JMP_L, endTarget);
 
-        Swap();
-        EmitCall(_context.ConvertMethod(model, operatorSymbol));
-        EmitCompoundAssignmentOutConversion(model, operation, operatorSymbol.ReturnType);
-        Jump(OpCode.JMP_L, endTarget);
+            leftNullTarget.Instruction = Drop();
+        }
+        else
+        {
+            Dup();
+            IsNull();
+            JumpIfTrue(rightNullTarget);
 
-        rightNullTarget.Instruction = Drop();
-        Drop();
-        Push((object?)null);
-        Jump(OpCode.JMP_L, endTarget);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, operatorSymbol));
+            EmitCompoundAssignmentOutConversion(model, operation, operatorSymbol.ReturnType);
+            Jump(OpCode.JMP_L, endTarget);
 
-        leftNullTarget.Instruction = Nop();
-        Drop(2);
-        Push((object?)null);
+            leftNullTarget.Instruction = Swap();
+            rightNullTarget.Instruction = Nip();
+        }
         endTarget.Instruction = Nop();
     }
 
-    private void EmitCompoundAssignmentOutConversion(
-        SemanticModel model,
-        ICompoundAssignmentOperation operation,
-        ITypeSymbol sourceType)
+    private void EmitCompoundAssignmentOutConversion(SemanticModel model, ICompoundAssignmentOperation operation, ITypeSymbol sourceType)
     {
         if (!operation.OutConversion.IsUserDefined ||
             operation.OutConversion.MethodSymbol is not IMethodSymbol conversion ||
