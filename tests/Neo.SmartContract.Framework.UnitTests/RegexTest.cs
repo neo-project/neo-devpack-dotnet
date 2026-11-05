@@ -23,7 +23,22 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestStartWith()
         {
             Assert.IsTrue(Contract.TestStartWith());
-            AssertGasConsumed(1987140);
+            AssertGasConsumed(1311030);
+
+            Assert.IsTrue(Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), Encoding.UTF8.GetBytes("")));
+            AssertGasConsumed(1374060);
+
+            Assert.IsFalse(Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), Encoding.UTF8.GetBytes("W")));
+            AssertGasConsumed(1374060);
+
+            Assert.IsFalse(Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), Encoding.UTF8.GetBytes("Hello!")));
+            AssertGasConsumed(1065750);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), null));
+            AssertGasConsumed(1065030);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStartsWith(null, Encoding.UTF8.GetBytes("")));
+            AssertGasConsumed(1064790);
         }
 
         [TestMethod]
