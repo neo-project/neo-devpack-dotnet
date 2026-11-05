@@ -77,7 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var array = new List<object> { 0, -1, -100 };
             var result = Contract.ForEachVar(array);
-            AssertGasConsumed(2648700);
+            AssertGasConsumed(2648340);
             Assert.AreEqual(array.Count, result!.Count);
             Assert.AreEqual(new BigInteger(-100), result[0]);
         }
@@ -87,7 +87,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var array = new List<object> { 0, -1, -100 };
             var result = Contract.ForVar(array);
-            AssertGasConsumed(2649990);
+            AssertGasConsumed(2649630);
             Assert.AreEqual(array.Count, result!.Count);
             Assert.AreEqual(new BigInteger(-100), result[0]);
         }
