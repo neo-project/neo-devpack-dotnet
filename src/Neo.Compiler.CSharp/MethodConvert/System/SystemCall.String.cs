@@ -2203,6 +2203,34 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.STLOC, countSlot);
         methodConvert.AccessSlot(OpCode.STLOC, startSlot);
 
+        JumpTarget validStartTarget = new();
+        JumpTarget validCountTarget = new();
+        JumpTarget validRangeTarget = new();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.Push0();
+        methodConvert.JumpIfGreaterOrEqual(validStartTarget);
+        methodConvert.Push("Invalid startIndex");
+        methodConvert.Throw();
+
+        validStartTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
+        methodConvert.Push0();
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);
+        methodConvert.Push("Invalid count");
+        methodConvert.Throw();
+
+        validCountTarget.Instruction = methodConvert.Nop();
+        methodConvert.Dup();                               // [string, string]
+        methodConvert.Size();                              // [string, size]
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [string, size, start]
+        methodConvert.Sub();                               // [string, size - start]
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot); // [string, size - start, count]
+        methodConvert.JumpIfGreaterOrEqual(validRangeTarget);
+        methodConvert.Push("Invalid range");
+        methodConvert.Throw();
+
+        validRangeTarget.Instruction = methodConvert.Nop();
         methodConvert.Dup();                               // [string, string]
         methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [string, string, start]
         methodConvert.Left(null);                          // [string, prefix]
