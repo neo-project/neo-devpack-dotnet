@@ -9,8 +9,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Template", "src\Neo.SmartContract.Template\Neo.SmartContract.Template.csproj", "{FC0CAF5A-30A7-4857-B1A4-486FAAA39E5A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.CSharp.UnitTests", "tests\Neo.Compiler.CSharp.UnitTests\Neo.Compiler.CSharp.UnitTests.csproj", "{4C6B120B-99B5-4888-B8D5-45031458DD07}"
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.CSharp.Fuzzing", "tests\Neo.Compiler.CSharp.Fuzzing\Neo.Compiler.CSharp.Fuzzing.csproj", "{F0ZZ1NG5-6C79-4A0E-B1AF-3E2D94F10A11}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.Compiler.CSharp.Fuzzing", "tests\Neo.Compiler.CSharp.Fuzzing\Neo.Compiler.CSharp.Fuzzing.csproj", "{3F7C2A91-8B4D-4E26-9A50-C1D84E6F2B37}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neo.SmartContract.Framework.UnitTests", "tests\Neo.SmartContract.Framework.UnitTests\Neo.SmartContract.Framework.UnitTests.csproj", "{93BEC5CC-BAFF-4389-89E7-84AAFF5D495D}"
 EndProject
@@ -98,10 +98,10 @@ Global
 		{05B3B07A-D279-4A95-B9F9-26D8ABA2307C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05B3B07A-D279-4A95-B9F9-26D8ABA2307C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05B3B07A-D279-4A95-B9F9-26D8ABA2307C}.Release|Any CPU.Build.0 = Release|Any CPU
-	{F0ZZ1NG5-6C79-4A0E-B1AF-3E2D94F10A11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-{F0ZZ1NG5-6C79-4A0E-B1AF-3E2D94F10A11}.Debug|Any CPU.Build.0 = Debug|Any CPU
-{F0ZZ1NG5-6C79-4A0E-B1AF-3E2D94F10A11}.Release|Any CPU.ActiveCfg = Release|Any CPU
-{F0ZZ1NG5-6C79-4A0E-B1AF-3E2D94F10A11}.Release|Any CPU.Build.0 = Release|Any CPU
+	{3F7C2A91-8B4D-4E26-9A50-C1D84E6F2B37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+{3F7C2A91-8B4D-4E26-9A50-C1D84E6F2B37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+{3F7C2A91-8B4D-4E26-9A50-C1D84E6F2B37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+{3F7C2A91-8B4D-4E26-9A50-C1D84E6F2B37}.Release|Any CPU.Build.0 = Release|Any CPU
 EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,6 +121,7 @@ EndGlobalSection
 		{F30E2375-012A-4A38-985B-31CB7DBA4D28} = {D5266066-0AFD-44D5-A83E-2F73668A63C8}
 		{FA988C67-43CF-4AE4-94FE-023AADFF88D6} = {79389FC0-C621-4CEA-AD2B-6074C32E7BCA}
 		{05B3B07A-D279-4A95-B9F9-26D8ABA2307C} = {D5266066-0AFD-44D5-A83E-2F73668A63C8}
+		{3F7C2A91-8B4D-4E26-9A50-C1D84E6F2B37} = {D5266066-0AFD-44D5-A83E-2F73668A63C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6DA935E1-C674-4364-B087-F1B511B79215}
