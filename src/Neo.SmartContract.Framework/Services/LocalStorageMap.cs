@@ -38,16 +38,16 @@ namespace Neo.SmartContract.Framework.Services
         public extern ByteString? this[ByteString key]
         {
             [CallingConvention(CallingConvention.Cdecl)] // key|this
-            [OpCode(OpCode.UNPACK)]                      // key|prefix|size
-            [OpCode(OpCode.DROP)]                        // key|prefix
+            [OpCode(OpCode.PUSH0)]                       // key|this|0
+            [OpCode(OpCode.PICKITEM)]                    // key|prefix
             [OpCode(OpCode.SWAP)]                        // prefix|key
             [OpCode(OpCode.CAT)]                         // fullkey
             [Syscall("System.Storage.Local.Get")]
             get;
 
             [CallingConvention(CallingConvention.Cdecl)] // value|key|this
-            [OpCode(OpCode.UNPACK)]                      // value|key|prefix|size
-            [OpCode(OpCode.DROP)]                        // value|key|prefix
+            [OpCode(OpCode.PUSH0)]                       // value|key|this|0
+            [OpCode(OpCode.PICKITEM)]                    // value|key|prefix
             [OpCode(OpCode.SWAP)]                        // value|prefix|key
             [OpCode(OpCode.CAT)]                         // value|fullkey
             [Syscall("System.Storage.Local.Put")]
@@ -65,16 +65,16 @@ namespace Neo.SmartContract.Framework.Services
         public extern ByteString? this[byte[] key]
         {
             [CallingConvention(CallingConvention.Cdecl)]
-            [OpCode(OpCode.UNPACK)]
-            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.PUSH0)]
+            [OpCode(OpCode.PICKITEM)]
             [OpCode(OpCode.SWAP)]
             [OpCode(OpCode.CAT)]
             [Syscall("System.Storage.Local.Get")]
             get;
 
             [CallingConvention(CallingConvention.Cdecl)]
-            [OpCode(OpCode.UNPACK)]
-            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.PUSH0)]
+            [OpCode(OpCode.PICKITEM)]
             [OpCode(OpCode.SWAP)]
             [OpCode(OpCode.CAT)]
             [Syscall("System.Storage.Local.Put")]
@@ -103,8 +103,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -114,8 +114,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as UInt160 associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -125,8 +125,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as UInt256 associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -136,8 +136,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as ECPoint associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -147,8 +147,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as byte[] associated with the specified key.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -159,8 +159,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as ByteString associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -170,8 +170,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as BigInteger associated with the specified key.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -182,8 +182,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as boolean associated with the specified key, false if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -195,8 +195,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as BigInteger associated with the specified key, 0 if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -213,8 +213,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -224,8 +224,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as UInt160 associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -235,8 +235,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as UInt256 associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -246,8 +246,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as ECPoint associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -257,8 +257,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as byte[] associated with the specified key.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -269,8 +269,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as ByteString associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -280,8 +280,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as BigInteger associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -292,8 +292,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as boolean associated with the specified key, false if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -305,8 +305,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Gets the value as BigInteger associated with the specified key, 0 if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
@@ -426,8 +426,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [Syscall("System.Storage.Local.Find")]
         public extern Iterator Find(FindOptions options = FindOptions.None);
 
@@ -438,8 +438,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Find")]
@@ -452,8 +452,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Find")]
@@ -468,8 +468,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -484,8 +484,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -500,8 +500,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -516,8 +516,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -532,8 +532,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -548,8 +548,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -564,8 +564,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -580,8 +580,8 @@ namespace Neo.SmartContract.Framework.Services
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Put")]
@@ -617,8 +617,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Deletes the entry from the storage map.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Delete")]
@@ -628,8 +628,8 @@ namespace Neo.SmartContract.Framework.Services
         /// Deletes the entry from the storage map.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.UNPACK)]
-        [OpCode(OpCode.DROP)]
+        [OpCode(OpCode.PUSH0)]
+        [OpCode(OpCode.PICKITEM)]
         [OpCode(OpCode.SWAP)]
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Delete")]
