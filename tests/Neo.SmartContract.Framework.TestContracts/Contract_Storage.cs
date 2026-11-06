@@ -129,6 +129,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return (byte[])value;
         }
 
+
+        public static BigInteger? TestGetInteger(ByteString key)
+        {
+            var prefix = new byte[] { 0x00, 0xFF };
+            var storage = new LocalStorageMap(prefix);
+            return storage.GetInteger(key);
+        }
+
         public static bool TestNewGetMethods()
         {
             var prefix = new byte[] { 0x00, 0xFF };

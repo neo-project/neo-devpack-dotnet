@@ -646,10 +646,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestRemoveRange()
         {
             Assert.AreEqual("HeWorld", Contract.TestRemoveRange("HelloWorld", 2, 3));
-            AssertGasConsumed(1478580);
+            AssertGasConsumed(1479480);
 
             Assert.AreEqual("Hello", Contract.TestRemoveRange("HelloWorld", 5, 5));
-            AssertGasConsumed(1478580);
+            AssertGasConsumed(1479480);
+
+            Assert.AreEqual("HelloWorld", Contract.TestRemoveRange("HelloWorld", 10, 0));
+            Assert.AreEqual("HelloWorld", Contract.TestRemoveRange("HelloWorld", 0, 0));
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("0", 1, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", -1, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", 11, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", 9, 2));
         }
 
         [TestMethod]

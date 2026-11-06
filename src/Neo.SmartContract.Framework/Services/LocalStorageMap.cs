@@ -176,7 +176,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
-        public extern BigInteger GetInteger(ByteString key);
+        public extern BigInteger? GetInteger(ByteString key);
 
         /// <summary>
         /// Gets the value as boolean associated with the specified key, false if the key is not found.
@@ -277,7 +277,7 @@ namespace Neo.SmartContract.Framework.Services
         public extern ByteString GetString(byte[] key);
 
         /// <summary>
-        /// Gets the value as BigInteger associated with the specified key.
+        /// Gets the value as BigInteger associated with the specified key, null if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -286,7 +286,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
-        public extern BigInteger GetInteger(byte[] key);
+        public extern BigInteger? GetInteger(byte[] key);
 
         /// <summary>
         /// Gets the value as boolean associated with the specified key, false if the key is not found.
