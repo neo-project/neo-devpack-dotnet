@@ -326,41 +326,41 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestEnumTryParse()
         {
             Assert.IsTrue(Contract.TestEnumTryParse("Value1"));
-            AssertGasConsumed(1049790);
+            AssertGasConsumed(1050030);
             Assert.IsTrue(Contract.TestEnumTryParse("Value2"));
-            AssertGasConsumed(1051110);
+            AssertGasConsumed(1051350);
             Assert.IsTrue(Contract.TestEnumTryParse("Value3"));
-            AssertGasConsumed(1052430);
+            AssertGasConsumed(1052670);
             Assert.IsFalse(Contract.TestEnumTryParse("InvalidValue"));
-            AssertGasConsumed(1052370);
+            AssertGasConsumed(1052610);
         }
 
         [TestMethod]
         public void TestEnumTryParseIgnoreCase()
         {
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("value1", true));
-            AssertGasConsumed(1686060);
+            AssertGasConsumed(1686420);
             Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("value1"));
-            AssertGasConsumed(1685700);
+            AssertGasConsumed(1686060);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VALUE2", true));
-            AssertGasConsumed(1687710);
+            AssertGasConsumed(1688070);
             Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("VALUE2"));
-            AssertGasConsumed(1687170);
+            AssertGasConsumed(1687530);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VaLuE3", true));
-            AssertGasConsumed(1689150);
+            AssertGasConsumed(1689510);
             Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("VaLuE3"));
-            AssertGasConsumed(1688430);
+            AssertGasConsumed(1688790);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("value1", false));
-            AssertGasConsumed(1053000);
+            AssertGasConsumed(1053360);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("InvalidValue", true));
-            AssertGasConsumed(2078370);
+            AssertGasConsumed(2078730);
         }
 
         [TestMethod]
         public void TestEnumTryParseIgnoreCaseFromExpression()
         {
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCaseFromExpression("value1", false));
-            AssertGasConsumed(1703670);
+            AssertGasConsumed(1704030);
         }
 
         [TestMethod]
