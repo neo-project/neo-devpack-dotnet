@@ -18,7 +18,7 @@ public abstract class Contract_MissingCheckWitness(Neo.SmartContract.Testing.Sma
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF9XAQJBm/ZnznB5eGhB5j8YhEBXAQN4EcBwenlowUVQi0E5DOMKQFcBA3hB+CfsjDlBm/ZnznB6eWhB5j8YhEBXAAF4Qfgn7IxAVwEDeDTyOUGb9mfOcHp5aEHmPxiEQOEf7e4=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF9XAQJBm/ZnznB5eGhB5j8YhEBXAQN4EcBwenloEM5Qi0E5DOMKQFcBA3hB+CfsjDlBm/ZnznB6eWhB5j8YhEBXAAF4Qfgn7IxAVwEDeDTyOUGb9mfOcHp5aEHmPxiEQGPqr9Y=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -68,7 +68,7 @@ public abstract class Contract_MissingCheckWitness(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEDeBHAcHp5aMFFUItBOQzjCkA=
+    /// Script: VwEDeBHAcHp5aBDOUItBOQzjCkA=
     /// INITSLOT 0103 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// PUSH1 [1 datoshi]
@@ -77,8 +77,8 @@ public abstract class Contract_MissingCheckWitness(Neo.SmartContract.Testing.Sma
     /// LDARG2 [2 datoshi]
     /// LDARG1 [2 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// UNPACK [2048 datoshi]
-    /// DROP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
     /// SWAP [2 datoshi]
     /// CAT [2048 datoshi]
     /// SYSCALL 390CE30A 'System.Storage.Local.Put' [32768 datoshi]
