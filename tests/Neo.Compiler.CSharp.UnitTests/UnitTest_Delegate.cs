@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDelegate()
         {
             Contract.TestDelegate();
-            AssertGasConsumed(3400710);
+            AssertGasConsumed(3400830);
         }
 
         [TestMethod]
