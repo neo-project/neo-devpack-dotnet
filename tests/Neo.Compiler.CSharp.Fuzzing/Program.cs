@@ -27,6 +27,11 @@ public static class Program
     /// <returns>Process exit code: 0 when no defect was found, 1 otherwise.</returns>
     public static int Main(string[] args)
     {
+        if (args is ["--reference-worker"])
+        {
+            return ReferenceWorker.Run();
+        }
+
         var options = FuzzOptions.Parse(args);
 
         if (options.ShowHelp)
@@ -233,8 +238,8 @@ public static class Program
 
         if (runner.StoppedOnSlowExecution)
         {
-            Console.WriteLine("The campaign stopped early: an iteration exceeded the per-iteration budget. " +
-                              "The offending input is reported as a SlowExecution finding.");
+            Console.WriteLine("The campaign stopped early: three consecutive iterations exceeded the " +
+                              "per-iteration budget. The inputs are reported as SlowExecution findings.");
         }
 
         return WriteFindings(runner.Findings, options.OutputDirectory);

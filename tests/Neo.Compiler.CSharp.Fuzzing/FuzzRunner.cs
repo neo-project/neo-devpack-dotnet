@@ -16,7 +16,6 @@ using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
 using System.Diagnostics;
 using System.Numerics;
-using System.Reflection;
 using System.Text;
 
 namespace Neo.Compiler.Fuzzing;
@@ -27,8 +26,6 @@ namespace Neo.Compiler.Fuzzing;
 /// </summary>
 public sealed class FuzzRunner : IDisposable
 {
-    private const int ReferenceCollectionInterval = 500;
-
     private readonly List<FuzzFinding> _findings = [];
 
     /// <summary>
@@ -67,7 +64,7 @@ public sealed class FuzzRunner : IDisposable
     private readonly CompilerHarness _compiler;
     private readonly CompilerHarness _compilerNoOpt;
     private readonly BehaviorDifferentialAnalyzer _behavior;
-    private readonly CrossLanguageOracle _crossLanguage;
+    private readonly ReferenceWorker _referenceWorker;
     private readonly SourceGenerator _generator;
     private readonly SourceMutator _mutator;
 
@@ -135,7 +132,7 @@ public sealed class FuzzRunner : IDisposable
         _compilerNoOpt = new CompilerHarness(noOpt);
 
         _behavior = new BehaviorDifferentialAnalyzer();
-        _crossLanguage = new CrossLanguageOracle();
+        _referenceWorker = new ReferenceWorker();
 
         LoadCorpus();
     }
@@ -192,7 +189,13 @@ public sealed class FuzzRunner : IDisposable
         foreach (FeatureFamily feature in features)
         {
             (string contractSource, string referenceSource) = _generator.GeneratePair(feature);
-            Process(contractSource, referenceSource);
+            var seedStopwatch = Stopwatch.StartNew();
+            Process(contractSource, referenceSource, seedStopwatch);
+            if (CheckIterationBudget(contractSource, seedStopwatch.Elapsed))
+            {
+                onProgress?.Invoke(this);
+                return;
+            }
         }
 
         for (int i = 0; i < iterations; i++)
@@ -217,34 +220,13 @@ public sealed class FuzzRunner : IDisposable
             }
             else
             {
-                Process(source, reference);
+                Process(source, reference, iterationStopwatch);
             }
 
             Iterations++;
-            CheckIterationBudget(source, iterationStopwatch.Elapsed);
-
-            if (StoppedOnSlowExecution)
+            if (CheckIterationBudget(source, iterationStopwatch.Elapsed))
             {
-                // A single pathological input must not end the campaign: a corpus that
-                // carries an inherently slow entry would stop every run at the same
-                // point and starve the farm. Keep going until several iterations in a
-                // row exceed the budget, which points at a systematic slowdown rather
-                // than isolated pathological mutants.
-                _slowIterationCount++;
-                if (_slowIterationCount >= MaxSlowIterationsPerCampaign)
-                {
-                    break;
-                }
-            }
-            else
-            {
-                _slowIterationCount = 0;
-            }
-
-            if (Iterations % ReferenceCollectionInterval == 0)
-            {
-                _crossLanguage.CollectUnloadedAssemblies();
-                ReferenceCollectionCount++;
+                break;
             }
 
             if (onProgress is not null && Iterations % 50 == 0)
@@ -338,11 +320,8 @@ public sealed class FuzzRunner : IDisposable
     /// The wall-clock budget for a single iteration.
     /// </summary>
     /// <remarks>
-    /// The VM executes synchronously, so a pathological input cannot be interrupted
-    /// safely without corrupting the engine. Instead, an iteration that exceeds this
-    /// budget is reported with a reproducer and ends the campaign: a fuzzer that stalls
-    /// on one input cannot make progress, and silently burning the whole time budget on
-    /// it would hide that.
+    /// CLR reference methods run in a child process that is terminated at the deadline.
+    /// Synchronous compilation and VM work are reported after they return.
     /// </remarks>
     private readonly TimeSpan _iterationBudget;
 
@@ -365,7 +344,7 @@ public sealed class FuzzRunner : IDisposable
     /// </summary>
     /// <param name="source">The contract source.</param>
     /// <param name="referenceSource">The matching plain C# reference, when available.</param>
-    private void Process(string source, string? referenceSource)
+    private void Process(string source, string? referenceSource, Stopwatch iterationStopwatch)
     {
         if (SyntaxAwareMutator.HasExcessiveLoop(source))
         {
@@ -402,8 +381,13 @@ public sealed class FuzzRunner : IDisposable
             if (referenceSource is not null)
             {
                 (NefFile nef, ContractManifest manifest, _) = context.CreateResults();
-                RunCrossLanguageDifferential(source, referenceSource, new ArtifactSet(nef, manifest));
+                RunCrossLanguageDifferential(source, referenceSource, new ArtifactSet(nef, manifest),
+                    _iterationBudget - iterationStopwatch.Elapsed);
             }
+        }
+        catch (TimeoutException)
+        {
+            // The worker was killed; CheckIterationBudget records this source once.
         }
         catch (Exception ex)
         {
@@ -419,19 +403,22 @@ public sealed class FuzzRunner : IDisposable
     /// <summary>
     /// Applies one wall-clock budget to compilation and every differential execution.
     /// </summary>
-    internal void CheckIterationBudget(string source, TimeSpan elapsed)
+    internal bool CheckIterationBudget(string source, TimeSpan elapsed)
     {
         if (elapsed <= _iterationBudget)
         {
-            return;
+            _slowIterationCount = 0;
+            return false;
         }
 
-        StoppedOnSlowExecution = true;
         Record(new FuzzFinding(
             FuzzOutcome.SlowExecution,
             source,
             $"The iteration took {elapsed.TotalSeconds:F1}s, over the " +
             $"{_iterationBudget.TotalSeconds:F3}s per-iteration budget."));
+        _slowIterationCount++;
+        StoppedOnSlowExecution = _slowIterationCount >= MaxSlowIterationsPerCampaign;
+        return StoppedOnSlowExecution;
     }
 
     /// <summary>
@@ -443,21 +430,13 @@ public sealed class FuzzRunner : IDisposable
     /// itself, a divergence is a compiler defect rather than a disagreement between two
     /// implementations.
     /// </remarks>
-    private void RunCrossLanguageDifferential(string contractSource, string referenceSource, ArtifactSet artifacts)
+    private void RunCrossLanguageDifferential(string contractSource, string referenceSource,
+        ArtifactSet artifacts, TimeSpan remaining)
     {
         if (string.IsNullOrWhiteSpace(referenceSource))
         {
             // Stateful families have no CLR equivalent, so there is nothing to compare
             // against. The optimizer-equivalence oracle still covers them.
-            return;
-        }
-
-        Assembly? referenceAssembly = _crossLanguage.TryCompileReference(referenceSource);
-        if (referenceAssembly is null)
-        {
-            // The reference did not compile; the Neo compiler may still accept the
-            // contract. That asymmetry is worth reporting but is not a behaviour bug,
-            // so it is skipped here.
             return;
         }
 
@@ -480,6 +459,20 @@ public sealed class FuzzRunner : IDisposable
             return;
         }
 
+        var referenceRequest = new ReferenceWorker.Request(referenceSource,
+            calls.Select(c => new ReferenceWorker.Call(c.ClrName,
+                c.ClrArgs.Select(ReferenceWorker.Encode).ToArray())).ToArray());
+        ReferenceWorker.Response reference = _referenceWorker.Execute(referenceRequest, remaining);
+        if (!reference.Compiled)
+        {
+            // The reference did not compile, so there is no CLR behaviour to compare.
+            return;
+        }
+        if (reference.Outcomes.Length != calls.Count)
+        {
+            throw new InvalidDataException("The CLR reference worker returned an incomplete result set.");
+        }
+
         (List<(bool Ok, string? Error, StackItem? Value)> vmResults, _, _, string? deploymentError) =
             _behavior.ExecuteBatchWithCoverage(artifacts, calls.Select(c => (c.AbiName, c.Args)).ToList());
 
@@ -498,9 +491,8 @@ public sealed class FuzzRunner : IDisposable
         {
             (string abiName, string clrName, object?[] args, object?[] clrArgs) = calls[i];
 
-            (bool okRef, object? refValue, string? refError) =
-                _crossLanguage.TryInvoke(referenceAssembly, "FuzzReference", clrName, clrArgs);
-            if (CrossLanguageOracle.IsHarnessError(refError))
+            ReferenceWorker.Outcome refResult = reference.Outcomes[i];
+            if (CrossLanguageOracle.IsHarnessError(refResult.Error))
             {
                 // An ABI integer has no CLR width. If it cannot be converted to the
                 // generated method's parameter type, there is no C# invocation to compare.
@@ -508,8 +500,9 @@ public sealed class FuzzRunner : IDisposable
             }
 
             var vm = vmResults[i];
-            string? mismatch = CompareCrossLanguageOutcome(
-                clrName, args, okRef, refValue, refError, vm.Ok, vm.Error, vm.Value);
+            string? mismatch = CompareCrossLanguageOutcomeRendered(
+                clrName, args, refResult.Ok, refResult.Rendered, refResult.Error,
+                vm.Ok, vm.Error, vm.Value);
             if (mismatch is not null)
             {
                 Record(new FuzzFinding(FuzzOutcome.DifferentialMismatch, contractSource, mismatch));
@@ -529,6 +522,18 @@ public sealed class FuzzRunner : IDisposable
         bool okVm,
         string? vmError,
         StackItem? vmValue)
+        => CompareCrossLanguageOutcomeRendered(methodName, args, okRef,
+            okRef ? RenderClrValue(refValue) : null, refError, okVm, vmError, vmValue);
+
+    private static string? CompareCrossLanguageOutcomeRendered(
+        string methodName,
+        object?[] args,
+        bool okRef,
+        string? renderedRef,
+        string? refError,
+        bool okVm,
+        string? vmError,
+        StackItem? vmValue)
     {
         if (CrossLanguageOracle.IsHarnessError(refError))
         {
@@ -538,7 +543,7 @@ public sealed class FuzzRunner : IDisposable
         string renderedArgs = string.Join(", ", args.Select(a => a?.ToString() ?? "null"));
         if (okRef && !okVm)
         {
-            return $"Method '{methodName}' with args [{renderedArgs}] returned {RenderClrValue(refValue)} in C# " +
+            return $"Method '{methodName}' with args [{renderedArgs}] returned {renderedRef} in C# " +
                    $"but faulted in the Neo VM ({vmError}).";
         }
 
@@ -553,7 +558,6 @@ public sealed class FuzzRunner : IDisposable
             return null;
         }
 
-        string renderedRef = RenderClrValue(refValue);
         string renderedVm = BehaviorDifferentialAnalyzer.Render(vmValue!);
         return string.Equals(renderedRef, renderedVm, StringComparison.Ordinal)
             ? null
@@ -582,7 +586,7 @@ public sealed class FuzzRunner : IDisposable
     /// UTF-8 bytes. A CLR <see cref="string"/> must therefore be rendered as the hex of
     /// its UTF-8 bytes, otherwise the same value would compare as different.
     /// </remarks>
-    private static string RenderClrValue(object? value) => value switch
+    internal static string RenderClrValue(object? value) => value switch
     {
         null => "<null>",
         bool b => b ? "true" : "false",
@@ -1409,16 +1413,14 @@ public sealed class FuzzRunner : IDisposable
             }
             else
             {
-                Process(entry.Source, null);
+                Process(entry.Source, null, iterationStopwatch);
             }
 
             ReplayedCorpusSize++;
-            if (ReplayedCorpusSize % ReferenceCollectionInterval == 0)
+            if (CheckIterationBudget(entry.Source, iterationStopwatch.Elapsed))
             {
-                _crossLanguage.CollectUnloadedAssemblies();
-                ReferenceCollectionCount++;
+                break;
             }
-            CheckIterationBudget(entry.Source, iterationStopwatch.Elapsed);
         }
     }
 
@@ -1438,13 +1440,13 @@ public sealed class FuzzRunner : IDisposable
     public TimeSpan IterationBudget => _iterationBudget;
 
     /// <summary>The number of CLR reference assemblies currently cached.</summary>
-    public int CachedReferenceCount => _crossLanguage.CachedAssemblyCount;
+    public int CachedReferenceCount => _referenceWorker.CachedAssemblyCount;
 
     /// <summary>The number of CLR reference load contexts evicted and unloaded.</summary>
-    public long EvictedReferenceCount => _crossLanguage.EvictedAssemblyCount;
+    public long EvictedReferenceCount => _referenceWorker.EvictedAssemblyCount;
 
     /// <summary>The number of periodic collections used to reclaim unloaded references.</summary>
-    public long ReferenceCollectionCount { get; private set; }
+    public long ReferenceCollectionCount => _referenceWorker.CollectionCount;
 
     private void Record(FuzzFinding finding)
     {
@@ -1583,7 +1585,7 @@ public sealed class FuzzRunner : IDisposable
         _compiler.Dispose();
         _compilerNoOpt.Dispose();
         _behavior.Dispose();
-        _crossLanguage.Dispose();
+        _referenceWorker.Dispose();
     }
 }
 

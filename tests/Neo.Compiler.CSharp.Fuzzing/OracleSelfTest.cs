@@ -66,6 +66,7 @@ public static class OracleSelfTest
         failures += CheckCorpusMigration();
         failures += CheckCorpusReplay();
         failures += CheckIterationBudget();
+        failures += CheckReferenceWorkerTimeout();
         failures += CheckLoopControlMutation();
         failures += CheckCorpusEviction();
 
@@ -1220,22 +1221,59 @@ public static class OracleSelfTest
     }
 
     /// <summary>
-    /// Verifies that an over-budget end-to-end iteration stops the campaign with a reproducer.
+    /// Verifies that only consecutive slow iterations stop the campaign.
     /// </summary>
     private static int CheckIterationBudget()
     {
         using var runner = new FuzzRunner(20261104, iterationBudget: TimeSpan.FromMilliseconds(10));
-        runner.CheckIterationBudget("class SlowProbe { }", TimeSpan.FromMilliseconds(11));
+        bool first = runner.CheckIterationBudget("class SlowProbe { }", TimeSpan.FromMilliseconds(11));
+        bool fast = runner.CheckIterationBudget("class FastProbe { }", TimeSpan.FromMilliseconds(1));
+        bool second = runner.CheckIterationBudget("class SlowProbe { }", TimeSpan.FromMilliseconds(11));
+        bool third = runner.CheckIterationBudget("class SlowProbe { }", TimeSpan.FromMilliseconds(11));
+        bool fourth = runner.CheckIterationBudget("class SlowProbe { }", TimeSpan.FromMilliseconds(11));
         FuzzFinding? finding = runner.Findings.SingleOrDefault(f => f.Outcome == FuzzOutcome.SlowExecution);
 
-        if (!runner.StoppedOnSlowExecution || finding is null ||
+        if (first || fast || second || third || !fourth || !runner.StoppedOnSlowExecution || finding is null ||
             !string.Equals(finding.Source, "class SlowProbe { }", StringComparison.Ordinal))
         {
-            Console.WriteLine("  [FAIL] iteration budget did not stop with a SlowExecution reproducer.");
+            Console.WriteLine("  [FAIL] iteration budget did not require three consecutive slow inputs.");
             return 1;
         }
 
-        Console.WriteLine("  [ OK ] iteration budget records the offending input and stops the campaign.");
+        Console.WriteLine("  [ OK ] iteration budget stops after three consecutive slow inputs.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Proves that an infinite CLR method is terminated and the next request starts a fresh worker.
+    /// </summary>
+    private static int CheckReferenceWorkerTimeout()
+    {
+        using var worker = new ReferenceWorker();
+        var endless = new ReferenceWorker.Request(
+            "public static class FuzzReference { public static int Compute() { while (true) { } } }",
+            [new ReferenceWorker.Call("Compute", [])]);
+        bool timedOut = false;
+        try
+        {
+            worker.Execute(endless, TimeSpan.FromSeconds(5));
+        }
+        catch (TimeoutException)
+        {
+            timedOut = true;
+        }
+
+        var normal = new ReferenceWorker.Request(
+            "public static class FuzzReference { public static int Compute() => 7; }",
+            [new ReferenceWorker.Call("Compute", [])]);
+        ReferenceWorker.Response recovered = worker.Execute(normal, TimeSpan.FromSeconds(30));
+        if (!timedOut || !recovered.Compiled || recovered.Outcomes is not [{ Ok: true, Rendered: "7" }])
+        {
+            Console.WriteLine("  [FAIL] CLR reference worker did not time out and recover.");
+            return 1;
+        }
+
+        Console.WriteLine("  [ OK ] an infinite CLR call is terminated and a new worker answers.");
         return 0;
     }
 
