@@ -18,7 +18,7 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABcaHR0cHM6Ly9naXRodWIuY29tL25lby1wcm9qZWN0L25lby1kZXZwYWNrLWRvdG5ldC90cmVlL21hc3Rlci9zcmMvTmVvLlNtYXJ0Q29udHJhY3QuVGVtcGxhdGUAAf2j+kNG6lMqJY/El92t22Q3yf3/CmlzQ29udHJhY3QBAAEFAAD9/QEQzkARzkAMAQBB9rRr4kGSXegxStgmBEUQQFcBAXhK2SgkBkUJIgbKABSzJCUMIFRoZSBhcmd1bWVudCAib3duZXIiIGlzIGludmFsaWQuOhERiE4QUdARwHB4aMFFUItB1Y1e6ErYJgVFEEDbIUBXAgIREYhOEFHQEcBweGjBRVCLQdWNXuhK2CYGRRAiBNshcWl5nnFpELUmBAlAabEkD3howUVQi0F1VPWUIg5peGjBRVCLQTkM4woIQFcABHhK2SgkBkUJIgbKABSzJCQMH1RoZSBhcmd1bWVudCAiZnJvbSIgaXMgaW52YWxpZC46eUrZKCQGRQkiBsoAFLMkIgwdVGhlIGFyZ3VtZW50ICJ0byIgaXMgaW52YWxpZC46ehC1JiMMHlRoZSBhbW91bnQgY2Fubm90IGJlIG5lZ2F0aXZlLjp4Qfgn7IwkBAlAeiYWept4NRj///8kBAlAenk1Df///0V7enl4NAQIQFcBBHh5elMTwAwIVHJhbnNmZXJBlQFvYXlwaNgmBQkiBnk3AAAmH3t6eBPAHwwOb25ORVAxN1BheW1lbnR5QWJ9W1JFQFcABEBWAgpI/v//CkD+//8SwGBAWBAMB0VYQU1QTEUTwCMq/v//WBAMB0VYQU1QTEUTwCMb/v//WBAMB0VYQU1QTEUTwCK7QF92vqo=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABcaHR0cHM6Ly9naXRodWIuY29tL25lby1wcm9qZWN0L25lby1kZXZwYWNrLWRvdG5ldC90cmVlL21hc3Rlci9zcmMvTmVvLlNtYXJ0Q29udHJhY3QuVGVtcGxhdGUAAf2j+kNG6lMqJY/El92t22Q3yf3/CmlzQ29udHJhY3QBAAEFAAD9/QEQzkARzkAMAQBB9rRr4kGSXegxStgmBEUQQFcBAXhK2SgkBkUJIgbKABSzJCUMIFRoZSBhcmd1bWVudCAib3duZXIiIGlzIGludmFsaWQuOhERiE4QUdARwHB4aBDOUItB1Y1e6ErYJgVFEEDbIUBXAgIREYhOEFHQEcBweGgQzlCLQdWNXuhK2CYGRRAiBNshcWl5nnFpELUmBAlAabEkD3hoEM5Qi0F1VPWUIg5peGgQzlCLQTkM4woIQFcABHhK2SgkBkUJIgbKABSzJCQMH1RoZSBhcmd1bWVudCAiZnJvbSIgaXMgaW52YWxpZC46eUrZKCQGRQkiBsoAFLMkIgwdVGhlIGFyZ3VtZW50ICJ0byIgaXMgaW52YWxpZC46ehC1JiMMHlRoZSBhbW91bnQgY2Fubm90IGJlIG5lZ2F0aXZlLjp4Qfgn7IwkBAlAeiYWept4NRj///8kBAlAenk1Df///0V7enl4NAQIQFcBBHh5elMTwAwIVHJhbnNmZXJBlQFvYXlwaNgmBQkiBnk3AAAmH3t6eBPAHwwOb25ORVAxN1BheW1lbnR5QWJ9W1JFQFcABEBWAgpI/v//CkD+//8SwGBAWBAMB0VYQU1QTEUTwCMq/v//WBAMB0VYQU1QTEUTwCMb/v//WBAMB0VYQU1QTEUTwCK7QG+rAsk=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -54,7 +54,7 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// Safe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeErZKCQGRQkiBsoAFLMkJQwgVGhlIGFyZ3VtZW50ICJvd25lciIgaXMgaW52YWxpZC46ERGIThBR0BHAcHhowUVQi0HVjV7oStgmBUUQQNshQA==
+    /// Script: VwEBeErZKCQGRQkiBsoAFLMkJQwgVGhlIGFyZ3VtZW50ICJvd25lciIgaXMgaW52YWxpZC46ERGIThBR0BHAcHhoEM5Qi0HVjV7oStgmBUUQQNshQA==
     /// INITSLOT 0101 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// DUP [2 datoshi]
@@ -81,8 +81,8 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// STLOC0 [2 datoshi]
     /// LDARG0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// UNPACK [2048 datoshi]
-    /// DROP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
     /// SWAP [2 datoshi]
     /// CAT [2048 datoshi]
     /// SYSCALL D58D5EE8 'System.Storage.Local.Get' [32768 datoshi]

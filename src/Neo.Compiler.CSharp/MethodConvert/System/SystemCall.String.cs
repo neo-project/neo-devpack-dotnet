@@ -544,32 +544,20 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
-        JumpTarget valueNonEmptyTarget = new();
-        JumpTarget validCountTarget = new();
-        JumpTarget endTarget = new();
-
-        // After preparing the single argument and evaluating the instance,the stack is [value, source].
+        JumpTarget compareTarget = new(), endTarget = new();
         methodConvert.Over();                                 // [value, source, value]
         methodConvert.Size();                                 // [value, source, valueSize]
-        methodConvert.Dup();                                  // [value, source, valueSize, valueSize]
-        methodConvert.JumpIfTrue(valueNonEmptyTarget);        // [value, source, valueSize]
-        methodConvert.Drop(3);                                // []
-        methodConvert.PushT();                                // Any string ends with an empty value.
-        methodConvert.JumpAlways(endTarget);
-
-        valueNonEmptyTarget.Instruction = methodConvert.Nop();
         methodConvert.Over();                                 // [value, source, valueSize, source]
         methodConvert.Size();                                 // [value, source, valueSize, sourceSize]
         methodConvert.Over();                                 // [value, source, valueSize, sourceSize, valueSize]
-        methodConvert.JumpIfGreaterOrEqual(validCountTarget); // [value, source, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(compareTarget);    // [value, source, valueSize]
         methodConvert.Drop(3);                                // []
         methodConvert.PushF();                                // source shorter than value.
         methodConvert.JumpAlways(endTarget);
 
-        validCountTarget.Instruction = methodConvert.Right(null); // [value, suffix]
+        compareTarget.Instruction = methodConvert.Right(null);    // [value, suffix]
         methodConvert.ChangeType(StackItemType.ByteString);       // [value, suffix]
         methodConvert.Equal();                                    // [bool]
-
         endTarget.Instruction = methodConvert.Nop();
     }
 
