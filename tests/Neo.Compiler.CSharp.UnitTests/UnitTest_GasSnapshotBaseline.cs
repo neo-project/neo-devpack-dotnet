@@ -10,6 +10,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -25,15 +28,24 @@ public class UnitTest_GasSnapshotBaseline : DebugAndTestBase<Contract_String>
             ("string-builder-clear", Measure(() => Contract.TestStringBuilderClear()))
         ]);
 
-        var baseline = GasSnapshot.FromJson("""
-            {
-              "string-builder-basic": 2600550,
-              "string-builder-clear": 1916460,
-              "string-builder-length": 2665110
-            }
-            """);
+        var path = Path.Combine(AppContext.BaseDirectory, "GasBaselines", "representative-string-operations.json");
+        if (!File.Exists(path))
+            Assert.Fail($"GAS baseline file not found: {path}");
+        var baseline = GasSnapshot.Load(path);
 
-        current.AssertGasWithin(baseline);
+        var report = GasRegressionReport.Evaluate(baseline, current);
+        report.WriteReportIfConfiguredAndAssert([
+            new("Baseline", "representative-string-operations.json"),
+            new("Branch", Environment.GetEnvironmentVariable("GITHUB_HEAD_REF") is { Length: > 0 } branch
+                ? branch : Environment.GetEnvironmentVariable("GITHUB_REF_NAME") ?? "local"),
+            new("Contract", nameof(Contract_String)),
+            new("Neo Core", typeof(ProtocolSettings).Assembly.GetName().Version!.ToString()),
+            new("Optimization", TestCleanup.CachedContracts[typeof(Contract_String)].Context.Options.Optimize.ToString()),
+            new("Hardforks", string.Join(", ", Engine.ProtocolSettings.Hardforks
+                .OrderBy(hardfork => hardfork.Key.ToString(), StringComparer.Ordinal)
+                .Select(hardfork => $"{hardfork.Key}@{hardfork.Value.ToString(CultureInfo.InvariantCulture)}"))),
+            new("Revision", Environment.GetEnvironmentVariable("GITHUB_SHA") ?? "local")
+        ]);
     }
 
     private long Measure<T>(Func<T> operation)

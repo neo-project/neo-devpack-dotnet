@@ -155,11 +155,28 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/solution/NeoContractSolution/NeoContractSolution.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractsolution/Artifacts/
     - name: Test Neo.Compiler.CSharp.UnitTests
       if: steps.scope.outputs.full == 'true'
+      env:
+        NEO_GAS_REPORT_DIR: ${{ github.workspace }}/gas-report
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+    - name: GAS regression summary
+      if: always() && steps.scope.outputs.full == 'true'
+      run: |
+        if [ -f gas-report/gas-regression-report.md ]; then
+          cat gas-report/gas-regression-report.md >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo "No GAS regression report was generated." >> "$GITHUB_STEP_SUMMARY"
+        fi
+    - name: Upload GAS regression report
+      if: always() && steps.scope.outputs.full == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gas-report
+        path: gas-report/
+        if-no-files-found: warn
     - name: Test Neo.SmartContract.Analyzer.UnitTests
       if: steps.scope.outputs.full == 'true'
       run: |
