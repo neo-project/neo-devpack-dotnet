@@ -107,10 +107,7 @@ public static class ByteStringExtension
     /// <param name="toFind">ByteString to search. It cannot be null.</param>
     /// <returns>True if start with</returns>
     [Obsolete("Use StartsWith instead.")]
-    public static bool StartWith(this ByteString byteString, ByteString toFind)
-    {
-        return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind), 0);
-    }
+    public static bool StartWith(this ByteString byteString, ByteString toFind) => byteString.StartsWith(toFind);
 
     /// <summary>
     /// Determines whether the beginning of this string instance matches the specified string.
@@ -120,7 +117,9 @@ public static class ByteStringExtension
     /// <returns>True if starts with</returns>
     public static bool StartsWith(this ByteString byteString, ByteString toFind)
     {
-        return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind), 0);
+        BigInteger toLength = toFind.Length;
+        if (toLength > byteString.Length) return false;
+        return byteString.Take(toLength) == toFind;
     }
 
     /// <summary>
@@ -132,10 +131,8 @@ public static class ByteStringExtension
     public static bool EndsWith(this ByteString byteString, ByteString toFind)
     {
         var toLength = toFind.Length;
-        var startIndex = byteString.Length - toLength;
-        if (startIndex < 0) return false;
-        if (toLength == 0) return true;
-        return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind, startIndex), startIndex);
+        if (toLength > byteString.Length) return false;
+        return byteString.Last(toLength) == toFind;
     }
 
     /// <summary>

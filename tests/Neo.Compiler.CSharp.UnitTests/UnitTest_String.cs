@@ -141,13 +141,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1355940);
 
             Assert.IsTrue(Contract.TestEndWith("hello world", ""));
-            AssertGasConsumed(1048050);
+            AssertGasConsumed(1356180);
 
             Assert.IsFalse(Contract.TestEndWith("", "world"));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048230);
 
             Assert.IsTrue(Contract.TestEndWith("hello world", "ello world"));
-            AssertGasConsumed(1356300);
+            AssertGasConsumed(1356180);
+
+            Assert.Throws<TestException>(() => Assert.IsTrue(Contract.TestEndWith(null, "A")));
+            AssertGasConsumed(1047690);
+
+            Assert.Throws<TestException>(() => Assert.IsTrue(Contract.TestEndWith("A", null)));
+            AssertGasConsumed(1047510);
 
             Assert.IsFalse(Contract.TestEndsWithOneByte("hello"));
             AssertGasConsumed(1049850);
@@ -646,10 +652,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestRemoveRange()
         {
             Assert.AreEqual("HeWorld", Contract.TestRemoveRange("HelloWorld", 2, 3));
-            AssertGasConsumed(1478580);
+            AssertGasConsumed(1479480);
 
             Assert.AreEqual("Hello", Contract.TestRemoveRange("HelloWorld", 5, 5));
-            AssertGasConsumed(1478580);
+            AssertGasConsumed(1479480);
+
+            Assert.AreEqual("HelloWorld", Contract.TestRemoveRange("HelloWorld", 10, 0));
+            Assert.AreEqual("HelloWorld", Contract.TestRemoveRange("HelloWorld", 0, 0));
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("0", 1, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", -1, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", 11, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", 9, 2));
         }
 
         [TestMethod]

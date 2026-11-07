@@ -23,7 +23,22 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestStartWith()
         {
             Assert.IsTrue(Contract.TestStartWith());
-            AssertGasConsumed(1987140);
+            AssertGasConsumed(1310910);
+
+            Assert.IsTrue(Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), Encoding.UTF8.GetBytes("")));
+            AssertGasConsumed(1373940);
+
+            Assert.IsFalse(Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), Encoding.UTF8.GetBytes("W")));
+            AssertGasConsumed(1373940);
+
+            Assert.IsFalse(Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), Encoding.UTF8.GetBytes("Hello!")));
+            AssertGasConsumed(1065630);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStartsWith(Encoding.UTF8.GetBytes("Hello"), null));
+            AssertGasConsumed(1064790);
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStartsWith(null, Encoding.UTF8.GetBytes("")));
+            AssertGasConsumed(1065090);
         }
 
         [TestMethod]
@@ -37,13 +52,19 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith());
-            AssertGasConsumed(1988820);
+            AssertGasConsumed(1310910);
 
             Assert.IsTrue(Contract.TestEndsWith(Encoding.UTF8.GetBytes("Hello World")));
-            AssertGasConsumed(2051790);
+            AssertGasConsumed(1373880);
+
+            Assert.IsTrue(Contract.TestEndsWith(Encoding.UTF8.GetBytes("World")));
+            AssertGasConsumed(1373880);
+
+            Assert.IsFalse(Contract.TestEndsWith(Encoding.UTF8.GetBytes("orld")));
+            AssertGasConsumed(1065570);
 
             Assert.ThrowsExactly<TestException>(() => Contract.TestEndsWith(null));
-            AssertGasConsumed(1064970);
+            AssertGasConsumed(1065030);
         }
 
         [TestMethod]

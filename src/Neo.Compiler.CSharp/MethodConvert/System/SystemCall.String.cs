@@ -544,32 +544,20 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
-        JumpTarget valueNonEmptyTarget = new();
-        JumpTarget validCountTarget = new();
-        JumpTarget endTarget = new();
-
-        // After preparing the single argument and evaluating the instance,the stack is [value, source].
+        JumpTarget compareTarget = new(), endTarget = new();
         methodConvert.Over();                                 // [value, source, value]
         methodConvert.Size();                                 // [value, source, valueSize]
-        methodConvert.Dup();                                  // [value, source, valueSize, valueSize]
-        methodConvert.JumpIfTrue(valueNonEmptyTarget);        // [value, source, valueSize]
-        methodConvert.Drop(3);                                // []
-        methodConvert.PushT();                                // Any string ends with an empty value.
-        methodConvert.JumpAlways(endTarget);
-
-        valueNonEmptyTarget.Instruction = methodConvert.Nop();
         methodConvert.Over();                                 // [value, source, valueSize, source]
         methodConvert.Size();                                 // [value, source, valueSize, sourceSize]
         methodConvert.Over();                                 // [value, source, valueSize, sourceSize, valueSize]
-        methodConvert.JumpIfGreaterOrEqual(validCountTarget); // [value, source, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(compareTarget);    // [value, source, valueSize]
         methodConvert.Drop(3);                                // []
         methodConvert.PushF();                                // source shorter than value.
         methodConvert.JumpAlways(endTarget);
 
-        validCountTarget.Instruction = methodConvert.Right(null); // [value, suffix]
+        compareTarget.Instruction = methodConvert.Right(null);    // [value, suffix]
         methodConvert.ChangeType(StackItemType.ByteString);       // [value, suffix]
         methodConvert.Equal();                                    // [bool]
-
         endTarget.Instruction = methodConvert.Nop();
     }
 
@@ -2203,6 +2191,34 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.STLOC, countSlot);
         methodConvert.AccessSlot(OpCode.STLOC, startSlot);
 
+        JumpTarget validStartTarget = new();
+        JumpTarget validCountTarget = new();
+        JumpTarget validRangeTarget = new();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.Push0();
+        methodConvert.JumpIfGreaterOrEqual(validStartTarget);
+        methodConvert.Push("Invalid startIndex");
+        methodConvert.Throw();
+
+        validStartTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
+        methodConvert.Push0();
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);
+        methodConvert.Push("Invalid count");
+        methodConvert.Throw();
+
+        validCountTarget.Instruction = methodConvert.Nop();
+        methodConvert.Dup();                               // [string, string]
+        methodConvert.Size();                              // [string, size]
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [string, size, start]
+        methodConvert.Sub();                               // [string, size - start]
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot); // [string, size - start, count]
+        methodConvert.JumpIfGreaterOrEqual(validRangeTarget);
+        methodConvert.Push("Invalid range");
+        methodConvert.Throw();
+
+        validRangeTarget.Instruction = methodConvert.Nop();
         methodConvert.Dup();                               // [string, string]
         methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [string, string, start]
         methodConvert.Left(null);                          // [string, prefix]
