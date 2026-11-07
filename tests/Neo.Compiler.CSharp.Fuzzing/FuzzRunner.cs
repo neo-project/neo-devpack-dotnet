@@ -225,7 +225,20 @@ public sealed class FuzzRunner : IDisposable
 
             if (StoppedOnSlowExecution)
             {
-                break;
+                // A single pathological input must not end the campaign: a corpus that
+                // carries an inherently slow entry would stop every run at the same
+                // point and starve the farm. Keep going until several iterations in a
+                // row exceed the budget, which points at a systematic slowdown rather
+                // than isolated pathological mutants.
+                _slowIterationCount++;
+                if (_slowIterationCount >= MaxSlowIterationsPerCampaign)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                _slowIterationCount = 0;
             }
 
             if (Iterations % ReferenceCollectionInterval == 0)
@@ -332,6 +345,15 @@ public sealed class FuzzRunner : IDisposable
     /// it would hide that.
     /// </remarks>
     private readonly TimeSpan _iterationBudget;
+
+    /// <summary>
+    /// The number of consecutive over-budget iterations tolerated before the campaign
+    /// stops on a slow execution.
+    /// </summary>
+    private const int MaxSlowIterationsPerCampaign = 3;
+
+    /// <summary>Running count of consecutive over-budget iterations.</summary>
+    private int _slowIterationCount;
 
     /// <summary>
     /// Whether the campaign was stopped because an iteration exceeded the budget.
