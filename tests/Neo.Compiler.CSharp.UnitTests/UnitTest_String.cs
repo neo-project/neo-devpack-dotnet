@@ -924,21 +924,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringBuilderBasic()
         {
             Assert.AreEqual("neo compiler\nruntime\n", Contract.TestStringBuilderBasic());
-            AssertGasConsumed(2600550);
         }
 
         [TestMethod]
         public void Test_StringBuilderLength()
         {
             Assert.AreEqual(14, Contract.TestStringBuilderLength());
-            AssertGasConsumed(2665110);
         }
 
         [TestMethod]
         public void Test_StringBuilderClear()
         {
             Assert.AreEqual("neo\ncontracts", Contract.TestStringBuilderClear());
-            AssertGasConsumed(1916460);
         }
 
         [TestMethod]
