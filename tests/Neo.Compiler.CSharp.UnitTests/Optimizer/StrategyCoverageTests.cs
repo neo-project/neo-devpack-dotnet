@@ -325,6 +325,42 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         }
 
         [TestMethod]
+        public void NormalizeJumps_EndTryContinuationThroughJumpPreservesFinally()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.TRY, 0, 8,        // FINALLY starts at address 8
+                (byte)OpCode.PUSH1,
+                (byte)OpCode.ENDTRY, 2,        // resume at the JMP at address 6
+                (byte)OpCode.JMP, 4,           // continue at ADD at address 10
+                (byte)OpCode.PUSH2,
+                (byte)OpCode.ENDFINALLY,
+                (byte)OpCode.ADD,
+                (byte)OpCode.RET
+            ];
+
+            var expected = Run(script);
+            Assert.AreEqual(VMState.HALT, expected.State);
+            Assert.AreSequenceEqual(new[] { "Integer:03" }, expected.Stack);
+
+            var (normalizedNef, _, _) = Strategies.NormalizeJumps(CreateNefFile(script), CreateManifest(), null);
+            var normalizedScript = new Script(normalizedNef.Script.ToArray());
+            var (endTryAddress, endTry) = normalizedScript.EnumerateInstructions()
+                .Single(static item => item.instruction.OpCode is OpCode.ENDTRY or OpCode.ENDTRY_L);
+            int continuation = endTryAddress + (endTry.OpCode == OpCode.ENDTRY ? endTry.TokenI8 : endTry.TokenI32);
+            Assert.AreEqual(OpCode.ADD, normalizedScript.GetInstruction(continuation).OpCode);
+            var normalized = Run(normalizedNef.Script.ToArray());
+            Assert.AreEqual(expected.State, normalized.State);
+            Assert.AreSequenceEqual(expected.Stack, normalized.Stack);
+
+            var (optimizedNef, _, _) = Neo.Optimizer.Optimizer.Optimize(
+                CreateNefFile(script), CreateManifest(), null, CompilationOptions.OptimizationType.All);
+            var optimized = Run(optimizedNef.Script.ToArray());
+            Assert.AreEqual(expected.State, optimized.State);
+            Assert.AreSequenceEqual(expected.Stack, optimized.Stack);
+        }
+
+        [TestMethod]
         public void RemoveUnnecessaryJumps_DoesNotIncreaseStaticOpcodeCost()
         {
             // Static comparison (not a measured GAS test): legacy fee JMPEQ = 2, DROP = 2,

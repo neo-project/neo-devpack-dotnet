@@ -266,6 +266,8 @@ namespace Neo.Optimizer
                         }
                     }
 
+                    // ENDTRY uses the resolved address only after FINALLY has run, so
+                    // skipping a side-effect-free JMP at its continuation preserves the handler.
                     // PUSHA materializes its target as a Pointer. Threading it through a
                     // jump changes the value observed by EQUAL/NOTEQUAL.
                     if (instruction.OpCode != OpCode.PUSHA && resolved != target)
