@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsTrue(Contract.IsValidAndNotZeroUInt160(UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
             AssertGasConsumed(1065390);
             Assert.AreEqual("Nas9CRigvY94DyqA59HiBZNrgWHRsgrUgt", Contract.ToAddress(UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
-            AssertGasConsumed(4592370);
+            AssertGasConsumed(4154400);
         }
 
         [TestMethod]
