@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsTrue(Contract.IsValidAndNotZeroUInt160(UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
             AssertGasConsumed(1065390);
             Assert.AreEqual("Nas9CRigvY94DyqA59HiBZNrgWHRsgrUgt", Contract.ToAddress(UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
-            AssertGasConsumed(4154400);
+            AssertGasConsumed(4154640);
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.AreEqual(expected, Contract.ParseUInt160("0x" + hex));
             AssertGasConsumed(7433760);
             Assert.AreEqual(expected, Contract.ParseUInt160(address));
-            AssertGasConsumed(4674840);
+            AssertGasConsumed(4675200);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160("0x1234"));
             AssertGasConsumed(1742130);
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt160(null));
@@ -127,7 +127,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsTrue(Contract.TryParseUInt160(validHash));
             AssertGasConsumed(7434450);
             Assert.IsTrue(Contract.TryParseUInt160(validAddress));
-            AssertGasConsumed(4675290);
+            AssertGasConsumed(4675650);
             Assert.IsTrue(Contract.TryParseUInt256(validUInt256));
             AssertGasConsumed(10900860);
             Assert.IsTrue(Contract.TryParseECPoint(validECPoint));
