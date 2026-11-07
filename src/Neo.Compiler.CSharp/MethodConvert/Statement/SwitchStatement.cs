@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,8 +85,13 @@ namespace Neo.Compiler
                 AccessSlot(OpCode.STLOC, anonymousIndex);
             }
 
+            ITypeSymbol? switchType = model.GetTypeInfo(syntax.Expression).Type;
+            bool nullableValue = IsNullableValueType(switchType);
+            ITypeSymbol? valueType = nullableValue ? ((INamedTypeSymbol)switchType!).TypeArguments[0] : switchType;
+            bool integerValue = valueType?.GetStackItemType() == StackItemType.Integer;
             bool emittedOptimizedDispatch = _context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic)
-                && TryEmitOptimizedIntegerSwitchDispatch(model, labels, anonymousIndex, breakTarget);
+                && integerValue
+                && TryEmitOptimizedIntegerSwitchDispatch(model, labels, anonymousIndex, breakTarget, nullableValue);
 
             JumpTarget? defaultTarget = null;
             DefaultSwitchLabelSyntax? defaultLabel = null;
@@ -113,14 +119,26 @@ namespace Neo.Compiler
                         case CaseSwitchLabelSyntax caseSwitchLabel:
                             using (InsertSequencePoint(caseSwitchLabel))
                             {
-                                AccessSlot(OpCode.LDLOC, anonymousIndex);
-                                ConvertExpression(model, caseSwitchLabel.Value);
-                                if (TryGetIntegerConstant(model, caseSwitchLabel.Value, out var intValue))
+                                if (integerValue && TryGetIntegerConstant(model, caseSwitchLabel.Value, out _))
                                 {
+                                    JumpTarget? nextLabel = null;
+                                    if (nullableValue)
+                                    {
+                                        nextLabel = new();
+                                        AccessSlot(OpCode.LDLOC, anonymousIndex);
+                                        AddInstruction(OpCode.ISNULL);
+                                        Jump(OpCode.JMPIF_L, nextLabel);
+                                    }
+                                    AccessSlot(OpCode.LDLOC, anonymousIndex);
+                                    ConvertExpression(model, caseSwitchLabel.Value);
                                     Jump(OpCode.JMPEQ_L, target);
+                                    if (nullableValue)
+                                        nextLabel!.Instruction = AddInstruction(OpCode.NOP);
                                 }
                                 else
                                 {
+                                    AccessSlot(OpCode.LDLOC, anonymousIndex);
+                                    ConvertExpression(model, caseSwitchLabel.Value);
                                     AddInstruction(OpCode.EQUAL);
                                     Jump(OpCode.JMPIF_L, target);
                                 }
@@ -171,7 +189,8 @@ namespace Neo.Compiler
             SemanticModel model,
             (SwitchLabelSyntax label, JumpTarget target)[] labels,
             byte valueSlot,
-            JumpTarget breakTarget)
+            JumpTarget breakTarget,
+            bool nullableValue)
         {
             // We only optimize "simple" switches: constant integral case labels without patterns.
             // This keeps semantics identical while reducing runtime gas for large switches.
@@ -214,6 +233,12 @@ namespace Neo.Compiler
                 return false;
 
             defaultTarget ??= breakTarget;
+            if (nullableValue)
+            {
+                AccessSlot(OpCode.LDLOC, valueSlot);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, defaultTarget);
+            }
             EmitIntegerSwitchDispatchTree(orderedCases, 0, orderedCases.Length, valueSlot, defaultTarget, LinearLeafSize);
             return true;
         }
