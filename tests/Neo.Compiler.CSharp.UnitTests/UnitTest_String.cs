@@ -223,6 +223,24 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsFalse(Contract.TestStartsWithOneByte(""));
             AssertGasConsumed(1047570);
+
+            Assert.IsTrue(Contract.TestStartsWithPrefix("abc", ""));
+            AssertGasConsumed(1356180);
+
+            Assert.IsFalse(Contract.TestStartsWithPrefix("", "a"));
+            AssertGasConsumed(1048230);
+
+            Assert.IsTrue(Contract.TestStartsWithPrefix("abc", "abc"));
+            AssertGasConsumed(1356180);
+
+            Assert.IsTrue(Contract.TestStartsWithPrefix("", ""));
+            AssertGasConsumed(1356180);
+
+            Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.TestStartsWithPrefix(null, "")));
+            AssertGasConsumed(1047690);
+
+            Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.TestStartsWithPrefix("", null)));
+            AssertGasConsumed(1047510);
         }
 
         [TestMethod]
