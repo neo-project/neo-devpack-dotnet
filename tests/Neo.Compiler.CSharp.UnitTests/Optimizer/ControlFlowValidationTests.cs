@@ -337,8 +337,8 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             Assert.AreEqual(BranchType.OK, coverage.coveredMap[9]);
             Assert.AreEqual(BranchType.OK, coverage.coveredMap[11]);
 
-            var (optimizedNef, optimizedManifest, _) = Reachability.RemoveUncoveredInstructions(
-                CreateNefFile(CreateTryCatchFinallyScript(abortOpCode)), CreateManifest());
+            var (optimizedNef, optimizedManifest, _) = Strategies.RemoveUnreachable(
+                CreateNefFile(CreateTryCatchFinallyScript(abortOpCode)), CreateManifest(), null);
             var optimizedCoverage = new InstructionCoverage(optimizedNef, optimizedManifest);
 
             Assert.AreEqual(BranchType.ABORT, optimizedCoverage.coveredMap[0]);

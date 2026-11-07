@@ -14,8 +14,6 @@ using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Neo.Optimizer
@@ -24,160 +22,30 @@ namespace Neo.Optimizer
     {
         public static readonly int[] OperandSizePrefixTable = new int[256];
         public static readonly int[] OperandSizeTable = new int[256];
-        public static readonly Dictionary<string, Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> strategies = new();
-        private static readonly List<(MethodInfo method, StrategyAttribute attribute)> orderedStrategies = new();
-        private static readonly Dictionary<(Guid moduleVersionId, int metadataToken), MethodInfo> registeredStrategyMethods = new();
-        private static readonly Dictionary<(Guid moduleVersionId, int metadataToken), Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> registeredStrategyDelegates = new();
-        // RegisterStrategies(...) can be invoked at runtime (e.g. by tests registering extra strategies)
-        // while Optimize(...) is enumerating orderedStrategies from another thread. Under MSTest
-        // class-level parallelization both can happen concurrently, so all reads/writes of these shared,
-        // non-thread-safe collections must be serialized with this lock.
-        private static readonly object strategiesLock = new();
 
         static Optimizer()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            RegisterStrategies(assembly.GetTypes());
             foreach (FieldInfo field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 OperandSizeAttribute? attribute = field.GetCustomAttribute<OperandSizeAttribute>();
-                if (attribute == null) continue;
+                if (attribute is null) continue;
+
                 int index = (int)(OpCode)field.GetValue(null)!;
                 OperandSizePrefixTable[index] = attribute.SizePrefix;
                 OperandSizeTable[index] = attribute.Size;
             }
         }
 
-        public static void RegisterStrategies(Type type) => RegisterStrategies([type]);
-
-        private static void RegisterStrategies(IEnumerable<Type> types)
-        {
-            lock (strategiesLock)
-            {
-                bool registeredAny = false;
-                foreach (Type type in types)
-                {
-                    foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
-                    {
-                        StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
-                        if (attribute is null || !HasValidStrategySignature(method))
-                            continue;
-
-                        var strategy = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
-                        if (!RegisterStrategyMethod(method, attribute, strategy))
-                            continue;
-
-                        string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
-                        strategies[name] = strategy;
-                        registeredAny = true;
-                    }
-                }
-
-                if (registeredAny)
-                    orderedStrategies.Sort(CompareStrategies);
-            }
-        }
-
-        private static bool HasValidStrategySignature(MethodInfo method)
-        {
-            ParameterInfo[] parameters = method.GetParameters();
-            return method.ReturnType == typeof((NefFile, ContractManifest, JObject?)) &&
-                parameters.Length == 3 &&
-                parameters[0].ParameterType == typeof(NefFile) &&
-                parameters[1].ParameterType == typeof(ContractManifest) &&
-                parameters[2].ParameterType == typeof(JObject);
-        }
-
-        private static bool RegisterStrategyMethod(
-            MethodInfo method,
-            StrategyAttribute attribute,
-            Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)> strategy)
-        {
-            var methodId = GetStrategyMethodId(method);
-            if (!registeredStrategyMethods.TryAdd(methodId, method))
-                return false;
-
-            registeredStrategyDelegates[methodId] = strategy;
-            orderedStrategies.Add((method, attribute));
-            return true;
-        }
-
-        private static (Guid moduleVersionId, int metadataToken) GetStrategyMethodId(MethodInfo method) =>
-            (method.Module.ModuleVersionId, method.MetadataToken);
-
-        private static Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)> GetStrategyDelegate(MethodInfo method)
-        {
-            lock (strategiesLock)
-            {
-                if (registeredStrategyDelegates.TryGetValue(GetStrategyMethodId(method), out var strategy))
-                    return strategy;
-            }
-
-            if (!method.IsStatic)
-                throw new TargetException("Non-static method requires a target");
-
-            return method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
-        }
-
-        private static int CompareStrategies(
-            (MethodInfo method, StrategyAttribute attribute) left,
-            (MethodInfo method, StrategyAttribute attribute) right)
-        {
-            int comparison = right.attribute.Priority.CompareTo(left.attribute.Priority);
-            if (comparison != 0) return comparison;
-
-            comparison = StringComparer.Ordinal.Compare(left.method.DeclaringType?.Assembly.FullName, right.method.DeclaringType?.Assembly.FullName);
-            if (comparison != 0) return comparison;
-
-            comparison = StringComparer.Ordinal.Compare(left.method.DeclaringType?.FullName, right.method.DeclaringType?.FullName);
-            if (comparison != 0) return comparison;
-
-            comparison = StringComparer.Ordinal.Compare(left.method.Name, right.method.Name);
-            return comparison != 0 ? comparison : left.method.MetadataToken.CompareTo(right.method.MetadataToken);
-        }
-
-        public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
+        public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest,
+            JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
         {
             if (!optimizationType.HasFlag(CompilationOptions.OptimizationType.Experimental))
-                return (nef, manifest, debugInfo);  // do nothing
-            // Define the optimization type inside the manifest
+                return (nef, manifest, debugInfo);
+
             manifest.Extra ??= new JObject();
             manifest.Extra["nef"] = new JObject();
             manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
-            // Execute optimization strategies in priority order (attribute-driven).
-            // Snapshot the list under the lock: RegisterStrategies(...) can mutate orderedStrategies
-            // concurrently from another test class, and enumerating it directly here would throw
-            // InvalidOperationException ("Collection was modified").
-            (MethodInfo method, StrategyAttribute attribute)[] strategiesSnapshot;
-            lock (strategiesLock)
-            {
-                strategiesSnapshot = orderedStrategies.ToArray();
-            }
-
-            foreach (var (method, attribute) in strategiesSnapshot)
-            {
-                try
-                {
-                    var result = GetStrategyDelegate(method)(nef, manifest, debugInfo!);
-                    if (result is ValueTuple<NefFile, ContractManifest, JObject?> tuple)
-                    {
-                        (nef, manifest, debugInfo) = tuple;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    var failure = ex is TargetInvocationException { InnerException: not null }
-                        ? ex.InnerException
-                        : ex;
-                    throw new InvalidOperationException($"Optimization strategy '{method.Name}' failed: {failure.Message}", failure);
-                }
-            }
-            // Late strategies can introduce jump patterns after the high-priority jump cleanup has run.
-            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.FoldJump(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.CompressJump(nef, manifest, debugInfo);
-            return (nef, manifest, debugInfo);
+            return Strategies.Run(nef, manifest, debugInfo);
         }
     }
 }

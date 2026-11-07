@@ -28,7 +28,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestTry()
         {
             Assert.AreEqual(3, Contract.TestTry());
-            AssertGasConsumed(988800);
+            // ENDTRY resumes past a redundant JMP after FINALLY, reducing the generated GAS.
+            AssertGasConsumed(988740);
         }
 
         [TestMethod]
