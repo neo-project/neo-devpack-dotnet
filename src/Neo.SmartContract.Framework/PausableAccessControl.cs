@@ -60,7 +60,7 @@ namespace Neo.SmartContract.Framework
     /// </remarks>
     public abstract class PausableAccessControl : AccessControl
     {
-        private const string Prefix_Paused = "\0xFE";
+        private const byte Prefix_Paused = 0xFE;
 
         /// <summary>
         /// The role (1) allowed to pause and unpause the contract.
