@@ -97,6 +97,8 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.StartsWith("ab");
         }
 
+        public static bool TestStartsWithPrefix(string str, string prefix) => str.StartsWith(prefix);
+
         public static bool TestStartsWith50(string str)
         {
             return str.StartsWith("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
