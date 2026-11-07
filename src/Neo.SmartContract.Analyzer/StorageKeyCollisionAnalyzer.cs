@@ -50,6 +50,7 @@ namespace Neo.SmartContract.Analyzer
             ["global::Neo.SmartContract.Framework.Pausable"] = [0xFE],
             ["global::Neo.SmartContract.Framework.PausableOwnable"] = [0xFE],
             ["global::Neo.SmartContract.Framework.AccessControl"] = [0xFB],
+            ["global::Neo.SmartContract.Framework.PausableAccessControl"] = [0xFE, 0xFB],
             ["global::Neo.SmartContract.Framework.TokenContract"] = [0x00, 0x01],
             ["global::Neo.SmartContract.Framework.Nep17Token"] = [0x00, 0x01],
             ["global::Neo.SmartContract.Framework.Nep11Token`1"] = [0x02, 0x03, 0x04],
