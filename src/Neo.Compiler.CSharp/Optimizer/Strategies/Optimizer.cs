@@ -176,6 +176,12 @@ namespace Neo.Optimizer
             (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = JumpCompresser.FoldJump(nef, manifest, debugInfo);
+            // FoldJump threads jumps through intermediate unconditional jumps. The threaded
+            // target can land on the instruction immediately after the original jump, which
+            // makes the original jump redundant again after RemoveUnnecessaryJumps has
+            // already run. Clear those before CompressJump so the late cleanup reaches a
+            // fixed point instead of leaving one-generation-old redundant jumps behind.
+            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = JumpCompresser.CompressJump(nef, manifest, debugInfo);
             return (nef, manifest, debugInfo);
         }
