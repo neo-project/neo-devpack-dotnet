@@ -34,12 +34,14 @@ public class UnitTest_StoredDefaults
             [Stored(0x03)] public static char Letter { get; set; }
             [Stored(0x04)] public static byte[] Data { get; set; }
             [Stored(0x05)] public static State Status { get; set; }
+            [Stored(0x06)] public static State InitializedStatus { get; set; } = State.Active;
 
             public static int NumberDefault() => Number;
             public static bool FlagDefault() => Flag;
             public static int LetterDefault() => Letter;
             public static bool DataDefault() => Data == null;
             public static int StatusDefault() => (int)Status;
+            public static int InitializedStatusDefault() => (int)InitializedStatus;
 
             public static bool FlagRoundTrip() { Flag = true; return Flag; }
             public static int LetterRoundTrip() { Letter = 'A'; return Letter; }
@@ -67,6 +69,7 @@ public class UnitTest_StoredDefaults
             Assert.AreEqual(0, contract.LetterDefault());
             Assert.IsTrue(contract.DataDefault());
             Assert.AreEqual(0, contract.StatusDefault());
+            Assert.AreEqual(1, contract.InitializedStatusDefault());
 
             Assert.IsTrue(contract.FlagRoundTrip());
             Assert.AreEqual('A', contract.LetterRoundTrip());
@@ -87,6 +90,7 @@ public class UnitTest_StoredDefaults
         [DisplayName("letterDefault")] public abstract int LetterDefault();
         [DisplayName("dataDefault")] public abstract bool DataDefault();
         [DisplayName("statusDefault")] public abstract int StatusDefault();
+        [DisplayName("initializedStatusDefault")] public abstract int InitializedStatusDefault();
         [DisplayName("flagRoundTrip")] public abstract bool FlagRoundTrip();
         [DisplayName("letterRoundTrip")] public abstract int LetterRoundTrip();
         [DisplayName("dataRoundTrip")] public abstract bool DataRoundTrip();
