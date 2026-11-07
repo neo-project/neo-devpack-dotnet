@@ -190,7 +190,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             var key = Encoding.UTF8.GetBytes("key");
             Assert.IsNull(Contract.TestGetInteger(key));
-            AssertGasConsumed(2706750);
+            AssertGasConsumed(2647200);
         }
 
         [TestMethod]
@@ -214,28 +214,28 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var value = new byte[] { 0x22 };
 
             Assert.IsTrue(Contract.PutLocalString(key, value));
-            AssertGasConsumed(3107080);
+            AssertGasConsumed(3047530);
             var got = Contract.GetLocalString(key);
-            AssertGasConsumed(2706870);
+            AssertGasConsumed(2647320);
             CollectionAssert.AreEqual(value, got);
 
             Contract.DeleteLocalString(key);
-            AssertGasConsumed(2460990);
+            AssertGasConsumed(2401440);
             got = Contract.GetLocalString(key);
-            AssertGasConsumed(2706870);
+            AssertGasConsumed(2647320);
             Assert.IsNull(got);
 
             value = new byte[] { 0x33, 0x44, 0x55 };
             Assert.IsTrue(Contract.PutLocalString(key, value));
-            AssertGasConsumed(3307080);
+            AssertGasConsumed(3247530);
             got = Contract.GetLocalString(key);
-            AssertGasConsumed(2706870);
+            AssertGasConsumed(2647320);
             CollectionAssert.AreEqual(value, got);
 
             Contract.DeleteLocalString(key);
-            AssertGasConsumed(2460990);
+            AssertGasConsumed(2401440);
             got = Contract.GetLocalString(key);
-            AssertGasConsumed(2706870);
+            AssertGasConsumed(2647320);
             Assert.IsNull(got);
         }
 
@@ -245,28 +245,28 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var key = new byte[] { 0x11 };
             var value = new byte[] { 0x22 };
             Assert.IsTrue(Contract.PutLocalByteArray(key, value));
-            AssertGasConsumed(3352840);
+            AssertGasConsumed(3293290);
             var got = Contract.GetLocalByteArray(key);
-            AssertGasConsumed(2952630);
+            AssertGasConsumed(2893080);
             CollectionAssert.AreEqual(value, got);
 
             Contract.DeleteLocalByteArray(key);
-            AssertGasConsumed(2706750);
+            AssertGasConsumed(2647200);
             got = Contract.GetLocalByteArray(key);
-            AssertGasConsumed(2952630);
+            AssertGasConsumed(2893080);
             Assert.IsNull(got);
 
             value = new byte[] { 0x33, 0x44, 0x55 };
             Assert.IsTrue(Contract.PutLocalByteArray(key, value));
-            AssertGasConsumed(3552840);
+            AssertGasConsumed(3493290);
             got = Contract.GetLocalByteArray(key);
-            AssertGasConsumed(2952630);
+            AssertGasConsumed(2893080);
             CollectionAssert.AreEqual(value, got);
 
             Contract.DeleteLocalByteArray(key);
-            AssertGasConsumed(2706750);
+            AssertGasConsumed(2647200);
             got = Contract.GetLocalByteArray(key);
-            AssertGasConsumed(2952630);
+            AssertGasConsumed(2893080);
             Assert.IsNull(got);
         }
 
@@ -274,7 +274,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_LocalFind()
         {
             var got = Contract.LocalFind();
-            AssertGasConsumed(7089390);
+            AssertGasConsumed(6910740);
             CollectionAssert.AreEqual(new byte[] { 0x01 }, got);
         }
 
@@ -284,10 +284,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var key = new byte[] { 0x01 };
             var value = new byte[] { 0x02 };
             Contract.LocalIndexPut(key, value);
-            AssertGasConsumed(3407110);
+            AssertGasConsumed(3347560);
 
             var got = Contract.LocalIndexGet(key);
-            AssertGasConsumed(2706870);
+            AssertGasConsumed(2647320);
             CollectionAssert.AreEqual(value, got);
         }
 
@@ -295,11 +295,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_LocalGetPut()
         {
             Assert.IsTrue(Contract.LocalGetPut());
-            AssertGasConsumed(30700470);
+            AssertGasConsumed(29985870);
 
             var key = new byte[] { 0x22 };
             Assert.AreEqual(123, Contract.LocalGetPutObject(key, 123));
-            AssertGasConsumed(7538300);
+            AssertGasConsumed(7419200);
         }
 
         [TestMethod]
@@ -307,31 +307,31 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             var key = new byte[] { 0x33 };
             var value = Contract.LocalIntegerOrZero(key);
-            AssertGasConsumed(2707020);
+            AssertGasConsumed(2647470);
             Assert.AreEqual(0, value);
 
             value = Contract.LocalIncrease(key);
-            AssertGasConsumed(4249120);
+            AssertGasConsumed(4130020);
             Assert.AreEqual(1, value);
 
             value = Contract.LocalDecrease(key);
-            AssertGasConsumed(4095480);
+            AssertGasConsumed(3976380);
             Assert.AreEqual(0, value);
 
             value = Contract.LocalIncrease(key);
-            AssertGasConsumed(4249120);
+            AssertGasConsumed(4130020);
             Assert.AreEqual(1, value);
 
             value = Contract.LocalIncrease(key);
-            AssertGasConsumed(4194730);
+            AssertGasConsumed(4075630);
             Assert.AreEqual(2, value);
 
             value = Contract.LocalDecrease(key);
-            AssertGasConsumed(4195480);
+            AssertGasConsumed(4076380);
             Assert.AreEqual(1, value);
 
             value = Contract.LocalDecrease(key);
-            AssertGasConsumed(4095480);
+            AssertGasConsumed(3976380);
             Assert.AreEqual(0, value);
         }
 
@@ -341,15 +341,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var key = new byte[] { 0x44 };
             var value = new byte[] { 0x55 };
             Assert.IsTrue(Contract.TestLocalPutBytes(key, value));
-            AssertGasConsumed(3260490);
+            AssertGasConsumed(3200940);
             var got = Contract.TestLocalGetBytes(key);
-            AssertGasConsumed(2960280);
+            AssertGasConsumed(2900730);
             CollectionAssert.AreEqual(value, got);
 
             Contract.TestLocalDeleteBytes(key);
-            AssertGasConsumed(2714400);
+            AssertGasConsumed(2654850);
             got = Contract.TestLocalGetBytes(key);
-            AssertGasConsumed(2960280);
+            AssertGasConsumed(2900730);
             Assert.IsNull(got);
         }
     }

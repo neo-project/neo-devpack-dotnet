@@ -44,6 +44,10 @@ internal partial class MethodConvert
             return false;
 
         IMethodSymbol inlineSymbol = symbol.ReducedFrom ?? symbol;
+        // Inlining skips the standalone method conversion that emits modifier Enter/Exit hooks.
+        if (inlineSymbol.GetAttributesWithInherited().Any(attribute => attribute.AttributeClass?.IsSubclassOf(nameof(ModifierAttribute)) == true))
+            return false;
+
         SyntaxNode? syntaxNode = null;
         if (!inlineSymbol.DeclaringSyntaxReferences.IsEmpty)
             syntaxNode = inlineSymbol.DeclaringSyntaxReferences[0].GetSyntax();

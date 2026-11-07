@@ -174,6 +174,7 @@ internal partial class MethodConvert
     private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        JumpTarget endTarget = new();
         if (TryGetConstantArgument(model, symbol, "value", arguments, out string? value))
         {
             var valueBytes = Utility.StrictUTF8.GetBytes(value!);
@@ -183,8 +184,6 @@ internal partial class MethodConvert
                     methodConvert.ConvertExpression(model, instanceExpression);
 
                 JumpTarget nonEmptyTarget = new();
-                JumpTarget endTarget = new();
-
                 methodConvert.Dup();                                      // [source, source]
                 methodConvert.Size();                                     // [source, sourceSize]
                 methodConvert.JumpIfTrue(nonEmptyTarget);                 // [source]
@@ -212,8 +211,20 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        methodConvert.Not();
+        JumpTarget compareTarget = new();
+        methodConvert.Over();                 // [value, source]
+        methodConvert.Size();                 // [value, source, value-size]
+        methodConvert.Over();                 // [value, source, value-size, source]
+        methodConvert.Size();                 // [value, source, value-size, source-size]
+        methodConvert.Over();                 // [value, source, value-size, source-size, value-size]
+        methodConvert.JumpIfGreaterOrEqual(compareTarget); // [value, source, value-size]
+        methodConvert.Drop(3);
+        methodConvert.PushF();
+        methodConvert.JumpAlways(endTarget);
+        compareTarget.Instruction = methodConvert.Left(null);
+        methodConvert.ChangeType(StackItemType.ByteString); // [value, source[:value-size]]
+        methodConvert.Equal();                              // [result]
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringStartsWithConstant(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, byte[] valueBytes)
@@ -544,32 +555,20 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
-        JumpTarget valueNonEmptyTarget = new();
-        JumpTarget validCountTarget = new();
-        JumpTarget endTarget = new();
-
-        // After preparing the single argument and evaluating the instance,the stack is [value, source].
+        JumpTarget compareTarget = new(), endTarget = new();
         methodConvert.Over();                                 // [value, source, value]
         methodConvert.Size();                                 // [value, source, valueSize]
-        methodConvert.Dup();                                  // [value, source, valueSize, valueSize]
-        methodConvert.JumpIfTrue(valueNonEmptyTarget);        // [value, source, valueSize]
-        methodConvert.Drop(3);                                // []
-        methodConvert.PushT();                                // Any string ends with an empty value.
-        methodConvert.JumpAlways(endTarget);
-
-        valueNonEmptyTarget.Instruction = methodConvert.Nop();
         methodConvert.Over();                                 // [value, source, valueSize, source]
         methodConvert.Size();                                 // [value, source, valueSize, sourceSize]
         methodConvert.Over();                                 // [value, source, valueSize, sourceSize, valueSize]
-        methodConvert.JumpIfGreaterOrEqual(validCountTarget); // [value, source, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(compareTarget);    // [value, source, valueSize]
         methodConvert.Drop(3);                                // []
         methodConvert.PushF();                                // source shorter than value.
         methodConvert.JumpAlways(endTarget);
 
-        validCountTarget.Instruction = methodConvert.Right(null); // [value, suffix]
+        compareTarget.Instruction = methodConvert.Right(null);    // [value, suffix]
         methodConvert.ChangeType(StackItemType.ByteString);       // [value, suffix]
         methodConvert.Equal();                                    // [bool]
-
         endTarget.Instruction = methodConvert.Nop();
     }
 

@@ -107,9 +107,7 @@ namespace Neo.SmartContract.Framework
         /// <returns>The converted address.</returns>
         public string ToAddress(byte version)
         {
-            byte[] data = { version };
-            data = Helper.Concat(data, this);
-            return StdLib.Base58CheckEncode((ByteString)data);
+            return StdLib.Base58CheckEncode(Helper.Concat(version.ToByteArray(), this));
         }
 
         /// <summary>

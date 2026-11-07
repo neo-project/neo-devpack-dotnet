@@ -144,6 +144,16 @@ namespace Neo.SmartContract.Framework.Native
         public static extern string Base58CheckEncode(ByteString input);
 
         /// <summary>
+        /// Encodes a byte-string/bytes to a base58-encoded string with checksum.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. The 'input' is null.
+        ///  2. The 'input.length' exceeds the MaxInputLength limits(the default value is 1024-byte).
+        /// </para>
+        /// </summary>
+        public static extern string Base58CheckEncode(byte[] input);
+
+        /// <summary>
         /// Decodes a base58-encoded string with checksum to a byte-string.
         /// <para>
         /// The execution will fail if:
@@ -176,7 +186,6 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         public static extern ByteString HexDecode(string input);
-
 
         /// <summary>
         /// Encodes a BigInteger to a string with specified base.
