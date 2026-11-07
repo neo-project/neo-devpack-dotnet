@@ -36,15 +36,15 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // return in the middle
             Contract.ReentrantTest(0);
-            AssertGasConsumed(6984990);
+            AssertGasConsumed(6806340);
 
             // Method end
             Contract.ReentrantTest(1);
-            AssertGasConsumed(6985320);
+            AssertGasConsumed(6806670);
 
             // Reentrant test
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.ReentrantTest(123));
-            AssertGasConsumed(7003530);
+            AssertGasConsumed(6824880);
             Assert.IsTrue(ex.Message.Contains("Already entered"));
         }
 

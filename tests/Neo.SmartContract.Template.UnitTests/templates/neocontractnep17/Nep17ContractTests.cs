@@ -57,10 +57,10 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Engine.SetTransactionSigners(Alice);
 
             Contract.Mint(Alice.Account, 10);
-            AssertGasConsumedCore(11841210);
+            AssertGasConsumedCore(11722110);
 
             Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(2715150);
+            AssertGasConsumedCore(2655600);
 
             Assert.AreEqual(10, Contract.TotalSupply);
             AssertTransferEvent(null, Alice.Account, 10);
@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Engine.SetTransactionSigners(Alice);
 
             Contract.Burn(Alice.Account, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(8212290);
+            AssertGasConsumedCore(8093190);
             Contract.Burn(Bob.Account, Contract.BalanceOf(Bob.Account));
             AssertGasConsumedCore(2356350);
 
@@ -94,16 +94,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             AssertGasConsumedCore(2356350);
 
             Assert.AreEqual(0, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(2469480);
+            AssertGasConsumedCore(2409930);
             Assert.AreEqual(0, Contract.TotalSupply);
             AssertNoTransferEvent();
 
             // test mint
             Contract.Mint(Alice.Account, 10);
-            AssertGasConsumedCore(11841210);
+            AssertGasConsumedCore(11722110);
 
             Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(2715150);
+            AssertGasConsumedCore(2655600);
             Assert.AreEqual(10, Contract.TotalSupply);
             AssertTransferEvent(null, Alice.Account, 10);
 
@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test burn
             Contract.Burn(Alice.Account, 10);
-            AssertGasConsumedCore(8212290);
+            AssertGasConsumedCore(8093190);
 
             Assert.AreEqual(0, Contract.BalanceOf(Alice.Account));
             Assert.AreEqual(0, Contract.TotalSupply);
