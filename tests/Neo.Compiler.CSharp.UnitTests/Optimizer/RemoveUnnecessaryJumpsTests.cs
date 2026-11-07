@@ -83,10 +83,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             var instructions = GetInstructions(nef);
             var jmpIdx = instructions.FindIndex(i => i.OpCode == OpCode.JMP);
             var pushIdx = instructions.FindIndex(i => i.OpCode == OpCode.PUSH1);
-            // Short JMP token is relative to the start of the instruction; after removing
-            // the inner JMP, PUSH1 sits at index 1, immediately after the outer JMP at [0],
-            // so the outer JMP's token should target exactly there.
-            Assert.AreEqual(pushIdx - jmpIdx - instructions[jmpIdx].Size, instructions[jmpIdx].TokenI8,
+            int jmpAddress = instructions.Take(jmpIdx).Sum(i => i.Size);
+            int pushAddress = instructions.Take(pushIdx).Sum(i => i.Size);
+            // Jump operands are byte offsets relative to the start of the instruction.
+            Assert.AreEqual(pushAddress - jmpAddress, instructions[jmpIdx].TokenI8,
                 "outer jump must be retargeted to PUSH1 after the inner JMP is removed");
         }
 
@@ -133,9 +133,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             (nef, _, _) = Neo.Optimizer.JumpCompresser.RemoveUnnecessaryJumps(nef, CreateManifest());
 
             CollectionAssert.AreEqual(
-                new[] { OpCode.PUSH1, OpCode.RET, OpCode.JMP_L, OpCode.PUSH2, OpCode.RET },
+                new[] { OpCode.PUSH1, OpCode.RET, OpCode.JMP, OpCode.PUSH2, OpCode.RET },
                 GetOpCodes(nef),
-                "outer jump folded onto its own next instruction must be cleared; inner JMP retained");
+                "outer jump folded onto its own next instruction must be cleared; compressed inner JMP retained");
         }
 
         private static NefFile CreateNefFile(byte[] script)
