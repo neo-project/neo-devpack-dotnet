@@ -298,6 +298,56 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
+        [DataRow("FE", false)]
+        [DataRow("FB", false)]
+        [DataRow("FE", true)]
+        [DataRow("FB", true)]
+        public async Task InheritedPausableAccessControlPrefix_ReportsDiagnostic(string prefix, bool indirect)
+        {
+            var baseType = indirect ? "Intermediate" : "Neo.SmartContract.Framework.PausableAccessControl";
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + $$"""
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class PausableAccessControl : AccessControl { }
+                }
+                public abstract class Intermediate : Neo.SmartContract.Framework.PausableAccessControl { }
+                public class Contract : {{baseType}}
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap {|#0:Reserved|} =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x{{prefix}});
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments(prefix, "Reserved", "the reserved prefix of base class PausableAccessControl");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task InheritedPausableAccessControl_DifferentPrefix_DoesNotReportDiagnostic(bool indirect)
+        {
+            var baseType = indirect ? "Intermediate" : "Neo.SmartContract.Framework.PausableAccessControl";
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + $$"""
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class PausableAccessControl : AccessControl { }
+                }
+                public abstract class Intermediate : Neo.SmartContract.Framework.PausableAccessControl { }
+                public class Contract : {{baseType}}
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x42);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task NonInheritedReservedPrefix_DoesNotReportDiagnostic()
         {
             // A contract that does not inherit Ownable is free to use 0xFF for its own data.
