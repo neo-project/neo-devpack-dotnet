@@ -63,25 +63,40 @@ namespace Neo.Compiler.SecurityAnalyzer
         {
             (int addr, VM.Instruction instruction)[] instructions = ((Script)nef.Script).EnumerateInstructions().ToArray();
             List<int> result = [];
+            HashSet<int> methodStartOffsets = manifest.Abi.Methods.Select(m => m.Offset).ToHashSet();
+            foreach ((int addr, VM.Instruction instruction) in instructions)
+            {
+                if (instruction.OpCode is not (OpCode.CALL or OpCode.CALL_L))
+                    continue;
+
+                int target = Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(addr, instruction);
+                if (target >= 0)
+                    methodStartOffsets.Add(target);
+            }
+            int[] sortedMethodStarts = methodStartOffsets.OrderBy(offset => offset).ToArray();
+
             for (int i = 0; i < instructions.Length; ++i)
             {
                 VM.Instruction instruction = instructions[i].instruction;
                 if (instruction.OpCode == OpCode.SYSCALL && instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)
                 {
-                    if (IsDroppedCheckWitnessResult(instructions, i))
+                    if (IsDroppedCheckWitnessResult(instructions, i, GetMethodEnd(instructions[i].addr, sortedMethodStarts)))
                         result.Add(instructions[i].addr);
                 }
             }
             return new CheckWitnessVulnerability(result);
         }
 
-        private static bool IsDroppedCheckWitnessResult((int addr, VM.Instruction instruction)[] instructions, int checkWitnessIndex)
+        private static bool IsDroppedCheckWitnessResult(
+            (int addr, VM.Instruction instruction)[] instructions,
+            int checkWitnessIndex,
+            int methodEnd)
         {
             int i = checkWitnessIndex + 1;
-            while (i < instructions.Length && instructions[i].instruction.OpCode == OpCode.NOP)
+            while (i < instructions.Length && instructions[i].addr < methodEnd && instructions[i].instruction.OpCode == OpCode.NOP)
                 i++;
 
-            if (i >= instructions.Length)
+            if (i >= instructions.Length || instructions[i].addr >= methodEnd)
                 return false;
 
             if (instructions[i].instruction.OpCode == OpCode.DROP)
@@ -90,18 +105,49 @@ namespace Neo.Compiler.SecurityAnalyzer
             if (!TryGetLocalStoreSlot(instructions[i].instruction, out byte slot))
                 return false;
 
-            i++;
-            while (i < instructions.Length && instructions[i].instruction.OpCode == OpCode.NOP)
-                i++;
+            for (i++; i < instructions.Length && instructions[i].addr < methodEnd; i++)
+            {
+                OpCode opcode = instructions[i].instruction.OpCode;
+                if (opcode == OpCode.NOP)
+                    continue;
 
-            if (i >= instructions.Length || !TryGetLocalLoadSlot(instructions[i].instruction, out byte loadedSlot) || loadedSlot != slot)
-                return false;
+                if (TryGetLocalLoadSlot(instructions[i].instruction, out byte loadedSlot))
+                {
+                    if (loadedSlot != slot)
+                        return false;
 
-            i++;
-            while (i < instructions.Length && instructions[i].instruction.OpCode == OpCode.NOP)
-                i++;
+                    for (i++; i < instructions.Length && instructions[i].addr < methodEnd; i++)
+                    {
+                        if (instructions[i].instruction.OpCode == OpCode.NOP)
+                            continue;
+                        return instructions[i].instruction.OpCode == OpCode.DROP;
+                    }
+                    return false;
+                }
 
-            return i < instructions.Length && instructions[i].instruction.OpCode == OpCode.DROP;
+                // The result was overwritten or discarded by returning before it could
+                // influence control flow. Both cases leave the witness decision unused.
+                if (TryGetLocalStoreSlot(instructions[i].instruction, out byte storedSlot) && storedSlot == slot)
+                    return true;
+                if (opcode == OpCode.RET)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static int GetMethodEnd(int instructionAddress, int[] sortedMethodStarts)
+        {
+            if (sortedMethodStarts.Length == 0)
+                return int.MaxValue;
+
+            int methodIndex = Array.BinarySearch(sortedMethodStarts, instructionAddress);
+            if (methodIndex < 0)
+                methodIndex = ~methodIndex - 1;
+
+            return methodIndex + 1 < sortedMethodStarts.Length
+                ? sortedMethodStarts[methodIndex + 1]
+                : int.MaxValue;
         }
 
         private static bool TryGetLocalStoreSlot(VM.Instruction instruction, out byte slot)

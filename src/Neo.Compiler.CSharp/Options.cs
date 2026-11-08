@@ -10,6 +10,8 @@
 // modifications are permitted.
 
 using System;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace Neo.Compiler
 {
@@ -31,5 +33,14 @@ namespace Neo.Compiler
         public bool SecurityAnalysis { get; set; } = false;
         public bool GenerateContractInterface { get; set; } = false;
         public bool PrintAbi { get; set; } = false;
+        /// <summary>
+        /// Emits only diagnostics with the specified severity when diagnostics mode is enabled.
+        /// </summary>
+        public DiagnosticSeverity? DiagnosticOnly { get; set; }
+        /// <summary>
+        /// Optional path for a SARIF 2.1.0 diagnostic report.
+        /// </summary>
+        public string? Sarif { get; set; }
+        internal List<Diagnostic> SarifDiagnostics { get; } = new();
     }
 }

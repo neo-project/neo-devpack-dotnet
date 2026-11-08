@@ -17,13 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_Enum : DebugAndTestBase<Contract_Enum>
     {
-        protected override bool TestGasConsume => false;
+        protected override bool TestGasConsume => true;
 
         [TestMethod]
         public void TestEnumParse()
@@ -35,8 +36,72 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new Integer(3), Contract.TestEnumParse("Value3"));
             AssertGasConsumed(1052130);
             Assert.AreEqual(new Integer(21), Contract.TestEnumParseWithContinuation());
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParse("InvalidValue"));
-            AssertGasConsumed(1067580);
+            AssertGasConsumed(2280990);
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParse("InvalidValue"));
+            AssertGasConsumed(1067640);
+        }
+
+        [TestMethod]
+        public void TestEnumParseWithConstantIgnoreCase()
+        {
+            // Regression coverage for constant `ignoreCase` arguments: a constant `false` must
+            // compare against the original member names, a constant `true` must compare against
+            // the upper-cased ones, and neither may leave the stack unbalanced.
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    private enum E { Value1 = 1, Value2 = 2 }
+
+                    [DisplayName("parseConstFalse")]
+                    public static int ParseConstFalse() => (int)Enum.Parse(typeof(E), "Value2", false);
+
+                    [DisplayName("parseConstTrue")]
+                    public static int ParseConstTrue() => (int)Enum.Parse(typeof(E), "value2", true);
+
+                    [DisplayName("parseConstFalseWrongCase")]
+                    public static int ParseConstFalseWrongCase() => (int)Enum.Parse(typeof(E), "value2", false);
+
+                    [DisplayName("tryParseConstFalse")]
+                    public static int TryParseConstFalse() => Enum.TryParse<E>("Value2", false, out var value) ? (int)value : -1;
+
+                    [DisplayName("tryParseConstTrue")]
+                    public static int TryParseConstTrue() => Enum.TryParse<E>("value2", true, out var value) ? (int)value : -1;
+
+                    [DisplayName("tryParseConstFalseUnknown")]
+                    public static int TryParseConstFalseUnknown() => Enum.TryParse<E>("unknown", false, out var value) ? (int)value : -1;
+
+                    [DisplayName("tryParseTypeConstFalse")]
+                    public static bool TryParseTypeConstFalse() => Enum.TryParse(typeof(E), "Value2", false, out object value);
+
+                    [DisplayName("tryParseTypeConstTrue")]
+                    public static bool TryParseTypeConstTrue() => Enum.TryParse(typeof(E), "value2", true, out object value);
+
+                    [DisplayName("tryParseTypeConstFalseWrongCase")]
+                    public static bool TryParseTypeConstFalseWrongCase() => Enum.TryParse(typeof(E), "value2", false, out object value);
+
+                    [DisplayName("tryParseTypeConstTrueUnknown")]
+                    public static bool TryParseTypeConstTrueUnknown() => Enum.TryParse(typeof(E), "unknown", true, out object value);
+                }
+                """;
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<ConstantIgnoreCaseContract>(context.CreateExecutable(), context.CreateManifest());
+            Assert.AreEqual(new BigInteger(2), contract.ParseConstFalse());
+            Assert.AreEqual(new BigInteger(2), contract.ParseConstTrue());
+            Assert.ThrowsExactly<TestException>(() => contract.ParseConstFalseWrongCase());
+            Assert.AreEqual(new BigInteger(2), contract.TryParseConstFalse());
+            Assert.AreEqual(new BigInteger(2), contract.TryParseConstTrue());
+            Assert.AreEqual(new BigInteger(-1), contract.TryParseConstFalseUnknown());
+            Assert.IsTrue(contract.TryParseTypeConstFalse());
+            Assert.IsTrue(contract.TryParseTypeConstTrue());
+            Assert.IsFalse(contract.TryParseTypeConstFalseWrongCase());
+            Assert.IsFalse(contract.TryParseTypeConstTrueUnknown());
         }
 
         [TestMethod]
@@ -94,6 +159,66 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
             _ = context.CreateExecutable();
+        }
+
+        [TestMethod]
+        [DataRow("TryParse")]
+        [DataRow("TryParseIgnoreCase")]
+        [DataRow("IsDefinedByName")]
+        [DataRow("GetName")]
+        [DataRow("IsDefinedByValue")]
+        [DataRow("ToString")]
+        [DataRow("TryParseGeneric")]
+        [DataRow("TryParseGenericIgnoreCase")]
+        public void TestLargeEnumBranches(string operation)
+        {
+            var expression = operation switch
+            {
+                "TryParse" => "Enum.TryParse(typeof(E), value, out object parsed) ? ((int)(E)parsed).ToString() : \"missing\"",
+                "TryParseIgnoreCase" => "Enum.TryParse(typeof(E), value, true, out object parsed) ? ((int)(E)parsed).ToString() : \"missing\"",
+                "IsDefinedByName" => "Enum.IsDefined(typeof(E), value) ? \"yes\" : \"no\"",
+                "GetName" => "Enum.GetName(typeof(E), number)",
+                "IsDefinedByValue" => "Enum.IsDefined(typeof(E), (object)number) ? \"yes\" : \"no\"",
+                "ToString" => "((E)number).ToString()",
+                "TryParseGeneric" => "Enum.TryParse<E>(value, out var parsed) ? ((int)parsed).ToString() : \"missing\"",
+                "TryParseGenericIgnoreCase" => "Enum.TryParse<E>(value, true, out var parsed) ? ((int)parsed).ToString() : \"missing\"",
+                _ => throw new ArgumentOutOfRangeException(nameof(operation))
+            };
+            var members = string.Join(", ", Enumerable.Range(0, 48).Select(i => $"Item{i:D2} = {i}"));
+            var context = TestHelper.CompileSingleContract($$"""
+                using Neo.SmartContract.Framework;
+                using System;
+
+                public class Contract : SmartContract
+                {
+                    private enum E { {{members}} }
+
+                    public static string? Run(string value, int number) => {{expression}};
+                }
+                """);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<LargeEnumContract>(context.CreateExecutable(), context.CreateManifest());
+            foreach (var number in new[] { 0, 24, 47, 99 })
+            {
+                var name = $"Item{number:D2}";
+                var input = operation.EndsWith("IgnoreCase", StringComparison.Ordinal) ? name.ToLowerInvariant() : name;
+                var expected = operation switch
+                {
+                    "IsDefinedByName" or "IsDefinedByValue" => number < 48 ? "yes" : "no",
+                    "GetName" => number < 48 ? name : null,
+                    "ToString" => number < 48 ? name : number.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    _ => number < 48 ? number.ToString(System.Globalization.CultureInfo.InvariantCulture) : "missing"
+                };
+                Assert.AreEqual(expected, contract.Run(input, number), $"{operation}: {input}");
+            }
+        }
+
+        public abstract class LargeEnumContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("run")] public abstract string? Run(string value, BigInteger number);
         }
 
         [TestMethod]
@@ -161,19 +286,34 @@ namespace Neo.Compiler.CSharp.UnitTests
             [DisplayName("getLong")] public abstract string? GetLong();
         }
 
+        public abstract class ConstantIgnoreCaseContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("parseConstFalse")] public abstract BigInteger? ParseConstFalse();
+            [DisplayName("parseConstTrue")] public abstract BigInteger? ParseConstTrue();
+            [DisplayName("parseConstFalseWrongCase")] public abstract BigInteger? ParseConstFalseWrongCase();
+            [DisplayName("tryParseConstFalse")] public abstract BigInteger? TryParseConstFalse();
+            [DisplayName("tryParseConstTrue")] public abstract BigInteger? TryParseConstTrue();
+            [DisplayName("tryParseConstFalseUnknown")] public abstract BigInteger? TryParseConstFalseUnknown();
+            [DisplayName("tryParseTypeConstFalse")] public abstract bool TryParseTypeConstFalse();
+            [DisplayName("tryParseTypeConstTrue")] public abstract bool TryParseTypeConstTrue();
+            [DisplayName("tryParseTypeConstFalseWrongCase")] public abstract bool TryParseTypeConstFalseWrongCase();
+            [DisplayName("tryParseTypeConstTrueUnknown")] public abstract bool TryParseTypeConstTrueUnknown();
+        }
+
         [TestMethod]
         public void TestEnumParseIgnoreCase()
         {
             Assert.AreEqual(new Integer(1), Contract.TestEnumParseIgnoreCase("value1", true));
-            AssertGasConsumed(1688250);
+            AssertGasConsumed(1685700);
             Assert.AreEqual(new Integer(2), Contract.TestEnumParseIgnoreCase("VALUE2", true));
-            AssertGasConsumed(1686990);
+            AssertGasConsumed(1687350);
             Assert.AreEqual(new Integer(3), Contract.TestEnumParseIgnoreCase("VaLuE3", true));
-            AssertGasConsumed(1689570);
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParseIgnoreCase("value1", false));
-            AssertGasConsumed(1065270);
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParseIgnoreCase("InvalidValue", true));
-            AssertGasConsumed(2098560);
+            AssertGasConsumed(1688790);
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParseIgnoreCase("value1", false));
+            AssertGasConsumed(1068270);
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParseIgnoreCase("InvalidValue", true));
+            AssertGasConsumed(2093640);
         }
 
         [TestMethod]
@@ -186,45 +326,52 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestEnumTryParse()
         {
             Assert.IsTrue(Contract.TestEnumTryParse("Value1"));
-            AssertGasConsumed(1049610);
+            AssertGasConsumed(1049790);
             Assert.IsTrue(Contract.TestEnumTryParse("Value2"));
-            AssertGasConsumed(1050930);
+            AssertGasConsumed(1051110);
             Assert.IsTrue(Contract.TestEnumTryParse("Value3"));
-            AssertGasConsumed(1052250);
+            AssertGasConsumed(1052430);
             Assert.IsFalse(Contract.TestEnumTryParse("InvalidValue"));
-            AssertGasConsumed(1052250);
+            AssertGasConsumed(1052370);
         }
 
         [TestMethod]
         public void TestEnumTryParseIgnoreCase()
         {
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("value1", true));
-            AssertGasConsumed(1688490);
+            AssertGasConsumed(1686060);
+            Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("value1"));
+            AssertGasConsumed(1685700);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VALUE2", true));
-            AssertGasConsumed(1687230);
+            AssertGasConsumed(1687710);
+            Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("VALUE2"));
+            AssertGasConsumed(1687170);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VaLuE3", true));
-            AssertGasConsumed(1689810);
+            AssertGasConsumed(1689150);
+            Assert.IsTrue(Contract.TestEnumTryParseConstIgnoreCase("VaLuE3"));
+            AssertGasConsumed(1688430);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("value1", false));
-            AssertGasConsumed(1049880);
+            AssertGasConsumed(1053000);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("InvalidValue", true));
-            AssertGasConsumed(2083290);
+            AssertGasConsumed(2078370);
         }
 
         [TestMethod]
         public void TestEnumTryParseIgnoreCaseFromExpression()
         {
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCaseFromExpression("value1", false));
+            AssertGasConsumed(1703670);
         }
 
         [TestMethod]
         public void TestEnumIsDefined()
         {
             Assert.IsTrue(Contract.TestEnumIsDefined(1));
-            AssertGasConsumed(1049010);
+            AssertGasConsumed(1049070);
             Assert.IsTrue(Contract.TestEnumIsDefined(2));
-            AssertGasConsumed(1050120);
+            AssertGasConsumed(1050180);
             Assert.IsTrue(Contract.TestEnumIsDefined(3));
-            AssertGasConsumed(1051230);
+            AssertGasConsumed(1051290);
             Assert.IsFalse(Contract.TestEnumIsDefined(0));
             AssertGasConsumed(1051230);
             Assert.IsFalse(Contract.TestEnumIsDefined(4));
@@ -235,11 +382,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestEnumIsDefinedByName()
         {
             Assert.IsTrue(Contract.TestEnumIsDefinedByName("Value1"));
-            AssertGasConsumed(1049430);
+            AssertGasConsumed(1049490);
             Assert.IsTrue(Contract.TestEnumIsDefinedByName("Value2"));
-            AssertGasConsumed(1050750);
+            AssertGasConsumed(1050810);
             Assert.IsTrue(Contract.TestEnumIsDefinedByName("Value3"));
-            AssertGasConsumed(1052070);
+            AssertGasConsumed(1052130);
             Assert.IsFalse(Contract.TestEnumIsDefinedByName("value1"));
             AssertGasConsumed(1052070);
             Assert.IsFalse(Contract.TestEnumIsDefinedByName("InvalidValue"));
@@ -250,30 +397,30 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestEnumGetName()
         {
             Assert.AreEqual("Value1", Contract.TestEnumGetName(1));
-            AssertGasConsumed(1048920);
+            AssertGasConsumed(1047960);
             Assert.AreEqual("Value2", Contract.TestEnumGetName(2));
-            AssertGasConsumed(1050030);
+            AssertGasConsumed(1048110);
             Assert.AreEqual("Value3", Contract.TestEnumGetName(3));
-            AssertGasConsumed(1051140);
+            AssertGasConsumed(1048260);
             Assert.IsNull(Contract.TestEnumGetName(0));
-            AssertGasConsumed(1050930);
+            AssertGasConsumed(1048110);
             Assert.IsNull(Contract.TestEnumGetName(4));
-            AssertGasConsumed(1050930);
+            AssertGasConsumed(1048110);
         }
 
         [TestMethod]
         public void TestEnumGetNameWithType()
         {
             Assert.AreEqual("Value1", Contract.TestEnumGetNameWithType(1));
-            AssertGasConsumed(1049220);
+            AssertGasConsumed(1048260);
             Assert.AreEqual("Value2", Contract.TestEnumGetNameWithType(2));
-            AssertGasConsumed(1050330);
+            AssertGasConsumed(1048410);
             Assert.AreEqual("Value3", Contract.TestEnumGetNameWithType(3));
-            AssertGasConsumed(1051440);
+            AssertGasConsumed(1048560);
             Assert.IsNull(Contract.TestEnumGetNameWithType(0));
-            AssertGasConsumed(1051230);
+            AssertGasConsumed(1048350);
             Assert.IsNull(Contract.TestEnumGetNameWithType(4));
-            AssertGasConsumed(1051230);
+            AssertGasConsumed(1048350);
         }
 
         [TestMethod]
@@ -331,47 +478,70 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Regression test: HandleEnumGetName must not narrow enum constants through
             // Convert.ToInt64, since a ulong-backed enum member can exceed long.MaxValue.
             Assert.AreEqual("Value1", Contract.TestUlongEnumGetName(1));
-            Assert.AreEqual("MaxValue", Contract.TestUlongEnumGetName((System.Numerics.BigInteger)ulong.MaxValue));
+            AssertGasConsumed(1047960);
+            Assert.AreEqual("MaxValue", Contract.TestUlongEnumGetName((BigInteger)ulong.MaxValue));
+            AssertGasConsumed(1048290);
         }
 
         [TestMethod]
         public void TestEnumHasFlagAndToString()
         {
             Assert.IsTrue(Contract.TestEnumHasFlag(3, 1));
+            AssertGasConsumed(1048140);
             Assert.IsTrue(Contract.TestEnumHasFlag(3, 2));
+            AssertGasConsumed(1048140);
             Assert.IsFalse(Contract.TestEnumHasFlag(2, 1));
+            AssertGasConsumed(1048140);
 
             Assert.AreEqual("Value1", Contract.TestEnumToString(1));
+            AssertGasConsumed(1047960);
             Assert.AreEqual("Value2", Contract.TestEnumToString(2));
+            AssertGasConsumed(1048110);
             Assert.AreEqual("Value3", Contract.TestEnumToString(3));
+            AssertGasConsumed(1048260);
             Assert.AreEqual("99", Contract.TestEnumToStringUnknown(99));
+            AssertGasConsumed(2153910);
+
+            Assert.AreEqual("Value1", Contract.TestConstEnumToString());
+            AssertGasConsumed(984750);
+            Assert.AreEqual("99", Contract.TestConstEnumToStringUnknown());
+            AssertGasConsumed(984750);
         }
 
         [TestMethod]
         public void TestEnumGenericParse()
         {
             Assert.AreEqual(new Integer(1), Contract.TestEnumParseGeneric("Value1"));
+            AssertGasConsumed(1066620);
             Assert.AreEqual(new Integer(2), Contract.TestEnumParseGenericIgnoreCase("value2", true));
-            Assert.ThrowsException<TestException>(() => Contract.TestEnumParseGenericIgnoreCase("value1", false));
+            AssertGasConsumed(1703940);
+            Assert.ThrowsExactly<TestException>(() => Contract.TestEnumParseGenericIgnoreCase("value1", false));
+            AssertGasConsumed(1088970);
         }
 
         [TestMethod]
         public void TestEnumGenericTryParse()
         {
             Assert.IsTrue(Contract.TestEnumTryParseGeneric("Value3"));
+            AssertGasConsumed(1069260);
             Assert.IsTrue(Contract.TestEnumTryParseGenericIgnoreCase("value2", true));
+            AssertGasConsumed(1703940);
             Assert.IsFalse(Contract.TestEnumTryParseGeneric("Unknown"));
+            AssertGasConsumed(1069260);
             Assert.IsFalse(Contract.TestEnumTryParseGenericIgnoreCase("unknown", false));
+            AssertGasConsumed(1073400);
         }
 
         [TestMethod]
         public void TestEnumGenericGetValuesAndNames()
         {
             var names = Contract.TestEnumGetNamesGeneric()!;
-            CollectionAssert.AreEqual(new[] { "Value1", "Value2", "Value3" }, names.Select(n => ((Neo.VM.Types.ByteString)n!).GetString()).ToArray());
+            CollectionAssert.AreEqual(new[] { "Value1", "Value2", "Value3" }, names.Select(n => ((ByteString)n!).GetString()).ToArray());
+            AssertGasConsumed(1046700);
 
             var values = Contract.TestEnumGetValuesGeneric()!;
-            CollectionAssert.AreEqual(new[] { new Neo.VM.Types.Integer(1), new Neo.VM.Types.Integer(2), new Neo.VM.Types.Integer(3) }, values.Select(v => new Neo.VM.Types.Integer((System.Numerics.BigInteger)v!)).ToArray());
+            CollectionAssert.AreEqual(new[] { new Integer(1), new Integer(2), new Integer(3) }, values.Select(v => new Integer((BigInteger)v!)).ToArray());
+            AssertGasConsumed(1046070);
         }
     }
 }

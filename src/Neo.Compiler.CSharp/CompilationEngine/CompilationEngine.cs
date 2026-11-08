@@ -51,8 +51,35 @@ namespace Neo.Compiler
         private string? ProjectVersionPrefix;
         private string? ProjectVersionSuffix;
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
+        // Semantic diagnostics for a given SyntaxTree only depend on the shared Compilation, not
+        // on which contract is currently being compiled. CompilationContext.Compile() used to call
+        // GetSemanticModel(tree).GetDiagnostics() once per tree for every contract in the project,
+        // recomputing the exact same diagnostics N times (N = number of contracts). Caching them
+        // here means each tree's diagnostics are computed once per Compilation and shared across
+        // every CompilationContext.
+        // ConcurrentDictionary.GetOrAdd does not guarantee that its value factory runs only once;
+        // caching Lazy<T> instances (with ExecutionAndPublication) ensures GetDiagnostics() is
+        // computed exactly once per tree even when multiple threads race on the same key.
+        private readonly ConcurrentDictionary<SyntaxTree, Lazy<ImmutableArray<Diagnostic>>> _semanticDiagnosticsCache = new();
         private readonly Lock tempProjectLock = new();
         private readonly TemporaryProjectWorkspace _temporaryProjectWorkspace = new();
+        // dotnet restore/msbuild spawn MSBuild/NuGet processes that contend heavily for CPU, disk I/O,
+        // and the shared NuGet package cache. Running many of these concurrently (e.g. when
+        // multiple test classes compile projects in parallel) causes flaky failures such as
+        // partially-read csproj files. Limiting (rather than fully serializing) concurrent external
+        // dotnet/MSBuild invocations avoids that contention while still letting the 4-worker test
+        // parallelization make progress instead of funneling every restore/evaluate through a single
+        // permit, which turned total suite time into the sum of every invocation.
+        private static readonly SemaphoreSlim DotnetProcessSemaphore = new(2, 2);
+
+        internal ImmutableArray<Diagnostic> GetSemanticDiagnostics(SyntaxTree tree)
+        {
+            var lazy = _semanticDiagnosticsCache.GetOrAdd(tree, t => new Lazy<ImmutableArray<Diagnostic>>(() =>
+                Compilation!.GetSemanticModel(t).GetDiagnostics()
+                    .Where(d => d.Severity != DiagnosticSeverity.Hidden)
+                    .ToImmutableArray(), LazyThreadSafetyMode.ExecutionAndPublication));
+            return lazy.Value;
+        }
 
         /// <summary>
         /// Gets the version that was extracted from the project
@@ -157,6 +184,9 @@ namespace Neo.Compiler
             if (frameworkReference is not null && !referenceArray.Contains(frameworkReference))
                 throw new ArgumentException("The framework reference must be included in references.", nameof(frameworkReference));
 
+            // The engine instance can be reused for a different compilation; drop diagnostics
+            // cached for the previous one so stale syntax trees are not retained.
+            _semanticDiagnosticsCache.Clear();
             FrameworkReference = frameworkReference ?? referenceArray.FirstOrDefault(IsTrustedFrameworkReference);
             Compilation = CSharpCompilation.Create(null, syntaxTrees, referenceArray, compilationOptions);
             AnalyzeCompilation();
@@ -247,6 +277,7 @@ namespace Neo.Compiler
             ProjectVersionPrefix = null;
             ProjectVersionSuffix = null;
             Contexts.Clear();
+            _semanticDiagnosticsCache.Clear();
         }
 
         private MetadataReference? ResolveProjectFrameworkReference(Compilation compilation)
@@ -322,56 +353,7 @@ namespace Neo.Compiler
         {
             var compilation = LoadProjectCompilation(csproj, forceReload: false);
             PreparedProjectPath = null;
-            var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
-            var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            var allClassSymbols = new List<INamedTypeSymbol?>();
-            var classSymbols = new List<INamedTypeSymbol>();
-            foreach (var tree in compilation.SyntaxTrees)
-            {
-                var semanticModel = compilation.GetSemanticModel(tree);
-                var classNodes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
-
-                foreach (var classNode in classNodes)
-                {
-                    var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
-                    allClassSymbols.Add(classSymbol);
-                    if (classSymbol is null) continue;
-
-                    classSymbols.Add(classSymbol);
-                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol))
-                    {
-                        allSmartContracts.Add(classSymbol);
-                        classDependencies[classSymbol] = [];
-                    }
-                }
-            }
-
-            foreach (var classSymbol in classSymbols)
-            {
-                if (!allSmartContracts.Contains(classSymbol))
-                    continue;
-
-                foreach (var member in classSymbol.GetMembers())
-                {
-                    var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
-                    if (memberTypeSymbol is not INamedTypeSymbol namedTypeSymbol)
-                        continue;
-                    if (namedTypeSymbol.IsAbstract)
-                        continue;
-                    if (!allSmartContracts.Contains(namedTypeSymbol))
-                        continue;
-                    if (SymbolEqualityComparer.Default.Equals(classSymbol, namedTypeSymbol))
-                        continue;
-                    if (classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
-                        continue;
-                    classDependencies[classSymbol].Add(namedTypeSymbol);
-                }
-            }
-
-            // Verify if there is any valid smart contract class
-            if (classDependencies.Count == 0) throw new NoSmartContractFoundException();
-            // Check contract dependencies, make sure there is no cycle in the dependency graph
-            var sortedClasses = TopologicalSort(classDependencies);
+            var (sortedClasses, classDependencies, allClassSymbols) = DiscoverProjectContracts(compilation);
 
             PreparedProjectPath = ProjectPath;
             return (sortedClasses, classDependencies, allClassSymbols);
@@ -439,23 +421,44 @@ namespace Neo.Compiler
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)
         {
             Contexts.Clear();
+            var (sortedClasses, classDependencies, allClassSymbols) = DiscoverProjectContracts(compilation);
+
+            bool allowBaseName = sortedClasses.Count <= 1;
+            Parallel.ForEach(sortedClasses, c =>
+            {
+                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
+                var classesNotInDependencies = GetClassesNotInDependencies(allClassSymbols, dependencies);
+                var context = new CompilationContext(this, c, classesNotInDependencies, allowBaseName);
+                context.Compile();
+                // Process the target contract add this compilation context
+                Contexts.TryAdd(c, context);
+            });
+
+            return Contexts.Select(p => p.Value).ToList();
+        }
+
+        private static (List<INamedTypeSymbol> SortedClasses,
+            Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> ClassDependencies,
+            List<INamedTypeSymbol?> AllClassSymbols) DiscoverProjectContracts(Compilation compilation)
+        {
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
             var allClassSymbols = new List<INamedTypeSymbol?>();
             var classSymbols = new List<INamedTypeSymbol>();
+
             foreach (var tree in compilation.SyntaxTrees)
             {
                 var semanticModel = compilation.GetSemanticModel(tree);
-                var classNodes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
-
-                foreach (var classNode in classNodes)
+                foreach (var classNode in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
                     allClassSymbols.Add(classSymbol);
-                    if (classSymbol is null) continue;
+                    if (classSymbol is null)
+                        continue;
 
                     classSymbols.Add(classSymbol);
-                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol))
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public }
+                        && IsDerivedFromSmartContract(classSymbol))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = [];
@@ -471,37 +474,21 @@ namespace Neo.Compiler
                 foreach (var member in classSymbol.GetMembers())
                 {
                     var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
-                    if (memberTypeSymbol is not INamedTypeSymbol namedTypeSymbol)
+                    if (memberTypeSymbol is not INamedTypeSymbol namedTypeSymbol
+                        || namedTypeSymbol.IsAbstract
+                        || !allSmartContracts.Contains(namedTypeSymbol)
+                        || SymbolEqualityComparer.Default.Equals(classSymbol, namedTypeSymbol))
                         continue;
-                    if (namedTypeSymbol.IsAbstract)
-                        continue;
-                    if (!allSmartContracts.Contains(namedTypeSymbol))
-                        continue;
-                    if (SymbolEqualityComparer.Default.Equals(classSymbol, namedTypeSymbol))
-                        continue;
-                    if (classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
-                        continue;
-                    classDependencies[classSymbol].Add(namedTypeSymbol);
+
+                    if (!classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
+                        classDependencies[classSymbol].Add(namedTypeSymbol);
                 }
             }
 
-            // Verify if there is any valid smart contract class
-            if (classDependencies.Count == 0) throw new NoSmartContractFoundException();
-            // Check contract dependencies, make sure there is no cycle in the dependency graph
-            var sortedClasses = TopologicalSort(classDependencies);
+            if (classDependencies.Count == 0)
+                throw new NoSmartContractFoundException();
 
-            bool allowBaseName = sortedClasses.Count <= 1;
-            Parallel.ForEach(sortedClasses, c =>
-            {
-                var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
-                var classesNotInDependencies = GetClassesNotInDependencies(allClassSymbols, dependencies);
-                var context = new CompilationContext(this, c, classesNotInDependencies, allowBaseName);
-                context.Compile();
-                // Process the target contract add this compilation context
-                Contexts.TryAdd(c, context);
-            });
-
-            return Contexts.Select(p => p.Value).ToList();
+            return (TopologicalSort(classDependencies), classDependencies, allClassSymbols);
         }
 
         /// <summary>
@@ -577,16 +564,24 @@ namespace Neo.Compiler
 
             if (!shouldSkipRestore)
             {
-                using var process = Process.Start(new ProcessStartInfo
+                DotnetProcessSemaphore.Wait();
+                try
                 {
-                    FileName = "dotnet",
-                    Arguments = $"restore \"{csproj}\"",
-                    WorkingDirectory = folder
-                });
-                ArgumentNullException.ThrowIfNull(process);
-                process.WaitForExit();
-                if (process.ExitCode != 0)
-                    throw new InvalidOperationException($"dotnet restore failed with exit code {process.ExitCode} for '{csproj}'.");
+                    using var process = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "dotnet",
+                        Arguments = $"restore \"{csproj}\"",
+                        WorkingDirectory = folder
+                    });
+                    ArgumentNullException.ThrowIfNull(process);
+                    process.WaitForExit();
+                    if (process.ExitCode != 0)
+                        throw new InvalidOperationException($"dotnet restore failed with exit code {process.ExitCode} for '{csproj}'.");
+                }
+                finally
+                {
+                    DotnetProcessSemaphore.Release();
+                }
             }
 
             if (!File.Exists(assetsPath))
@@ -634,17 +629,30 @@ namespace Neo.Compiler
             startInfo.ArgumentList.Add("-getItem:Compile");
             startInfo.ArgumentList.Add("-getProperty:DefineConstants");
 
-            using var process = Process.Start(startInfo);
-            ArgumentNullException.ThrowIfNull(process);
-            Task<string> standardOutput = process.StandardOutput.ReadToEndAsync();
-            Task<string> standardError = process.StandardError.ReadToEndAsync();
-            process.WaitForExit();
-
-            string output = standardOutput.GetAwaiter().GetResult();
-            string error = standardError.GetAwaiter().GetResult();
-            if (process.ExitCode != 0)
+            DotnetProcessSemaphore.Wait();
+            string output;
+            string error;
+            int exitCode;
+            try
             {
-                throw new InvalidOperationException($"dotnet msbuild project evaluation failed with exit code {process.ExitCode} for '{csproj}': {error.Trim()}");
+                using var process = Process.Start(startInfo);
+                ArgumentNullException.ThrowIfNull(process);
+                Task<string> standardOutput = process.StandardOutput.ReadToEndAsync();
+                Task<string> standardError = process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+
+                output = standardOutput.GetAwaiter().GetResult();
+                error = standardError.GetAwaiter().GetResult();
+                exitCode = process.ExitCode;
+            }
+            finally
+            {
+                DotnetProcessSemaphore.Release();
+            }
+
+            if (exitCode != 0)
+            {
+                throw new InvalidOperationException($"dotnet msbuild project evaluation failed with exit code {exitCode} for '{csproj}': {error.Trim()}");
             }
 
             using JsonDocument evaluation = JsonDocument.Parse(output);

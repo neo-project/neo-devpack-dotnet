@@ -22,15 +22,18 @@ namespace Neo.SmartContract.Analyzer
     public class DoubleUsageAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NC4004";
+        private const string HelpLink =
+            "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/NC4004.md";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Usage of double is not allowed in neo contract",
             "Neo contract does not support double data type: {0}",
             "Type",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "Use an integer or BigInteger with an explicit application-defined scale for fixed-point arithmetic.");
+            description: "Use an integer or BigInteger with an explicit application-defined scale for fixed-point arithmetic.",
+            helpLinkUri: HelpLink);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -39,6 +42,13 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeFieldDeclaration(
+                    context,
+                    SpecialType.System_Double,
+                    Rule,
+                    static type => new object?[] { type.ToString() }),
+                SyntaxKind.FieldDeclaration);
             context.RegisterSyntaxNodeAction(
                 static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeExpression(
                     context,
@@ -68,6 +78,17 @@ namespace Neo.SmartContract.Analyzer
                     Rule,
                     static type => new object?[] { type.ToString() }),
                 SyntaxKind.PropertyDeclaration);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeAdditionalMemberDeclaration(
+                    context,
+                    SpecialType.System_Double,
+                    Rule,
+                    static type => new object?[] { type.ToString() }),
+                SyntaxKind.EventFieldDeclaration,
+                SyntaxKind.EventDeclaration,
+                SyntaxKind.IndexerDeclaration,
+                SyntaxKind.DelegateDeclaration,
+                SyntaxKind.OperatorDeclaration);
         }
 
         private static void AnalyzeOperation(OperationAnalysisContext context)

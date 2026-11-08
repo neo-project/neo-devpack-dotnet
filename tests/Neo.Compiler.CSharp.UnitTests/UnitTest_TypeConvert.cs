@@ -9,7 +9,9 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Extensions;
 using Neo.SmartContract.Testing;
 using Neo.VM.Types;
 
@@ -22,7 +24,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_TestTypeConvert()
         {
             var arr = (Array)Contract.TestType()!;
-            AssertGasConsumed(4206270);
+            AssertGasConsumed(3838530);
 
             //test 0,1,2
             Assert.IsTrue(arr[0].Type == StackItemType.Integer);
@@ -40,6 +42,23 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(arr[6].Type == StackItemType.Buffer);
             Assert.IsTrue(arr[7].Type == StackItemType.Integer);
             Assert.IsTrue((arr[6].ConvertTo(StackItemType.ByteString) as PrimitiveType)?.GetInteger() == (arr[7] as PrimitiveType)?.GetInteger());
+        }
+
+        [TestMethod]
+        public void TestIntToBytes()
+        {
+            var bytes = Contract.IntToBytes(BigInteger.One);
+            Assert.AreEqual(bytes.ToHexString(), BigInteger.One.ToByteArray().ToHexString());
+
+            bytes = Contract.IntToBytes(BigInteger.Zero);
+            Assert.AreEqual(bytes.ToHexString(), BigInteger.Zero.ToByteArray().ToHexString());
+
+            bytes = Contract.IntToBytes(BigInteger.MinusOne);
+            Assert.AreEqual(bytes.ToHexString(), BigInteger.MinusOne.ToByteArray().ToHexString());
+
+            var value = new BigInteger(0x12345678);
+            bytes = Contract.IntToBytes(value);
+            Assert.AreEqual(bytes.ToHexString(), value.ToByteArray().ToHexString());
         }
     }
 }

@@ -42,16 +42,16 @@ namespace Neo.SmartContract.Framework.UnitTests
             byte[] tooLongTokenId = new byte[44];
             byte[] validLengthTokenId = new byte[43];
 
-            var ownerOf = Assert.ThrowsException<TestException>(() => Contract.OwnerOf(tooLongTokenId));
+            var ownerOf = Assert.ThrowsExactly<TestException>(() => Contract.OwnerOf(tooLongTokenId));
             Assert.IsTrue(ownerOf.Message.Contains("43 or less bytes long."));
 
-            var properties = Assert.ThrowsException<TestException>(() => Contract.Properties(tooLongTokenId));
+            var properties = Assert.ThrowsExactly<TestException>(() => Contract.Properties(tooLongTokenId));
             Assert.IsTrue(properties.Message.Contains("43 or less bytes long."));
 
-            ownerOf = Assert.ThrowsException<TestException>(() => Contract.OwnerOf(validLengthTokenId));
+            ownerOf = Assert.ThrowsExactly<TestException>(() => Contract.OwnerOf(validLengthTokenId));
             Assert.IsTrue(ownerOf.Message.Contains("does not exist."));
 
-            properties = Assert.ThrowsException<TestException>(() => Contract.Properties(validLengthTokenId));
+            properties = Assert.ThrowsExactly<TestException>(() => Contract.Properties(validLengthTokenId));
             Assert.IsTrue(properties.Message.Contains("does not exist."));
         }
 
@@ -60,10 +60,10 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             UInt160? invalidOwner = null;
 
-            var balanceOf = Assert.ThrowsException<TestException>(() => Contract.BalanceOf(invalidOwner));
+            var balanceOf = Assert.ThrowsExactly<TestException>(() => Contract.BalanceOf(invalidOwner));
             Assert.IsTrue(balanceOf.Message.Contains("owner"));
 
-            var tokensOf = Assert.ThrowsException<TestException>(() => Contract.TokensOf(invalidOwner));
+            var tokensOf = Assert.ThrowsExactly<TestException>(() => Contract.TokensOf(invalidOwner));
             Assert.IsTrue(tokensOf.Message.Contains("owner"));
         }
 
@@ -74,13 +74,13 @@ namespace Neo.SmartContract.Framework.UnitTests
             byte[] tooLongTokenId = new byte[44];
             byte[] validLengthTokenId = new byte[43];
 
-            var ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(null, validLengthTokenId, null));
+            var ex = Assert.ThrowsExactly<TestException>(() => Contract.Transfer(null, validLengthTokenId, null));
             Assert.IsTrue(ex.Message.Contains("argument \"to\""));
 
-            ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(validTo, tooLongTokenId, null));
+            ex = Assert.ThrowsExactly<TestException>(() => Contract.Transfer(validTo, tooLongTokenId, null));
             Assert.IsTrue(ex.Message.Contains("43 or less bytes long."));
 
-            ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(validTo, validLengthTokenId, null));
+            ex = Assert.ThrowsExactly<TestException>(() => Contract.Transfer(validTo, validLengthTokenId, null));
             Assert.IsTrue(ex.Message.Contains("does not exist."));
         }
 

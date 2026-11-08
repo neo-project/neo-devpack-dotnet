@@ -33,12 +33,12 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             ContractInBasicBlocks contract = new(Contract_Recursion.Nef, Contract_Recursion.Manifest);
             List<BasicBlock> blocks = contract.sortedBasicBlocks;
             Assert.AreEqual(blocks[0].nextBlock, blocks[1]);
-            Assert.AreEqual(blocks[0].jumpTargetBlocks.Count, 1);
+            Assert.AreEqual(1, blocks[0].jumpTargetBlocks.Count);
             Assert.AreEqual(blocks[0].jumpTargetBlocks.First(), blocks[2]);
-            Assert.AreEqual(blocks[0].instructions.Last().OpCode, VM.OpCode.JMPIF);
-            Assert.AreEqual(blocks[1].instructions.Last().OpCode, VM.OpCode.ABORTMSG);
-            Assert.AreEqual(blocks[1].nextBlock, null);
-            Assert.AreEqual(blocks[4].instructions.Last().OpCode, VM.OpCode.RET);
+            Assert.AreEqual(VM.OpCode.JMPIF, blocks[0].instructions.Last().OpCode);
+            Assert.AreEqual(VM.OpCode.ABORTMSG, blocks[1].instructions.Last().OpCode);
+            Assert.AreEqual(null, blocks[1].nextBlock);
+            Assert.AreEqual(VM.OpCode.RET, blocks[4].instructions.Last().OpCode);
         }
     }
 }

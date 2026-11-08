@@ -238,16 +238,93 @@ namespace Neo.Optimizer
 
         /// <summary>
         /// Removes JMP and JMP_L that targets the next instruction after the JMP or JMP_L.
-        /// Replace JMPIF/JMPIFNOT with DROP if it jumps to the next instruction
         /// If the removed JMP or JMP_L itself is a jump target,
-        /// re-target to the instruction after the JMP or JMP_L
+        /// re-target to the instruction after the JMP or JMP_L.
+        /// Conditional jumps are intentionally kept even when they target the next instruction:
+        /// they convert their operands (GetInteger/GetBoolean) and may FAULT, so replacing them
+        /// with DROPs would change VM behavior (and cost more GAS for two-operand jumps).
         /// </summary>
         /// <param name="nef">Nef file</param>
         /// <param name="manifest">Manifest</param>
         /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
+
         [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveUnnecessaryJumps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            Script script = nef.Script;
+            List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
+            Dictionary<int, Instruction> oldAddressToInstruction = oldAddressAndInstructionsList.ToDictionary(e => e.a, e => e.i);
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+            {
+                if (unconditionalJump.Contains(i.OpCode))
+                {
+                    int target = ComputeJumpTarget(a, i);
+                    if (target - a == i.Size)
+                    {
+                        // Just jumping to the instruction after the jump itself
+                        // This is unnecessary jump.
+                        // And, if this JMP is the target of other jump instructions,
+                        // re-target to the next instruction after this JMP.
+                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
+                        // handle the reference of the deleted JMP
+                        jumpSourceToTargets.Remove(i);
+                        jumpTargetToSources[nextInstruction].Remove(i);
+                        OptimizedScriptBuilder.RetargetJump(i, nextInstruction, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        continue;  // do not add this JMP into simplified instructions
+                    }
+                }
+                simplifiedInstructionsToAddress.Add(i, currentAddress);
+                currentAddress += i.Size;
+            }
+
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction);
+        }
+
+        /// <summary>
+        /// Returns true when the opcode pushes a value whose truth is statically known:
+        /// PUSHF / PUSH0 push a falsy value and PUSHT / PUSH1 push a truthy value.
+        /// </summary>
+        private static bool TryGetConstantPushTruth(OpCode opCode, out bool truth)
+        {
+            switch (opCode)
+            {
+                case OpCode.PUSHF:
+                case OpCode.PUSH0:
+                    truth = false;
+                    return true;
+                case OpCode.PUSHT:
+                case OpCode.PUSH1:
+                    truth = true;
+                    return true;
+                default:
+                    truth = false;
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Folds a constant truth push immediately followed by a conditional jump.
+        /// </summary>
+        /// <remarks>
+        /// When the pushed value is truthy, JMPIF always jumps and JMPIFNOT never jumps;
+        /// when falsy the converse holds. The pair is therefore replaced by an unconditional
+        /// JMP to the same target, or removed entirely when the condition never jumps.
+        /// Runs after <see cref="Peephole.InitStaticToConst"/> so conditions that become
+        /// constant through static-field folding are folded as well.
+        /// </remarks>
+        [Strategy(Priority = 1 << 4)]
+        public static (NefFile, ContractManifest, JObject?) FoldConstantConditionalJump(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             Script script = nef.Script;
             List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
@@ -260,41 +337,64 @@ namespace Neo.Optimizer
 
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
-            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+            for (int idx = 0; idx < oldAddressAndInstructionsList.Count; idx++)
             {
-                if (unconditionalJump.Contains(i.OpCode))
+                (int a, Instruction i) = oldAddressAndInstructionsList[idx];
+                if (idx + 1 < oldAddressAndInstructionsList.Count
+                    && TryGetConstantPushTruth(i.OpCode, out bool truth))
                 {
-                    int target = ComputeJumpTarget(a, i);
-                    if (target - a == i.Size)
+                    (int nextAddress, Instruction next) = oldAddressAndInstructionsList[idx + 1];
+                    bool isJumpIfFamily = next.OpCode == OpCode.JMPIF || next.OpCode == OpCode.JMPIF_L;
+                    bool isConditional = isJumpIfFamily || next.OpCode == OpCode.JMPIFNOT || next.OpCode == OpCode.JMPIFNOT_L;
+                    // When another instruction jumps directly to the conditional, that path
+                    // pushes its own condition value, so the pair is only foldable when the
+                    // conditional has no other incoming references.
+                    bool noIncomingReferences = !jumpTargetToSources.TryGetValue(next, out HashSet<Instruction>? nextSources) || nextSources.Count == 0;
+                    if (isConditional && noIncomingReferences && jumpSourceToTargets.TryGetValue(next, out Instruction? target))
                     {
-                        // Just jumping to the instruction after the jump itself
-                        // This is unnecessary jump. The jump should be deleted.
-                        // And, if this JMP is the target of other jump instructions,
-                        // re-target to the next instruction after this JMP.
-                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
-                        // handle the reference of the deleted JMP
-                        jumpSourceToTargets.Remove(i);
-                        jumpTargetToSources[nextInstruction].Remove(i);
-                        OptimizedScriptBuilder.RetargetJump(i, nextInstruction, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
-                        continue;  // do not add this JMP into simplified instructions
-                    }
-                }
-                if (i.OpCode == OpCode.JMPIF || i.OpCode == OpCode.JMPIFNOT
-                 || i.OpCode == OpCode.JMPIF_L || i.OpCode == OpCode.JMPIFNOT_L)
-                {
-                    int target = ComputeJumpTarget(a, i);
-                    if (target - a == i.Size)
-                    {
-                        Instruction newDrop = new Script(new byte[] { (byte)OpCode.DROP }).GetInstruction(0);
-                        simplifiedInstructionsToAddress.Add(newDrop, currentAddress);
-                        oldSequencePointAddressToNew.Add(a, currentAddress);
-                        currentAddress += newDrop.Size;
+                        bool jumpsOnTrue = isJumpIfFamily;
+                        // Degenerate self-targeting conditionals cannot be folded because the
+                        // replacement would target an instruction that is itself removed.
+                        bool degenerate = target == next || target == i;
+                        if (!degenerate && truth == jumpsOnTrue)
+                        {
+                            // The condition always jumps: keep an unconditional JMP with the
+                            // same operand width and target.
+                            // Start with the long form. Removing the push and conditional
+                            // changes the target distance, so a short replacement can cross
+                            // the signed-byte boundary before the final compression pass.
+                            // CompressJump will shrink it when the final distance is in range.
+                            Instruction newJump = new Script(new byte[] { (byte)OpCode.JMP_L, 0, 0, 0, 0 }).GetInstruction(0);
+                            jumpSourceToTargets.Remove(next);
+                            jumpTargetToSources[target].Remove(next);
+                            jumpSourceToTargets[newJump] = target;
+                            jumpTargetToSources[target].Add(newJump);
 
-                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
-                        // handle the reference of the deleted JMP
-                        jumpSourceToTargets.Remove(i);
-                        jumpTargetToSources[nextInstruction].Remove(i);
-                        OptimizedScriptBuilder.RetargetJump(i, newDrop, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            // Anything that jumped to the push now goes straight to the JMP.
+                            OptimizedScriptBuilder.RetargetJump(i, newJump, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+
+                            simplifiedInstructionsToAddress.Add(newJump, currentAddress);
+                            oldSequencePointAddressToNew.Add(a, currentAddress);
+                            oldSequencePointAddressToNew.Add(nextAddress, currentAddress);
+                            currentAddress += newJump.Size;
+                        }
+                        else if (!degenerate)
+                        {
+                            // The condition never jumps: remove the pair. Anything that jumped
+                            // to the push or the conditional continues at the next instruction.
+                            Instruction after = oldAddressToInstruction[nextAddress + next.Size];
+                            jumpSourceToTargets.Remove(next);
+                            jumpTargetToSources[target].Remove(next);
+                            OptimizedScriptBuilder.RetargetJump(i, after, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            OptimizedScriptBuilder.RetargetJump(next, after, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        }
+                        else
+                        {
+                            simplifiedInstructionsToAddress.Add(i, currentAddress);
+                            currentAddress += i.Size;
+                            continue;
+                        }
+                        idx++;  // the conditional is consumed together with the push
                         continue;
                     }
                 }
@@ -302,10 +402,14 @@ namespace Neo.Optimizer
                 currentAddress += i.Size;
             }
 
-            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+            (nef, manifest, debugInfo) = AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+
+            // Folding a never-taken conditional makes its fall-through body unreachable.
+            // Recompute reachability after the fold so dead instructions are removed as well.
+            return Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
         }
 
         /// <summary>

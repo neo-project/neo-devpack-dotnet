@@ -116,7 +116,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Performs modulo 2 operation and checks if result is zero (even number)
+    /// Algorithm: Performs bitwise AND with 1 and checks if result is zero (even number)
     /// </remarks>
     private static void HandleBigIntegerIsEven(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -124,9 +124,9 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(2);
-        methodConvert.Mod();                                       // Calculate value % 2
-        methodConvert.Not();                                       // BigInteger GetBoolean() => !value.IsZero;
+        methodConvert.Push(1);
+        methodConvert.And();                                       // Calculate value & 1 (least significant bit)
+        methodConvert.Not();
     }
 
     /// <summary>
@@ -362,7 +362,14 @@ internal partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.ChangeType(VM.Types.StackItemType.Buffer);
+        var nonZeroTarget = new JumpTarget();
+        methodConvert.Dup();
+        methodConvert.JumpIfTrue(nonZeroTarget);
+        methodConvert.Drop();
+        methodConvert.Push([(byte)0x00]);
+        nonZeroTarget.Instruction = methodConvert.Dup();
+        methodConvert.Size();
+        methodConvert.Left(null);
     }
 
     /// <summary>
@@ -640,7 +647,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Performs modulo 2 operation and checks if result is non-zero (odd number)
+    /// Algorithm: Performs bitwise AND with 1 and checks if result is non-zero (odd number)
     /// </remarks>
     private static void HandleBigIntegerIsOdd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -648,9 +655,9 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(2);
-        methodConvert.Mod();                                       // Calculate value % 2
-        methodConvert.Nz();                                        // Check if non-zero (odd)
+        methodConvert.Push(1);
+        methodConvert.And();                                       // Calculate value & 1 (least significant bit)
+        methodConvert.Nz();
     }
 
     /// <summary>
@@ -828,6 +835,13 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (RequiresZeroDivRemGuard(model, symbol, arguments))
+            EmitZeroDivRemGuard(methodConvert);
+        EmitDivRem(methodConvert);
+    }
+
+    private static void EmitDivRem(MethodConvert methodConvert)
+    {
         // algorithm: (left, right) => (left / right, left % right)
         methodConvert.Dup();                                       // r, l, l
         methodConvert.Pick(2);                                     // r, l, l, r
@@ -839,6 +853,9 @@ internal partial class MethodConvert
         // we want:    (l/r) (l%r)
         methodConvert.Reverse3();                                  // l/r, l, r
         methodConvert.Mod();                                       // l/r, l%r
+        // PACK stores the first popped item at index 0, so the remainder has to move below
+        // the quotient for the array to match the declared (Quotient, Remainder) tuple.
+        methodConvert.Swap();                                      // l%r, l/r
         methodConvert.Pack(2);                                     // (l/r, l%r) as array
     }
 
@@ -985,7 +1002,13 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        // Check if the value is within int range
+        // Nonnegative values go straight to the loop, no width limit
+        var popCountLoop = new JumpTarget();
+        methodConvert.Dup();
+        methodConvert.Push0();
+        methodConvert.JumpIfGreaterOrEqual(popCountLoop);
+
+        // Negative values: check if the value is within int range
         methodConvert.Dup();
         methodConvert.Size();
         methodConvert.Push(4); // sizeof(int)
@@ -1004,6 +1027,7 @@ internal partial class MethodConvert
         methodConvert.Push("Out of int range");
         methodConvert.Throw();
         endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        popCountLoop.Instruction = methodConvert.AddInstruction(OpCode.NOP);
 
         methodConvert.EmitPopCountFromMaskedValue();
     }

@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4012";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported Char method is used",
             "Unsupported Char method: {0}",

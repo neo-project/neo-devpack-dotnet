@@ -123,26 +123,6 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles length properties for arrays and strings.
-    /// </summary>
-    /// <param name="methodConvert">The method converter instance</param>
-    /// <param name="model">The semantic model</param>
-    /// <param name="symbol">The method symbol</param>
-    /// <param name="instanceExpression">The instance expression (if any)</param>
-    /// <param name="arguments">The method arguments</param>
-    /// <remarks>
-    /// Algorithm: Returns the size of the collection or string
-    /// </remarks>
-    private static void HandleLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Size();                                      // Get size using helper method
-    }
-
-    /// <summary>
     /// Handles the char.IsDigit method to check if a character is a digit.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
@@ -340,11 +320,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Dup();                                       // Duplicate character for second check
-        methodConvert.Within((ushort)0xD800, (ushort)0xDBFF);      // Check if within high surrogate range
-        methodConvert.Swap();                                      // Bring original character back to top
-        methodConvert.Within((ushort)0xDC00, (ushort)0xDFFF);      // Check if within low surrogate range
-        methodConvert.BoolOr();                                    // Combine both checks with OR
+        methodConvert.Within((ushort)0xD800, (ushort)0xDFFF);      // High and low surrogate ranges are contiguous
     }
 
     /// <summary>
@@ -425,7 +401,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Checks if character >= minValue and character <= maxValue
+    /// Algorithm: Checks if minInclusive <= value and value <= maxInclusive.
     /// </remarks>
     private static void HandleCharIsBetween(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -433,12 +409,11 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // [value, min, max]
-        methodConvert.Rot();      // [min, max, value]
-        methodConvert.Swap();     // [min, value, max]
-        methodConvert.Over();     // [min, value, max, value]
-        methodConvert.Ge();       // [min, value, bool]
-        methodConvert.Reverse3(); // [bool, value, min]
-        methodConvert.Ge();       // [bool, bool]
+        methodConvert.Reverse3(); // [max, min, value]
+        methodConvert.Tuck();     // [max, value, min, value]
+        methodConvert.Le();       // [max, value, min <= value]
+        methodConvert.Reverse3(); // [min <= value, value, max]
+        methodConvert.Le();       // [min <= value, value <= max]
         methodConvert.BoolAnd();  // [bool]
     }
 
@@ -592,8 +567,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(128);                                   // Push 128 (first non-ASCII value)
-        methodConvert.Lt();                                        // Check if character < 128
+        methodConvert.Within(0, 127);
     }
 
     /// <summary>

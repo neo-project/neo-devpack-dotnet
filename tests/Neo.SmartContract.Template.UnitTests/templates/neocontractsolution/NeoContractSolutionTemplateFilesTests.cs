@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractsolution
             StringAssert.Contains(content, "ContractArtifact.Manifest");
             StringAssert.Contains(content, "Contract.MyMethod()");
             StringAssert.Contains(content, "Contract.Update(");
-            StringAssert.Contains(content, "Assert.ThrowsException<TestException>");
+            StringAssert.Contains(content, "Assert.ThrowsExactly<TestException>");
         }
     }
 }

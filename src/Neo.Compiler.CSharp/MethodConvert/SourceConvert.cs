@@ -11,6 +11,7 @@
 
 extern alias scfx;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
@@ -68,6 +69,62 @@ internal partial class MethodConvert
         }
     }
 
+    private void RegisterByRefCapturedSymbols(SemanticModel model)
+    {
+        if (SyntaxNode is null)
+            return;
+
+        IEnumerable<ArgumentSyntax> arguments = SyntaxNode
+            .DescendantNodesAndSelf(descendIntoChildren: static node =>
+                node is not LambdaExpressionSyntax and
+                    not AnonymousMethodExpressionSyntax and
+                    not LocalFunctionStatementSyntax)
+            .OfType<ArgumentSyntax>();
+        foreach (ArgumentSyntax argument in arguments)
+        {
+            if (!argument.RefKindKeyword.IsKind(SyntaxKind.RefKeyword) &&
+                !argument.RefKindKeyword.IsKind(SyntaxKind.OutKeyword))
+                continue;
+
+            ISymbol? symbol = argument.Expression is DeclarationExpressionSyntax
+            {
+                Designation: SingleVariableDesignationSyntax designation
+            }
+                ? model.GetDeclaredSymbol(designation)
+                : model.GetSymbolInfo(argument.Expression).Symbol;
+            if (symbol is not ILocalSymbol and not IParameterSymbol)
+                continue;
+
+            _context.GetOrAddCapturedStaticField(symbol);
+            _byRefCapturedSymbols.Add(symbol);
+        }
+    }
+
+    private void InitializeByRefCapturedParameters()
+    {
+        // Extension block receivers are registered at argument slot 0, but are not
+        // included in Symbol.Parameters. Initialize their captured field as well.
+        if (NeedInstanceConstructor(Symbol) &&
+            TryGetExtensionReceiverParameter(out IParameterSymbol? receiverParameter) &&
+            receiverParameter is not null &&
+            _context.TryGetCapturedStaticField(receiverParameter, out byte receiverFieldIndex))
+        {
+            AccessSlot(OpCode.LDARG, _parameters[receiverParameter]);
+            AccessSlot(OpCode.STSFLD, receiverFieldIndex);
+        }
+
+        foreach (IParameterSymbol parameter in Symbol.Parameters)
+        {
+            if (IsByRef(parameter.RefKind) ||
+                !_byRefCapturedSymbols.Contains(parameter) &&
+                !_context.TryGetCapturedStaticField(parameter, out _))
+                continue;
+
+            AccessSlot(OpCode.LDARG, _parameters[parameter]);
+            AccessSlot(OpCode.STSFLD, _context.GetOrAddCapturedStaticField(parameter));
+        }
+    }
+
     private bool TryGetExtensionReceiverParameter(out IParameterSymbol? receiverParameter)
     {
         receiverParameter = null;
@@ -75,8 +132,8 @@ internal partial class MethodConvert
             return false;
 
         SyntaxNode syntax = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
-        ExtensionDeclarationSyntax? extension = syntax.AncestorsAndSelf()
-            .OfType<ExtensionDeclarationSyntax>()
+        ExtensionBlockDeclarationSyntax? extension = syntax.AncestorsAndSelf()
+            .OfType<ExtensionBlockDeclarationSyntax>()
             .FirstOrDefault();
         if (extension is null)
             return false;
@@ -149,6 +206,8 @@ internal partial class MethodConvert
                 if (syntax.Block is null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody!);
+                    if (Symbol.ReturnsVoid && IsExpressionReturningValue(model, syntax.ExpressionBody!))
+                        AddInstruction(OpCode.DROP);
                 }
                 else
                 {
@@ -159,6 +218,8 @@ internal partial class MethodConvert
                 if (syntax.Block is null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody!);
+                    if (Symbol.ReturnsVoid && IsExpressionReturningValue(model, syntax.ExpressionBody!))
+                        AddInstruction(OpCode.DROP);
                 }
                 else
                 {

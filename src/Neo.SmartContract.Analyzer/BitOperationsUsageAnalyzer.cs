@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Analyzer
                 .WithParameterOptions(SymbolDisplayParameterOptions.IncludeType |
                                       SymbolDisplayParameterOptions.IncludeParamsRefOut);
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported BitOperations method or overload is used",
             "Unsupported BitOperations method or overload: {0}",

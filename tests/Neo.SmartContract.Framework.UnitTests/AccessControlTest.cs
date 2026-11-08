@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
+using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
@@ -79,13 +80,69 @@ public class AccessControlTest
     }
 
     [TestMethod]
+    public void Init_UsesLegacySingleBytePrefix()
+    {
+        var engine = CreateEngine();
+        var c = Deploy(engine);
+
+        Assert.IsTrue(c.Storage.Contains(new byte[] { 0xFB, 0x00 }));
+        Assert.IsFalse(c.Storage.Contains(new byte[] { 0xC3, 0xBB, 0x00 }));
+        Merge(c);
+    }
+
+    [TestMethod]
+    [DataRow(1)]
+    [DataRow(128)]
+    public void LegacyStorage_PreservesRoleReadsAndWrites(int roleValue)
+    {
+        var engine = CreateEngine();
+        var c = Deploy(engine);
+        var role = new BigInteger(roleValue);
+        var memberKey = LegacyRoleKey(0x01, role, Charlie.Account);
+        var countKey = LegacyRoleKey(0x03, role);
+        var adminKey = LegacyRoleKey(0x02, role);
+
+        // Simulate the persisted state inherited from a legacy deployment.
+        c.Storage.Put(memberKey, BigInteger.One);
+        c.Storage.Put(countKey, BigInteger.One);
+        c.Storage.Put(adminKey, MinterAdmin);
+        c.Storage.Put(LegacyRoleKey(0x01, MinterAdmin, Bob.Account), BigInteger.One);
+        c.Storage.Put(LegacyRoleKey(0x03, MinterAdmin), BigInteger.One);
+
+        Assert.IsTrue(c.HasRole(role, Charlie.Account));
+        Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(role));
+        Assert.AreEqual(MinterAdmin, c.GetRoleAdmin(role));
+
+        engine.SetTransactionSigners(Bob);
+        c.RevokeRole(role, Bob.Account, Charlie.Account);
+        Assert.IsFalse(c.Storage.Contains(memberKey));
+        Assert.AreEqual(BigInteger.Zero, c.Storage.GetInteger(countKey));
+
+        c.GrantRole(role, Bob.Account, Alice.Account);
+        Assert.IsTrue(c.Storage.Contains(LegacyRoleKey(0x01, role, Alice.Account)));
+        Assert.AreEqual(BigInteger.One, c.Storage.GetInteger(countKey));
+        Assert.IsTrue(c.HasRole(role, Alice.Account));
+
+        c.SetRoleAdmin(role, DefaultAdmin, Bob.Account);
+        Assert.IsFalse(c.Storage.Contains(adminKey));
+        Assert.AreEqual(DefaultAdmin, c.GetRoleAdmin(role));
+        Merge(c);
+    }
+
+    private static byte[] LegacyRoleKey(byte tag, BigInteger role, UInt160? account = null)
+    {
+        var key = new byte[] { 0xFB, tag }.Concat(role.ToByteArray());
+        return (account is null ? key : key.Concat(account.ToArray())).ToArray();
+    }
+
+    [TestMethod]
     public void Init_Replay_Aborts()
     {
         var engine = CreateEngine();
         var c = Deploy(engine);
 
         // A second initialization must be rejected so an attacker cannot add a co-admin.
-        Assert.ThrowsException<TestException>(() => c.ReInit(Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.ReInit(Bob.Account));
         Assert.IsFalse(c.HasRole(DefaultAdmin, Bob.Account));
         Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(DefaultAdmin));
         Merge(c);
@@ -95,7 +152,7 @@ public class AccessControlTest
     public void Init_ZeroAdmin_Aborts()
     {
         var engine = CreateEngine();
-        Assert.ThrowsException<TestException>(() => Deploy(engine, UInt160.Zero));
+        Assert.ThrowsExactly<TestException>(() => Deploy(engine, UInt160.Zero));
     }
 
     // ---- Reads ----
@@ -118,7 +175,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.HasRole(new BigInteger(-1), Alice.Account));
+        Assert.ThrowsExactly<TestException>(() => c.HasRole(new BigInteger(-1), Alice.Account));
         Merge(c);
     }
 
@@ -161,7 +218,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Bob.Account, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Bob.Account, Charlie.Account));
         Assert.IsFalse(c.HasRole(Minter, Charlie.Account));
         Merge(c);
     }
@@ -175,7 +232,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
         Assert.IsFalse(c.HasRole(Minter, Charlie.Account));
         Merge(c);
     }
@@ -202,7 +259,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, UInt160.Zero));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Alice.Account, UInt160.Zero));
         Merge(c);
     }
 
@@ -256,7 +313,7 @@ public class AccessControlTest
 
         // Charlie tries to renounce Bob's role.
         engine.SetTransactionSigners(Charlie);
-        Assert.ThrowsException<TestException>(() => c.RenounceRole(Minter, Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RenounceRole(Minter, Bob.Account));
         Assert.IsTrue(c.HasRole(Minter, Bob.Account));
         Merge(c);
     }
@@ -268,7 +325,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.RenounceRole(Minter, Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RenounceRole(Minter, Bob.Account));
         Assert.IsFalse(c.HasRole(Minter, Bob.Account));
         Merge(c);
     }
@@ -281,7 +338,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.RevokeRole(DefaultAdmin, Alice.Account, Alice.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RevokeRole(DefaultAdmin, Alice.Account, Alice.Account));
         Assert.IsTrue(c.HasRole(DefaultAdmin, Alice.Account));
         Merge(c);
     }
@@ -292,7 +349,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.RenounceRole(DefaultAdmin, Alice.Account));
+        Assert.ThrowsExactly<TestException>(() => c.RenounceRole(DefaultAdmin, Alice.Account));
         Assert.IsTrue(c.HasRole(DefaultAdmin, Alice.Account));
         Merge(c);
     }
@@ -352,7 +409,7 @@ public class AccessControlTest
         c.GrantRole(MinterAdmin, Alice.Account, Bob.Account);
 
         // Default admin (Alice) can no longer grant Minter; only MinterAdmin holders can.
-        Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
 
         engine.SetTransactionSigners(Bob);
         c.GrantRole(Minter, Bob.Account, Charlie.Account);
@@ -367,7 +424,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.SetRoleAdmin(Minter, MinterAdmin, Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => c.SetRoleAdmin(Minter, MinterAdmin, Bob.Account));
         Merge(c);
     }
 
@@ -386,7 +443,7 @@ public class AccessControlTest
 
         // Non-holder fails.
         engine.SetTransactionSigners(Charlie);
-        Assert.ThrowsException<TestException>(() => c.GuardedAction(Minter, Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => c.GuardedAction(Minter, Charlie.Account));
         Merge(c);
     }
 

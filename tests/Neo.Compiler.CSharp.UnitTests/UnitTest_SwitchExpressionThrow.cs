@@ -48,7 +48,7 @@ public class Contract : SmartContract
         Assert.AreEqual("one", contract.Classify(1));
 
         // An unmatched value throws a meaningful message rather than the governing value.
-        var ex = Assert.ThrowsException<TestException>(() => contract.Classify(5));
+        var ex = Assert.ThrowsExactly<TestException>(() => contract.Classify(5));
         StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "No switch arm matched");
     }
 

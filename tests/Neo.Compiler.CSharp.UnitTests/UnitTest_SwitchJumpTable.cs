@@ -73,12 +73,12 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
-    public void TryGetIntegerConstant_SupportsBoolConstants_AndRejectsStrings()
+    public void TryGetIntegerConstantRejectsBoolAndStrings()
     {
         var (boolModel, boolExpression) = CreateSemanticModel("class Test { const bool Value = true; }", "true");
         var (stringModel, stringExpression) = CreateSemanticModel("class Test { const string Value = \"neo\"; }", "\"neo\"");
 
-        AssertTryGetIntegerConstant(boolModel, boolExpression, true, BigInteger.One);
+        AssertTryGetIntegerConstant(boolModel, boolExpression, false, BigInteger.Zero);
         AssertTryGetIntegerConstant(stringModel, stringExpression, false, BigInteger.Zero);
     }
 
@@ -141,7 +141,7 @@ public class Contract : SmartContract
     {
         var opcodes = GetMethodOpcodes(source, methodId);
 
-        CollectionAssert.Contains(opcodes, OpCode.EQUAL);
+        CollectionAssert.Contains(opcodes, OpCode.JMPEQ);
         Assert.IsFalse(opcodes.Any(IsRangeBranch),
             "Expected fallback switch dispatch to use equality checks instead of range branches.");
     }

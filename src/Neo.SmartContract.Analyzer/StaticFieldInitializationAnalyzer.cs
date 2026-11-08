@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4023";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Invalid static field initialization",
             "{0}",
@@ -82,7 +82,7 @@ namespace Neo.SmartContract.Analyzer
                     continue;
 
                 var literalExpression = initializer.Value as LiteralExpressionSyntax;
-                if (literalExpression == null)
+                if (literalExpression == null || !literalExpression.IsKind(SyntaxKind.StringLiteralExpression))
                     continue;
 
                 var literalValue = literalExpression.Token.ValueText;

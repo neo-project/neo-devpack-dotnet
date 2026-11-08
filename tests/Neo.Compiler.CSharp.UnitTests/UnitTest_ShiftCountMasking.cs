@@ -103,7 +103,7 @@ public class UnitTest_ShiftCountMasking
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]
@@ -138,13 +138,13 @@ public class UnitTest_ShiftCountMasking
         Assert.AreEqual(new BigInteger(2), contract.CompoundInt(1, 33), optimization.ToString());
         Assert.AreEqual(BigInteger.Zero, contract.CompoundByte(0, 8), optimization.ToString());
         Assert.AreEqual(new BigInteger(2), contract.CompoundByte(1, 33), optimization.ToString());
-        Assert.ThrowsException<TestException>(() => contract.CompoundByte(1, 8), optimization.ToString());
+        Assert.ThrowsExactly<TestException>(() => contract.CompoundByte(1, 8), optimization.ToString());
         Assert.AreEqual(new BigInteger(-4), contract.CompoundLongRight(-8, 65), optimization.ToString());
         Assert.AreEqual(BigInteger.One << 33, contract.BigIntegerLeft(1, 33), optimization.ToString());
         Assert.AreEqual(BigInteger.One << 33, contract.CompoundBigInteger(1, 33), optimization.ToString());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]

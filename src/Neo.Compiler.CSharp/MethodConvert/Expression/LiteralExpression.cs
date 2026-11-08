@@ -75,6 +75,38 @@ internal partial class MethodConvert
             throw CompilationException.UnsupportedSyntax(expression, "Cannot determine type for default expression. Ensure the expression has a clear type context.");
         }
 
+        ConvertDefaultValueForType(model, expression, type);
+    }
+
+    /// <summary>
+    /// Convert default expression with explicit type to NeoVM instructions
+    /// </summary>
+    /// <param name="model">The semantic model of the method</param>
+    /// <param name="expression">The default expression to convert</param>
+    /// <example>
+    /// <code>
+    /// public void ExampleMethod()
+    /// {
+    ///     int? x = default(int?);
+    /// }
+    /// </code>
+    /// </example>
+    private void ConvertDefaultExpression(SemanticModel model, DefaultExpressionSyntax expression)
+    {
+        var type = model.GetTypeInfo(expression.Type).Type;
+        if (type == null)
+        {
+            throw CompilationException.UnsupportedSyntax(expression, "Cannot determine type for default expression. Ensure the expression has a valid type.");
+        }
+
+        ConvertDefaultValueForType(model, expression, type);
+    }
+
+    /// <summary>
+    /// Convert default value for a given type to NeoVM instructions
+    /// </summary>
+    private void ConvertDefaultValueForType(SemanticModel model, ExpressionSyntax expression, ITypeSymbol type)
+    {
         switch (type.SpecialType)
         {
             case SpecialType.System_Boolean:
@@ -117,10 +149,20 @@ internal partial class MethodConvert
                 }
                 else if (type.IsValueType)
                 {
-                    // A struct's default is a struct whose fields are themselves default-initialized
-                    // (the same shape as new T()). Emitting NEWSTRUCT0 produced a zero-field struct that
-                    // faulted on any later field access.
-                    CreateObject(model, type);
+                    // Check if this is Nullable<T>
+                    if (type is INamedTypeSymbol namedType &&
+                        namedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                    {
+                        // For Nullable<T>, default should be null, not an empty struct
+                        AddInstruction(OpCode.PUSHNULL);
+                    }
+                    else
+                    {
+                        // A struct's default is a struct whose fields are themselves default-initialized
+                        // (the same shape as new T()). Emitting NEWSTRUCT0 produced a zero-field struct that
+                        // faulted on any later field access.
+                        CreateObject(model, type);
+                    }
                 }
                 else
                 {

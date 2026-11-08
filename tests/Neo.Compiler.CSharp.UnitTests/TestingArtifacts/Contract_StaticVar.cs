@@ -13,7 +13,7 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StaticVar"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testinitalvalue"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""testMain"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":false},{""name"":""testBigIntegerParse"",""parameters"":[],""returntype"":""Integer"",""offset"":96,""safe"":false},{""name"":""testBigIntegerParse2"",""parameters"":[{""name"":""text"",""type"":""String""}],""returntype"":""Integer"",""offset"":101,""safe"":false},{""name"":""testGetUInt160"",""parameters"":[],""returntype"":""Hash160"",""offset"":109,""safe"":false},{""name"":""testGetECPoint"",""parameters"":[],""returntype"":""PublicKey"",""offset"":132,""safe"":false},{""name"":""testGetString"",""parameters"":[],""returntype"":""String"",""offset"":168,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":182,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""atoi""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StaticVar"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testinitalvalue"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""testMain"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":false},{""name"":""testBigIntegerParse"",""parameters"":[],""returntype"":""Integer"",""offset"":96,""safe"":false},{""name"":""testBigIntegerParse2"",""parameters"":[{""name"":""text"",""type"":""String""}],""returntype"":""Integer"",""offset"":101,""safe"":false},{""name"":""testGetUInt160"",""parameters"":[],""returntype"":""Hash160"",""offset"":109,""safe"":false},{""name"":""testGetECPoint"",""parameters"":[],""returntype"":""PublicKey"",""offset"":132,""safe"":false},{""name"":""testGetString"",""parameters"":[],""returntype"":""String"",""offset"":168,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":182,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""atoi""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
@@ -87,17 +87,6 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAtoZWxsbyB3b3JsZEA=
-    /// PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testinitalvalue")]
-    public abstract string? Testinitalvalue();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
     /// Script: NAY0KllA
     /// CALL 06 [512 datoshi]
     /// CALL 2A [512 datoshi]
@@ -106,6 +95,17 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: DAtoZWxsbyB3b3JsZEA=
+    /// PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testinitalvalue")]
+    public abstract string? Testinitalvalue();
 
     #endregion
 }

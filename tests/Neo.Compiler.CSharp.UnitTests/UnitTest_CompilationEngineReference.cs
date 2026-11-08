@@ -19,7 +19,7 @@ public class UnitTest_CompilationEngineReference
         var engine = new CompilationEngine(new CompilationOptions());
         var frameworkReference = MetadataReference.CreateFromFile(typeof(CompilationEngine).Assembly.Location);
 
-        var exception = Assert.ThrowsException<ArgumentException>(() =>
+        var exception = Assert.ThrowsExactly<ArgumentException>(() =>
             engine.Compile([], [], frameworkReference));
 
         Assert.AreEqual("frameworkReference", exception.ParamName);
@@ -134,9 +134,42 @@ public class BetaContract : SmartContract
         try
         {
             var engine = new CompilationEngine(new CompilationOptions());
-            var exception = Assert.ThrowsException<InvalidOperationException>(() => engine.GetCompilation(projectFile));
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => engine.GetCompilation(projectFile));
 
             StringAssert.Contains(exception.Message, "dotnet restore failed");
+            StringAssert.Contains(exception.Message, "exit code");
+            StringAssert.Contains(exception.Message, projectFile);
+        }
+        finally
+        {
+            Directory.Delete(tempFolder, recursive: true);
+        }
+    }
+
+    [TestMethod]
+    public void GetCompilation_ReportsProjectEvaluationFailureExitCode()
+    {
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Path.Combine(tempFolder, "obj"));
+        var projectFile = Path.Combine(tempFolder, "BadEvaluation.csproj");
+        File.WriteAllText(projectFile, """
+<Project Sdk="Neo.Missing.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>
+""");
+        File.WriteAllText(Path.Combine(tempFolder, "obj", "project.assets.json"), "{}");
+
+        try
+        {
+            var engine = new CompilationEngine(new CompilationOptions
+            {
+                SkipRestoreIfAssetsPresent = true
+            });
+            var exception = Assert.ThrowsExactly<InvalidOperationException>(() => engine.GetCompilation(projectFile));
+
+            StringAssert.Contains(exception.Message, "dotnet msbuild project evaluation failed");
             StringAssert.Contains(exception.Message, "exit code");
             StringAssert.Contains(exception.Message, projectFile);
         }
@@ -330,7 +363,7 @@ public class BinGenerated
         var method = typeof(CompilationEngine).GetMethod("GetReference", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.IsNotNull(method);
 
-        var exception = Assert.ThrowsException<TargetInvocationException>(() =>
+        var exception = Assert.ThrowsExactly<TargetInvocationException>(() =>
             method.Invoke(engine, new object[]
             {
                 dependencyName,

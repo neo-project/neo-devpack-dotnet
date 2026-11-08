@@ -108,9 +108,7 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             if (value.Hits == 0) return;
 
-            Hits += value.Hits;
-
-            if (Hits == 1)
+            if (Hits == 0)
             {
                 FeeMin = value.FeeMin;
                 FeeMax = value.FeeMax;
@@ -121,6 +119,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 FeeMax = Math.Max(FeeMax, value.FeeMax);
             }
 
+            Hits += value.Hits;
             FeeTotal += value.FeeTotal;
         }
 

@@ -77,6 +77,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return System.Enum.TryParse(typeof(TestEnum), value, ignoreCase, out object result);
         }
 
+        public static bool TestEnumTryParseConstIgnoreCase(string value)
+        {
+            return Enum.TryParse(typeof(TestEnum), value, true, out object result);
+        }
+
         public static bool TestEnumTryParseIgnoreCaseFromExpression(string value, bool caseSensitive)
         {
             return System.Enum.TryParse(typeof(TestEnum), Normalize(value), !caseSensitive, out object result);
@@ -123,6 +128,16 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static string TestEnumToString(TestEnum value)
         {
             return value.ToString();
+        }
+
+        public static string TestConstEnumToString()
+        {
+            return TestEnum.Value1.ToString();
+        }
+
+        public static string TestConstEnumToStringUnknown()
+        {
+            return ((TestEnum)99).ToString();
         }
 
         public static string TestEnumToStringUnknown(int value)

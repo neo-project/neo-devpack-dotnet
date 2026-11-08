@@ -22,7 +22,7 @@ namespace NeoContractSolution.UnitTests
         {
             Engine.SetTransactionSigners(Bob);
 
-            Assert.ThrowsException<TestException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
+            Assert.ThrowsExactly<TestException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
 
             Engine.SetTransactionSigners(Alice);
             Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString());

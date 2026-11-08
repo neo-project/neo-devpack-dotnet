@@ -62,8 +62,7 @@ namespace Neo.Optimizer
                         if (sbyte.MinValue <= delta && delta <= sbyte.MaxValue)
                             simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
                         else
-                            // TODO: build with _L version
-                            throw new NotImplementedException($"Need {i.OpCode}_L for delta={delta}");
+                            throw new BadScriptException($"Unable to encode {i.OpCode} jump with delta={delta}");
                     if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
                         AddLittleEndianBytes(simplifiedScript, delta, sizeof(int));
                     continue;

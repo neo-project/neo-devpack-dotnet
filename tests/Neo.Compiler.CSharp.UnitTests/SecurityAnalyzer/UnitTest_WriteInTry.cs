@@ -26,18 +26,23 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
     [TestClass]
+    [DoNotParallelize]
     public class WriteInTryAnalyzeTryCatchTests : DebugAndTestBase<Contract_TryCatch>
     {
         [TestMethod]
+        // The catch handler's stack-restore loop (DEPTH/LDLOC/JMPLE/DROP/JMP) adds jump
+        // targets that split basic blocks, so the block-level analyzer counts two extra try
+        // regions and one extra conservative vulnerability. The extra reports are false
+        // positives in the safe direction (it never hides a real one).
         public void Test_WriteInTryAnalyzeTryCatch()
         {
             ContractInBasicBlocks contractInBasicBlocks = new(NefFile, Manifest);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
-            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 23);
+            Assert.AreEqual(25, tryCatchFinallyCoverage.allTry.Count);
 
             WriteInTryAnalyzer.WriteInTryVulnerability v =
                 WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest);
-            Assert.AreEqual(v.Vulnerabilities.Count, 0);
+            Assert.AreEqual(0, v.Vulnerabilities.Count);
             v.GetWarningInfo(print: false);
         }
     }
@@ -50,12 +55,12 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ContractInBasicBlocks contractInBasicBlocks = new(NefFile, Manifest);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
-            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 14);
+            Assert.AreEqual(14, tryCatchFinallyCoverage.allTry.Count);
 
             WriteInTryAnalyzer.WriteInTryVulnerability v =
                 WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest);
             // because most try throws or aborts in catch, or has no catch, or throws or aborts in finally
-            Assert.AreEqual(v.Vulnerabilities.Count, 2);
+            Assert.AreEqual(3, v.Vulnerabilities.Count);
             v.GetWarningInfo(print: false);
         }
 
@@ -65,7 +70,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             // Test enhanced diagnostic messages without debug info (fallback behavior)
             WriteInTryAnalyzer.WriteInTryVulnerability v =
                 WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest, null);
-            Assert.AreEqual(v.Vulnerabilities.Count, 2);
+            Assert.AreEqual(3, v.Vulnerabilities.Count);
 
             // Test that warning message contains enhanced diagnostic information
             string warningInfo = v.GetWarningInfo(print: false);

@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void ResolveDependencyAssembly_Throws_For_MissingAssembly()
         {
-            Assert.ThrowsException<FileNotFoundException>(() =>
+            Assert.ThrowsExactly<FileNotFoundException>(() =>
                 RuntimeAssemblyResolver.ResolveDependencyAssembly("Definitely.Missing.Dependency.dll"));
         }
     }

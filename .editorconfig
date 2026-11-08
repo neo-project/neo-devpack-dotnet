@@ -28,3 +28,14 @@ dotnet_diagnostic.RS1038.severity = none
 
 # RS1041: Compiler extensions should be implemented in assemblies targeting netstandard2.0
 dotnet_diagnostic.RS1041.severity = none
+
+###############################
+# Maintainability Rules
+###############################
+
+# Keep complexity visible while the existing codebase is brought under the
+# thresholds tracked by the improvement roadmap. These are suggestions until
+# the baseline is reduced enough for an enforced CI gate.
+dotnet_diagnostic.CA1502.severity = suggestion
+dotnet_diagnostic.CA1505.severity = suggestion
+dotnet_diagnostic.CA1506.severity = suggestion

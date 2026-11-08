@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Analyzer
         private const string Description = "Replace .Cast<T>() with direct type casting.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,

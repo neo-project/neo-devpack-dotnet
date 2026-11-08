@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                                         }
                                         """;
             const string fixedCode = """
-                                     using BigInteger = System.Numerics.BigInteger; // keep
+                                     using BigInteger = global::System.Numerics.BigInteger; // keep
 
                                      public class TestClass
                                      {

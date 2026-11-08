@@ -27,6 +27,16 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
+        /// <summary>
+        /// Gets the byte at the specified index.
+        /// BigInteger operation has less opcodes and GAS consumption than int in NEO-VM.
+        /// </summary>
+        public extern byte this[BigInteger index]
+        {
+            [OpCode(OpCode.PICKITEM)]
+            get;
+        }
+
         public extern int Length
         {
             [OpCode(OpCode.SIZE)]

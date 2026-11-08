@@ -13,12 +13,12 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ClassInit"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testInitInt"",""parameters"":[],""returntype"":""Array"",""offset"":0,""safe"":false},{""name"":""testInitializationExpression"",""parameters"":[],""returntype"":""Any"",""offset"":5,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ClassInit"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testInitInt"",""parameters"":[],""returntype"":""Array"",""offset"":0,""safe"":false},{""name"":""testInitializationExpression"",""parameters"":[],""returntype"":""Any"",""offset"":5,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGwQEBK/QFcFAAkQEAwBcxAQEr8LCwsQEAkWwBZVFsBwaGgVzlASwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aECF9lVj").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGsQEBK/QFcFAAkQEAwBcxAQEr8LCwsQEAkWwBZVFsBwaGgVzlASwEpxynIQcyIaaWvOdGwQzqo5bBHOsao5bBLOsao5a5xza2ow5mgTzgwBc5c5aBXOE87YOWgUzhDOsao5aBTOEc6xqjloQDk6PCc=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,21 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUACRAQDAFzEBASvwsLCxAQCRbAFlUWwHBoaBXOUBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
+    /// Script: EBASv0A=
+    /// PUSH0 [1 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testInitInt")]
+    public abstract IList<object>? TestInitInt();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwUACRAQDAFzEBASvwsLCxAQCRbAFlUWwHBoaBXOUBLASnHKchBzIhppa850bBDOqjlsEc6xqjlsEs6xqjlrnHNrajDmaBPODAFzlzloFc4Tztg5aBTOEM6xqjloFM4RzrGqOWhA
     /// INITSLOT 0500 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -64,7 +78,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// STLOC2 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC3 [2 datoshi]
-    /// JMP 1B [2 datoshi]
+    /// JMP 1A [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// LDLOC3 [2 datoshi]
     /// PICKITEM [64 datoshi]
@@ -72,27 +86,26 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// LDLOC4 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// PUSHF [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NOT [4 datoshi]
     /// ASSERT [1 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH1 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NZ [4 datoshi]
+    /// NOT [4 datoshi]
     /// ASSERT [1 datoshi]
     /// LDLOC4 [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NZ [4 datoshi]
+    /// NOT [4 datoshi]
     /// ASSERT [1 datoshi]
     /// LDLOC3 [2 datoshi]
     /// INC [4 datoshi]
     /// STLOC3 [2 datoshi]
     /// LDLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
-    /// JMPLT E5 [2 datoshi]
+    /// JMPLT E6 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// PICKITEM [64 datoshi]
@@ -111,36 +124,22 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// PICKITEM [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NZ [4 datoshi]
+    /// NOT [4 datoshi]
     /// ASSERT [1 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH4 [1 datoshi]
     /// PICKITEM [64 datoshi]
     /// PUSH1 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NZ [4 datoshi]
+    /// NOT [4 datoshi]
     /// ASSERT [1 datoshi]
     /// LDLOC0 [2 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testInitializationExpression")]
     public abstract object? TestInitializationExpression();
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: EBASv0A=
-    /// PUSH0 [1 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// PACKSTRUCT [2048 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("testInitInt")]
-    public abstract IList<object>? TestInitInt();
 
     #endregion
 }

@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly LocalizableString Description = "Neo smart contracts are limited to one catch block per try statement.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,

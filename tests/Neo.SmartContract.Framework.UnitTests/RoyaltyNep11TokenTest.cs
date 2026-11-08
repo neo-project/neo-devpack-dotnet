@@ -96,7 +96,7 @@ public class RoyaltyNep11TokenTest
     public void RoyaltyInfo_NonexistentToken_Reverts()
     {
         var c = Deploy(CreateEngine());
-        Assert.ThrowsException<TestException>(() => c.RoyaltyCount(new byte[] { 0xde, 0xad }, Gas, 10_000));
+        Assert.ThrowsExactly<TestException>(() => c.RoyaltyCount(new byte[] { 0xde, 0xad }, Gas, 10_000));
         Merge(c);
     }
 
@@ -104,7 +104,7 @@ public class RoyaltyNep11TokenTest
     public void SetRoyalty_BasisPointsAboveDenominator_Reverts()
     {
         var (c, _) = DeployAndMint();
-        Assert.ThrowsException<TestException>(() => c.SetDefault(Bob.Account, 10_001));
+        Assert.ThrowsExactly<TestException>(() => c.SetDefault(Bob.Account, 10_001));
         Merge(c);
     }
 
@@ -112,7 +112,7 @@ public class RoyaltyNep11TokenTest
     public void SetRoyalty_ZeroRecipient_Reverts()
     {
         var (c, _) = DeployAndMint();
-        Assert.ThrowsException<TestException>(() => c.SetDefault(UInt160.Zero, 500));
+        Assert.ThrowsExactly<TestException>(() => c.SetDefault(UInt160.Zero, 500));
         Merge(c);
     }
 

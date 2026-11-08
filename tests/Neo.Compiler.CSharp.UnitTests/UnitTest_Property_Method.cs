@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1622700);
 
             Assert.AreEqual(2, arr.Count);
-            Assert.AreEqual((arr[0] as StackItem)!.GetString(), "NEO3");
+            Assert.AreEqual("NEO3", (arr[0] as StackItem)!.GetString());
             Assert.AreEqual(arr[1], new BigInteger(10));
         }
 
@@ -48,7 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsNotNull(person);
             Assert.AreEqual(3, person.Count);
-            Assert.AreEqual((person[0] as StackItem)!.GetString(), "NEO3");
+            Assert.AreEqual("NEO3", (person[0] as StackItem)!.GetString());
             Assert.AreEqual(person[1], new BigInteger(0));
         }
 
@@ -63,7 +63,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var key = (ByteString)"Name";
             Assert.IsTrue(map.ContainsKey(key));
-            Assert.AreEqual((map[key] as StackItem)!.GetString(), "NEO3");
+            Assert.AreEqual("NEO3", (map[key] as StackItem)!.GetString());
         }
 
         [TestMethod]
@@ -87,9 +87,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1870860);
 
             Assert.AreEqual(3, arr.Count);
-            Assert.AreEqual((arr[0] as StackItem)!.GetString(), "NEO3");
+            Assert.AreEqual("NEO3", (arr[0] as StackItem)!.GetString());
             Assert.AreEqual(arr[1], new BigInteger(10));
-            Assert.AreEqual((arr[2] as StackItem)!.GetString(), "123 Blockchain St");
+            Assert.AreEqual("123 Blockchain St", (arr[2] as StackItem)!.GetString());
         }
     }
 }

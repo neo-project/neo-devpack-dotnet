@@ -10,10 +10,12 @@
 // modifications are permitted.
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
+using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -58,16 +60,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047300);
             Assert.AreEqual(0, Contract.Abs(0));
             AssertGasConsumed(1047300);
-            Assert.ThrowsException<TestException>(() => Contract.Abs(int.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.Abs(int.MinValue));
 
             Assert.AreEqual(sbyte.MaxValue, Contract.AbsSByte(sbyte.MinValue + 1));
-            Assert.ThrowsException<TestException>(() => Contract.AbsSByte(sbyte.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AbsSByte(sbyte.MinValue));
 
             Assert.AreEqual(short.MaxValue, Contract.AbsShort(short.MinValue + 1));
-            Assert.ThrowsException<TestException>(() => Contract.AbsShort(short.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AbsShort(short.MinValue));
 
             Assert.AreEqual(long.MaxValue, Contract.AbsLong(long.MinValue + 1));
-            Assert.ThrowsException<TestException>(() => Contract.AbsLong(long.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AbsLong(long.MinValue));
         }
 
         [TestMethod]
@@ -77,7 +79,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047630);
             Assert.AreEqual(((long)int.MinValue) * int.MinValue, Contract.BigMul(int.MinValue, int.MinValue));
             AssertGasConsumed(1047630);
-            Assert.ThrowsException<TestException>(() => Contract.BigMul(long.MaxValue, long.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.BigMul(long.MaxValue, long.MaxValue));
             AssertGasConsumed(1063290);
         }
 
@@ -88,9 +90,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((byte)10, (byte)4);
-            Assert.AreEqual(expected.Remainder, checked((byte)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((byte)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((byte)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((byte)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -100,9 +102,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((short)10, (short)3);
-            Assert.AreEqual(expected.Remainder, checked((short)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((short)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((short)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((short)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -112,9 +114,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((int)10, (int)3);
-            Assert.AreEqual(expected.Remainder, checked((int)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((int)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((int)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((int)(BigInteger)result[1]));
+            AssertGasConsumed(1109790);
+            AssertDivRemOverflow(() => Contract.DivRemInt(int.MinValue, -1));
+            AssertDivRemResult(Contract.DivRemInt(int.MinValue, 1), int.MinValue, 0);
+            AssertDivRemResult(Contract.DivRemInt(int.MinValue, -2), 1073741824, 0);
         }
 
         [TestMethod]
@@ -124,9 +129,26 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((long)10, (long)3);
-            Assert.AreEqual(expected.Remainder, checked((long)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((long)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((long)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((long)(BigInteger)result[1]));
+            AssertGasConsumed(1109790);
+            AssertDivRemOverflow(() => Contract.DivRemLong(long.MinValue, -1));
+            AssertDivRemResult(Contract.DivRemLong(long.MinValue, 1), long.MinValue, 0);
+            AssertDivRemResult(Contract.DivRemLong(long.MinValue, -2), 4611686018427387904L, 0);
+        }
+
+        private static void AssertDivRemResult(IList<object>? actual, BigInteger expectedQuotient, BigInteger expectedRemainder)
+        {
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expectedQuotient, (BigInteger)actual[0]);
+            Assert.AreEqual(expectedRemainder, (BigInteger)actual[1]);
+        }
+
+        private static void AssertDivRemOverflow(Action action)
+        {
+            var exception = Assert.ThrowsExactly<TestException>(action);
+            Assert.IsInstanceOfType<VMUnhandledException>(exception.InnerException);
+            Assert.AreEqual("Overflow", ((VMUnhandledException)exception.InnerException).ExceptionObject.GetString());
         }
 
         [TestMethod]
@@ -136,9 +158,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((sbyte)10, (sbyte)3);
-            Assert.AreEqual(expected.Remainder, checked((sbyte)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((sbyte)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((sbyte)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((sbyte)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -148,9 +170,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((ushort)10, (ushort)3);
-            Assert.AreEqual(expected.Remainder, checked((ushort)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ushort)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((ushort)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ushort)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -160,9 +182,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((uint)10, (uint)3);
-            Assert.AreEqual(expected.Remainder, checked((uint)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((uint)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((uint)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((uint)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -172,16 +194,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((ulong)10, (ulong)3);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
         public void TestDivRemZeroU()
         {
-            Assert.ThrowsException<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
-            AssertGasConsumed(1047510);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
+            AssertGasConsumed(1063800);
         }
 
         [TestMethod]
@@ -191,9 +213,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((ulong)10, (ulong)3);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -203,9 +225,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(ulong.MaxValue, (ulong)2);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109370);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -215,9 +237,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(ulong.MaxValue, (ulong)1);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109370);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -227,9 +249,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((ulong)3, (ulong)10);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -239,23 +261,21 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem((ulong)10, ulong.MaxValue);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109370);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public void TestDivRemUlong_DivideByZero()
         {
-            Contract.DivRemUlong((ulong)10, (ulong)0);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUlong((ulong)10, (ulong)0));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(TestException))]
         public void TestDivRemUlong_BothZero()
         {
-            Contract.DivRemUlong((ulong)0, (ulong)0);
+            Assert.ThrowsExactly<TestException>(() => Contract.DivRemUlong((ulong)0, (ulong)0));
         }
 
         [TestMethod]
@@ -265,9 +285,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(ulong.MaxValue, ulong.MaxValue);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109460);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -277,9 +297,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(ulong.MaxValue - 1, ulong.MaxValue);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109460);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -289,9 +309,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(ulong.MaxValue, 2UL);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109370);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -303,9 +323,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(large1, large2);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109280);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -317,9 +337,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(large1, large2);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109460);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -331,9 +351,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(dividend, divisor);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109370);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -345,9 +365,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(dividend, divisor);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109460);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -359,9 +379,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(largePrime1, largePrime2);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109460);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -375,8 +395,8 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.IsNotNull(result);
 
                 var expected = Math.DivRem(dividend, divisor);
-                Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-                Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
+                Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+                Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
             }
         }
 
@@ -388,9 +408,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             var expected = Math.DivRem(alternatingBits, 3);
-            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[0]));
-            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[1]));
-            AssertGasConsumed(1109370);
+            Assert.AreEqual(expected.Quotient, checked((ulong)(BigInteger)result[0]));
+            Assert.AreEqual(expected.Remainder, checked((ulong)(BigInteger)result[1]));
+            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -398,7 +418,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual((byte)5, Contract.ClampByte(5, 0, 10));
             AssertGasConsumed(1047930);
-            Assert.ThrowsException<TestException>(() => Contract.ClampByte(5, 10, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.ClampByte(5, 10, 0));
             AssertGasConsumed(1063170);
             Assert.AreEqual((byte)5, Contract.ClampByte(0, 5, 10));
             AssertGasConsumed(1047930);

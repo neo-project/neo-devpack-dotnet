@@ -136,6 +136,7 @@ namespace Neo.Compiler
                 DefaultValueFactory = _ => ProtocolSettings.Default.AddressVersion
             };
             var printAbiOption = new Option<bool>("--print-abi") { Description = "Print a static ABI and bytecode summary after successful compilation." };
+            var diagnosticsOption = new Option<bool>("--diagnostics") { Description = "Write compiler errors to stderr as 'Error CODE: message' and suppress normal output." };
 
             rootCommand.Options.Add(outputOption);
             rootCommand.Options.Add(baseNameOption);
@@ -149,6 +150,9 @@ namespace Neo.Compiler
             rootCommand.Options.Add(noInlineOption);
             rootCommand.Options.Add(addressVersionOption);
             rootCommand.Options.Add(printAbiOption);
+            rootCommand.Options.Add(diagnosticsOption);
+            var sarifOption = new Option<string>("--sarif") { Description = "Write compiler and analyzer diagnostics to a SARIF 2.1.0 file." };
+            rootCommand.Options.Add(sarifOption);
 
             var debugOption = new Option<CompilationOptions.DebugType>("--debug", "-d")
             {
@@ -174,10 +178,26 @@ namespace Neo.Compiler
                     NoInline = parseResult.GetValue(noInlineOption),
                     AddressVersion = parseResult.GetValue(addressVersionOption),
                     PrintAbi = parseResult.GetValue(printAbiOption),
+                    DiagnosticOnly = parseResult.GetValue(diagnosticsOption) ? DiagnosticSeverity.Error : null,
+                    Sarif = parseResult.GetValue(sarifOption),
                     Debug = parseResult.GetValue(debugOption),
                     RunAnalyzers = true
                 };
-                return Handle(rootCommand, options, parseResult.GetValue(pathsArgument));
+                int result;
+                try
+                {
+                    result = Handle(rootCommand, options, parseResult.GetValue(pathsArgument));
+                }
+                catch (CompilationException exception) when (options.Sarif is not null)
+                {
+                    options.SarifDiagnostics.Add(exception.Diagnostic);
+                    Console.Error.WriteLine(exception.Diagnostic);
+                    result = 1;
+                }
+                if (options.Sarif is not null && !TryFileOperation("write SARIF report", options.Sarif,
+                    () => File.WriteAllBytes(options.Sarif, SarifDiagnosticWriter.Serialize(options.SarifDiagnostics))))
+                    return 1;
+                return result;
             });
             return rootCommand.Parse(args).Invoke();
         }
@@ -347,7 +367,7 @@ namespace Neo.Compiler
                     }
                     string directory = Path.GetDirectoryName(path)!;
                     string filename = Path.GetFileNameWithoutExtension(path)!;
-                    Console.WriteLine($"Optimizing {filename}.nef to {filename}.optimized.nef...");
+                    WriteInfo(options, $"Optimizing {filename}.nef to {filename}.optimized.nef...");
                     NefFile nef = NefFile.Parse(File.ReadAllBytes(path));
                     string manifestPath = Path.Join(directory, filename + ".manifest.json");
                     if (!File.Exists(manifestPath))
@@ -369,7 +389,7 @@ namespace Neo.Compiler
                     }
                     if (debugInfo != null)
                         File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nefdbgnfo"), DumpNef.ZipDebugInfo(debugInfo.ToByteArray(true), filename + ".optimized.debug.json"));
-                    Console.WriteLine($"Optimization finished.");
+                    WriteInfo(options, "Optimization finished.");
                     if (options.SecurityAnalysis)
                         SecurityAnalyzer.SecurityAnalyzer.AnalyzeWithPrint(nef, manifest, debugInfo);
                     return 0;
@@ -397,7 +417,7 @@ namespace Neo.Compiler
             string? sln = Directory.EnumerateFiles(path, "*.sln", SearchOption.TopDirectoryOnly).FirstOrDefault();
             if (sln is not null)
             {
-                Console.WriteLine($"Found solution file: {Path.GetFileName(sln)}");
+                WriteInfo(options, $"Found solution file: {Path.GetFileName(sln)}");
                 return ProcessSln(options, sln);
             }
 
@@ -407,11 +427,11 @@ namespace Neo.Compiler
                 return ProcessCsproj(options, csproj);
 
             // Look for solution files in subdirectories
-            Console.WriteLine($"No .sln or .csproj file found in \"{path}\". Searching in sub-directories.");
+            WriteInfo(options, $"No .sln or .csproj file found in \"{path}\". Searching in sub-directories.");
             List<string> slnFiles = Directory.EnumerateFiles(path, "*.sln", SearchOption.AllDirectories).ToList();
             if (slnFiles.Count > 0)
             {
-                Console.WriteLine($"Will process {slnFiles.Count} .sln files in sub-directories.");
+                WriteInfo(options, $"Will process {slnFiles.Count} .sln files in sub-directories.");
                 return Enumerable.Max(slnFiles.Select((slnFile) =>
                     ProcessSln(options, slnFile)));
             }
@@ -420,7 +440,7 @@ namespace Neo.Compiler
             List<string> csprojFiles = Directory.EnumerateFiles(path, "*.csproj", SearchOption.AllDirectories).ToList();
             if (csprojFiles.Count > 0)
             {
-                Console.WriteLine($"Will process {csprojFiles.Count} .csproj files in sub-directories.");
+                WriteInfo(options, $"Will process {csprojFiles.Count} .csproj files in sub-directories.");
                 return Enumerable.Max(csprojFiles.Select((csprojFile) =>
                     ProcessCsproj(options, csprojFile)));
             }
@@ -431,7 +451,7 @@ namespace Neo.Compiler
                 Console.Error.WriteLine($"No .cs file is found in \"{path}\".");
                 return 2;
             }
-            Console.WriteLine($"Will process {sourceFiles.Length} .cs files in the requested path and its sub-directories.");
+            WriteInfo(options, $"Will process {sourceFiles.Length} .cs files in the requested path and its sub-directories.");
             return ProcessSources(options, path, sourceFiles);
         }
 
@@ -458,7 +478,7 @@ namespace Neo.Compiler
                     return 1;
                 }
 
-                Console.WriteLine($"Found {matches.Count} projects in solution {Path.GetFileName(path)}");
+                WriteInfo(options, $"Found {matches.Count} projects in solution {Path.GetFileName(path)}");
                 List<string> projectPaths = new();
 
                 foreach (Match match in matches.Cast<Match>())
@@ -474,7 +494,7 @@ namespace Neo.Compiler
                     }
                     else
                     {
-                        Console.WriteLine($"Warning: Project file not found: {fullPath}");
+                        WriteInfo(options, $"Warning: Project file not found: {fullPath}");
                     }
                 }
 
@@ -484,7 +504,7 @@ namespace Neo.Compiler
                 {
                     try
                     {
-                        Console.WriteLine($"Compiling project: {Path.GetFileName(projectPath)}");
+                        WriteInfo(options, $"Compiling project: {Path.GetFileName(projectPath)}");
                         var contexts = new CompilationEngine(options).CompileProject(projectPath);
                         allContexts.AddRange(contexts);
                     }
@@ -511,6 +531,7 @@ namespace Neo.Compiler
             {
                 var compEx = CompilationException.Unexpected($"processing solution '{Path.GetFileName(path)}'", ex);
                 Console.Error.WriteLine(compEx.Diagnostic);
+                if (options.Sarif is not null) options.SarifDiagnostics.Add(compEx.Diagnostic);
                 if (compEx.InnerException != null)
                 {
                     Console.Error.WriteLine(compEx.InnerException);
@@ -544,6 +565,8 @@ namespace Neo.Compiler
                 return 1;
             }
 
+            if (options.Sarif is not null)
+                options.SarifDiagnostics.AddRange(contexts.SelectMany(context => context.Diagnostics));
             int result = 0;
             List<CompilationException> exceptions = new();
             foreach (CompilationContext context in contexts)
@@ -566,6 +589,7 @@ namespace Neo.Compiler
             foreach (CompilationException exception in exceptions)
             {
                 Console.Error.WriteLine(exception.Diagnostic);
+                if (options.Sarif is not null) options.SarifDiagnostics.Add(exception.Diagnostic);
 
                 if (exception.Diagnostic.Id == DiagnosticId.UnexpectedCompilerError && exception.InnerException != null)
                 {
@@ -577,12 +601,24 @@ namespace Neo.Compiler
 
         private static int ProcessOutput(Options options, string folder, CompilationContext context)
         {
-            foreach (Diagnostic diagnostic in context.Diagnostics)
+            if (options.DiagnosticOnly is DiagnosticSeverity diagnosticSeverity)
             {
-                if (diagnostic.Severity == DiagnosticSeverity.Error)
-                    Console.Error.WriteLine(diagnostic.ToString());
-                else
-                    Console.WriteLine(diagnostic.ToString());
+                foreach (Diagnostic diagnostic in context.Diagnostics.Where(diagnostic =>
+                    diagnostic.Severity == diagnosticSeverity))
+                    Console.Error.WriteLine($"Error {diagnostic.Id}: {diagnostic.GetMessage()}");
+
+                if (!context.Success)
+                    return 1;
+            }
+            else
+            {
+                foreach (Diagnostic diagnostic in context.Diagnostics)
+                {
+                    if (diagnostic.Severity == DiagnosticSeverity.Error)
+                        Console.Error.WriteLine(diagnostic.ToString());
+                    else
+                        Console.WriteLine(diagnostic.ToString());
+                }
             }
             if (context.Success)
             {
@@ -605,6 +641,7 @@ namespace Neo.Compiler
                 catch (CompilationException ex)
                 {
                     Console.Error.WriteLine(ex.Diagnostic);
+                    if (options.Sarif is not null) options.SarifDiagnostics.Add(ex.Diagnostic);
                     return -1;
                 }
 
@@ -618,14 +655,14 @@ namespace Neo.Compiler
                 {
                     return 1;
                 }
-                Console.WriteLine($"Created {nefPath}");
+                WriteInfo(options, $"Created {nefPath}");
 
                 var manifestPath = Path.Combine(outputFolder, $"{baseName}.manifest.json");
                 if (!TryFileOperation("write", manifestPath, () => File.WriteAllBytes(manifestPath, manifest.ToJson().ToByteArray(false))))
                 {
                     return 1;
                 }
-                Console.WriteLine($"Created {manifestPath}");
+                WriteInfo(options, $"Created {manifestPath}");
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
@@ -638,7 +675,7 @@ namespace Neo.Compiler
                         {
                             return 1;
                         }
-                        Console.WriteLine($"Created {artifactSourcePath}");
+                        WriteInfo(options, $"Created {artifactSourcePath}");
                     }
 
                     if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Library))
@@ -697,7 +734,7 @@ namespace Neo.Compiler
                             {
                                 return 1;
                             }
-                            Console.WriteLine($"Created {artifactDllPath}");
+                            WriteInfo(options, $"Created {artifactDllPath}");
                         }
                         catch (Exception ex)
                         {
@@ -719,7 +756,7 @@ namespace Neo.Compiler
                     {
                         return 1;
                     }
-                    Console.WriteLine($"Created {debugArchivePath}");
+                    WriteInfo(options, $"Created {debugArchivePath}");
                 }
                 if (options.Assembly)
                 {
@@ -733,7 +770,7 @@ namespace Neo.Compiler
                     {
                         return 1;
                     }
-                    Console.WriteLine($"Created {asmPath}");
+                    WriteInfo(options, $"Created {asmPath}");
                     try
                     {
                         var dumpNefPath = Path.Combine(outputFolder, $"{baseName}.nef.txt");
@@ -741,18 +778,18 @@ namespace Neo.Compiler
                         {
                             return 1;
                         }
-                        Console.WriteLine($"Created {dumpNefPath}");
+                        WriteInfo(options, $"Created {dumpNefPath}");
                     }
                     catch (Exception ex)
                     {
                         Console.Error.WriteLine($"Failed to dumpnef: {ex}");
                     }
                 }
-                Console.WriteLine("Compilation completed successfully.");
+                WriteInfo(options, "Compilation completed successfully.");
 
                 if (options.SecurityAnalysis)
                 {
-                    Console.WriteLine("Performing security analysis...");
+                    WriteInfo(options, "Performing security analysis...");
                     try
                     {
                         SecurityAnalyzer.SecurityAnalyzer.AnalyzeWithPrint(nef, manifest, debugInfo);
@@ -761,10 +798,11 @@ namespace Neo.Compiler
                     {
                         var compEx = CompilationException.Unexpected("running security analysis", ex);
                         Console.Error.WriteLine(compEx.Diagnostic);
+                        if (options.Sarif is not null) options.SarifDiagnostics.Add(compEx.Diagnostic);
                         Console.Error.WriteLine(ex);
                     }
-                    Console.WriteLine("Finished security analysis.");
-                    Console.WriteLine("There can be many false positives in the security analysis. Take it easy.");
+                    WriteInfo(options, "Finished security analysis.");
+                    WriteInfo(options, "There can be many false positives in the security analysis. Take it easy.");
                 }
 
                 // Generate contract interface if the option is enabled
@@ -779,23 +817,24 @@ namespace Neo.Compiler
                             var interfaceSource = ContractInterfaceGenerator.GenerateInterface(baseName, manifest, contractHash);
                             if (TryFileOperation("write", interfacePath, () => File.WriteAllText(interfacePath, interfaceSource)))
                             {
-                                Console.WriteLine($"Created contract interface: {interfacePath}");
+                                WriteInfo(options, $"Created contract interface: {interfacePath}");
                             }
                         }
                         catch (Exception ex)
                         {
                             var compEx = CompilationException.Unexpected($"generating interface for contract '{baseName}'", ex);
                             Console.Error.WriteLine(compEx.Diagnostic);
+                            if (options.Sarif is not null) options.SarifDiagnostics.Add(compEx.Diagnostic);
                             Console.Error.WriteLine(ex);
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"Skipping interface generation for {baseName} as no contract hash was found.");
+                        WriteInfo(options, $"Skipping interface generation for {baseName} as no contract hash was found.");
                     }
                 }
 
-                if (options.PrintAbi)
+                if (options.PrintAbi && options.DiagnosticOnly is null)
                 {
                     try
                     {
@@ -814,6 +853,12 @@ namespace Neo.Compiler
                 Console.Error.WriteLine("Compilation failed.");
                 return 1;
             }
+        }
+
+        private static void WriteInfo(Options options, string message)
+        {
+            if (options.DiagnosticOnly is null)
+                Console.WriteLine(message);
         }
 
         private static bool IsSafeOutputBaseName(string value)

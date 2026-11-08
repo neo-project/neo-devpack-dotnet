@@ -90,6 +90,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestIntDefaultExpression()
+        {
+            Assert.AreEqual(0, Contract.TestIntDefaultExpression());
+        }
+
+        [TestMethod]
+        public void TestStructDefaultExpression()
+        {
+            var result = Contract.TestStructDefaultExpression();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(BigInteger.Zero, (BigInteger)result[0]);
+        }
+
+        [TestMethod]
         public void TestStringDefault()
         {
             var result = Contract.TestStringDefault();
@@ -117,6 +132,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
             // default(TestStruct) is a struct with its one (zero-initialized) field, not an empty struct.
             Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(BigInteger.Zero, (BigInteger)result[0]);
         }
 
         [TestMethod]

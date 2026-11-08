@@ -47,7 +47,7 @@ namespace Neo.SmartContract.Analyzer
 
         private const string SystemMathTypeName = "global::System.Math";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported Math method or overload is used",
             "Unsupported Math method or overload: {0}",

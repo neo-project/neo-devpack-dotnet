@@ -81,16 +81,17 @@ namespace Neo.SmartContract.Testing.Coverage
                     var sequencePoint = method.SequencePoints
                         .Where(sp => sp.Address <= instructionAddress)
                         .OrderByDescending(sp => sp.Address)
+                        .Select(sp => (SequencePoint?)sp)
                         .FirstOrDefault();
 
-                    if (sequencePoint.Document >= 0 && sequencePoint.Document < Documents.Count)
+                    if (sequencePoint is { } point && point.Document >= 0 && point.Document < Documents.Count)
                     {
-                        var fileName = Documents[sequencePoint.Document];
+                        var fileName = Documents[point.Document];
                         return new SourceLocation
                         {
                             FileName = System.IO.Path.GetFileName(fileName),
-                            Line = sequencePoint.Start.Line,
-                            Column = sequencePoint.Start.Column,
+                            Line = point.Start.Line,
+                            Column = point.Start.Column,
                             CodeSnippet = null // Could be enhanced to read actual source code
                         };
                     }
@@ -126,11 +127,11 @@ namespace Neo.SmartContract.Testing.Coverage
 
             var basePath = Path.Combine(Path.GetDirectoryName(manifestPath)!, GetBaseName(manifestPath, MANIFEST_FILE_EXTENSION));
 
-            var nefdbgnfoPath = Path.ChangeExtension(basePath, NEF_DBG_NFO_EXTENSION);
+            var nefdbgnfoPath = basePath + NEF_DBG_NFO_EXTENSION;
             if (TryLoadCompressed(nefdbgnfoPath, out debugInfo))
                 return true;
 
-            var debugJsonPath = Path.ChangeExtension(basePath, DEBUG_JSON_EXTENSION);
+            var debugJsonPath = basePath + DEBUG_JSON_EXTENSION;
             return TryLoadUncompressed(debugJsonPath, out debugInfo);
         }
 
@@ -244,15 +245,9 @@ namespace Neo.SmartContract.Testing.Coverage
                 throw new ArgumentNullException("hash can't be null");
             }
 
-            if (json["documents"] is not JArray jDocs)
-            {
-                throw new ArgumentNullException("documents must be an array");
-            }
+            var jDocs = OptionalArrayFromJson(json, "documents");
 
-            if (json["methods"] is not JArray jMethods)
-            {
-                throw new ArgumentNullException("methods must be an array");
-            }
+            var jMethods = OptionalArrayFromJson(json, "methods");
 
             var hash = UInt160.TryParse(sHash, out var _hash)
                 ? _hash
@@ -261,12 +256,20 @@ namespace Neo.SmartContract.Testing.Coverage
             var docRoot = json["document-root"]?.GetString();
             docRoot = string.IsNullOrEmpty(docRoot) ? "" : docRoot;
 
-            var documents = jDocs.Select(kvp => kvp?.GetString()!).Where(u => u is not null);
+            var documents = jDocs.Select(document => document is JString path
+                ? path.GetString()
+                : throw new FormatException("documents must contain only strings"));
             var methods = jMethods.Select(kvp => MethodFromJson(kvp as JObject));
 
             // TODO: parse events and static variables
 
             return new NeoDebugInfo(hash, docRoot, documents.ToList(), methods.ToList());
+        }
+
+        static JArray OptionalArrayFromJson(JObject json, string name)
+        {
+            if (!json.ContainsProperty(name)) return new JArray();
+            return json[name] as JArray ?? throw new FormatException($"{name} must be an array");
         }
 
         static Method MethodFromJson(JObject? json)
@@ -276,15 +279,9 @@ namespace Neo.SmartContract.Testing.Coverage
                 throw new ArgumentNullException("Method can't be null");
             }
 
-            if (json["params"] is not JArray jParams)
-            {
-                throw new ArgumentNullException("params must be an array");
-            }
+            var jParams = OptionalArrayFromJson(json, "params");
 
-            if (json["sequence-points"] is not JArray jSequence)
-            {
-                throw new ArgumentNullException("sequence-points must be an array");
-            }
+            var jSequence = OptionalArrayFromJson(json, "sequence-points");
 
             // TODO: parse return, params and variables
 

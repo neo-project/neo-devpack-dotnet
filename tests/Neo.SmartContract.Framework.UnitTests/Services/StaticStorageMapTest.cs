@@ -44,13 +44,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Contract.Teststoragemap_Putbyteprefix(255);
             Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(255));
 
-            var negativePrefixException = Assert.ThrowsException<TestException>(() => Contract.Teststoragemap_Putbyteprefix(-128));
+            var negativePrefixException = Assert.ThrowsExactly<TestException>(() => Contract.Teststoragemap_Putbyteprefix(-128));
             Assert.IsInstanceOfType<OverflowException>(negativePrefixException.InnerException);
 
             Contract.Teststoragemap_Putbyteprefix(127);
             Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(127));
 
-            var exception = Assert.ThrowsException<TestException>(() => Contract.Teststoragemap_Putbyteprefix(256));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.Teststoragemap_Putbyteprefix(256));
             Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
         }
     }

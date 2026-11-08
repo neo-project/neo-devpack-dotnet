@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly string Description = "Checks for the usage of 'volatile' keywords.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,

@@ -60,7 +60,7 @@ class Program
 }";
 
         DiagnosticResult expectedDiagnostic = DiagnosticResult
-            .CompilerWarning(CatchOnlySystemExceptionAnalyzer.DiagnosticId)
+            .CompilerError(CatchOnlySystemExceptionAnalyzer.DiagnosticId)
             .WithSpan(9, 16, 9, 33);
 
         [TestMethod]

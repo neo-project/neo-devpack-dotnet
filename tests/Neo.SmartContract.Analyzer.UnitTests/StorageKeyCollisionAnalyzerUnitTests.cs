@@ -68,6 +68,74 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             """;
 
         [TestMethod]
+        [DataRow(true, "Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(false, "Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(true, "context: Storage.CurrentContext, prefix: (byte)0x2A")]
+        [DataRow(false, "context: Storage.CurrentContext, prefix: (byte)0x2A")]
+        [DataRow(true, "prefix: (byte)0x2A, context: Storage.CurrentContext")]
+        [DataRow(false, "prefix: (byte)0x2A, context: Storage.CurrentContext")]
+        [DataRow(true, "context: Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(false, "context: Storage.CurrentContext, (byte)0x2A")]
+        [DataRow(true, "Storage.CurrentContext, prefix: (byte)0x2A")]
+        [DataRow(false, "Storage.CurrentContext, prefix: (byte)0x2A")]
+        public async Task ConstructorArgumentOrder_DuplicatePrefix_ReportsDiagnostic(bool explicitType, string arguments)
+        {
+            var creationType = explicitType ? "StorageMap" : "";
+            var test = "using Neo.SmartContract.Framework.Services;\n" + StorageStubs + $$"""
+                public class Contract
+                {
+                    private static readonly StorageMap Owners = new(Storage.CurrentContext, (byte)0x2A);
+                    private static readonly StorageMap {|#0:Admins|} = new {{creationType}}({{arguments}});
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("2A", "Admins", "Owners");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public async Task ReorderedNamedArguments_DifferentPrefixes_NoDiagnostic(bool explicitType)
+        {
+            var creationType = explicitType ? "StorageMap" : "";
+            var test = "using Neo.SmartContract.Framework.Services;\n" + StorageStubs + $$"""
+                public class Contract
+                {
+                    private static readonly StorageMap Owners = new(Storage.CurrentContext, (byte)0x2A);
+                    private static readonly StorageMap Admins =
+                        new {{creationType}}(prefix: (byte)0x2B, context: Storage.CurrentContext);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task NamedFactoryAndLocalStoragePrefixes_ReportDiagnostic()
+        {
+            var test = "using Neo.SmartContract.Framework.Services;\n" + StorageStubs + """
+                public class Contract
+                {
+                    private static readonly StorageMap Owners = CreateOwners();
+                    private static readonly LocalStorageMap {|#0:Admins|} = new(prefix: (byte)0x2A);
+
+                    private static StorageMap CreateOwners() =>
+                        new StorageMap(prefix: (byte)0x2A, context: Storage.CurrentContext);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("2A", "Admins", "Owners");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
         public async Task InheritedOwnablePrefix_ReportsDiagnostic()
         {
             var test = StorageStubs + BaseStubs + """
@@ -227,6 +295,56 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                 .WithArguments("06", "TokenRoyalties", "the reserved prefix of base class RoyaltyNep11Token");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        [DataRow("FE", false)]
+        [DataRow("FB", false)]
+        [DataRow("FE", true)]
+        [DataRow("FB", true)]
+        public async Task InheritedPausableAccessControlPrefix_ReportsDiagnostic(string prefix, bool indirect)
+        {
+            var baseType = indirect ? "Intermediate" : "Neo.SmartContract.Framework.PausableAccessControl";
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + $$"""
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class PausableAccessControl : AccessControl { }
+                }
+                public abstract class Intermediate : Neo.SmartContract.Framework.PausableAccessControl { }
+                public class Contract : {{baseType}}
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap {|#0:Reserved|} =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x{{prefix}});
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments(prefix, "Reserved", "the reserved prefix of base class PausableAccessControl");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task InheritedPausableAccessControl_DifferentPrefix_DoesNotReportDiagnostic(bool indirect)
+        {
+            var baseType = indirect ? "Intermediate" : "Neo.SmartContract.Framework.PausableAccessControl";
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + $$"""
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class PausableAccessControl : AccessControl { }
+                }
+                public abstract class Intermediate : Neo.SmartContract.Framework.PausableAccessControl { }
+                public class Contract : {{baseType}}
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x42);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]

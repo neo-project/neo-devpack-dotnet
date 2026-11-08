@@ -50,7 +50,9 @@ namespace Neo.Compiler
 
         public static bool IsVirtualMethod(this IMethodSymbol method)
         {
-            return method.IsAbstract || method.IsVirtual;
+            // Records and value types keep their existing direct override calls and field layout.
+            return method.IsAbstract || method.IsVirtual
+                || (method.IsOverride && !method.ContainingType.IsRecord && !method.ContainingType.IsValueType);
         }
 
         public static bool IsInternalCoreMethod(this IMethodSymbol method)

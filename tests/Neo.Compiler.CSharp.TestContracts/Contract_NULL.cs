@@ -161,5 +161,18 @@ namespace Neo.Compiler.CSharp.TestContracts
             --TestClass.StaticNullableProperty;
             ExecutionEngine.Assert(TestClass.StaticNullableProperty == 1);
         }
+
+        public static void StaticBoolAssignment()
+        {
+            TestClass.StaticNullableField ??= null;
+            ExecutionEngine.Assert(TestClass.StaticNullableField != false);
+            ExecutionEngine.Assert((TestClass.StaticNullableField ??= true) != false);
+            TestClass.StaticNullableField = null;
+            ExecutionEngine.Assert((TestClass.StaticNullableField ??= false) != true);
+            TestClass.StaticNullableField = null;
+            ExecutionEngine.Assert(true != (TestClass.StaticNullableField ??= false));
+            TestClass.StaticNullableField = null;
+            ExecutionEngine.Assert(false != (TestClass.StaticNullableField ??= true));
+        }
     }
 }

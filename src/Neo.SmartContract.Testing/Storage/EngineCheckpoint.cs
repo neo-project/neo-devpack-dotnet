@@ -44,6 +44,7 @@ namespace Neo.SmartContract.Testing.Storage
             }
 
             Data = list.ToArray();
+            ValidateData(Data);
         }
 
         /// <summary>
@@ -58,16 +59,15 @@ namespace Neo.SmartContract.Testing.Storage
             while (TryReadExactly(stream, buffer))
             {
                 var key = ReadCheckpointField(stream, buffer, MaxCheckpointKeyLength, "key");
-                if (key is null) break;
-                if (!TryReadExactly(stream, buffer)) break;
+                stream.ReadExactly(buffer);
 
                 var data = ReadCheckpointField(stream, buffer, MaxCheckpointValueLength, "value");
-                if (data is null) break;
 
                 list.Add((key, data));
             }
 
             Data = list.ToArray();
+            ValidateData(Data);
         }
 
         /// <summary>
@@ -85,8 +85,17 @@ namespace Neo.SmartContract.Testing.Storage
         /// Restore
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
-        public void Restore(DataCache snapshot)
+        public void Restore(DataCache snapshot) => Restore(snapshot, validate: true);
+
+        /// <summary>
+        /// Restore
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        /// <param name="validate">Whether to validate the checkpoint data before restoring it.</param>
+        public void Restore(DataCache snapshot, bool validate)
         {
+            if (validate) ValidateData(Data);
+
             // Clean snapshot
 
             foreach (var entry in snapshot.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray())
@@ -103,13 +112,47 @@ namespace Neo.SmartContract.Testing.Storage
         }
 
         /// <summary>
+        /// Merge the checkpoint's data into the destination snapshot without clearing any
+        /// pre-existing entries first. Use this instead of <see cref="Restore(DataCache)"/> when the
+        /// destination snapshot may already contain data (e.g. caller-supplied storage) that must be
+        /// preserved, such as when only seeding native contract state.
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        public void MergeInto(DataCache snapshot) => MergeInto(snapshot, validate: true);
+
+        /// <summary>
+        /// Merge the checkpoint's data into the destination snapshot without clearing any
+        /// pre-existing entries first.
+        /// </summary>
+        /// <param name="snapshot">Snapshot</param>
+        /// <param name="validate">Whether to validate the checkpoint data before merging it.</param>
+        public void MergeInto(DataCache snapshot, bool validate)
+        {
+            if (validate) ValidateData(Data);
+
+            foreach (var entry in Data)
+            {
+                var key = new StorageKey(entry.key);
+
+                // Skip entries that are already present so this is safe to call on a snapshot
+                // that already contains the cached data (e.g. the engine that produced the
+                // checkpoint), while still seeding any pre-existing caller-supplied storage that
+                // doesn't overlap with the cached keys.
+                if (snapshot.TryGet(key) is not null) continue;
+
+                snapshot.Add(key, new StorageItem(entry.value));
+            }
+        }
+
+        /// <summary>
         /// Save checkpoint to file
         /// </summary>
         /// <param name="path">File path</param>
         public void Save(string path)
         {
+            ValidateData(Data);
             using var stream = File.Create(path);
-            Write(stream);
+            WriteValidatedData(stream);
         }
 
         /// <summary>
@@ -128,6 +171,12 @@ namespace Neo.SmartContract.Testing.Storage
         /// </summary>
         public void Write(Stream stream)
         {
+            ValidateData(Data);
+            WriteValidatedData(stream);
+        }
+
+        private void WriteValidatedData(Stream stream)
+        {
             var buffer = new byte[sizeof(int)];
 
             foreach (var entry in Data)
@@ -142,14 +191,46 @@ namespace Neo.SmartContract.Testing.Storage
             }
         }
 
-        private static byte[]? ReadCheckpointField(Stream stream, byte[] lengthBuffer, int maxLength, string fieldName)
+        private static byte[] ReadCheckpointField(Stream stream, byte[] lengthBuffer, int maxLength, string fieldName)
         {
             var length = BinaryPrimitives.ReadInt32LittleEndian(lengthBuffer);
             if (length < 0 || length > maxLength)
                 throw new InvalidDataException($"Invalid checkpoint {fieldName} length: {length}.");
 
             var data = new byte[length];
-            return TryReadExactly(stream, data) ? data : null;
+            stream.ReadExactly(data);
+            return data;
+        }
+
+        private static void ValidateData((byte[] key, byte[] value)[] data)
+        {
+            var keys = new HashSet<byte[]>(ByteArrayEqualityComparer.Instance);
+            foreach (var (key, value) in data)
+            {
+                if (key is null || key.Length < sizeof(int) || key.Length > MaxCheckpointKeyLength)
+                    throw new InvalidDataException("Invalid checkpoint storage key.");
+                if (value is null || value.Length > MaxCheckpointValueLength)
+                    throw new InvalidDataException("Invalid checkpoint storage value.");
+
+                if (!keys.Add(key))
+                    throw new InvalidDataException("Duplicate checkpoint storage key.");
+            }
+        }
+
+        private sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
+        {
+            internal static readonly ByteArrayEqualityComparer Instance = new();
+
+            public bool Equals(byte[]? x, byte[]? y) =>
+                ReferenceEquals(x, y) || x is not null && y is not null && x.AsSpan().SequenceEqual(y);
+
+            public int GetHashCode(byte[] obj)
+            {
+                var hash = new HashCode();
+                foreach (var value in obj)
+                    hash.Add(value);
+                return hash.ToHashCode();
+            }
         }
 
         private static bool TryReadExactly(Stream stream, Span<byte> buffer)
@@ -158,7 +239,11 @@ namespace Neo.SmartContract.Testing.Storage
             while (offset < buffer.Length)
             {
                 var read = stream.Read(buffer[offset..]);
-                if (read == 0) return false;
+                if (read == 0)
+                {
+                    if (offset == 0) return false;
+                    throw new EndOfStreamException("Incomplete checkpoint key length.");
+                }
                 offset += read;
             }
 

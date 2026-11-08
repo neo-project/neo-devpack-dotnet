@@ -27,7 +27,7 @@ public class NeoFSTests : TestBase<SampleNeoFS>
     [TestMethod]
     public void OracleCallbackStoresPayload()
     {
-        Assert.ThrowsException<TestException>(() =>
+        Assert.ThrowsExactly<TestException>(() =>
             Contract.OnOracleResponse(ExpectedObjectUri, null, 0, "payload"));
 
         Engine.OnGetCallingScriptHash = (current, expected) => Engine.Native.Oracle.Hash;

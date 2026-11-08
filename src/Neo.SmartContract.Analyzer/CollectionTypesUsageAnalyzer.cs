@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Analyzer
             "System.ArraySegment<T>"
         };
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported collection type is used",
             "Do not use collection type: {0}. Use {1} instead.",
@@ -82,6 +82,22 @@ namespace Neo.SmartContract.Analyzer
             context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeParameter, SyntaxKind.Parameter);
             context.RegisterSyntaxNodeAction(AnalyzePropertyDeclaration, SyntaxKind.PropertyDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeMemberDeclaration, SyntaxKind.FieldDeclaration,
+                SyntaxKind.EventFieldDeclaration, SyntaxKind.EventDeclaration, SyntaxKind.IndexerDeclaration,
+                SyntaxKind.DelegateDeclaration, SyntaxKind.OperatorDeclaration);
+        }
+
+        private void AnalyzeMemberDeclaration(SyntaxNodeAnalysisContext context)
+        {
+            TypeSyntax? typeSyntax = context.Node switch
+            {
+                BaseFieldDeclarationSyntax field => field.Declaration.Type,
+                _ => UnsupportedTypeUsageAnalyzerHelpers.GetAdditionalMemberType(context.Node)
+            };
+            if (typeSyntax is null) return;
+
+            var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
+            ReportIfUnsupportedCollectionType(context, typeSyntax.GetLocation(), type);
         }
 
         private void AnalyzeOperation(OperationAnalysisContext context)

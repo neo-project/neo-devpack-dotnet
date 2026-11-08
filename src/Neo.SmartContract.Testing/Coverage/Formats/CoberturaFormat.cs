@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -52,9 +53,9 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             foreach (var entry in coverage)
             {
-                var allPoints = entry.DebugInfo.Methods.SelectMany(m => m.SequencePoints).ToArray();
+                var allPoints = GetPoints(entry.DebugInfo).ToArray();
 
-                var (lineCount, hitCount) = GetLineRate(entry.Contract, allPoints);
+                var (lineCount, hitCount) = GetLineRate(entry.Contract, allPoints.Select(point => point.Point));
                 linesValid += lineCount;
                 linesCovered += hitCount;
 
@@ -68,10 +69,10 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             writer.WriteStartDocument();
             writer.WriteStartElement("coverage");
-            writer.WriteAttributeString("line-rate", $"{lineRate:N4}");
+            writer.WriteAttributeString("line-rate", lineRate.ToString("F4", CultureInfo.InvariantCulture));
             writer.WriteAttributeString("lines-covered", $"{linesCovered}");
             writer.WriteAttributeString("lines-valid", $"{linesValid}");
-            writer.WriteAttributeString("branch-rate", $"{branchRate:N4}");
+            writer.WriteAttributeString("branch-rate", branchRate.ToString("F4", CultureInfo.InvariantCulture));
             writer.WriteAttributeString("branches-covered", $"{branchesCovered}");
             writer.WriteAttributeString("branches-valid", $"{branchesValid}");
             writer.WriteAttributeString("version", typeof(CoberturaFormat).Assembly.GetName().Version?.ToString() ?? "Unknown Version");
@@ -96,54 +97,38 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             writer.WriteEndElement();
         }
 
-        private static (int branchCount, int branchHit) GetBranchRate(CoveredContract contract, IEnumerable<NeoDebugInfo.SequencePoint> sequencePoints)
+        private static IEnumerable<(NeoDebugInfo.Method Method, NeoDebugInfo.SequencePoint Point)> GetPoints(NeoDebugInfo info)
+            => info.Methods.SelectMany(method => method.SequencePoints
+                .Where(point => point.Document >= 0 && point.Document < info.Documents.Count)
+                .Select(point => (method, point)));
+
+        private static (int branchCount, int branchHit) GetBranchRate(CoveredContract contract,
+            IEnumerable<(NeoDebugInfo.Method Method, NeoDebugInfo.SequencePoint Point)> points)
         {
-            int branchCount = 0, branchHit = 0;
-
-            foreach (var sp in sequencePoints)
-            {
-                if (contract.TryGetBranch(sp.Address, out var branch))
-                {
-                    branchCount += branch.Count;
-                    branchHit += branch.Hits;
-                }
-            }
-
-            return (branchCount, branchHit);
+            var branches = points.SelectMany(point => GetBranchInstructions(contract, point.Method, point.Point))
+                .DistinctBy(branch => branch.address).ToArray();
+            return (branches.Sum(branch => branch.branch.Count), branches.Sum(branch => branch.branch.Hits));
         }
 
         private static (int lineCount, int hitCount) GetLineRate(CoveredContract contract, IEnumerable<NeoDebugInfo.SequencePoint> sequencePoints)
         {
-            int lineCount = 0, hitCount = 0;
-
-            foreach (var sp in sequencePoints)
-            {
-                lineCount++;
-                if (contract.TryGetLine(sp.Address, out var hit) && hit.Hits > 0)
-                {
-                    hitCount++;
-                }
-            }
-
-            return (lineCount, hitCount);
+            var lines = sequencePoints.GroupBy(point => (point.Document, point.Start.Line)).ToArray();
+            return (lines.Length, lines.Count(line => line.Any(point =>
+                contract.TryGetLine(point.Address, out var hit) && hit.Hits > 0)));
         }
 
         public static IEnumerable<(int address, CoverageBranch branch)> GetBranchInstructions(
             CoveredContract contract, NeoDebugInfo.Method method, NeoDebugInfo.SequencePoint sequencePoint
             )
         {
-            var address = sequencePoint.Address;
-            var lines = contract.Lines.Where(u => u.Offset >= address).ToArray();
-            var last = GetLineLastAddress(lines, method, Array.IndexOf(method.SequencePoints.ToArray(), sequencePoint));
-
-            foreach (var line in lines)
+            var nextIndex = Array.IndexOf(method.SequencePoints.ToArray(), sequencePoint) + 1;
+            foreach (var branch in contract.Branches)
             {
-                if (line.Offset > last) break;
-
-                if (contract.TryGetBranch(address, out var branch)) // IsBranchInstruction
-                {
-                    yield return (address, branch);
-                }
+                if (branch.Offset < sequencePoint.Address) continue;
+                if (branch.Offset > method.Range.End ||
+                    nextIndex < method.SequencePoints.Count && branch.Offset >= method.SequencePoints[nextIndex].Address)
+                    yield break;
+                yield return (branch.Offset, branch);
             }
         }
 
@@ -162,7 +147,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
                 foreach (var line in lines)
                 {
-                    if (line.Offset > nextSPAddress)
+                    if (line.Offset >= nextSPAddress)
                     {
                         return address;
                     }

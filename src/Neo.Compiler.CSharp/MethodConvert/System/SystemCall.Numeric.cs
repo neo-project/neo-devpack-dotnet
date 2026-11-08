@@ -57,6 +57,7 @@ internal partial class MethodConvert
         }
         return method;
     }
+
     private static void HandleNumericParse(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -65,14 +66,23 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.EmitIf(
-            () =>
-            {
-                methodConvert.Dup();
-                methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
-                methodConvert.Not();
-            },
-            () => { methodConvert.Throw(); });
+
+        var endTarget = new JumpTarget();
+        methodConvert.Dup();
+        if (descriptor.MinValue < 0) // signed integer
+        {
+            methodConvert.Size();
+            methodConvert.Push(descriptor.BitSize / 8);
+            methodConvert.JumpIfLessOrEqual(endTarget);
+        }
+        else
+        {
+            methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
+            methodConvert.JumpIfTrue(endTarget);
+        }
+
+        methodConvert.Throw(); // throw the overflowed value.
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleNumericLeadingZeroCount(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -148,14 +158,22 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.EmitIf(
-            () =>
-            {
-                methodConvert.Dup();
-                methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
-                methodConvert.Not();
-            },
-            () => { methodConvert.Throw(); });
+
+        var endTarget = new JumpTarget();
+        methodConvert.Dup();
+        if (descriptor.IsSigned)
+        {
+            methodConvert.Size();
+            methodConvert.Push(descriptor.BitSize / 8);
+            methodConvert.JumpIfLessOrEqual(endTarget);
+        }
+        else
+        {
+            methodConvert.Within(descriptor.MinValue, descriptor.MaxValue);
+            methodConvert.JumpIfTrue(endTarget);
+        }
+        methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleNumericCreateSaturating(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -291,7 +309,7 @@ internal partial class MethodConvert
     {
         var parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
         var key = GetMethodKey(method, parameterTypes);
-        SystemCallHandlers[key] = handler;
+        AddHandler(key, handler);
     }
 
     private static (byte valueSlot, byte offsetSlot) StoreRotateOperands(MethodConvert methodConvert)
@@ -319,9 +337,8 @@ internal partial class MethodConvert
 
     private static void LoadInverseRotateOffset(MethodConvert methodConvert, byte offsetSlot, int bitWidth)
     {
-        methodConvert.Push(bitWidth);
-        LoadMaskedRotateOffset(methodConvert, offsetSlot, bitWidth);
-        methodConvert.Sub();
+        methodConvert.AccessSlot(OpCode.LDLOC, offsetSlot);
+        methodConvert.Negate();
         methodConvert.Push(bitWidth - 1);
         methodConvert.And();
     }

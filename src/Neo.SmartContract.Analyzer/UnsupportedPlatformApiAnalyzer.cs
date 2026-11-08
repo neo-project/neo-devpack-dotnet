@@ -22,14 +22,17 @@ namespace Neo.SmartContract.Analyzer;
 public sealed class UnsupportedPlatformApiAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "NC4058";
+    private const string HelpLink =
+        "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/unsupported-platform-api.md#nc4058";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Unsupported platform API is used",
         "Neo smart contracts do not support platform API: {0}",
         "Usage",
         DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
+        isEnabledByDefault: true,
+        helpLinkUri: HelpLink);
 
     private static readonly string[] ForbiddenNamespaces =
     [
@@ -84,7 +87,9 @@ public sealed class UnsupportedPlatformApiAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeQualifiedName(SyntaxNodeAnalysisContext context)
     {
-        if (context.Node is not QualifiedNameSyntax qualifiedName)
+        if (context.Node is not QualifiedNameSyntax qualifiedName ||
+            qualifiedName.Parent is ObjectCreationExpressionSyntax creation &&
+            ReferenceEquals(creation.Type, qualifiedName))
         {
             return;
         }

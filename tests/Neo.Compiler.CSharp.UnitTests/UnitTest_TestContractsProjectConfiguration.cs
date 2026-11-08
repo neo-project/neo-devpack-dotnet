@@ -9,7 +9,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_TestContractsProjectConfiguration
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("tests/Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj")]
         [DataRow("tests/Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj")]
         public void TestContractsAreNotMarkedAsTestProjects(string projectRelativePath)

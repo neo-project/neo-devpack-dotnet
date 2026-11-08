@@ -23,14 +23,15 @@ public sealed class ArrayRangeUsageAnalyzer : DiagnosticAnalyzer
     public const string DiagnosticId = "NC2010";
     public const string Message = "Range access is not supported for '{0}'. Use ranges only with byte[] or string receivers.";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Range receiver is not supported",
         Message,
         "Syntax",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Neo supports range access only for byte arrays and strings.");
+        description: "Neo supports range access only for byte arrays and strings.",
+        helpLinkUri: "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/NC2010.md");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

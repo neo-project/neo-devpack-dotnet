@@ -97,10 +97,9 @@ internal partial class MethodConvert
 
     private void EmitStringCharCountConstructor(SemanticModel model, ExpressionSyntax charExpression, ExpressionSyntax countExpression, Optional<object?> charConstant)
     {
+        using var tempScope = PreserveAnonymousVariables();
         byte charSlot = AddAnonymousVariable();
         byte countSlot = AddAnonymousVariable();
-        byte resultSlot = AddAnonymousVariable();
-
         if (charConstant.HasValue && charConstant.Value is char character)
         {
             Push(NormalizeCharForUtf8(character).ToString());
@@ -108,46 +107,36 @@ internal partial class MethodConvert
         else
         {
             ConvertExpression(model, charExpression);
-            ConvertCharToUtf8();
+            ConvertCharToUtf8(toByteString: false);
         }
-        AccessSlot(OpCode.STLOC, charSlot);
+        StLoc(charSlot);
 
         ConvertExpression(model, countExpression);
-        AccessSlot(OpCode.STLOC, countSlot);
+        StLoc(countSlot);
 
         JumpTarget validCountTarget = new();
-        AccessSlot(OpCode.LDLOC, countSlot);
+        LdLoc(countSlot);
         Push(0);
-        Jump(OpCode.JMPGE_L, validCountTarget);
+        JumpIfGreaterOrEqual(validCountTarget);
         Push("Negative count");
-        AddInstruction(OpCode.THROW);
+        Throw();
 
-        validCountTarget.Instruction = Push("");
-        AccessSlot(OpCode.STLOC, resultSlot);
-
+        validCountTarget.Instruction = Push(""); // [result]
         JumpTarget conditionTarget = new();
         JumpTarget endTarget = new();
-
-        conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, countSlot);
+        conditionTarget.Instruction = LdLoc(countSlot);
         Push(0);
-        Jump(OpCode.JMPLE_L, endTarget);
+        JumpIfLessOrEqual(endTarget);
 
-        AccessSlot(OpCode.LDLOC, resultSlot);
-        AccessSlot(OpCode.LDLOC, charSlot);
-        Cat();
-        AccessSlot(OpCode.STLOC, resultSlot);
-
-        AccessSlot(OpCode.LDLOC, countSlot);
+        LdLoc(charSlot);                      // [result, unit]
+        Cat();                                // [result']
+        LdLoc(countSlot);
         Dec();
-        AccessSlot(OpCode.STLOC, countSlot);
-        Jump(OpCode.JMP_L, conditionTarget);
+        StLoc(countSlot);
+        JumpAlways(conditionTarget);
 
-        endTarget.Instruction = AccessSlot(OpCode.LDLOC, resultSlot);
+        endTarget.Instruction = Nop();
         ChangeType(StackItemType.ByteString);
-
-        RemoveAnonymousVariable(resultSlot);
-        RemoveAnonymousVariable(countSlot);
-        RemoveAnonymousVariable(charSlot);
     }
 
     private static void HandleStringPickItem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
@@ -174,7 +163,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (symbol.Parameters.Length == 1 && symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char)
-            NormalizeNulCharSearchArgument(methodConvert);
+            methodConvert.ConvertCharToUtf8(toByteString: false);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
@@ -182,30 +171,110 @@ internal partial class MethodConvert
         methodConvert.Ge();
     }
 
-    private static void NormalizeNulCharSearchArgument(MethodConvert methodConvert)
+    private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         JumpTarget endTarget = new();
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? value))
+        {
+            var valueBytes = Utility.StrictUTF8.GetBytes(value!);
+            if (valueBytes.Length == 1)
+            {
+                if (instanceExpression is not null)
+                    methodConvert.ConvertExpression(model, instanceExpression);
 
-        methodConvert.Dup();
-        methodConvert.Push0();
-        methodConvert.JumpIfNotEqual(endTarget);
-        methodConvert.Drop();
-        methodConvert.Push(new byte[] { 0 });
-        endTarget.Instruction = methodConvert.Nop();
-    }
+                JumpTarget nonEmptyTarget = new();
+                methodConvert.Dup();                                      // [source, source]
+                methodConvert.Size();                                     // [source, sourceSize]
+                methodConvert.JumpIfTrue(nonEmptyTarget);                 // [source]
+                methodConvert.Drop();                                     // []
+                methodConvert.PushF();                                    // An empty source can not start with the value.
+                methodConvert.JumpAlways(endTarget);
 
-    private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
+                nonEmptyTarget.Instruction = methodConvert.Nop();
+                methodConvert.PickItem(0);                                // [source[0]]
+                methodConvert.Push(valueBytes[0]);                        // [source[0], value]
+                methodConvert.NumEqual();                                 // [bool]
+
+                endTarget.Instruction = methodConvert.Nop();
+                return;
+            }
+
+            if (valueBytes.Length > 1)
+            {
+                HandleStringStartsWithConstant(methodConvert, model, instanceExpression, valueBytes);
+                return;
+            }
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        methodConvert.Not();
+        JumpTarget compareTarget = new();
+        methodConvert.Over();                 // [value, source]
+        methodConvert.Size();                 // [value, source, value-size]
+        methodConvert.Over();                 // [value, source, value-size, source]
+        methodConvert.Size();                 // [value, source, value-size, source-size]
+        methodConvert.Over();                 // [value, source, value-size, source-size, value-size]
+        methodConvert.JumpIfGreaterOrEqual(compareTarget); // [value, source, value-size]
+        methodConvert.Drop(3);
+        methodConvert.PushF();
+        methodConvert.JumpAlways(endTarget);
+        compareTarget.Instruction = methodConvert.Left(null);
+        methodConvert.ChangeType(StackItemType.ByteString); // [value, source[:value-size]]
+        methodConvert.Equal();                              // [result]
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static void HandleStringStartsWithConstant(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, byte[] valueBytes)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        JumpTarget validCountTarget = new();
+        JumpTarget endTarget = new();
+        methodConvert.Dup();                                      // [source, source]
+        methodConvert.Size();                                     // [source, sourceSize]
+        methodConvert.Push(valueBytes.Length);                    // [source, sourceSize, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);     // [source]
+        methodConvert.Drop();                                     // []
+        methodConvert.PushF();                                    // source shorter than value.
+        methodConvert.JumpAlways(endTarget);
+
+        validCountTarget.Instruction = methodConvert.Push(valueBytes.Length); // [source, valueSize]
+        methodConvert.Left(null);                                 // [prefix]
+        methodConvert.ChangeType(StackItemType.ByteString);       // [prefix]
+        methodConvert.Push(valueBytes);                           // [prefix, value]
+        methodConvert.Equal();                                    // [bool]
+
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null &&
+            symbol.Parameters.Length == 1 &&
+            symbol.Parameters[0].Type.SpecialType == SpecialType.System_String &&
+            TryGetConstantArgument(model, symbol, "value", arguments, out string? constantValue) &&
+            constantValue is { Length: 0 })
+        {
+            JumpTarget nonNullTarget = new();
+            JumpTarget endTarget = new();
+            methodConvert.ConvertExpression(model, instanceExpression); // [source]
+            methodConvert.Dup();                                        // [source, source]
+            methodConvert.IsNull();                                     // [source, isNull]
+            methodConvert.JumpIfNot(nonNullTarget);                     // [source]
+            methodConvert.Push("");                                     // [null, ""]
+            methodConvert.Swap();                                       // ["", null]
+            methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+            methodConvert.JumpAlways(endTarget);
+            nonNullTarget.Instruction = methodConvert.Drop();           // []
+            methodConvert.Push(0);                                      // [0]
+            endTarget.Instruction = methodConvert.Nop();
+            return;
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         if (instanceExpression is not null)
@@ -215,104 +284,17 @@ internal partial class MethodConvert
 
     private static void HandleStringLastIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
+        methodConvert.Push(true);                                    // [true]
+        methodConvert.ConvertExpression(model, instanceExpression!); // [true, string]
+        methodConvert.Dup();                                         // [true, string, string]
+        methodConvert.Size();                                        // [true, string, size]
 
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        byte strSlot = methodConvert.AddAnonymousVariable();
-        byte valueSlot = methodConvert.AddAnonymousVariable();
-        byte strLenSlot = methodConvert.AddAnonymousVariable();
-        byte valueLenSlot = methodConvert.AddAnonymousVariable();
-        byte startSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.Rot(); // [true, size, value, string]
 
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Size();
-        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.Size();
-        methodConvert.Dup();
-        methodConvert.AccessSlot(OpCode.STLOC, valueLenSlot);
-
-        JumpTarget valueNotEmptyTarget = new();
-        JumpTarget canSearchTarget = new();
-        JumpTarget endTarget = new();
-
-        methodConvert.JumpIfTrue(valueNotEmptyTarget); // NonZero int means true.
-        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
-        methodConvert.JumpAlways(endTarget);
-        valueNotEmptyTarget.Instruction = methodConvert.Nop();
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
-        methodConvert.JumpIfGreaterOrEqual(canSearchTarget);
-        methodConvert.Push(-1);
-        methodConvert.JumpAlways(endTarget);
-        canSearchTarget.Instruction = methodConvert.Nop();
-
-        byte currentSlot = methodConvert.AddAnonymousVariable();
-        byte nextSlot = methodConvert.AddAnonymousVariable();
-        byte lastSlot = methodConvert.AddAnonymousVariable();
-
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
-
-        JumpTarget notFoundTarget = new();
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.Push(-1);
-        methodConvert.JumpIfEqual(notFoundTarget);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
-
-        JumpTarget loopStart = new();
-        JumpTarget loopEnd = new();
-
-        loopStart.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.Push(1);
-        methodConvert.Add();
-        methodConvert.AccessSlot(OpCode.STLOC, startSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 3, true);
-        methodConvert.AccessSlot(OpCode.STLOC, nextSlot);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
-        methodConvert.Push(-1);
-        methodConvert.JumpIfEqual(loopEnd);
-
-        methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
-        methodConvert.JumpAlways(loopStart);
-
-        loopEnd.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, lastSlot);
-        methodConvert.JumpAlways(endTarget);
-
-        notFoundTarget.Instruction = methodConvert.Nop();
-        methodConvert.Push(-1);
-        endTarget.Instruction = methodConvert.Nop();
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);
     }
 
     private static void HandleStringSplit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -397,7 +379,7 @@ internal partial class MethodConvert
             methodConvert.Drop();
 
             if (arrayCharSeparator.HasValue)
-                methodConvert.Push((ushort)arrayCharSeparator.Value);
+                methodConvert.Push(NormalizeCharForUtf8(arrayCharSeparator.Value).ToString());
             else
                 methodConvert.Push(arrayStringSeparator!);
 
@@ -407,9 +389,28 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.ChangeType(StackItemType.ByteString);
         methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+        if (separatorKind == SplitSeparatorKind.Char && !substituteArraySeparator)
+        {
+            var separatorConstant = TryGetArgument(arguments, 0, out var charSeparatorSyntax)
+                ? model.GetConstantValue(charSeparatorSyntax.Expression)
+                : default;
+            if (separatorConstant.HasValue && separatorConstant.Value is char constantChar)
+            {
+                methodConvert.Push(NormalizeCharForUtf8(constantChar).ToString());
+            }
+            else
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+                methodConvert.ConvertCharToUtf8(toByteString: true);
+            }
+            methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+        }
+        else if (!substituteArraySeparator)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+            methodConvert.ChangeType(StackItemType.ByteString);
+            methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+        }
 
         if (!hasOptions)
         {
@@ -543,38 +544,83 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringEndsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? value))
+        {
+            HandleStringEndsWithConstant(methodConvert, model, instanceExpression, value!);
+            return;
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
-        var endTarget = new JumpTarget();
-        var validCountTarget = new JumpTarget();
-        var suffixNotEmptyTarget = new JumpTarget();
-        methodConvert.Over();                           // [suffix, value, suffix]
-        methodConvert.Size();                           // [suffix, value, suffix-size]
-        methodConvert.JumpIfTrue(suffixNotEmptyTarget); // NonZero int means true.
-        methodConvert.Drop(2);                          // Drop suffix and value
-        methodConvert.PushT();                          // Push true any string ends with ""
+        JumpTarget compareTarget = new(), endTarget = new();
+        methodConvert.Over();                                 // [value, source, value]
+        methodConvert.Size();                                 // [value, source, valueSize]
+        methodConvert.Over();                                 // [value, source, valueSize, source]
+        methodConvert.Size();                                 // [value, source, valueSize, sourceSize]
+        methodConvert.Over();                                 // [value, source, valueSize, sourceSize, valueSize]
+        methodConvert.JumpIfGreaterOrEqual(compareTarget);    // [value, source, valueSize]
+        methodConvert.Drop(3);                                // []
+        methodConvert.PushF();                                // source shorter than value.
         methodConvert.JumpAlways(endTarget);
-        suffixNotEmptyTarget.Instruction = methodConvert.Nop();
-        methodConvert.Over();                                  // [suffix, value, suffix]
-        methodConvert.Size();                                  // [suffix, value, suffix-size]
-        methodConvert.Over();                                  // [suffix, value, suffix-size, value]
-        methodConvert.Size();                                  // [suffix, value, suffix-size, value-size]
-        methodConvert.Over();                                  // [suffix, value, suffix-size, value-size, suffix]
-        methodConvert.Sub();                                   // [suffix, value, suffix-size, start]
-        methodConvert.Dup();                                   // [suffix, value, suffix-size, start, start]
-        methodConvert.Push0();                                 // [suffix, value, suffix-size, start, start, 0]
-        methodConvert.JumpIfGreaterOrEqual(validCountTarget);  // [suffix, value, suffix-size, start]
-        methodConvert.Drop(4);                                 // []
-        methodConvert.PushF();                                 // [false]
-        methodConvert.JumpAlways(endTarget);                   // [false]
-        validCountTarget.Instruction = methodConvert.Swap();   // [suffix, value, start, suffix-size]
-        methodConvert.SubStr();                                // [suffix, suffix']
-        methodConvert.ChangeType(StackItemType.ByteString);    // [suffix, suffix']
-        methodConvert.Equal();                                 // [bool]
-        endTarget.Instruction = methodConvert.Nop();           // End target
+
+        compareTarget.Instruction = methodConvert.Right(null);    // [value, suffix]
+        methodConvert.ChangeType(StackItemType.ByteString);       // [value, suffix]
+        methodConvert.Equal();                                    // [bool]
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static void HandleStringEndsWithConstant(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, string value)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        if (value.Length == 0)
+        {
+            methodConvert.Drop();                                 // Any string ends with an empty value.
+            methodConvert.Push(true);
+            return;
+        }
+
+        JumpTarget endTarget = new();
+        methodConvert.Dup();                                      // [source, source]
+        methodConvert.Size();                                     // [source, sourceSize]
+
+        var valueBytes = Utility.StrictUTF8.GetBytes(value);
+        if (valueBytes.Length == 1)
+        {
+            JumpTarget nonEmptyTarget = new();
+            methodConvert.Dup();                                      // [source, sourceSize, sourceSize]
+            methodConvert.JumpIfTrue(nonEmptyTarget);                 // [source, sourceSize]
+            methodConvert.Drop(2);                                    // []
+            methodConvert.PushF();                                    // An empty source can not end with the value.
+            methodConvert.JumpAlways(endTarget);
+
+            nonEmptyTarget.Instruction = methodConvert.Nop();
+            methodConvert.Dec();                                      // [source, sourceSize - 1]
+            methodConvert.PickItem();                                 // [source[^1]]
+            methodConvert.Push(valueBytes[0]);                        // [source[^1], value]
+            methodConvert.NumEqual();                                 // [bool]
+        }
+        else
+        {
+            JumpTarget validCountTarget = new();
+            methodConvert.Push(valueBytes.Length);                    // [source, sourceSize, valueSize]
+            methodConvert.JumpIfGreaterOrEqual(validCountTarget);     // [source]
+            methodConvert.Drop();                                     // []
+            methodConvert.PushF();                                    // source shorter than value.
+            methodConvert.JumpAlways(endTarget);
+
+            validCountTarget.Instruction = methodConvert.Nop();
+            methodConvert.Push(valueBytes.Length);                    // [source, valueSize]
+            methodConvert.Right(null);                                // [source, suffix]
+            methodConvert.ChangeType(StackItemType.ByteString);       // [source, suffix]
+            methodConvert.Push(valueBytes);                           // [source, suffix, value]
+            methodConvert.Equal();                                    // [bool]
+        }
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringSubstring(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -645,9 +691,7 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Size();
-        methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
-        methodConvert.JumpIfFalse(trueTarget); // Zero int means false.
 
         methodConvert.Push(0);
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
@@ -660,8 +704,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.PickItem();
-
-        CheckWithinWhiteSpace(methodConvert, falseTarget);
+        CheckIsWhiteSpaceByte(methodConvert, falseTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.Inc();
@@ -698,46 +741,37 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringCompare(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        byte leftSlot = methodConvert.AddAnonymousVariable();
-        byte rightSlot = methodConvert.AddAnonymousVariable();
-
-        methodConvert.AccessSlot(OpCode.STLOC, leftSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, rightSlot);
-
+        // A null left operand loses against everything, including the empty string, so its
+        // result is ISNULL(right) - 1 (0 when both are null, -1 otherwise); ISNULL pushes a
+        // Boolean, whose numeric value is exactly 0/1.
         JumpTarget leftNotNullTarget = new();
-        JumpTarget rightNotNullWhenLeftNullTarget = new();
         JumpTarget bothNotNullTarget = new();
         JumpTarget endTarget = new();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
-        methodConvert.IsNull();
-        methodConvert.JumpIfFalse(leftNotNullTarget);
+        // if (left is null) -> ISNULL(right) - 1
+        methodConvert.Dup();                                       // [right, left, left]
+        methodConvert.IsNull();                                    // [right, left, isNull]
+        methodConvert.JumpIfFalse(leftNotNullTarget);              // [right, left]
 
-        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.IsNull();
-        methodConvert.JumpIfFalse(rightNotNullWhenLeftNullTarget);
-        methodConvert.Push(0);
+        methodConvert.Drop();                                      // [right]
+        methodConvert.IsNull();                                    // [isNull]
+        methodConvert.Dec();                                       // [0 | -1]
         methodConvert.JumpAlways(endTarget);
 
-        rightNotNullWhenLeftNullTarget.Instruction = methodConvert.Nop();
-        methodConvert.Push(-1);
-        methodConvert.JumpAlways(endTarget);
-
+        // if (right is null) -> 1, otherwise StdLib.memoryCompare(left, right)
         leftNotNullTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
+        methodConvert.Over();                                      // [right, left, right]
         methodConvert.IsNull();
         methodConvert.JumpIfFalse(bothNotNullTarget);
+        methodConvert.Drop(2);                                     // []
         methodConvert.Push(1);
         methodConvert.JumpAlways(endTarget);
 
+        // [right, left] is exactly the order the native memoryCompare(mem, value) pops.
         bothNotNullTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memoryCompare", 2, true);
 
         endTarget.Instruction = methodConvert.Nop();
@@ -768,7 +802,7 @@ internal partial class MethodConvert
         }
 
         methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.ConvertCharToUtf8();
+        methodConvert.ConvertCharToUtf8(toByteString: true);
     }
 
     private static char NormalizeCharForUtf8(char character)
@@ -780,20 +814,23 @@ internal partial class MethodConvert
     /// Encodes one runtime UTF-16 code unit for Neo's UTF-8 string representation.
     /// Isolated surrogate code units cannot be represented and are replaced with U+FFFD.
     /// </summary>
-    private void ConvertCharToUtf8()
+    /// <remarks>
+    /// Algorithm: The last byte of a multi-byte UTF-8 sequence is always in the range
+    /// [0x80, 0xBF], so packing the whole sequence into a little-endian integer and subtracting
+    /// 256<sup>n</sup> makes it negative, and the minimal two's complement representation used by
+    /// CONVERT is then exactly the UTF-8 sequence. ASCII characters convert directly, and only
+    /// '\0' needs a one byte string pushed because integer zero converts to an empty string.
+    /// </remarks>
+    private void ConvertCharToUtf8(bool toByteString)
     {
         byte charSlot = AddAnonymousVariable();
         AccessSlot(OpCode.STLOC, charSlot);
 
-        JumpTarget nullTarget = new();
         JumpTarget asciiTarget = new();
         JumpTarget twoByteTarget = new();
         JumpTarget replacementTarget = new();
+        JumpTarget asciiConvertTarget = new();
         JumpTarget endTarget = new();
-
-        AccessSlot(OpCode.LDLOC, charSlot);
-        Push0();
-        JumpIfEqual(nullTarget);
 
         AccessSlot(OpCode.LDLOC, charSlot);
         Push(0x7f);
@@ -807,51 +844,63 @@ internal partial class MethodConvert
         Within(0xd800, 0xdfff);
         JumpIfTrue(replacementTarget);
 
-        NewBuffer(3);
-        SetUtf8BufferByte(charSlot, 0, shift: 12, mask: 0x0f, prefix: 0xe0);
-        SetUtf8BufferByte(charSlot, 1, shift: 6, mask: 0x3f, prefix: 0x80);
-        SetUtf8BufferByte(charSlot, 2, shift: 0, mask: 0x3f, prefix: 0x80);
+        // 0xE0 | (c >> 12), 0x80 | ((c >> 6) & 0x3F) and 0x80 | (c & 0x3F) packed little-endian.
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x3f);
+        And();
+        Push(16);
+        ShL();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(6);
+        ShR();
+        Push(0x3f);
+        And();
+        Push(8);
+        ShL();
+        Add();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(12);
+        ShR();
+        Push(0x0f);
+        And();
+        Add();
+        Push(-0x7f7f20);                       // 0x8080E0 - 0x1000000
+        Add();
+        if (toByteString) ChangeType(StackItemType.ByteString);
         JumpAlways(endTarget);
 
         replacementTarget.Instruction = Push("\ufffd");
         JumpAlways(endTarget);
 
+        // 0xC0 | (c >> 6) and 0x80 | (c & 0x3F) packed little-endian.
         twoByteTarget.Instruction = Nop();
-        NewBuffer(2);
-        SetUtf8BufferByte(charSlot, 0, shift: 6, mask: 0x1f, prefix: 0xc0);
-        SetUtf8BufferByte(charSlot, 1, shift: 0, mask: 0x3f, prefix: 0x80);
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(0x3f);
+        And();
+        Push(8);
+        ShL();
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Push(6);
+        ShR();
+        Add();
+        Push(-0x7f40);                         // 0x80C0 - 0x10000
+        Add();
+        if (toByteString) ChangeType(StackItemType.ByteString);
         JumpAlways(endTarget);
 
         asciiTarget.Instruction = Nop();
         AccessSlot(OpCode.LDLOC, charSlot);
+        Dup();
+        JumpIfTrue(asciiConvertTarget);
+        Drop();
+        Push([(byte)0]);                // '\0' converts to an empty string
         JumpAlways(endTarget);
 
-        nullTarget.Instruction = Nop();
-        NewBuffer(1);
-        SetUtf8BufferByte(charSlot, 0, shift: 0, mask: 0x7f, prefix: 0);
+        asciiConvertTarget.Instruction = Nop();
+        if (toByteString) ChangeType(StackItemType.ByteString);
 
-        endTarget.Instruction = ChangeType(StackItemType.ByteString);
+        endTarget.Instruction = Nop();
         RemoveAnonymousVariable(charSlot);
-    }
-
-    private void SetUtf8BufferByte(byte charSlot, int index, int shift, int mask, int prefix)
-    {
-        Dup();
-        Push(index);
-        AccessSlot(OpCode.LDLOC, charSlot);
-        if (shift != 0)
-        {
-            Push(shift);
-            ShR();
-        }
-        Push(mask);
-        And();
-        if (prefix != 0)
-        {
-            Push(prefix);
-            Or();
-        }
-        SetItem();
     }
 
     // Handler for object.ToString()
@@ -915,6 +964,40 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringConcat(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (arguments is not null && symbol.Parameters.Length == 2)
+        {
+            var expressions = MapArgumentExpressionsToParameters(symbol, arguments);
+            if (expressions.TryGetValue(symbol.Parameters[0], out var first)
+                && expressions.TryGetValue(symbol.Parameters[1], out var second))
+            {
+                bool firstEmpty = IsConstantEmptyString(model, first);
+                bool secondEmpty = IsConstantEmptyString(model, second);
+                if (firstEmpty || secondEmpty)
+                {
+                    // Constant empty operands have no side effects, so only the other operand is evaluated.
+                    if (firstEmpty && secondEmpty)
+                    {
+                        methodConvert.Push("");
+                        return;
+                    }
+                    var value = firstEmpty ? second : first;
+                    methodConvert.ConvertExpression(model, value);
+                    var notNull = new JumpTarget();
+                    methodConvert.Dup();
+                    methodConvert.IsNull();
+                    methodConvert.JumpIfNot(notNull);
+                    methodConvert.Drop();
+                    methodConvert.Push("");
+                    notNull.Instruction = methodConvert.Nop();
+                    // Runtime strings can be backed by buffers, for example StringBuilder contents.
+                    // Preserve Concat's byte-string result even when CAT is unnecessary.
+                    if (!model.GetConstantValue(value).HasValue)
+                        methodConvert.ChangeType(StackItemType.ByteString);
+                    return;
+                }
+            }
+        }
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -937,13 +1020,19 @@ internal partial class MethodConvert
         methodConvert.ChangeType(StackItemType.ByteString);        // The CAT result is a buffer, so add CONVERT opcode.
     }
 
+    private static bool IsConstantEmptyString(SemanticModel model, ExpressionSyntax expression)
+    {
+        var constant = model.GetConstantValue(expression);
+        return constant.HasValue && constant.Value is string { Length: 0 };
+    }
+
     private static void HandleStringPadLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => EmitStringPad(methodConvert, model, instanceExpression, arguments, padLeft: true);
+        => EmitStringPad(methodConvert, model, symbol, instanceExpression, arguments, padLeft: true);
 
     private static void HandleStringPadRight(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => EmitStringPad(methodConvert, model, instanceExpression, arguments, padLeft: false);
+        => EmitStringPad(methodConvert, model, symbol, instanceExpression, arguments, padLeft: false);
 
     /// <summary>
     /// Handles string.PadLeft / string.PadRight by prepending or appending the padding
@@ -954,77 +1043,77 @@ internal partial class MethodConvert
     /// <remarks>
     /// Width is measured in bytes, consistent with how the compiler treats string length
     /// (<see cref="OpCode.SIZE"/>); for ASCII text this matches .NET's character semantics.
+    /// The padding character is encoded as its UTF-8 bytes, so non-ASCII fills stay valid
+    /// strings. That allows the padding to be doubled and trimmed once instead of concatenating
+    /// the character one byte group at a time.
     /// </remarks>
-    private static void EmitStringPad(MethodConvert methodConvert, SemanticModel model,
+    private static void EmitStringPad(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool padLeft)
     {
-        byte strSlot = methodConvert.AddAnonymousVariable();
-        byte widthSlot = methodConvert.AddAnonymousVariable();
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, callingConvention: CallingConvention.StdCall);
+
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
         byte fillSlot = methodConvert.AddAnonymousVariable();
-        byte countSlot = methodConvert.AddAnonymousVariable();
-        byte resultSlot = methodConvert.AddAnonymousVariable();
-
-        // Store the string to pad.
-        methodConvert.ConvertExpression(model, instanceExpression!);
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-
-        // Store the requested total width.
-        methodConvert.ConvertExpression(model, ((ArgumentSyntax)arguments![0]).Expression);
-        methodConvert.AccessSlot(OpCode.STLOC, widthSlot);
-
-        // Store the padding character (default is a space).
-        if (arguments.Count >= 2)
-            methodConvert.ConvertExpression(model, ((ArgumentSyntax)arguments[1]).Expression);
-        else
-            methodConvert.Push(' ');
-        methodConvert.AccessSlot(OpCode.STLOC, fillSlot);
-
-        // count = totalWidth - size(str)
-        methodConvert.AccessSlot(OpCode.LDLOC, widthSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Size();
-        methodConvert.Sub();
-        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
-
-        // Build the padding: count copies of the padding character (empty when count <= 0).
-        methodConvert.Push("");
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+        byte padLengthSlot = methodConvert.AddAnonymousVariable();
 
         JumpTarget loopStart = new();
         JumpTarget loopEnd = new();
-        loopStart.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
+        JumpTarget noPaddingTarget = new();
+        JumpTarget endTarget = new();
+
+        // stack: [string, count, char]
+        // Store the padding character (default is a space) before measuring the padding.
+        if (arguments?.Count < 2) methodConvert.Push(' ');
+        methodConvert.AccessSlot(OpCode.STLOC, fillSlot);          // stack: [string, count]
+
+        // reps = totalWidth - size(str), keeping the string on the stack.
+        methodConvert.Over();                                      // stack: [string, count, string]
+        methodConvert.Size();
+        methodConvert.Sub();                                       // stack: [string, reps]
+        methodConvert.Dup();
         methodConvert.Push0();
-        methodConvert.JumpIfLessOrEqual(loopEnd);
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        methodConvert.Jump(OpCode.JMPLE_L, noPaddingTarget);        // UTF-8 encoding can exceed a short branch.
+        methodConvert.AccessSlot(OpCode.STLOC, padLengthSlot);     // stack: [string]
+
+        // Encode the fill as UTF-8, then padLength = reps * size(fill).
         methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);
+        methodConvert.ConvertCharToUtf8(toByteString: true);
+        methodConvert.AccessSlot(OpCode.STLOC, fillSlot);          // stack: [string]
+        methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);
+        methodConvert.Size();                                      // stack: [string, size(fill)]
+        methodConvert.AccessSlot(OpCode.LDLOC, padLengthSlot);
+        methodConvert.Mul();                                       // stack: [string, padLength]
+        methodConvert.AccessSlot(OpCode.STLOC, padLengthSlot);     // stack: [string]
+
+        // Double the fill until it covers padLength bytes, keeping the padding on the stack.
+        methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);          // stack: [string, pad]
+        loopStart.Instruction = methodConvert.Nop();
+        methodConvert.Dup();                                       // stack: [string, pad, pad]
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.LDLOC, padLengthSlot);
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // stack: [string, pad]
+        methodConvert.Dup();
         methodConvert.Cat();
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
-        methodConvert.Dec();
-        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
-        methodConvert.JumpAlways(loopStart);
+        methodConvert.JumpAlways(loopStart);                       // stack: [string, pad * 2]
         loopEnd.Instruction = methodConvert.Nop();
+
+        // Trim the padding to the exact number of bytes: [string, padding].
+        methodConvert.AccessSlot(OpCode.LDLOC, padLengthSlot);
+        methodConvert.Left(null);
 
         // Combine: PadLeft -> padding + str ; PadRight -> str + padding.
         if (padLeft)
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        }
-        else
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        }
+            methodConvert.Swap();                                  // stack: [padding, string]
         methodConvert.Cat();
         methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.JumpAlways(endTarget);
 
-        methodConvert.RemoveAnonymousVariable(strSlot);
-        methodConvert.RemoveAnonymousVariable(widthSlot);
-        methodConvert.RemoveAnonymousVariable(fillSlot);
-        methodConvert.RemoveAnonymousVariable(countSlot);
-        methodConvert.RemoveAnonymousVariable(resultSlot);
+        // The string is already at least as wide as requested.
+        noPaddingTarget.Instruction = methodConvert.Drop();        // stack: [string]
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -1043,61 +1132,51 @@ internal partial class MethodConvert
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <remarks>
-    /// Algorithm: Iterates through UTF-8 bytes, converting only the ASCII uppercase range.
+    /// Algorithm: Copies the UTF-8 bytes into a mutable buffer, then rewrites only the ASCII uppercase bytes.
     /// </remarks>
     private static void ConvertToLower(MethodConvert methodConvert, bool preserveInput = false)
     {
-        byte strSlot = methodConvert.AddAnonymousVariable();
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
+        byte sizeSlot = methodConvert.AddAnonymousVariable();
+        byte indexSlot = methodConvert.AddAnonymousVariable();
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
-        var charIsLower = new JumpTarget();
-        var appendAsciiByte = new JumpTarget();
-        var copyOriginalByte = new JumpTarget();
+        var skipTarget = new JumpTarget();
 
         if (preserveInput)
-            methodConvert.Dup();
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-        methodConvert.Push("");                                    // Create empty result string
+            methodConvert.Dup();                                   // stack: [string]; duplicate the input when it must be preserved
+        methodConvert.Dup();                                       // stack: [string]; keep one copy to measure and convert
+        methodConvert.Size();                                      // stack: [string, string]; get string length
+        methodConvert.Dup();                                       // stack: [string, size]; store the size
+        methodConvert.StLoc(sizeSlot);                             // stack: [string, size, size]; store the size
+        methodConvert.Left(null);                                  // stack: [string, size]; copy the string into a mutable buffer
+        methodConvert.Push0();                                     // stack: [buffer]; initialize index to 0
+        methodConvert.StLoc(indexSlot);                            // stack: [buffer, 0]
 
-        methodConvert.Push0();                                     // Initialize index to 0
-        loopStart.Instruction = methodConvert.Nop();               // Loop start marker
+        loopStart.Instruction = methodConvert.LdLoc(indexSlot);    // stack: [buffer]; loop start, load index
+        methodConvert.LdLoc(sizeSlot);                             // stack: [buffer, index]; load size
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // stack: [buffer, index, size]; exit if done
+        methodConvert.Dup();                                       // stack: [buffer]; duplicate the buffer to read one byte
+        methodConvert.LdLoc(indexSlot);                            // stack: [buffer, buffer]; load index
+        methodConvert.PickItem();                                  // stack: [buffer, buffer, index]; read the byte at index
+        methodConvert.Within('A', 'Z');                            // stack: [buffer, byte]; is it ASCII uppercase?
+        methodConvert.JumpIfNot(skipTarget);                       // stack: [buffer, isUpper]; skip when it is not uppercase
+        methodConvert.Dup();                                       // stack: [buffer]; duplicate the buffer to keep it
+        methodConvert.Dup();                                       // stack: [buffer, buffer]; duplicate again for SETITEM
+        methodConvert.LdLoc(indexSlot);                            // stack: [buffer, buffer, buffer]; load index
+        methodConvert.PickItem();                                  // stack: [buffer, buffer, buffer, index]; read the byte again
+        methodConvert.Push(32);                                    // stack: [buffer, buffer, byte]; push 32 (uppercase to lowercase delta)
+        methodConvert.Add();                                       // stack: [buffer, buffer, byte, 32]; byte + 32
+        methodConvert.LdLoc(indexSlot);                            // stack: [buffer, buffer, lower]; load index
+        methodConvert.Swap();                                      // stack: [buffer, buffer, lower, index]; order for SETITEM
+        methodConvert.SetItem();                                   // stack: [buffer, buffer, index, lower]; buffer[index] = lower
+        skipTarget.Instruction = methodConvert.LdLoc(indexSlot);   // stack: [buffer]; load index
+        methodConvert.Inc();                                       // stack: [buffer, index]; next byte
+        methodConvert.StLoc(indexSlot);                            // stack: [buffer, index + 1]
+        methodConvert.JumpAlways(loopStart);                       // stack: [buffer]; continue loop
 
-        methodConvert.Dup();                                       // Duplicate index
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
-        methodConvert.Size();                                      // Get string length
-        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
-
-        methodConvert.Dup();                                       // Duplicate index
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
-        methodConvert.Swap();                                      // Swap for PickItem
-        methodConvert.PickItem();                                  // Get character at index
-        methodConvert.Dup();                                       // Duplicate character
-        methodConvert.Within('A', 'Z');                            // Check if uppercase
-        methodConvert.JumpIfTrue(charIsLower);                     // Jump if uppercase
-        methodConvert.Dup();                                       // Integer zero converts to an empty byte string
-        methodConvert.Push0();
-        methodConvert.JumpIfLessOrEqual(copyOriginalByte);
-        methodConvert.Dup();                                       // Preserve the byte while checking whether it is ASCII
-        methodConvert.Push(0x80);
-        methodConvert.JumpIfLess(appendAsciiByte);
-        copyOriginalByte.Instruction = methodConvert.Nop();        // Copy NUL and non-ASCII bytes from the original string
-        AppendCurrentStringByte(methodConvert, strSlot);
-        methodConvert.JumpAlways(loopStart);
-
-        appendAsciiByte.Instruction = methodConvert.Nop();
-        AppendStringByte(methodConvert);
-        methodConvert.JumpAlways(loopStart);                       // Continue loop
-
-        charIsLower.Instruction = methodConvert.Nop();             // Uppercase processing
-        methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
-        methodConvert.Add();                                       // Add 32 to get lowercase for ASCII
-        AppendStringByte(methodConvert);
-        methodConvert.JumpAlways(loopStart);                       // Continue loop
-
-        loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
-        methodConvert.Drop();                                      // Drop index
-        methodConvert.ChangeType(StackItemType.ByteString);       // Convert to ByteString
-        methodConvert.RemoveAnonymousVariable(strSlot);
+        loopEnd.Instruction = methodConvert.ChangeType(StackItemType.ByteString); // stack: [buffer]; convert the buffer to a ByteString
     }
 
     /// <summary>
@@ -1196,35 +1275,38 @@ internal partial class MethodConvert
 
     private static void AppendStringByte(MethodConvert methodConvert)
     {
-        methodConvert.Rot();
-        methodConvert.Swap();
-        methodConvert.Cat();
-        methodConvert.Swap();
-        methodConvert.Inc();
+        // stack: [result, index, char]
+        methodConvert.Rot();   // [index, char, result]
+        methodConvert.Swap();  // [index, result, char]
+        methodConvert.Cat();   // [index, result']
+        methodConvert.Swap();  // [result', index]
+        methodConvert.Inc();   // [result', index+1]
     }
 
     /// <summary>
     /// Initializes the string length variable.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
-    /// <param name="strLen">Variable to store string length</param>
+    /// <param name="stringIndex">Variable to store string</param>
+    /// <param name="lengthIndex">Variable to store string length</param>
     /// <remarks>
     /// Algorithm: Gets string size and stores it in local variable
     /// </remarks>
-    private static void InitStrLen(MethodConvert methodConvert, byte strLen)
+    private static void InitStringLength(MethodConvert methodConvert, byte stringIndex, byte lengthIndex)
     {
-        GetString(methodConvert);                                  // Get string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Get string
         methodConvert.Size();                                      // Get string size
-        methodConvert.AccessSlot(OpCode.STLOC, strLen);            // Store in local variable
+        methodConvert.AccessSlot(OpCode.STLOC, lengthIndex);       // Store in local variable
     }
 
     /// <summary>
     /// Gets the string length from a local variable.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
-    /// <param name="strLen">Variable containing string length</param>
+    /// <param name="lengthIndex">Variable containing string length</param>
     /// <returns>String length on stack</returns>
-    private static void GetStrLen(MethodConvert methodConvert, byte strLen) => methodConvert.AccessSlot(OpCode.LDLOC, strLen);
+    private static void GetStringLength(MethodConvert methodConvert, byte lengthIndex)
+        => methodConvert.AccessSlot(OpCode.LDLOC, lengthIndex);
 
     /// <summary>
     /// Initializes the start index variable to 0.
@@ -1245,13 +1327,13 @@ internal partial class MethodConvert
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="endIndex">Variable to store end index</param>
-    /// <param name="strLen">Variable containing string length</param>
+    /// <param name="lengthIndex">Variable containing string length</param>
     /// <remarks>
     /// Algorithm: Sets end index to last character position
     /// </remarks>
-    private static void InitEndIndex(MethodConvert methodConvert, byte endIndex, byte strLen)
+    private static void InitEndIndex(MethodConvert methodConvert, byte endIndex, byte lengthIndex)
     {
-        GetStrLen(methodConvert, strLen);                          // Get string length
+        GetStringLength(methodConvert, lengthIndex);               // Get string length
         methodConvert.Dec();                                       // Subtract 1 for last index
         methodConvert.AccessSlot(OpCode.STLOC, endIndex);          // Store in local variable
     }
@@ -1264,12 +1346,6 @@ internal partial class MethodConvert
     /// <returns>End index on stack</returns>
     private static void GetEndIndex(MethodConvert methodConvert, byte endIndex) => methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
 
-    /// <summary>
-    /// Gets the string argument (LDARG0).
-    /// </summary>
-    /// <param name="methodConvert">The method converter instance</param>
-    /// <returns>String argument on stack</returns>
-    private static void GetString(MethodConvert methodConvert) => methodConvert.LdArg0();
 
     /// <summary>
     /// Gets the start index from a local variable.
@@ -1285,14 +1361,14 @@ internal partial class MethodConvert
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="loopEnd">Jump target for loop end</param>
     /// <param name="startIndex">Variable containing start index</param>
-    /// <param name="strLen">Variable containing string length</param>
+    /// <param name="lengthIndex">Variable containing string length</param>
     /// <remarks>
     /// Algorithm: Exits loop if start index >= string length
     /// </remarks>
-    private static void CheckStartIndex(MethodConvert methodConvert, JumpTarget loopEnd, byte startIndex, byte strLen)
+    private static void CheckStartIndex(MethodConvert methodConvert, JumpTarget loopEnd, byte startIndex, byte lengthIndex)
     {
         GetStartIndex(methodConvert, startIndex);                  // Get start index
-        GetStrLen(methodConvert, strLen);                          // Get string length
+        GetStringLength(methodConvert, lengthIndex);                    // Get string length
         methodConvert.JumpIfGreaterOrEqual(loopEnd);               //  Check if index < length, Exit if not less than
     }
 
@@ -1310,20 +1386,40 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, startIndex);        // Load start index
         methodConvert.Inc();                                       // Increment by 1
         methodConvert.AccessSlot(OpCode.STLOC, startIndex);        // Store back
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
+    }
+
+    /// <summary>
+    /// Advances the start index by the trim character byte length and loops back.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="loopStart">Jump target for loop start</param>
+    /// <param name="startIndex">Variable containing the start index</param>
+    /// <param name="trimLenIndex">Variable containing the trim character UTF-8 byte length</param>
+    /// <remarks>
+    /// Used by the UTF-8 aware char trim loop so a multi-byte character is skipped as one unit.
+    /// </remarks>
+    private static void MoveStartIndexAndLoop(MethodConvert methodConvert, JumpTarget loopStart, byte startIndex, byte trimLenIndex)
+    {
+        methodConvert.AccessSlot(OpCode.LDLOC, startIndex);        // Load start index
+        methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);      // Load trim length
+        methodConvert.Add();                                       // startIndex += trimLen
+        methodConvert.AccessSlot(OpCode.STLOC, startIndex);        // Store back
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
     }
 
     /// <summary>
     /// Picks character at the start index position for processing.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="stringIndex">Variable to store string</param>
     /// <param name="startIndex">Variable containing start index</param>
     /// <remarks>
     /// Algorithm: Gets character at the current start position
     /// </remarks>
-    private static void PickCharStart(MethodConvert methodConvert, byte startIndex)
+    private static void PickCharStart(MethodConvert methodConvert, byte stringIndex, byte startIndex)
     {
-        GetString(methodConvert);                                  // Get string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Get string
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         methodConvert.PickItem();                                  // Get character at index
     }
@@ -1346,25 +1442,48 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Checks if character is within whitespace range and exits loop if not.
-    /// The top stack item should be a picked item from string.
+    /// Moves the end index back by the trim character byte length and loops back.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="loopStart">Jump target for loop start</param>
+    /// <param name="endIndex">Variable containing the end index</param>
+    /// <param name="trimLenIndex">Variable containing the trim character UTF-8 byte length</param>
+    /// <remarks>
+    /// Used by the UTF-8 aware char trim loop so a multi-byte character is skipped as one unit.
+    /// </remarks>
+    private static void MoveEndIndexAndLoop(MethodConvert methodConvert, JumpTarget loopStart, byte endIndex, byte trimLenIndex)
+    {
+        methodConvert.AccessSlot(OpCode.LDLOC, endIndex);          // Load end index
+        methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);      // Load trim length
+        methodConvert.Sub();                                       // endIndex -= trimLen
+        methodConvert.AccessSlot(OpCode.STLOC, endIndex);          // Store back
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
+    }
+
+    /// <summary>
+    /// Mask of the whitespace bytes: '\t' (0x09) to '\r' (0x0D) and ' ' (0x20).
+    /// </summary>
+    private const long WhiteSpaceByteMask = (1L << 9) | (1L << 10) | (1L << 11) | (1L << 12) | (1L << 13) | (1L << 32);
+
+    /// <summary>
+    /// Checks if the byte on the top of the stack is an ASCII whitespace byte and exits loop if not.
+    /// The top stack item should be a byte picked from a string, so it is always in the range [0, 255].
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="loopEnd">Jump target for loop end</param>
     /// <remarks>
-    /// Algorithm: Checks if character is tab-carriage return range or space character
+    /// Algorithm: Shifts <see cref="WhiteSpaceByteMask"/> right by the byte value, the lowest bit of the
+    /// result is set only when the byte is a whitespace byte. The shift amount is at most 255, which is
+    /// within <see cref="ExecutionEngineLimits.MaxShift"/>.
     /// </remarks>
-    private static void CheckWithinWhiteSpace(MethodConvert methodConvert, JumpTarget loopEnd)
+    private static void CheckIsWhiteSpaceByte(MethodConvert methodConvert, JumpTarget loopEnd)
     {
-        methodConvert.Dup();                                       // Duplicate character
-        methodConvert.Within('\t', '\r');                          // Check if within tab-CR range
-        methodConvert.Swap();                                      // Swap for space check
-
-        methodConvert.Push((ushort)' ');                           // Push space character
-        methodConvert.NumEqual();                                  // Check if equals space
-        methodConvert.BoolOr();                                    // Combine checks with OR
-
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not whitespace
+        methodConvert.Push(WhiteSpaceByteMask);                    // Mask of the whitespace bytes
+        methodConvert.Swap();                                      // Put the byte on the top as the shift amount
+        methodConvert.ShR();                                       // Move the bit of the byte value to the lowest bit
+        methodConvert.Push(1);                                     // Test the lowest bit
+        methodConvert.And();                                       // 1 if the byte is whitespace
+        methodConvert.JumpIfFalse(loopEnd);                        // Exit if not whitespace
     }
 
     /// <summary>
@@ -1375,13 +1494,151 @@ internal partial class MethodConvert
     /// <remarks>
     /// Algorithm: Compares character with the specified trim character
     /// </remarks>
-    private static void CheckTrimChar(MethodConvert methodConvert, JumpTarget loopEnd, char? constantTrimChar)
+    private static void CheckTrimChar(MethodConvert methodConvert, JumpTarget loopEnd, byte trimCharIndex, char? constantTrimChar)
     {
         if (constantTrimChar.HasValue)
             methodConvert.Push((ushort)constantTrimChar.Value);
         else
-            methodConvert.LdArg1();                                // Load trim character
+            methodConvert.LdLoc(trimCharIndex);             // Load trim character
         methodConvert.JumpIfNotEqual(loopEnd);              // Exit if not equal
+    }
+
+    /// <summary>
+    /// Returns true when the trim character is a compile-time constant whose UTF-8 encoding is a
+    /// single byte (i.e. an ASCII character), so the faster byte-wise trim path can be used.
+    /// </summary>
+    /// <param name="constantTrimChar">The constant trim character, if any</param>
+    /// <remarks>
+    /// Non-ASCII and runtime characters need the UTF-8 boundary comparison, which costs more gas.
+    /// </remarks>
+    private static bool IsSingleByteConstantTrimChar(char? constantTrimChar)
+    {
+        return constantTrimChar is { } c && c <= 0x7f;
+    }
+
+    /// <summary>
+    /// Stores the UTF-8 byte sequence for the trim character into a slot.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="constantTrimChar">The constant trim character, if any</param>
+    /// <param name="trimBytesIndex">Output slot that holds the UTF-8 byte sequence</param>
+    /// <param name="trimLenIndex">Output slot that holds the UTF-8 byte length</param>
+    /// <remarks>
+    /// For a constant character the sequence is emitted directly at compile time. For a runtime
+    /// character it is produced with <see cref="ConvertCharToUtf8"/> and measured with <c>SIZE</c>.
+    /// </remarks>
+    private static void EmitTrimCharUtf8(MethodConvert methodConvert, char? constantTrimChar, out byte trimBytesIndex, out byte trimLenIndex)
+    {
+        trimBytesIndex = methodConvert.AddAnonymousVariable();
+        trimLenIndex = methodConvert.AddAnonymousVariable();
+
+        if (constantTrimChar is { } character)
+        {
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(NormalizeCharForUtf8(character).ToString());
+            methodConvert.Push(bytes);
+            methodConvert.AccessSlot(OpCode.STLOC, trimBytesIndex);
+            methodConvert.Push(bytes.Length);
+            methodConvert.AccessSlot(OpCode.STLOC, trimLenIndex);
+        }
+        else
+        {
+            methodConvert.ConvertCharToUtf8(toByteString: true);
+            methodConvert.AccessSlot(OpCode.STLOC, trimBytesIndex);
+            methodConvert.AccessSlot(OpCode.LDLOC, trimBytesIndex);
+            methodConvert.Size();
+            methodConvert.AccessSlot(OpCode.STLOC, trimLenIndex);
+        }
+    }
+
+    /// <summary>
+    /// Checks whether the character at the leading boundary equals the trim character encoded as UTF-8.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="loopEnd">Jump target for loop end</param>
+    /// <param name="stringIndex">Slot holding the string</param>
+    /// <param name="indexIndex">Slot holding the byte index of the leading boundary</param>
+    /// <param name="trimBytesIndex">Slot holding the trim character UTF-8 byte sequence</param>
+    /// <param name="trimLenIndex">Slot holding the trim character UTF-8 byte length</param>
+    /// <param name="lengthIndex">Slot holding the string byte length</param>
+    /// <remarks>
+    /// Compares the leading bytes with the trim character. Exits the loop when there is
+    /// not enough room or the slice does not equal the trim character.
+    /// </remarks>
+    private static void CheckTrimCharUtf8Start(MethodConvert methodConvert, JumpTarget loopEnd, byte stringIndex, byte indexIndex, byte trimBytesIndex, byte trimLenIndex, byte lengthIndex)
+    {
+        // If index + trimLen > length there is not enough room for the character, stop trimming.
+        GetStartIndex(methodConvert, indexIndex);
+        methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
+        methodConvert.Add();
+        GetStringLength(methodConvert, lengthIndex);
+        methodConvert.JumpIfGreater(loopEnd);
+
+        CheckTrimCharUtf8Bytes(methodConvert, loopEnd, stringIndex, indexIndex, trimBytesIndex, trimLenIndex, fromEnd: false);
+    }
+
+    /// <summary>
+    /// Checks whether the character at the trailing boundary equals the trim character encoded as UTF-8.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="loopEnd">Jump target for loop end</param>
+    /// <param name="stringIndex">Slot holding the string</param>
+    /// <param name="endIndex">Slot holding the byte index of the trailing boundary</param>
+    /// <param name="trimBytesIndex">Slot holding the trim character UTF-8 byte sequence</param>
+    /// <param name="trimLenIndex">Slot holding the trim character UTF-8 byte length</param>
+    /// <param name="startIndex">Slot holding the leading boundary (0 for a one-sided trailing trim)</param>
+    /// <remarks>
+    /// Compares the trailing bytes with the trim character. Exits the loop when there is
+    /// not enough room (the boundary slice would start below the leading boundary) or the slice does
+    /// not equal the trim character.
+    /// </remarks>
+    private static void CheckTrimCharUtf8End(MethodConvert methodConvert, JumpTarget loopEnd, byte stringIndex, byte endIndex, byte trimBytesIndex, byte trimLenIndex, byte startIndex)
+    {
+        // If end - trimLen + 1 < startIndex there is not enough room for the character, stop trimming.
+        GetEndIndex(methodConvert, endIndex);
+        methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
+        methodConvert.Sub();
+        methodConvert.Push1();
+        methodConvert.Add();
+        GetStartIndex(methodConvert, startIndex);
+        methodConvert.JumpIfLess(loopEnd);
+
+        CheckTrimCharUtf8Bytes(methodConvert, loopEnd, stringIndex, endIndex, trimBytesIndex, trimLenIndex, fromEnd: true);
+    }
+
+    private static void CheckTrimCharUtf8Bytes(MethodConvert methodConvert, JumpTarget loopEnd,
+        byte stringIndex, byte boundaryIndex, byte trimBytesIndex, byte trimLenIndex, bool fromEnd)
+    {
+        // One UTF-16 code unit encodes as at most three UTF-8 bytes. Compare integer bytes:
+        // SUBSTR returns a Buffer, whose EQUAL operation compares identity rather than content.
+        var matched = new JumpTarget();
+        for (int offset = 0; offset < 3; offset++)
+        {
+            if (offset != 0)
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
+                methodConvert.Push(offset);
+                methodConvert.JumpIfLessOrEqual(matched);
+            }
+            methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);
+            methodConvert.AccessSlot(OpCode.LDLOC, boundaryIndex);
+            if (fromEnd)
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, trimLenIndex);
+                methodConvert.Sub();
+                methodConvert.Inc();
+            }
+            if (offset != 0)
+            {
+                methodConvert.Push(offset);
+                methodConvert.Add();
+            }
+            methodConvert.PickItem();
+            methodConvert.AccessSlot(OpCode.LDLOC, trimBytesIndex);
+            methodConvert.Push(offset);
+            methodConvert.PickItem();
+            methodConvert.JumpIfNotEqual(loopEnd);
+        }
+        matched.Instruction = methodConvert.Nop();
     }
 
     /// <summary>
@@ -1418,13 +1675,14 @@ internal partial class MethodConvert
     /// Picks character at the end index position for processing.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="stringIndex">Variable to store string</param>
     /// <param name="endIndex">Variable containing end index</param>
     /// <remarks>
     /// Algorithm: Gets character at the current end position
     /// </remarks>
-    private static void PickCharEnd(MethodConvert methodConvert, byte endIndex)
+    private static void PickCharEnd(MethodConvert methodConvert, byte stringIndex, byte endIndex)
     {
-        GetString(methodConvert);                                  // Get string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Get string
         GetEndIndex(methodConvert, endIndex);                      // Get end index
         methodConvert.PickItem();                                  // Get character at index
     }
@@ -1446,37 +1704,41 @@ internal partial class MethodConvert
 
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
 
-        var strLen = methodConvert.AddAnonymousVariable();
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
 
-        InitStrLen(methodConvert, strLen);                         // strLen = string.Length
+        methodConvert.AccessSlot(OpCode.STLOC, stringIndex);       // Store string
+        InitStringLength(methodConvert, stringIndex, lengthIndex); // strLen = string.Length
         InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
-        InitEndIndex(methodConvert, endIndex, strLen);             // endIndex = string.Length - 1
+        InitEndIndex(methodConvert, endIndex, lengthIndex);        // endIndex = string.Length - 1
 
         // Loop to trim leading whitespace
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
-        loopStart.Instruction = methodConvert.Nop();               // Loop start marker
-        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
-        PickCharStart(methodConvert, startIndex);                  // Pick character to check
-        CheckWithinWhiteSpace(methodConvert, loopEnd);
+        loopStart.Instruction = methodConvert.Nop();                       // Loop start marker
+        CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
+        PickCharStart(methodConvert, stringIndex, startIndex);             // Pick character to check
+        CheckIsWhiteSpaceByte(methodConvert, loopEnd);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
 
         // Process trailing whitespace
         var loopStart2 = new JumpTarget();
         var loopEnd2 = new JumpTarget();
-        loopStart2.Instruction = methodConvert.Nop();              // Second loop start
+        loopStart2.Instruction = methodConvert.Nop();                 // Second loop start
         CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
-        PickCharEnd(methodConvert, endIndex);                      // Pick character to check
-        CheckWithinWhiteSpace(methodConvert, loopEnd2);
+        PickCharEnd(methodConvert, stringIndex, endIndex);            // Pick character to check
+        CheckIsWhiteSpaceByte(methodConvert, loopEnd2);
         MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
         loopEnd2.Instruction = methodConvert.Nop();                // Second loop end
 
         // Extract the trimmed substring
-        GetString(methodConvert);                                  // Get original string
+        methodConvert.AccessSlot(OpCode.LDLOC, stringIndex);       // Load string
         GetStartIndex(methodConvert, startIndex);                  // Get start position
         GetEndIndex(methodConvert, endIndex);                      // Get end position
         GetStartIndex(methodConvert, startIndex);                  // Get start for calculation
@@ -1498,7 +1760,10 @@ internal partial class MethodConvert
     /// Algorithm: Finds first and last characters that don't match the trim character
     /// </remarks>
     private static void HandleStringTrimChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, trimChar);
+    }
 
     private static void HandleStringTrimCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1511,44 +1776,77 @@ internal partial class MethodConvert
         HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, trimChar);
     }
 
-    private static void HandleStringTrimCharInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, char? constantTrimChar)
+    private static void HandleStringTrimCharInternal(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, char? constantTrimChar)
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
 
-        var strLen = methodConvert.AddAnonymousVariable();
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
+        methodConvert.StLoc(stringIndex);      // Store string
+        if (constantTrimChar is null && arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        InitStrLen(methodConvert, strLen);                         // strLen = string.Length
-        InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
-        InitEndIndex(methodConvert, endIndex, strLen);             // endIndex = string.Length - 1
-        methodConvert.Drop();                                      // Clean up stack (remove argument from evaluation stack)
+        // Single-byte constant characters (ASCII) keep the cheaper byte-wise trim path; any
+        // other character requires the UTF-8 boundary comparison below.
+        if (IsSingleByteConstantTrimChar(constantTrimChar))
+        {
+            InitStringLength(methodConvert, stringIndex, lengthIndex);
+            InitStartIndex(methodConvert, startIndex);
+            InitEndIndex(methodConvert, endIndex, lengthIndex);
 
-        // Loop to trim leading characters
-        var loopStart = new JumpTarget();
-        var loopEnd = new JumpTarget();
-        loopStart.Instruction = methodConvert.Nop();               // Loop start marker
-        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
-        PickCharStart(methodConvert, startIndex);                  // Pick character to check
-        CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
-        MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
-        loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
+            // Loop to trim leading characters
+            var loopStart = new JumpTarget();
+            var loopEnd = new JumpTarget();
+            loopStart.Instruction = methodConvert.Nop();
+            CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
+            PickCharStart(methodConvert, stringIndex, startIndex);
+            CheckTrimChar(methodConvert, loopEnd, 0, constantTrimChar);
+            MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
+            loopEnd.Instruction = methodConvert.Nop();
 
-        // Process trailing characters
-        var loopStart2 = new JumpTarget();
-        var loopEnd2 = new JumpTarget();
-        loopStart2.Instruction = methodConvert.Nop();              // Second loop start
-        CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
-        PickCharEnd(methodConvert, endIndex);                      // Pick character to check
-        CheckTrimChar(methodConvert, loopEnd2, constantTrimChar);
-        MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
-        loopEnd2.Instruction = methodConvert.Nop();                // Second loop end
+            // Process trailing characters
+            var loopStart2 = new JumpTarget();
+            var loopEnd2 = new JumpTarget();
+            loopStart2.Instruction = methodConvert.Nop();
+            CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
+            PickCharEnd(methodConvert, stringIndex, endIndex);
+            CheckTrimChar(methodConvert, loopEnd2, 0, constantTrimChar);
+            MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
+            loopEnd2.Instruction = methodConvert.Nop();
+        }
+        else
+        {
+            EmitTrimCharUtf8(methodConvert, constantTrimChar, out byte trimBytesIndex, out byte trimLenIndex);
+
+            InitStringLength(methodConvert, stringIndex, lengthIndex);
+            InitStartIndex(methodConvert, startIndex);
+            InitEndIndex(methodConvert, endIndex, lengthIndex);
+
+            // Loop to trim leading characters
+            var loopStart = new JumpTarget();
+            var loopEnd = new JumpTarget();
+            loopStart.Instruction = methodConvert.Nop();
+            CheckTrimCharUtf8Start(methodConvert, loopEnd, stringIndex, startIndex, trimBytesIndex, trimLenIndex, lengthIndex);
+            MoveStartIndexAndLoop(methodConvert, loopStart, startIndex, trimLenIndex);
+            loopEnd.Instruction = methodConvert.Nop();
+
+            // Process trailing characters
+            var loopStart2 = new JumpTarget();
+            var loopEnd2 = new JumpTarget();
+            loopStart2.Instruction = methodConvert.Nop();
+            CheckTrimCharUtf8End(methodConvert, loopEnd2, stringIndex, endIndex, trimBytesIndex, trimLenIndex, startIndex);
+            MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex, trimLenIndex);
+            loopEnd2.Instruction = methodConvert.Nop();
+        }
 
         // Extract the trimmed substring
-        GetString(methodConvert);                                  // Get original string
+        methodConvert.LdLoc(stringIndex);                          // Load string
         GetStartIndex(methodConvert, startIndex);                  // Get start position
         GetEndIndex(methodConvert, endIndex);                      // Get end position
         GetStartIndex(methodConvert, startIndex);                  // Get start for calculation
@@ -1562,7 +1860,10 @@ internal partial class MethodConvert
         => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
 
     private static void HandleStringTrimStartChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
 
     private static void HandleStringTrimStartCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1579,35 +1880,48 @@ internal partial class MethodConvert
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
+        var startIndex = methodConvert.AddAnonymousVariable();
+        methodConvert.StLoc(stringIndex);       // Store string
+        if (useTrimChar && constantTrimChar is null && arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        var strLen = methodConvert.AddAnonymousVariable();
-        var startIndex = methodConvert.AddAnonymousVariable();
+        bool singleByteConstant = useTrimChar && IsSingleByteConstantTrimChar(constantTrimChar);
 
-        InitStrLen(methodConvert, strLen);
+        byte trimBytesIndex = 0;
+        byte trimLenIndex = 0;
+        if (useTrimChar && !singleByteConstant)
+            EmitTrimCharUtf8(methodConvert, constantTrimChar, out trimBytesIndex, out trimLenIndex);
+
+        InitStringLength(methodConvert, stringIndex, lengthIndex);
         InitStartIndex(methodConvert, startIndex);
-
-        if (useTrimChar)
-        {
-            methodConvert.Drop();
-        }
 
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.Nop();
-        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
-        PickCharStart(methodConvert, startIndex);
-        if (useTrimChar)
-            CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
+        if (useTrimChar && !singleByteConstant)
+            CheckTrimCharUtf8Start(methodConvert, loopEnd, stringIndex, startIndex, trimBytesIndex, trimLenIndex, lengthIndex);
         else
-            CheckWithinWhiteSpace(methodConvert, loopEnd);
-        MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
+            CheckStartIndex(methodConvert, loopEnd, startIndex, lengthIndex);
+        if (!useTrimChar || singleByteConstant)
+            PickCharStart(methodConvert, stringIndex, startIndex);
+        if (!useTrimChar)
+            CheckIsWhiteSpaceByte(methodConvert, loopEnd);
+        else if (singleByteConstant)
+            CheckTrimChar(methodConvert, loopEnd, 0, constantTrimChar);
+        if (useTrimChar && !singleByteConstant)
+            MoveStartIndexAndLoop(methodConvert, loopStart, startIndex, trimLenIndex);
+        else
+            MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();
 
-        GetString(methodConvert);
+        methodConvert.LdLoc(stringIndex);    // Load string
         GetStartIndex(methodConvert, startIndex);
-        GetStrLen(methodConvert, strLen);
+        GetStringLength(methodConvert, lengthIndex);
         GetStartIndex(methodConvert, startIndex);
         methodConvert.Sub();
         methodConvert.SubStr();
@@ -1618,7 +1932,10 @@ internal partial class MethodConvert
         => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
 
     private static void HandleStringTrimEndChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+    {
+        char? trimChar = GetConstantCharArgument(model, symbol, arguments);
+        HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
 
     private static void HandleStringTrimEndCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -1635,30 +1952,45 @@ internal partial class MethodConvert
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
-        if (arguments is not null)
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        var stringIndex = methodConvert.AddAnonymousVariable();
+        var lengthIndex = methodConvert.AddAnonymousVariable();
+        var endIndex = methodConvert.AddAnonymousVariable();
+        var startIndex = methodConvert.AddAnonymousVariable();
+        methodConvert.StLoc(stringIndex);       // Store string
+        if (useTrimChar && constantTrimChar is null && arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        var strLen = methodConvert.AddAnonymousVariable();
-        var endIndex = methodConvert.AddAnonymousVariable();
-
-        InitStrLen(methodConvert, strLen);
-        InitEndIndex(methodConvert, endIndex, strLen);
-
-        if (useTrimChar)
+        byte trimBytesIndex = 0;
+        byte trimLenIndex = 0;
+        if (useTrimChar && !IsSingleByteConstantTrimChar(constantTrimChar))
         {
-            methodConvert.Drop();
+            EmitTrimCharUtf8(methodConvert, constantTrimChar, out trimBytesIndex, out trimLenIndex);
+            methodConvert.Push0();                               // Leading boundary is fixed at 0
+            methodConvert.AccessSlot(OpCode.STLOC, startIndex);
         }
+        InitStringLength(methodConvert, stringIndex, lengthIndex);
+        InitEndIndex(methodConvert, endIndex, lengthIndex);
 
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.Nop();
-        CheckEndIndexNonNegative(methodConvert, loopEnd, endIndex);
-        PickCharEnd(methodConvert, endIndex);
-        if (useTrimChar)
-            CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
+        if (useTrimChar && !IsSingleByteConstantTrimChar(constantTrimChar))
+            CheckTrimCharUtf8End(methodConvert, loopEnd, stringIndex, endIndex, trimBytesIndex, trimLenIndex, startIndex);
         else
-            CheckWithinWhiteSpace(methodConvert, loopEnd);
-        MoveEndIndexAndLoop(methodConvert, loopStart, endIndex);
+            CheckEndIndexNonNegative(methodConvert, loopEnd, endIndex);
+        if (!useTrimChar || IsSingleByteConstantTrimChar(constantTrimChar))
+            PickCharEnd(methodConvert, stringIndex, endIndex);
+        if (!useTrimChar)
+            CheckIsWhiteSpaceByte(methodConvert, loopEnd);
+        else if (IsSingleByteConstantTrimChar(constantTrimChar))
+            CheckTrimChar(methodConvert, loopEnd, 0, constantTrimChar);
+        if (useTrimChar && !IsSingleByteConstantTrimChar(constantTrimChar))
+            MoveEndIndexAndLoop(methodConvert, loopStart, endIndex, trimLenIndex);
+        else
+            MoveEndIndexAndLoop(methodConvert, loopStart, endIndex);
         loopEnd.Instruction = methodConvert.Nop();
 
         JumpTarget allTrimmed = new();
@@ -1668,7 +2000,7 @@ internal partial class MethodConvert
         methodConvert.Push(-1);
         methodConvert.JumpIfEqual(allTrimmed);
 
-        GetString(methodConvert);
+        methodConvert.LdLoc(stringIndex);    // Load string
         methodConvert.Push0();
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Inc();
@@ -1719,6 +2051,18 @@ internal partial class MethodConvert
         }
     }
 
+    private static char? GetConstantCharArgument(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        // Only one char parameter is supported for string.Trim/TrimStart/TrimEnd.
+        if (arguments is null || arguments.Count != 1) return null;
+
+        if (arguments[0] is not ArgumentSyntax argument)
+            return null;
+
+        var constant = model.GetConstantValue(argument.Expression);
+        return constant.HasValue && constant.Value is char value ? value : null;
+    }
+
     /// <summary>
     /// Handles the string.Replace method by replacing all occurrences of a substring.
     /// </summary>
@@ -1727,15 +2071,8 @@ internal partial class MethodConvert
     /// <param name="symbol">The method symbol</param>
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
-    /// <remarks>
-    /// Algorithm: Iteratively finds and replaces all occurrences of the search string
-    /// </remarks>
     private static void HandleStringReplace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        // Build the result by scanning the remaining tail of the string for the search
-        // value, appending the gap before each match plus the replacement, then continuing
-        // from just past the match. Scanning the tail (rather than the freshly built result)
-        // both terminates and avoids re-matching inside newValue when it contains oldValue.
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
         if (arguments is not null)
@@ -1744,32 +2081,16 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
 
         // Stack (top-down) after the calls above: instance, oldValue, newValue.
-        byte restSlot = methodConvert.AddAnonymousVariable();
+        byte strSlot = methodConvert.AddAnonymousVariable();
         byte oldSlot = methodConvert.AddAnonymousVariable();
         byte newSlot = methodConvert.AddAnonymousVariable();
-        byte resultSlot = methodConvert.AddAnonymousVariable();
         byte oldLenSlot = methodConvert.AddAnonymousVariable();
-        byte idxSlot = methodConvert.AddAnonymousVariable();
-        byte consumedSlot = methodConvert.AddAnonymousVariable();
+        byte cursorSlot = methodConvert.AddAnonymousVariable();
+        byte indexSlot = methodConvert.AddAnonymousVariable();
 
-        methodConvert.AccessSlot(OpCode.STLOC, restSlot);          // instance
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);           // instance
         methodConvert.AccessSlot(OpCode.STLOC, oldSlot);           // oldValue
         methodConvert.AccessSlot(OpCode.STLOC, newSlot);           // newValue
-
-        // Normalize all three operands to ByteString.
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, restSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, oldSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, oldSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, newSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, newSlot);
-
-        // result = ""
-        methodConvert.Push("");
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
 
         // oldLen = oldValue.Length; C# throws on an empty oldValue, so fault here too
         // (ASSERT faults on a zero length) instead of looping forever.
@@ -1779,138 +2100,151 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, oldLenSlot);
         methodConvert.Assert();
 
+        // cursor = 0
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.STLOC, cursorSlot);
+
+        // The result is accumulated in the single value that stays on the evaluation stack for
+        // the whole loop, so it is neither stored nor reloaded per iteration: both the loop
+        // start and the noMoreMatches target expect exactly this item, and nothing else.
+        methodConvert.Push("");
+
         var loopStart = new JumpTarget();
-        var notFound = new JumpTarget();
+        var noMoreMatches = new JumpTarget();
+        var unchanged = new JumpTarget();
+        var done = new JumpTarget();
 
         loopStart.Instruction = methodConvert.Nop();
 
-        // idx = StdLib.memorySearch(rest, oldValue)
-        // memorySearch takes the haystack (mem) on top of the needle (value).
+        // index = StdLib.memorySearch(str, oldValue, cursor)
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, oldSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        methodConvert.AccessSlot(OpCode.STLOC, idxSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 3, true);
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
 
-        // if (idx == -1) goto notFound
-        methodConvert.AccessSlot(OpCode.LDLOC, idxSlot);
+        // if (index == -1) goto noMoreMatches
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.PushM1();
-        methodConvert.JumpIfEqual(notFound);
+        methodConvert.JumpIfEqual(noMoreMatches);
 
-        // result = result + rest[0..idx] + newValue
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.Push0();
-        methodConvert.AccessSlot(OpCode.LDLOC, idxSlot);
-        methodConvert.SubStr();                                    // rest[0..idx]
+        // result += str[cursor..index] + newValue   (stack: [result] -> [result'])
+        // CAT/SUBSTR/RIGHT push buffers, so the accumulator is only converted once, at the end.
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.Sub();                                       // length of the gap
+        methodConvert.SubStr();                                    // str[cursor..index]
         methodConvert.Cat();
         methodConvert.AccessSlot(OpCode.LDLOC, newSlot);
         methodConvert.Cat();
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
 
-        // consumed = idx + oldLen
-        methodConvert.AccessSlot(OpCode.LDLOC, idxSlot);
+        // cursor = index + oldLen; keep scanning right after the match, which also avoids
+        // re-matching inside newValue when it contains oldValue.
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, oldLenSlot);
         methodConvert.Add();
-        methodConvert.AccessSlot(OpCode.STLOC, consumedSlot);
-
-        // rest = rest[consumed .. end]
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, consumedSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
-        methodConvert.Size();
-        methodConvert.AccessSlot(OpCode.LDLOC, consumedSlot);
-        methodConvert.Sub();                                       // length = Size(rest) - consumed
-        methodConvert.SubStr();
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, restSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, cursorSlot);
 
         methodConvert.JumpAlways(loopStart);
 
         // No further match: append the remaining tail and return.
-        notFound.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, restSlot);
+        noMoreMatches.Instruction = methodConvert.Nop();
+
+        // cursor == 0 means no occurrence was replaced at all, so the input is already the
+        // result and can be returned without copying it.
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.JumpIfFalse(unchanged);
+
+        // stack: [result] -> [result + str[cursor..]]
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.LDLOC, cursorSlot);
+        methodConvert.Sub();                                       // length of the tail
+        methodConvert.Right(null);                                 // str[cursor..]
         methodConvert.Cat();
         methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.JumpAlways(done);
+
+        unchanged.Instruction = methodConvert.Nop();
+        methodConvert.Drop();                                      // discard the empty accumulator
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);        // CAT/SUBSTR results are buffers
+
+        done.Instruction = methodConvert.Nop();
     }
 
-    private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
 
         bool hasCount = symbol.Parameters.Length == 2;
 
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, callingConvention: CallingConvention.StdCall);
 
-        byte strSlot = methodConvert.AddAnonymousVariable();
-        byte startSlot = methodConvert.AddAnonymousVariable();
-        byte countSlot = hasCount ? methodConvert.AddAnonymousVariable() : (byte)0;
-
-        if (hasCount)
+        if (!hasCount) // [string, start]
         {
-            methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-            methodConvert.AccessSlot(OpCode.STLOC, startSlot);
-            methodConvert.AccessSlot(OpCode.STLOC, countSlot);
-        }
-        else
-        {
-            methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-            methodConvert.AccessSlot(OpCode.STLOC, startSlot);
-        }
-
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.ChangeType(StackItemType.ByteString);
-        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
-
-        if (!hasCount)
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-            methodConvert.Push0();
-            methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-            methodConvert.SubStr();
+            methodConvert.Left(null);
+            methodConvert.ChangeType(StackItemType.ByteString);
             return;
         }
 
-        byte prefixSlot = methodConvert.AddAnonymousVariable();
-        byte suffixSlot = methodConvert.AddAnonymousVariable();
-        byte strLenSlot = methodConvert.AddAnonymousVariable();
-        byte suffixStartSlot = methodConvert.AddAnonymousVariable();
-        byte suffixLengthSlot = methodConvert.AddAnonymousVariable();
+        // stack: [string, start, count]
+        byte startSlot = methodConvert.AddAnonymousVariable();
+        byte countSlot = methodConvert.AddAnonymousVariable();
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, startSlot);
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.Size();
-        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
+        JumpTarget validStartTarget = new();
+        JumpTarget validCountTarget = new();
+        JumpTarget validRangeTarget = new();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
         methodConvert.Push0();
-        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
-        methodConvert.SubStr();
-        methodConvert.AccessSlot(OpCode.STLOC, prefixSlot);
+        methodConvert.JumpIfGreaterOrEqual(validStartTarget);
+        methodConvert.Push("Invalid startIndex");
+        methodConvert.Throw();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        validStartTarget.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
-        methodConvert.Add();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixStartSlot);
+        methodConvert.Push0();
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget);
+        methodConvert.Push("Invalid count");
+        methodConvert.Throw();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixStartSlot);
-        methodConvert.Sub();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixLengthSlot);
+        validCountTarget.Instruction = methodConvert.Nop();
+        methodConvert.Dup();                               // [string, string]
+        methodConvert.Size();                              // [string, size]
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [string, size, start]
+        methodConvert.Sub();                               // [string, size - start]
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot); // [string, size - start, count]
+        methodConvert.JumpIfGreaterOrEqual(validRangeTarget);
+        methodConvert.Push("Invalid range");
+        methodConvert.Throw();
 
-        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixStartSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixLengthSlot);
-        methodConvert.SubStr();
-        methodConvert.AccessSlot(OpCode.STLOC, suffixSlot);
+        validRangeTarget.Instruction = methodConvert.Nop();
+        methodConvert.Dup();                               // [string, string]
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [string, string, start]
+        methodConvert.Left(null);                          // [string, prefix]
 
-        methodConvert.AccessSlot(OpCode.LDLOC, prefixSlot);
-        methodConvert.AccessSlot(OpCode.LDLOC, suffixSlot);
-        methodConvert.Cat();
-        methodConvert.ChangeType(StackItemType.ByteString); // The CAT result is a buffer, so add CONVERT opcode.
+        methodConvert.Swap();                              // [prefix, string]
+        methodConvert.Dup();                               // [prefix, string, string]
+        methodConvert.Size();                              // [prefix, string, size]
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot); // [prefix, string, size, start]
+        methodConvert.Sub();                               // [prefix, string, remain]
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot); // [prefix, string, remain, count]
+        methodConvert.Sub();                               // [prefix, string, remain']
+
+        methodConvert.Right(null);                         // [prefix, suffix]
+        methodConvert.Cat();                               // [result]
+        methodConvert.ChangeType(StackItemType.ByteString);
     }
 
     private static void HandleStringInsert(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -1960,16 +2294,61 @@ internal partial class MethodConvert
     /// <remarks>
     /// Algorithm: Uses StdLib memorySearch to find the character position
     /// </remarks>
-    private static void HandleStringIndexOfChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleStringIndexOfChar(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        NormalizeNulCharSearchArgument(methodConvert);
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out char value))
+        {
+            methodConvert.Push(NormalizeCharForUtf8(value).ToString());
+        }
+        else
+        {
+            if (arguments is not null)
+                methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.ConvertCharToUtf8(toByteString: false);
+        }
 
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
 
         // Call the StdLib memorySearch method to find the index of the character
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+    }
+
+    /// <summary>
+    /// Handles the string.LastIndexOf(char) method by finding the last index of a character.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Uses StdLib memorySearch with backward = true, starting from the end of the
+    /// string, to find the last occurrence of the character.
+    /// </remarks>
+    private static void HandleStringLastIndexOfChar(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        // The native memorySearch(mem, value, start, backward) takes its parameters back to
+        // front, so the stack is built as [backward, start, value, mem].
+        methodConvert.Push(true);                                    // [true]
+        methodConvert.ConvertExpression(model, instanceExpression!); // [true, string]
+        methodConvert.Dup();                                         // [true, string, string]
+        methodConvert.Size();                                        // [true, string, size]
+
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out char value))
+        {
+            methodConvert.Push(NormalizeCharForUtf8(value).ToString());
+        }
+        else
+        {
+            if (arguments is not null)
+                methodConvert.PrepareArgumentsForMethod(model, symbol, arguments); // [true, string, size, char]
+            methodConvert.ConvertCharToUtf8(toByteString: false);
+        }
+
+        methodConvert.Rot();                                                   // [true, size, char, string]
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 4, true);
     }
 }

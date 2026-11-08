@@ -148,7 +148,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RecordStructIsolation()
         {
             var result = Contract.Test_RecordStructIsolation(1, 2, 3);
-            AssertGasConsumed(2297160);
+            AssertGasConsumed(2295000);
             Assert.IsTrue(result);
         }
     }

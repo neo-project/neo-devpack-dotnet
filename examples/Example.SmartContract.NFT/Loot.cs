@@ -30,7 +30,7 @@ namespace NFT
     {
         public override string Symbol { [Safe] get => "sLoot"; }
 
-        private static readonly LocalStorageMap TokenIndexMap = new((byte)StoragePrefix.Token);
+        private static readonly LocalStorageMap TokenIndexMap = new((byte)StoragePrefix.TokenIndex);
         private static readonly LocalStorageMap TokenMap = new((byte)StoragePrefix.Token);
         public static event Action<string> EventMsg;
 
@@ -185,6 +185,7 @@ namespace NFT
             var credential = CheckClaim(tokenId);
             var token = TokenState.MintLoot(sender, tokenId, credential);
             Mint(tokenId.ToString(), token);
+            TokenMap.Put(tokenId.ToString(), StdLib.Serialize(token));
             TokenIndexMap.Put(tokenId.ToString(), "taken");
         }
 
@@ -209,5 +210,6 @@ namespace NFT
     {
         Owner = 0x15,
         Token = 0x16,
+        TokenIndex = 0x17,
     }
 }

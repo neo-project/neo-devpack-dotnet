@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Analyzer
         private const string Description = "Ensures that 'using BigInteger = System.Numerics.BigInteger;' is used for BigInteger.";
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId, Title, MessageFormat, Category,
             DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
 
@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Analyzer
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             if (usingDirective.Name is null) return document;
 
-            var newName = SyntaxFactory.ParseName("System.Numerics.BigInteger")
+            var newName = SyntaxFactory.ParseName("global::System.Numerics.BigInteger")
                 .WithTriviaFrom(usingDirective.Name);
             var newUsingDirective = usingDirective.WithName(newName);
 

@@ -13,12 +13,12 @@ public abstract class Contract_Assignment(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Assignment"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testAssignment"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""testCoalesceAssignment"",""parameters"":[],""returntype"":""Void"",""offset"":22,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Assignment"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testAssignment"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""testCoalesceAssignment"",""parameters"":[],""returntype"":""Void"",""offset"":22,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADpXAgARcGgRlzkSSnFwaBKXOWkSlzlAVwEAC3Bo2CQFaCIFEUpwRWgRlzlo2CQFaCIFEkpwRWgRlzlAj66LMw==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADpXAgARcGgRszkSSnFwaBKzOWkSszlAVwEAC3Bo2CQFaCIFEUpwRWgRlzlo2CQFaCIFEkpwRWgRlzlAzklwMQ==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,13 +28,13 @@ public abstract class Contract_Assignment(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAEXBoEZc5EkpxcGgSlzlpEpc5QA==
+    /// Script: VwIAEXBoEbM5EkpxcGgSszlpErM5QA==
     /// INITSLOT 0200 [64 datoshi]
     /// PUSH1 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH1 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NUMEQUAL [8 datoshi]
     /// ASSERT [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// DUP [2 datoshi]
@@ -42,11 +42,11 @@ public abstract class Contract_Assignment(Neo.SmartContract.Testing.SmartContrac
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH2 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NUMEQUAL [8 datoshi]
     /// ASSERT [1 datoshi]
     /// LDLOC1 [2 datoshi]
     /// PUSH2 [1 datoshi]
-    /// EQUAL [32 datoshi]
+    /// NUMEQUAL [8 datoshi]
     /// ASSERT [1 datoshi]
     /// RET [0 datoshi]
     /// </remarks>

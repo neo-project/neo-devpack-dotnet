@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestAddChecked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.AddChecked(int.MaxValue, 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.AddChecked(int.MaxValue, 1));
             AssertGasConsumed(1062990);
         }
 
@@ -35,10 +35,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestCastChecked()
         {
-            Assert.ThrowsException<TestException>(() => Contract.CastChecked(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(-1));
             AssertGasConsumed(1062540);
 
-            Assert.ThrowsException<TestException>(() => Contract.CastChecked(int.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(int.MinValue));
             AssertGasConsumed(1062540);
 
             Assert.AreEqual(2147483647, Contract.CastChecked(int.MaxValue));
@@ -47,13 +47,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(0, Contract.CastChecked(ulong.MinValue));
             AssertGasConsumed(1047330);
 
-            Assert.ThrowsException<TestException>(() => Contract.CastChecked(ulong.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(ulong.MaxValue));
             AssertGasConsumed(1062780);
 
-            Assert.ThrowsException<TestException>(() => Contract.CastChecked(long.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(long.MinValue));
             AssertGasConsumed(1062540);
 
-            Assert.ThrowsException<TestException>(() => Contract.CastChecked(long.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(long.MaxValue));
             AssertGasConsumed(1062690);
         }
 

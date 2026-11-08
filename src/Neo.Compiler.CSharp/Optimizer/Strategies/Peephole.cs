@@ -94,8 +94,7 @@ namespace Neo.Optimizer
         /// <summary>
         /// PUSH1 ADD -> INC
         /// PUSH1 SUB -> DEC
-        /// PUSH2 ADD -> INC INC
-        /// PUSH2 SUB -> DEC DEC
+        /// PUSH2 ADD/SUB is not rewritten: INC INC/DEC DEC costs more under Huyao pricing.
         /// </summary>
         /// <param name="nef">Nef file</param>
         /// <param name="manifest">Manifest</param>
@@ -152,45 +151,6 @@ namespace Neo.Optimizer
                                 oldAddr += current.Size;
                                 currentAddress += dec.Size;
                                 oldAddr += next.Size;
-                                index += 1;
-                                OptimizedScriptBuilder.RetargetJump(current, dec,
-                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
-                                continue;
-                            }
-                        }
-                        if ((OpCodeTypes.pushInt.Contains(current.OpCode)
-                        && new System.Numerics.BigInteger(current.Operand.Span) == 2)
-                        || current.OpCode == OpCode.PUSH2)
-                        {
-                            if (next.OpCode == OpCode.ADD)
-                            {
-                                Script script = new Script(new byte[] { (byte)OpCode.INC, (byte)OpCode.INC });
-                                Instruction inc = script.GetInstruction(0);
-                                simplifiedInstructionsToAddress.Add(inc, currentAddress);
-                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                                oldAddr += current.Size;
-                                currentAddress += inc.Size;
-                                simplifiedInstructionsToAddress.Add(script.GetInstruction(inc.Size), currentAddress);
-                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                                oldAddr += next.Size;
-                                currentAddress += inc.Size;
-                                index += 1;
-                                OptimizedScriptBuilder.RetargetJump(current, inc,
-                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
-                                continue;
-                            }
-                            if (next.OpCode == OpCode.SUB)
-                            {
-                                Script script = new Script(new byte[] { (byte)OpCode.DEC, (byte)OpCode.DEC });
-                                Instruction dec = script.GetInstruction(0);
-                                simplifiedInstructionsToAddress.Add(dec, currentAddress);
-                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                                oldAddr += current.Size;
-                                currentAddress += dec.Size;
-                                simplifiedInstructionsToAddress.Add(script.GetInstruction(dec.Size), currentAddress);
-                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                                oldAddr += next.Size;
-                                currentAddress += dec.Size;
                                 index += 1;
                                 OptimizedScriptBuilder.RetargetJump(current, dec,
                                     jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
@@ -569,8 +529,6 @@ namespace Neo.Optimizer
             // We replace LDSFLD with PUSH in an ordinary method if the field is written with const only once in _initialize
             // and never written in the method.
             Dictionary<byte, Instruction> writtenConstInInit = [];
-            // all instructions before STSFLD that push const
-            HashSet<Instruction> pushConstStaticInInit = [];
             HashSet<byte> readInInit = [];
 
             foreach (BasicBlock currentBlock in initBlocks)
@@ -588,8 +546,6 @@ namespace Neo.Optimizer
                             // multiple STSFLD to the same index
                             // do not handle this staticfield.
                             writtenConstInInit[staticFieldIndex] = Instruction.RET;
-                        else
-                            pushConstStaticInInit.Add(prevPushConst);
                         prevPushConst = null;
                     }
                     if (OpCodeTypes.loadStaticFields.Contains(i.OpCode))
@@ -600,6 +556,10 @@ namespace Neo.Optimizer
                         prevPushConst = null;
                 }
             }
+
+            // Only final candidates may have their PUSH and STSFLD removed.
+            HashSet<Instruction> pushConstStaticInInit = writtenConstInInit.Values
+                .Where(i => OpCodeTypes.pushConst.Contains(i.OpCode)).ToHashSet();
 
             // do not replace these LDSFLD with PUSH
             // because they are written in ordinary methods

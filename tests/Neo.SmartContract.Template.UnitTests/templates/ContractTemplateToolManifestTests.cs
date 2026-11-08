@@ -24,7 +24,7 @@ public class ContractTemplateToolManifestTests
     private static readonly string TemplateRoot = Path.GetFullPath(
         "../../../../../src/Neo.SmartContract.Template/templates");
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("neocontractnep11")]
     [DataRow("neocontractnep17")]
     [DataRow("neocontractoracle")]
@@ -48,7 +48,7 @@ public class ContractTemplateToolManifestTests
         Assert.AreEqual("nccs", commands[0].GetString());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("neocontractnep11", "Nep11Contract.csproj")]
     [DataRow("neocontractnep17", "Nep17Contract.csproj")]
     [DataRow("neocontractoracle", "OracleRequest.csproj")]

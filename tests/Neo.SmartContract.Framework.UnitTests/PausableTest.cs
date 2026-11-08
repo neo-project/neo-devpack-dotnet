@@ -34,17 +34,17 @@ public class PausableTest
 
         Assert.IsFalse(contract.Paused!.Value);
         Assert.IsTrue(contract.ProtectedAction()!.Value);
-        Assert.ThrowsException<TestException>(() => contract.PausedAction());
+        Assert.ThrowsExactly<TestException>(() => contract.PausedAction());
 
         contract.Pause();
         Assert.IsTrue(contract.Paused!.Value);
-        Assert.ThrowsException<TestException>(() => contract.ProtectedAction());
+        Assert.ThrowsExactly<TestException>(() => contract.ProtectedAction());
         Assert.IsTrue(contract.PausedAction()!.Value);
 
         contract.Unpause();
         Assert.IsFalse(contract.Paused!.Value);
         Assert.IsTrue(contract.ProtectedAction()!.Value);
-        Assert.ThrowsException<TestException>(() => contract.PausedAction());
+        Assert.ThrowsExactly<TestException>(() => contract.PausedAction());
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
@@ -56,10 +56,10 @@ public class PausableTest
         var engine = CreateEngine();
         var contract = engine.Deploy<PausableContractProxy>(nef, manifest);
 
-        Assert.ThrowsException<TestException>(() => contract.Unpause());
+        Assert.ThrowsExactly<TestException>(() => contract.Unpause());
 
         contract.Pause();
-        Assert.ThrowsException<TestException>(() => contract.Pause());
+        Assert.ThrowsExactly<TestException>(() => contract.Pause());
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }

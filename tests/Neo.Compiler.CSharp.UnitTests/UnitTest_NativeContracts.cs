@@ -22,15 +22,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestHashes()
         {
-            Assert.AreEqual(NativeContract.StdLib.Hash.ToString(), "0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0");
-            Assert.AreEqual(NativeContract.CryptoLib.Hash.ToString(), "0x726cb6e0cd8628a1350a611384688911ab75f51b");
-            Assert.AreEqual(NativeContract.ContractManagement.Hash.ToString(), "0xfffdc93764dbaddd97c48f252a53ea4643faa3fd");
-            Assert.AreEqual(NativeContract.RoleManagement.Hash.ToString(), "0x49cf4e5378ffcd4dec034fd98a174c5491e395e2");
-            Assert.AreEqual(NativeContract.Oracle.Hash.ToString(), "0xfe924b7cfe89ddd271abaf7210a80a7e11178758");
-            Assert.AreEqual(NativeContract.NEO.Hash.ToString(), "0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5");
-            Assert.AreEqual(NativeContract.GAS.Hash.ToString(), "0xd2a4cff31913016155e38e474a2c06d08be276cf");
-            Assert.AreEqual(NativeContract.Policy.Hash.ToString(), "0xcc5e4edd9f5f8dba8bb65734541df7a1c081c67b");
-            Assert.AreEqual(NativeContract.Ledger.Hash.ToString(), "0xda65b600f7124ce6c79950c1772a36403104f2be");
+            Assert.AreEqual("0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0", NativeContract.StdLib.Hash.ToString());
+            Assert.AreEqual("0x726cb6e0cd8628a1350a611384688911ab75f51b", NativeContract.CryptoLib.Hash.ToString());
+            Assert.AreEqual("0xfffdc93764dbaddd97c48f252a53ea4643faa3fd", NativeContract.ContractManagement.Hash.ToString());
+            Assert.AreEqual("0x49cf4e5378ffcd4dec034fd98a174c5491e395e2", NativeContract.RoleManagement.Hash.ToString());
+            Assert.AreEqual("0xfe924b7cfe89ddd271abaf7210a80a7e11178758", NativeContract.Oracle.Hash.ToString());
+            Assert.AreEqual("0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5", NativeContract.NEO.Hash.ToString());
+            Assert.AreEqual("0xd2a4cff31913016155e38e474a2c06d08be276cf", NativeContract.GAS.Hash.ToString());
+            Assert.AreEqual("0xcc5e4edd9f5f8dba8bb65734541df7a1c081c67b", NativeContract.Policy.Hash.ToString());
+            Assert.AreEqual("0xda65b600f7124ce6c79950c1772a36403104f2be", NativeContract.Ledger.Hash.ToString());
         }
 
         [TestMethod]

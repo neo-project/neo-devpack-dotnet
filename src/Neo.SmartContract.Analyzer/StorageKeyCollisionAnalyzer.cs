@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4056";
         private const string Category = "Security";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Duplicate storage prefix may collide",
             "Storage prefix '{0}' used by '{1}' collides with '{2}'",
@@ -49,6 +50,7 @@ namespace Neo.SmartContract.Analyzer
             ["global::Neo.SmartContract.Framework.Pausable"] = [0xFE],
             ["global::Neo.SmartContract.Framework.PausableOwnable"] = [0xFE],
             ["global::Neo.SmartContract.Framework.AccessControl"] = [0xFB],
+            ["global::Neo.SmartContract.Framework.PausableAccessControl"] = [0xFE, 0xFB],
             ["global::Neo.SmartContract.Framework.TokenContract"] = [0x00, 0x01],
             ["global::Neo.SmartContract.Framework.Nep17Token"] = [0x00, 0x01],
             ["global::Neo.SmartContract.Framework.Nep11Token`1"] = [0x02, 0x03, 0x04],
@@ -261,11 +263,12 @@ namespace Neo.SmartContract.Analyzer
 
             if (initializerValue is BaseObjectCreationExpressionSyntax creation)
             {
-                if (creation.ArgumentList is null || creation.ArgumentList.Arguments.Count == 0)
+                if (semanticModel.GetOperation(creation, cancellationToken) is not IObjectCreationOperation operation)
                     return false;
 
-                prefixExpression = creation.ArgumentList.Arguments[creation.ArgumentList.Arguments.Count - 1].Expression;
-                return true;
+                var prefixArgument = operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Name == "prefix");
+                prefixExpression = prefixArgument?.Value.Syntax as ExpressionSyntax;
+                return prefixExpression is not null;
             }
 
             if (initializerValue is not InvocationExpressionSyntax invocation)

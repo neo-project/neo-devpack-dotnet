@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest);
-            Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
+            Assert.AreEqual(3, v.vulnerabilityPairs.Count);
             foreach (BasicBlock b in v.vulnerabilityPairs.Keys)
                 Assert.IsTrue(b.startAddr < NefFile.Size * 0.66);
             v.GetWarningInfo(print: false);
@@ -42,7 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest, null);
-            Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
+            Assert.AreEqual(3, v.vulnerabilityPairs.Count);
 
             string warningInfo = v.GetWarningInfo(print: false);
 

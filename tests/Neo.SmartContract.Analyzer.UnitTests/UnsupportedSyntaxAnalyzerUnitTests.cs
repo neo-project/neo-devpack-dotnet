@@ -24,6 +24,31 @@ namespace Neo.SmartContract.Analyzer.UnitTests;
 public class UnsupportedSyntaxAnalyzerUnitTests
 {
     [TestMethod]
+    public async Task UserDefinedCompoundAssignmentOperator_IsFlagged()
+    {
+        var test = """
+                   class Counter
+                   {
+                       public int Value;
+
+                       public void operator {|#0:+=|}(int amount)
+                       {
+                           Value += amount;
+                       }
+                   }
+
+                   namespace System.Runtime.CompilerServices
+                   {
+                       [System.AttributeUsage(System.AttributeTargets.All)]
+                       internal sealed class CompilerFeatureRequiredAttribute(string featureName) : System.Attribute { }
+                   }
+                   """;
+
+        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.CompoundAssignmentOperatorRuleId).WithLocation(0);
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
     public async Task UnsafeCode_IsFlagged()
     {
         var test = """

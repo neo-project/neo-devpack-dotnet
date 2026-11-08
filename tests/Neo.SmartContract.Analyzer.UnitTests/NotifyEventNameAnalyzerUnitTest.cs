@@ -41,6 +41,51 @@ namespace System.ComponentModel
 ";
 
         [TestMethod]
+        [DataRow("Notify", "\"Missing\"", true)]
+        [DataRow("Runtime.Notify", "Name", true)]
+        [DataRow("R.Notify", "nameof(Missing)", true)]
+        [DataRow("Notify", "\"Mis\" + \"sing\"", true)]
+        [DataRow("Runtime.Notify", "Name", false)]
+        [DataRow("Notify", "nameof(Transfer)", false)]
+        [DataRow("R.Notify", "runtimeName", false)]
+        public async Task Notify_ConstantNamesFollowSymbolBinding(string target, string name, bool invalid)
+        {
+            var expression = invalid ? "{|#0:" + name + "|}" : name;
+            var source = $$"""
+                using Neo.SmartContract.Framework.Services;
+                using static Neo.SmartContract.Framework.Services.Runtime;
+                using R = Neo.SmartContract.Framework.Services.Runtime;
+                class Contract
+                {
+                    private const string Name = "{{(invalid ? "Missing" : "Transfer")}}";
+                    private const string Missing = "unused";
+                    public static event System.Action<int> Transfer;
+                    public static void Main(string runtimeName) => {{target}}({{expression}}, 1);
+                }
+                """ + FrameworkStubs;
+            if (invalid)
+            {
+                await VerifyCS.VerifyAnalyzerAsync(source,
+                    VerifyCS.Diagnostic(NotifyEventNameAnalyzer.DiagnosticId).WithLocation(0).WithArguments("Missing"));
+            }
+            else
+            {
+                await VerifyCS.VerifyAnalyzerAsync(source);
+            }
+        }
+
+        [TestMethod]
+        public async Task StaticNotifyOnUnrelatedType_ShouldNotReportDiagnostic()
+        {
+            var source = """
+                using static Notifier;
+                class Notifier { public static void Notify(string name, params object[] state) { } }
+                class Contract { public void Main() => Notify("Missing", 1); }
+                """ + FrameworkStubs;
+            await VerifyCS.VerifyAnalyzerAsync(source);
+        }
+
+        [TestMethod]
         public async Task NonNotifyInvocation_ShouldNotReportDiagnostic()
         {
             var test = @"

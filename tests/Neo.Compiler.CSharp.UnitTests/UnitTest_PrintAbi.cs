@@ -20,6 +20,7 @@ using System.IO;
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
+    [DoNotParallelize]
     public class UnitTest_PrintAbi
     {
         private static string CaptureReport(SmartContract.NefFile nef, SmartContract.Manifest.ContractManifest manifest)

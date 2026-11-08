@@ -31,6 +31,43 @@ namespace Neo.SmartContract.Analyzer.UnitTests
     public class InitialValueAnalyzerUnitTest
     {
         [TestMethod]
+        [DataRow("type: 7, value: Text")]
+        [DataRow("value: Text, type: 7")]
+        [DataRow("Text, type: 7")]
+        public async Task AttributeFix_BindsValueParameter(string arguments)
+        {
+            const string declarations = """
+                namespace Neo.SmartContract.Framework.Attributes
+                {
+                    public class InitialValueAttribute : System.Attribute
+                    {
+                        public InitialValueAttribute(string value, int type) { }
+                    }
+                }
+                """;
+            var source = declarations + $$"""
+
+                class Contract
+                {
+                    private const string Text = "retained";
+                    {|#0:[Neo.SmartContract.Framework.Attributes.InitialValue({{arguments}})]
+                    public static readonly string Value = default;|}
+                }
+                """;
+            var fixedSource = declarations + """
+
+                class Contract
+                {
+                    private const string Text = "retained";
+                    public static readonly string Value = Text;
+                }
+                """;
+            await VerifyFix.VerifyCodeFixAsync(source,
+                VerifyFix.Diagnostic(InitialValueAnalyzer.DiagnosticId).WithLocation(0)
+                    .WithArguments("Neo.SmartContract.Framework.Attributes.InitialValue"), fixedSource);
+        }
+
+        [TestMethod]
         public async Task FieldWithoutAttribute_ShouldNotReportDiagnostic()
         {
             var test = @"
@@ -98,6 +135,63 @@ class TestClass
         }
 
         [TestMethod]
+        public async Task FrameworkInitialValueAttribute_WithDefaultForms_ShouldReportDiagnostic()
+        {
+            var test = """
+                       namespace Neo.SmartContract.Framework.Attributes
+                       {
+                           public class InitialValueAttribute : System.Attribute
+                           {
+                               public InitialValueAttribute(string value) { }
+                           }
+                       }
+
+                       namespace Neo.SmartContract.Framework
+                       {
+                           public sealed class UInt160 { }
+                       }
+
+                       class TestClass
+                       {
+                           [Neo.SmartContract.Framework.Attributes.InitialValue("value")]
+                           private static readonly Neo.SmartContract.Framework.UInt160 first = default;
+
+                           [Neo.SmartContract.Framework.Attributes.InitialValue("value")]
+                           private static readonly Neo.SmartContract.Framework.UInt160 second = default!;
+                       }
+                       """;
+
+            var expected = new[]
+            {
+                VerifyCS.Diagnostic(InitialValueAnalyzer.DiagnosticId).WithSpan(16, 5, 17, 81).WithArguments("Neo.SmartContract.Framework.Attributes.InitialValue"),
+                VerifyCS.Diagnostic(InitialValueAnalyzer.DiagnosticId).WithSpan(19, 5, 20, 83).WithArguments("Neo.SmartContract.Framework.Attributes.InitialValue")
+            };
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task CustomAttributeWithSameName_ShouldNotReportDiagnostic()
+        {
+            var test = """
+                       using System;
+                       [AttributeUsage(AttributeTargets.Field)]
+                       class InitialValueAttribute : Attribute
+                       {
+                           public InitialValueAttribute(string value) { }
+                       }
+
+                       class TestClass
+                       {
+                           [InitialValue("value")]
+                           private static readonly string value = default!;
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task ParseFix_ShouldTargetDiagnosedVariableAndPreserveSiblings()
         {
             var test = """
@@ -132,7 +226,7 @@ class TestClass
                               {
                                   private static readonly Neo.SmartContract.Framework.UInt160
                                       first = Neo.SmartContract.Framework.UInt160.Parse("first"),
-                                      second = Neo.SmartContract.Framework.UInt160.Parse("second");
+                                      second = global::Neo.SmartContract.Framework.UInt160.Parse("second");
                               }
                               """;
 

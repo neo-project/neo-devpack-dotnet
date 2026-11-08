@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             var node = ECPoint.Parse("03b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c", ECCurve.Secp256r1);
 
-            var exception = Assert.ThrowsException<TestException>(() =>
+            var exception = Assert.ThrowsExactly<TestException>(() =>
                 _engine.Native.RoleManagement.DesignateAsRole(CoreRole.Oracle, [node, node]));
 
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);

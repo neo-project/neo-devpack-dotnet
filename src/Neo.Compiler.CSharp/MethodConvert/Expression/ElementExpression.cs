@@ -86,6 +86,12 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
     {
+        if (model.GetSymbolInfo(expression).Symbol is IPropertySymbol property)
+        {
+            CallInstanceMethod(model, property.GetMethod!, instanceOnStack: true, expression.ArgumentList.Arguments.ToArray());
+            return;
+        }
+
         IArrayTypeSymbol? arrayType = expression.Parent is ConditionalAccessExpressionSyntax parent
             ? model.GetTypeInfo(parent.Expression).Type as IArrayTypeSymbol
             : null;

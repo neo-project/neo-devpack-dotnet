@@ -39,6 +39,11 @@ public class Contract_Char : SmartContract.Framework.SmartContract
         return r is bool;
     }
 
+    public static bool TestCharIsAscii(char c)
+    {
+        return char.IsAscii(c);
+    }
+
     public static bool TestCharIsAsciiLetter(char c)
     {
         return char.IsAsciiLetter(c);

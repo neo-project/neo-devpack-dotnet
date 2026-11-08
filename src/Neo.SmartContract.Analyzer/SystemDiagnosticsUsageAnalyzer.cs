@@ -23,14 +23,17 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4028";
         private const string DiagnosticsNamespace = "System.Diagnostics";
         private const string CodeAnalysisNamespace = "System.Diagnostics.CodeAnalysis";
+        private const string HelpLink =
+            "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/unsupported-platform-api.md#nc4028";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Usage of System.Diagnostics is not allowed in Neo smart contracts",
             "Neo smart contracts do not support System.Diagnostics: {0}",
             "Namespace",
             DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            helpLinkUri: HelpLink);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
             [Rule];

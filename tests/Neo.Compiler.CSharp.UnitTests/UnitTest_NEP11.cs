@@ -33,14 +33,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void UnitTest_Properties_ValidateTokenIdLength()
         {
-            var ex = Assert.ThrowsException<TestException>(() => Contract.Properties(new byte[44]));
+            var ex = Assert.ThrowsExactly<TestException>(() => Contract.Properties(new byte[44]));
             StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "43 or less bytes long");
         }
 
         [TestMethod]
         public void UnitTest_Properties_MissingToken_Throws()
         {
-            var ex = Assert.ThrowsException<TestException>(() => Contract.Properties(new byte[] { 0x01 }));
+            var ex = Assert.ThrowsExactly<TestException>(() => Contract.Properties(new byte[] { 0x01 }));
             StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "does not exist");
         }
 
@@ -48,7 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_Transfer_MissingToken_Throws()
         {
             var to = TestEngine.BobAccount;
-            var ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(to, new byte[] { 0x02 }, null));
+            var ex = Assert.ThrowsExactly<TestException>(() => Contract.Transfer(to, new byte[] { 0x02 }, null));
             StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "does not exist");
         }
 

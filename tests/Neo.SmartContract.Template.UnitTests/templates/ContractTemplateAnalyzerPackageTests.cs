@@ -32,8 +32,8 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             yield return ["neocontractsolution/NeoContractSolution/NeoContractSolution.csproj"];
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(ContractProjects), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(ContractProjects))]
         public void ContractTemplateIncludesPrivateAnalyzerPackage(string relativeProjectPath)
         {
             var project = XDocument.Load(Path.Combine(TemplateRoot, relativeProjectPath));

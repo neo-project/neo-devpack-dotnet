@@ -271,6 +271,13 @@ public class UnitTest_ArgumentEvaluationOrder
                 return Combine(a: Next(), Next(), Next());
             }
 
+            [DisplayName("namedThenPositionalFixed")]
+            public static int NamedThenPositionalFixed()
+            {
+                _counter = 0;
+                return CombineFixed(a: Next(), Next());
+            }
+
             private static int Next()
             {
                 _counter++;
@@ -282,6 +289,8 @@ public class UnitTest_ArgumentEvaluationOrder
                 // Expected: a=1, b=2, c=[3] => 1*1000 + 2*100 + (c.Length > 0 ? c[0] : 0) = 1203
                 return a * 1000 + b * 100 + (c.Length > 0 ? c[0] : 0);
             }
+
+            private static int CombineFixed(int a, int b) => a * 10 + b;
         }
         """;
 
@@ -291,6 +300,7 @@ public class UnitTest_ArgumentEvaluationOrder
 
         Assert.AreEqual(new BigInteger(1203), contract.NamedThenPositional());
         Assert.AreEqual(new BigInteger(1203), contract.NamedThenPositionalWithSideEffects());
+        Assert.AreEqual(new BigInteger(12), contract.NamedThenPositionalFixed());
     }
 
     public abstract class NamedThenPositionalContract(SmartContractInitialize initialize)
@@ -301,6 +311,9 @@ public class UnitTest_ArgumentEvaluationOrder
 
         [DisplayName("namedThenPositionalWithSideEffects")]
         public abstract BigInteger? NamedThenPositionalWithSideEffects();
+
+        [DisplayName("namedThenPositionalFixed")]
+        public abstract BigInteger? NamedThenPositionalFixed();
     }
 
     public abstract class ArgumentOrderContract(SmartContractInitialize initialize)

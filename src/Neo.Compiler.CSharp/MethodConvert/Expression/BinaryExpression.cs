@@ -15,6 +15,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -31,9 +32,11 @@ internal partial class MethodConvert
     /// The result of x && y is true if both x and y evaluate to true.
     /// Otherwise, the result is false. If x evaluates to false, y isn't evaluated.
     ///
-    /// The is operator checks if the run-time type of an expression result is compatible with a given type. The is operator also tests an expression result against a pattern.
+    /// The is operator checks if the run-time type of an expression result is compatible with a given type.
+    /// The is operator also tests an expression result against a pattern.
     ///
-    /// The as operator explicitly converts the result of an expression to a given reference or nullable value type. If the conversion isn't possible, the as operator returns null. Unlike a cast expression, the as operator never throws an exception.
+    /// The as operator explicitly converts the result of an expression to a given reference or nullable value type.
+    /// If the conversion isn't possible, the as operator returns null. Unlike a cast expression, the as operator never throws an exception.
     ///
     /// The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null;
     /// otherwise, it evaluates the right-hand operand and returns its result.
@@ -50,7 +53,16 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/boolean-logical-operators">Boolean logical operators - AND, OR, NOT, XOR</seealso>
     private void ConvertBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
     {
-        switch (expression.OperatorToken.ValueText)
+        var operatorToken = expression.OperatorToken.ValueText;
+        if (model.GetSymbolInfo(expression).Symbol is IMethodSymbol
+            { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } userOperator &&
+            IsDeclaredByCurrentCompilation(model, userOperator))
+        {
+            ConvertUserDefinedBinaryOperator(model, expression, userOperator);
+            return;
+        }
+
+        switch (operatorToken)
         {
             case "||":
                 ConvertLogicalOrExpression(model, expression.Left, expression.Right);
@@ -68,23 +80,126 @@ internal partial class MethodConvert
                 ConvertCoalesceExpression(model, expression.Left, expression.Right);
                 return;
         }
+
         IMethodSymbol? symbol = (IMethodSymbol?)model.GetSymbolInfo(expression).Symbol;
         if (symbol is not null && TryProcessSystemOperators(model, symbol, expression.Left, expression.Right))
             return;
 
-        if ((expression.IsKind(SyntaxKind.LeftShiftExpression) ||
-             expression.IsKind(SyntaxKind.RightShiftExpression)) &&
+        if (IsLiftedNullPropagatingBinaryOperator(model, expression))
+        {
+            if (operatorToken is "&" or "|" && HasNullableBooleanOperand(model, expression))
+                ConvertLiftedNullableBooleanExpression(model, expression);
+            else
+                ConvertLiftedBinaryExpression(model, expression);
+            return;
+        }
+
+        if ((expression.IsKind(SyntaxKind.LeftShiftExpression) || expression.IsKind(SyntaxKind.RightShiftExpression)) &&
             HasNullableOperand(model, expression))
         {
             ConvertLiftedShiftExpression(model, expression);
             return;
+        }
+        if (IsBoolBinaryOperator(model, expression) && (operatorToken == "==" || operatorToken == "!="))
+        {
+            var leftIsConst = TryGetBoolConstant(model, expression.Left, out bool left);
+            var rightIsConst = TryGetBoolConstant(model, expression.Right, out bool right);
+            if (leftIsConst || rightIsConst)
+            {
+                ConvertExpression(model, leftIsConst ? expression.Right : expression.Left);
+                if (((leftIsConst && !left) || (rightIsConst && !right)) && operatorToken == "==") Not();
+                if (((leftIsConst && left) || (rightIsConst && right)) && operatorToken == "!=") Not();
+                return;
+            }
         }
 
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
 
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+        EmitBinaryOperator(model, expression, type);
+    }
+
+    private void ConvertUserDefinedBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, IMethodSymbol symbol)
+    {
+        string token = expression.OperatorToken.ValueText;
+        ConvertExpression(model, expression.Left);
+        if (token is "&&" or "||")
+        {
+            string truthOperatorName = token == "&&" ? "op_False" : "op_True";
+            var truthOperator = symbol.ContainingType.GetMembers(truthOperatorName).OfType<IMethodSymbol>()
+                .Single(method => SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, symbol.Parameters[0].Type));
+            var endTarget = new JumpTarget();
+            Dup();
+            EmitCall(_context.ConvertMethod(model, truthOperator));
+            JumpIfTrue(endTarget);
+            ConvertExpression(model, expression.Right);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            endTarget.Instruction = Nop();
+            return;
+        }
+
+        ConvertExpression(model, expression.Right);
+        if (model.GetOperation(expression) is not IBinaryOperation { IsLifted: true })
+        {
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            return;
+        }
+
+        if (token is "==" or "!=" or "<" or ">" or "<=" or ">=")
+        {
+            // Comparison operators can share one null result target. Equality compares
+            // nullness when either operand is null, while relational operators return false.
+            JumpTarget nullTarget = new(), comparisonEnd = new();
+            Over();
+            IsNull();
+            JumpIfTrue(nullTarget);
+            Dup();
+            IsNull();
+            JumpIfTrue(nullTarget);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            Jump(OpCode.JMP_L, comparisonEnd);
+            if (token is "==" or "!=")
+            {
+                nullTarget.Instruction = AddInstruction(token == "==" ? OpCode.EQUAL : OpCode.NOTEQUAL);
+            }
+            else // Lifted relational operators return false when either operand is null.
+            {
+                nullTarget.Instruction = Drop();
+                Drop();
+                Push(false);
+            }
+            comparisonEnd.Instruction = Nop();
+        }
+        else
+        {
+            // The remaining lifted user-defined binary operators are '+', '-', '*', '/', '%', '&', '|', '^', '<<', '>>', '>>>'.
+            // Their lifted forms propagate null, so the null paths skip the operator call and leave a null operand as the result.
+            JumpTarget leftNullTarget = new(), rightNullTarget = new(), end = new();
+            Over();
+            IsNull();
+            JumpIfTrue(leftNullTarget); // [left, right]
+            Dup();
+            IsNull();
+            JumpIfTrue(rightNullTarget);
+            Swap();
+            EmitCall(_context.ConvertMethod(model, symbol));
+            Jump(OpCode.JMP_L, end);
+
+            leftNullTarget.Instruction = Swap(); // [null, right]
+            rightNullTarget.Instruction = Nip(); // [left or right, null]
+            end.Instruction = Nop();
+        }
+    }
+
+    private void EmitBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression, ITypeSymbol type)
+    {
+        type = GetNonNullableValueType(type);
         bool isBoolean = type.GetStackItemType() == StackItemType.Boolean;
+        bool intOperator = IsIntegerBinaryOperator(model, expression);
         var (opcode, checkResult) = expression.OperatorToken.ValueText switch
         {
             "+" => (OpCode.ADD, true),
@@ -94,21 +209,23 @@ internal partial class MethodConvert
             "%" => (OpCode.MOD, false),
             "<<" => (OpCode.SHL, true),
             ">>" => (OpCode.SHR, false),
-            "|" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, false),
-            "&" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, false),
+            "|" => (isBoolean ? OpCode.BOOLOR : OpCode.OR, false),
+            "&" => (isBoolean ? OpCode.BOOLAND : OpCode.AND, false),
             "^" => (OpCode.XOR, false),
-            "==" => (OpCode.EQUAL, false),
-            "!=" => (OpCode.NOTEQUAL, false),
+            "==" => (intOperator ? OpCode.NUMEQUAL : OpCode.EQUAL, false),
+            "!=" => (intOperator ? OpCode.NUMNOTEQUAL : OpCode.NOTEQUAL, false),
             "<" => (OpCode.LT, false),
             "<=" => (OpCode.LE, false),
             ">" => (OpCode.GT, false),
             ">=" => (OpCode.GE, false),
-            _ => throw CompilationException.UnsupportedSyntax(expression.OperatorToken, $"Unsupported binary operator '{expression.OperatorToken.ValueText}'. Supported operators: +, -, *, /, %, <<, >>, |, &, ^, ==, !=, <, <=, >, >=, &&, ||")
+            _ => throw CompilationException.UnsupportedSyntax(expression.OperatorToken,
+                $"Unsupported binary operator '{expression.OperatorToken.ValueText}'. Supported operators: +, -, *, /, %, <<, >>, |, &, ^, ==, !=, <, <=, >, >=, &&, ||")
         };
 
-        if (expression.OperatorToken.ValueText == "/")
+        if (expression.OperatorToken.ValueText is "/" or "%")
         {
-            CheckDivideOverflow(model, model.GetTypeInfo(expression).Type, expression.Left, expression.Right);
+            CheckDivisionByZero(model, expression.Right);
+            CheckSignedDivisionOverflow(model, type, expression.Left, expression.Right);
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
@@ -122,10 +239,7 @@ internal partial class MethodConvert
         }
         AddInstruction(opcode);
 
-        // XOR of two booleans produces an integer (0 or 1).
-        // NZ (4 units = 120 datoshi) converts 0 -> false, nonzero -> true,
-        // which is correct for boolean results and 2048× cheaper than
-        // convert Boolean (8192 units = 245,760 datoshi).
+        // XOR of two booleans produces an integer (0 or 1). NZ is cheaper then CONVERT
         if (expression.OperatorToken.ValueText == "^" && type.GetStackItemType() == StackItemType.Boolean)
         {
             Nz();
@@ -140,15 +254,132 @@ internal partial class MethodConvert
         }
     }
 
+    private static bool IsIntegerBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        return !HasNullableOperand(model, expression) &&
+            model.GetTypeInfo(expression.Left).Type?.GetStackItemType() == StackItemType.Integer &&
+            model.GetTypeInfo(expression.Right).Type?.GetStackItemType() == StackItemType.Integer;
+    }
+
+    private static bool IsBoolBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        return !HasNullableOperand(model, expression) &&
+            model.GetTypeInfo(expression.Left).Type?.GetStackItemType() == StackItemType.Boolean &&
+            model.GetTypeInfo(expression.Right).Type?.GetStackItemType() == StackItemType.Boolean;
+    }
+
     private static bool HasNullableOperand(SemanticModel model, BinaryExpressionSyntax expression) =>
         IsNullableValueType(model.GetTypeInfo(expression.Left).Type) ||
         IsNullableValueType(model.GetTypeInfo(expression.Right).Type);
 
     private static bool IsNullableValueType(ITypeSymbol? type) =>
+        type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T };
+
+    private static ITypeSymbol GetNonNullableValueType(ITypeSymbol type) =>
+        type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullableType
+            ? nullableType.TypeArguments[0]
+            : type;
+
+    private static bool IsLiftedNullPropagatingBinaryOperator(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        if (expression.OperatorToken.ValueText is not ("+" or "-" or "*" or "/" or "%" or "&" or "|" or "^"))
+            return false;
+
+        if (model.GetOperation(expression) is not IBinaryOperation { IsLifted: true } operation)
+            return false;
+
+        if (operation.OperatorMethod is null)
+            return true;
+
+        INamedTypeSymbol? bigIntegerType = model.Compilation.GetTypeByMetadataName("System.Numerics.BigInteger");
+        return SymbolEqualityComparer.Default.Equals(operation.OperatorMethod.ContainingType, bigIntegerType);
+    }
+
+    private static bool HasNullableBooleanOperand(SemanticModel model, BinaryExpressionSyntax expression) =>
+        IsNullableBoolean(model.GetTypeInfo(expression.Left).Type) ||
+        IsNullableBoolean(model.GetTypeInfo(expression.Right).Type);
+
+    private static bool IsNullableBoolean(ITypeSymbol? type) =>
         type is INamedTypeSymbol
         {
-            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+            OriginalDefinition.SpecialType: SpecialType.System_Nullable_T,
+            TypeArguments: [{ SpecialType: SpecialType.System_Boolean }]
         };
+
+    /// <summary>
+    /// Emits a lifted arithmetic or bitwise operation while evaluating both operands exactly once.
+    /// </summary>
+    private void ConvertLiftedBinaryExpression(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        ConvertExpression(model, expression.Left);
+        ConvertExpression(model, expression.Right);
+
+        JumpTarget leftNullTarget = new(), rightNullTarget = new(), endTarget = new();
+
+        Over();    // left is null?
+        IsNull();
+        JumpIfTrue(leftNullTarget);
+        Dup();    // right is null?
+        IsNull();
+        JumpIfTrue(rightNullTarget);
+
+        EmitBinaryOperator(model, expression, model.GetTypeInfo(expression).Type!);
+        Jump(OpCode.JMP_L, endTarget);
+
+        rightNullTarget.Instruction = Swap();
+        leftNullTarget.Instruction = Drop();
+        endTarget.Instruction = Nop();
+    }
+
+    private void ConvertLiftedNullableBooleanExpression(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        ConvertExpression(model, expression.Left);
+        ConvertExpression(model, expression.Right);
+        EmitLiftedNullableBooleanOperator(expression.OperatorToken.ValueText == "&");
+    }
+
+    private void EmitLiftedNullableBooleanOperator(bool isAnd)
+    {
+        var decisiveTarget = new JumpTarget();
+        var leftNullTarget = new JumpTarget();
+        var rightNullTarget = new JumpTarget();
+        var endTarget = new JumpTarget();
+
+        // The left operand decides the result unless it is null:
+        //   true  & y == y      (identity)      false & y == false (absorbing)
+        //   false | y == y      (identity)      true  | y == true  (absorbing)
+        Over();                          // [left, right, left]
+        IsNull();
+        JumpIfTrue(leftNullTarget);
+        Swap();                          // [right, left]
+        if (isAnd)
+            JumpIfFalse(decisiveTarget);
+        else
+            JumpIfTrue(decisiveTarget);
+
+        Jump(OpCode.JMP_L, endTarget);  // [right]
+
+        // The left operand is null, so the result is null unless the right operand is decisive.
+        if (isAnd)
+        {
+            // `null` and `false` both coerce to false, so they must be told apart here.
+            leftNullTarget.Instruction = Dup(); // [null, right, right]
+            IsNull();
+            JumpIfTrue(rightNullTarget);        // [null, right]
+            JumpIfFalse(decisiveTarget);        // null & false == false
+        }
+        else
+        {
+            // For `|` both `false` and `null` keep the left operand, so the coercion is enough.
+            leftNullTarget.Instruction = Jump(OpCode.JMPIF, decisiveTarget); // null | true == true
+        }
+        Jump(OpCode.JMP_L, endTarget);   // [null]
+
+        decisiveTarget.Instruction = isAnd ? PushF() : PushT();  // [left or right, false or true]
+        Swap();                                                  // [false or true, left or right]
+        rightNullTarget.Instruction = Drop();  // [null]
+        endTarget.Instruction = Nop();
+    }
 
     /// <summary>
     /// Emits a lifted shift while preserving C# null propagation and operand evaluation order.
@@ -157,7 +388,7 @@ internal partial class MethodConvert
     {
         ITypeSymbol? leftType = model.GetTypeInfo(expression.Left).Type;
         ITypeSymbol? rightType = model.GetTypeInfo(expression.Right).Type;
-        ITypeSymbol resultType = model.GetTypeInfo(expression).Type!;
+        ITypeSymbol resultType = GetNonNullableValueType(model.GetTypeInfo(expression).Type!);
         bool leftNullable = IsNullableValueType(leftType);
         bool rightNullable = IsNullableValueType(rightType);
 
@@ -166,17 +397,17 @@ internal partial class MethodConvert
         var endTarget = new JumpTarget();
 
         ConvertExpression(model, expression.Left);
+        ConvertExpression(model, expression.Right);
+
         if (leftNullTarget is not null)
         {
-            Dup();
+            Over();    // left is null?
             IsNull();
             JumpIfTrue(leftNullTarget);
         }
-
-        ConvertExpression(model, expression.Right);
         if (rightNullTarget is not null)
         {
-            Dup();
+            Dup();    // right is null?
             IsNull();
             JumpIfTrue(rightNullTarget);
         }
@@ -195,19 +426,12 @@ internal partial class MethodConvert
         }
         Jump(OpCode.JMP_L, endTarget);
 
+        // The result is null when either operand is null, so keep whichever operand is null
+        // on top of the stack. The right-null path falls through into the left-null drop.
         if (rightNullTarget is not null)
-        {
-            rightNullTarget.Instruction = Nip();
-            Jump(OpCode.JMP_L, endTarget);
-        }
-
+            rightNullTarget.Instruction = leftNullable ? Swap() : Nip();
         if (leftNullTarget is not null)
-        {
-            leftNullTarget.Instruction = Nop();
-            ConvertExpression(model, expression.Right);
-            Drop();
-        }
-
+            leftNullTarget.Instruction = Drop();
         endTarget.Instruction = Nop();
     }
 
@@ -279,15 +503,42 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Checks for signed division overflow.
-    /// Division overflow occurs when dividing the minimum value of a signed integer type by -1,
-    /// as the result would exceed the maximum value of that type.
+    /// Emits an explicit zero-divisor check in front of a division or remainder.
+    /// </summary>
+    /// <param name="model">The semantic model of the compilation.</param>
+    /// <param name="rightExpr">The divisor expression.</param>
+    /// <remarks>
+    /// The VM raises a non-catchable engine fault when DIV or MOD receives a zero divisor,
+    /// so a C# <c>catch (Exception)</c> that must observe <see cref="System.DivideByZeroException"/>
+    /// never runs. Throwing explicitly routes the failure through the catchable THROW
+    /// path instead, mirroring the signed-overflow check. A constant non-zero divisor
+    /// cannot fault, so the check is skipped for it.
+    /// </remarks>
+    private void CheckDivisionByZero(SemanticModel model, ExpressionSyntax? rightExpr)
+    {
+        if (rightExpr is not null && TryGetIntegerConstant(model, rightExpr, out var value) && value != 0)
+            return;
+
+        var endTarget = new JumpTarget();
+        Dup();
+        Push(0);
+        JumpIfNotEqual(endTarget);
+
+        RestoreMethodStackDepth();
+        Push("Divide by zero");
+        Throw();
+        endTarget.Instruction = Nop();
+    }
+
+    /// <summary>
+    /// Checks for signed division and remainder overflow.
+    /// Both operations overflow when the minimum value of a signed integer type is divided by -1.
     /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
     /// </summary>
     /// <param name="model">The semantic model of the compilation.</param>
-    /// <param name="type">The result type of the division expression.</param>
-    /// <param name="leftExpr">The left expression (dividend) of the division operation.</param>
-    /// <param name="rightExpr">The right expression (divisor) of the division operation.</param>
+    /// <param name="type">The result type of the division or remainder expression.</param>
+    /// <param name="leftExpr">The left expression (dividend) of the operation.</param>
+    /// <param name="rightExpr">The right expression (divisor) of the operation.</param>
     /// <remarks>
     /// Overflow check is needed for:
     /// - Int32 (int): int.MinValue / -1 overflows
@@ -300,13 +551,23 @@ internal partial class MethodConvert
     /// - Constant divisor != -1: overflow only occurs when dividing by -1
     /// - Constant dividend != minValue: overflow only occurs when dividend is the minimum value
     /// </remarks>
-    private void CheckDivideOverflow(SemanticModel model, ITypeSymbol? type, ExpressionSyntax? leftExpr, ExpressionSyntax rightExpr)
+    private void CheckSignedDivisionOverflow(SemanticModel model, ITypeSymbol? type, ExpressionSyntax? leftExpr, ExpressionSyntax rightExpr)
     {
         if (type is null) return;
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
+        }
+
+        if (leftExpr is not null)
+        {
+            var dividendType = model.GetTypeInfo(leftExpr).Type?.SpecialType;
+            if (dividendType is SpecialType.System_SByte or SpecialType.System_Byte or
+                SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Char)
+            {
+                return;
+            }
         }
 
         if (TryGetIntegerConstant(model, rightExpr, out var rightValue))
@@ -342,7 +603,7 @@ internal partial class MethodConvert
         Push(minValue.Value);
         JumpIfNotEqual(endTarget);
 
-        Drop(2);
+        RestoreMethodStackDepth();
         Push("Overflow");
         Throw();
         endTarget.Instruction = Nop();

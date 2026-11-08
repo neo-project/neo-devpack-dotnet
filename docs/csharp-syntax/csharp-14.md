@@ -261,7 +261,7 @@ public partial class PartialMembers
 
 Status: unsupported
 Scope: class
-Notes: C# 14 compound assignment operators are instance operators that return `void`. The Roslyn version embedded in `nccs` does not yet recognize this declaration form, so it is rejected before Neo lowering.
+Notes: C# 14 compound assignment operators are instance operators that return `void`. Roslyn recognizes the declaration, but Neo does not lower it; the analyzer reports `NC4064`.
 ```csharp
 public class Counter
 {

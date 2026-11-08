@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AddAssign_Checked()
         {
-            Assert.ThrowsException<TestException>(Contract.UnitTest_Add_Assign_Checked);
+            Assert.ThrowsExactly<TestException>(Contract.UnitTest_Add_Assign_Checked);
             AssertGasConsumed(1001970);
         }
 
@@ -39,7 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_SubAssign_Checked()
         {
-            Assert.ThrowsException<TestException>(Contract.UnitTest_Sub_Assign_Checked);
+            Assert.ThrowsExactly<TestException>(Contract.UnitTest_Sub_Assign_Checked);
             AssertGasConsumed(1001820);
         }
 
@@ -56,7 +56,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_MulAssign_Checked()
         {
-            Assert.ThrowsException<TestException>(Contract.UnitTest_Mul_Assign_Checked);
+            Assert.ThrowsExactly<TestException>(Contract.UnitTest_Mul_Assign_Checked);
             AssertGasConsumed(1002120);
         }
 
@@ -121,7 +121,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Member_Element_Complex_Assign()
         {
             Contract.UnitTest_Member_Element_Complex_Assign();
-            AssertGasConsumed(1800180);
+            AssertGasConsumed(1798710);
         }
 
         [TestMethod]
@@ -149,13 +149,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_BoolXorAssign()
         {
             Assert.AreEqual(true, Contract.TestBoolXorAssign(true, false));
-            AssertGasConsumed(1293240);
+            AssertGasConsumed(1047600);
 
             Assert.AreEqual(false, Contract.TestBoolXorAssign(false, false));
-            AssertGasConsumed(1293240);
+            AssertGasConsumed(1047600);
 
             Assert.AreEqual(false, Contract.TestBoolXorAssign(true, true));
-            AssertGasConsumed(1293240);
+            AssertGasConsumed(1047600);
         }
 
         [TestMethod]

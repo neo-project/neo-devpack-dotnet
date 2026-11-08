@@ -18,7 +18,7 @@ namespace Neo.Compiler.CSharp.UnitTests;
 [TestClass]
 public class UnitTest_FloatingPointDefaults
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("default(float)")]
     [DataRow("default(double)")]
     [DataRow("default(decimal)")]
@@ -28,7 +28,7 @@ public class UnitTest_FloatingPointDefaults
         AssertFloatingPointDiagnostic(CompileDefault(expression));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("float")]
     [DataRow("double")]
     [DataRow("decimal")]

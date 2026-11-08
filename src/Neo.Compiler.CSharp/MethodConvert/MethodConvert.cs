@@ -49,6 +49,7 @@ namespace Neo.Compiler
         private readonly Dictionary<IParameterSymbol, byte> _parameters = new(SymbolEqualityComparer.Default);
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
+        private readonly HashSet<ISymbol> _byRefCapturedSymbols = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
@@ -65,6 +66,9 @@ namespace Neo.Compiler
         private readonly Stack<byte> _exceptionStack = new();
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
         private readonly Stack<bool> _checkedStack = new();
+        private byte? _methodStackDepthIndex;
+        private readonly Stack<StackDepthScope> _inlineStackDepthScopes = new();
+        private readonly Dictionary<int, byte> _inlineStackDepthSlots = new();
 
         #endregion
 
@@ -162,6 +166,9 @@ namespace Neo.Compiler
                     SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
                 RegisterMethodParameters();
+                RegisterByRefCapturedSymbols(model);
+                RegisterCapturedSymbolsUsedByLoops(model);
+                InitializeByRefCapturedParameters();
 
                 // Step 3: Process method based on its kind
                 // This handles special cases for constructors and static constructors
@@ -195,6 +202,7 @@ namespace Neo.Compiler
                 //     // ... rest of the method
                 // }
                 InsertInitializationInstructions();
+                InsertMethodStackDepthInitialization();
 
                 // Step 8: Process modifiers (exit)
                 // Handle any cleanup or additional instructions required by modifiers
@@ -214,6 +222,98 @@ namespace Neo.Compiler
             // Step 11: Set the start target
             // Mark the first instruction as the entry point of the method
             _startTarget.Instruction = _instructions[0];
+        }
+
+        internal MethodConvert CloneWithCapturedStaticFields(IReadOnlyDictionary<byte, byte> aliases)
+        {
+            var clone = new MethodConvert(_context, Symbol);
+            var instructions = new Dictionary<Instruction, Instruction>();
+
+            foreach (Instruction instruction in _instructions)
+            {
+                var copy = new Instruction
+                {
+                    OpCode = instruction.OpCode,
+                    Operand = instruction.Operand,
+                    Location = instruction.Location
+                };
+                RebindCapturedStaticField(copy, aliases);
+                clone._instructions.Add(copy);
+                instructions.Add(instruction, copy);
+            }
+
+            foreach ((Instruction source, Instruction target) in instructions)
+            {
+                target.Target = CloneJumpTarget(source.Target, instructions);
+                target.Target2 = CloneJumpTarget(source.Target2, instructions);
+            }
+
+            foreach (MethodConvert callee in _callees)
+                clone._callees.Add(callee);
+            clone._variableSymbols.AddRange(_variableSymbols);
+            clone.CapturedLocalSymbols.UnionWith(CapturedLocalSymbols);
+            if (clone._instructions.Count > 0)
+                clone._startTarget.Instruction = clone._instructions[0];
+            return clone;
+        }
+
+        internal void CopyAliasFrom(MethodConvert source)
+        {
+            foreach (Instruction instruction in source._instructions)
+                _instructions.Add(instruction);
+            foreach (MethodConvert callee in source._callees)
+                _callees.Add(callee);
+            _variableSymbols.AddRange(source._variableSymbols);
+            CapturedLocalSymbols.UnionWith(source.CapturedLocalSymbols);
+            if (_instructions.Count > 0)
+                _startTarget.Instruction = _instructions[0];
+        }
+
+        internal void ReplaceByRefAliasCallee(MethodConvert original, MethodConvert alias)
+        {
+            _callees.Remove(original);
+            _callees.Add(alias);
+            foreach (Instruction instruction in _instructions)
+            {
+                if (instruction.OpCode is OpCode.CALL or OpCode.CALL_L &&
+                    instruction.Target?.Instruction == original._startTarget.Instruction)
+                {
+                    instruction.Target = alias._startTarget;
+                }
+            }
+        }
+
+        private static JumpTarget? CloneJumpTarget(JumpTarget? target, IReadOnlyDictionary<Instruction, Instruction> instructions)
+        {
+            if (target is null)
+                return null;
+            if (target.Instruction is null)
+                return target;
+            return new JumpTarget
+            {
+                Instruction = instructions.TryGetValue(target.Instruction, out Instruction? copy)
+                    ? copy
+                    : target.Instruction
+            };
+        }
+
+        private static void RebindCapturedStaticField(Instruction instruction, IReadOnlyDictionary<byte, byte> aliases)
+        {
+            OpCode opCode = instruction.OpCode;
+            bool load = opCode == OpCode.LDSFLD || opCode is >= OpCode.LDSFLD0 and <= OpCode.LDSFLD6;
+            bool store = opCode == OpCode.STSFLD || opCode is >= OpCode.STSFLD0 and <= OpCode.STSFLD6;
+            if (!load && !store)
+                return;
+
+            byte oldIndex = opCode == OpCode.LDSFLD || opCode == OpCode.STSFLD
+                ? instruction.Operand![0]
+                : (byte)(opCode - (load ? OpCode.LDSFLD0 : OpCode.STSFLD0));
+            if (!aliases.TryGetValue(oldIndex, out byte newIndex))
+                return;
+
+            OpCode baseOpCode = load ? OpCode.LDSFLD : OpCode.STSFLD;
+            instruction.OpCode = newIndex >= 7 ? baseOpCode : baseOpCode - 7 + newIndex;
+            instruction.Operand = newIndex >= 7 ? new[] { newIndex } : null;
         }
 
         public void ConvertForward(SemanticModel model, MethodConvert target)
@@ -269,7 +369,8 @@ namespace Neo.Compiler
                         PushDefault(field.Type);
                     else
                     {
-                        model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+                        var assembly = (ISourceAssemblySymbol)field.ContainingAssembly;
+                        model = assembly.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
                         ConvertExpression(model, initializer.Value, syntaxNode);
                     }
                     postInitialize?.Invoke();
@@ -282,7 +383,9 @@ namespace Neo.Compiler
                 var attributeName = initialValue.AttributeClass!.Name;
                 ContractParameterType parameterType = attributeName switch
                 {
-                    nameof(InitialValueAttribute) => (ContractParameterType)initialValue.ConstructorArguments[1].Value!,
+                    nameof(InitialValueAttribute) => initialValue.ConstructorArguments.Length > 1
+                        ? (ContractParameterType)initialValue.ConstructorArguments[1].Value!
+                        : field.Type.GetContractParameterType(),
                     nameof(IntegerAttribute) => ContractParameterType.Integer,
                     nameof(Hash160Attribute) => ContractParameterType.Hash160,
                     nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,

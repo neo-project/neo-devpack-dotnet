@@ -24,8 +24,13 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class TestExtensions
     {
-        private static readonly Dictionary<Type, Dictionary<int, PropertyInfo>> _propertyCache = new();
-        private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new();
+        // These caches are populated by CreateObject(...)/CreateValueType(...), which run every time a
+        // StackItem is converted back into a .NET object/struct while executing a contract test. Under
+        // MSTest class-level parallelization several test classes can hit these caches concurrently, so a
+        // plain Dictionary<> is not safe here (concurrent TryGetValue/indexer writes can corrupt the
+        // internal bucket table and surface as flaky, non-deterministic test failures).
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<int, PropertyInfo>> _propertyCache = new();
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, FieldInfo[]> _fieldCache = new();
 
         /// <summary>
         /// Convert Array stack item to dotnet array
@@ -84,6 +89,10 @@ namespace Neo.SmartContract.Testing.Extensions
         {
             if (stackItem is null || stackItem.IsNull) return null;
 
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            if (type.IsEnum)
+                return Enum.ToObject(type, stackItem.ConvertTo(Enum.GetUnderlyingType(type), stringInterpreter)!);
+
             return type switch
             {
                 _ when type == stackItem.GetType() => stackItem,
@@ -96,12 +105,12 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(sbyte) || type == typeof(sbyte?) => (sbyte)stackItem.GetInteger(),
                 _ when type == typeof(short) || type == typeof(short?) => (short)stackItem.GetInteger(),
                 _ when type == typeof(ushort) || type == typeof(ushort?) => (ushort)stackItem.GetInteger(),
+                _ when type == typeof(char) => (char)(ushort)stackItem.GetInteger(),
                 _ when type == typeof(int) || type == typeof(int?) => (int)stackItem.GetInteger(),
                 _ when type == typeof(uint) || type == typeof(uint?) => (uint)stackItem.GetInteger(),
                 _ when type == typeof(long) || type == typeof(long?) => (long)stackItem.GetInteger(),
                 _ when type == typeof(ulong) || type == typeof(ulong?) => (ulong)stackItem.GetInteger(),
 
-                _ when type.IsEnum => Enum.ToObject(type, (int)stackItem.GetInteger()),
                 _ when type == typeof(BigInteger) || type == typeof(BigInteger?) => stackItem.GetInteger(),
                 _ when type == typeof(UInt160) => new UInt160(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(UInt256) => new UInt256(stackItem.GetSpan().ToArray()),
@@ -154,12 +163,14 @@ namespace Neo.SmartContract.Testing.Extensions
             if (!_propertyCache.TryGetValue(type, out var cache))
             {
                 cache = new Dictionary<int, PropertyInfo>();
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(property => property.CanWrite && property.GetIndexParameters().Length == 0)
+                    .ToArray();
 
-                foreach (var property in type.GetProperties())
+                foreach (var property in properties)
                 {
                     var fieldOffset = property.GetCustomAttribute<FieldOrderAttribute>();
                     if (fieldOffset is null) continue;
-                    if (!property.CanWrite) continue;
 
                     cache.Add(fieldOffset.Order, property);
                 }
@@ -168,9 +179,8 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // Without FieldOrderAttribute, by order
 
-                    foreach (var property in type.GetProperties())
+                    foreach (var property in properties)
                     {
-                        if (!property.CanWrite) continue;
                         cache.Add(index, property);
                         index++;
                     }
@@ -220,7 +230,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             if (!_fieldCache.TryGetValue(valueType, out var cache))
             {
-                cache = valueType.GetFields().ToArray();
+                cache = valueType.GetFields(BindingFlags.Public | BindingFlags.Instance);
                 _fieldCache[valueType] = cache;
             }
 

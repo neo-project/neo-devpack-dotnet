@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4025";
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported Enum method is used",
             "Unsupported Enum method: {0}",

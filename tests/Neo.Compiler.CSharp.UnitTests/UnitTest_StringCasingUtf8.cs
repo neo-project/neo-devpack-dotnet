@@ -34,7 +34,7 @@ public class UnitTest_StringCasingUtf8
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]

@@ -109,7 +109,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 sourceCode.WriteLine("    #region Events");
                 sourceCode.WriteLine();
 
-                foreach (var ev in manifest.Abi.Events.OrderBy(u => u.Name))
+                foreach (var ev in manifest.Abi.Events.OrderBy(u => u.Name, StringComparer.Ordinal))
                 {
                     sourceCode.Write(CreateSourceEventFromManifest(ev, inheritance));
                     sourceCode.WriteLine();
@@ -132,7 +132,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine("    #region Properties");
                     sourceCode.WriteLine();
 
-                    foreach (var property in properties.OrderBy(u => u.getter.Name))
+                    foreach (var property in properties.OrderBy(u => u.getter.Name, StringComparer.Ordinal))
                     {
                         sourceCode.Write(CreateSourcePropertyFromManifest(property.getter, property.setter));
                         sourceCode.WriteLine();
@@ -148,7 +148,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 sourceCode.WriteLine("    #region Safe methods");
                 sourceCode.WriteLine();
 
-                foreach (var method in methods.Where(u => u.Safe).OrderBy(u => u.Name))
+                foreach (var method in methods.Where(u => u.Safe).OrderBy(u => u.Name, StringComparer.Ordinal))
                 {
                     // This method can't be called, so avoid them
 
@@ -167,7 +167,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 sourceCode.WriteLine("    #region Unsafe methods");
                 sourceCode.WriteLine();
 
-                foreach (var method in methods.Where(u => !u.Safe).OrderBy(u => u.Name))
+                foreach (var method in methods.Where(u => !u.Safe).OrderBy(u => u.Name, StringComparer.Ordinal))
                 {
                     // This method can't be called, so avoid them
 

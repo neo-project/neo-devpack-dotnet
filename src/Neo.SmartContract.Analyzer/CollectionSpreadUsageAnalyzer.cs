@@ -22,7 +22,7 @@ public sealed class CollectionSpreadUsageAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "NC4062";
 
-    private static readonly DiagnosticDescriptor Rule = new(
+    private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
         DiagnosticId,
         "Collection spread elements are not supported",
         "Collection spread element '{0}' is not supported; construct the collection explicitly",

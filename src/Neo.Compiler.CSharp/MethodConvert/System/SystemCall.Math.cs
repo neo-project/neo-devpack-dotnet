@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -179,7 +180,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles Math.DivRem for int by delegating to BigInteger implementation.
+    /// Handles Math.DivRem for int with the required signed overflow check.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="model">The semantic model</param>
@@ -187,11 +188,11 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Delegates to BigInteger DivRem for consistent implementation across integer types
+    /// Algorithm: Checks int.MinValue / -1 before emitting the shared DivRem implementation
     /// </remarks>
     private static void HandleMathIntDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
+        HandleMathSignedDivRem(methodConvert, model, symbol, instanceExpression, arguments, int.MinValue);
     }
 
     /// <summary>
@@ -211,7 +212,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles Math.DivRem for long by delegating to BigInteger implementation.
+    /// Handles Math.DivRem for long with the required signed overflow check.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="model">The semantic model</param>
@@ -219,11 +220,11 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Delegates to BigInteger DivRem for consistent implementation across integer types
+    /// Algorithm: Checks long.MinValue / -1 before emitting the shared DivRem implementation
     /// </remarks>
     private static void HandleMathLongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
+        HandleMathSignedDivRem(methodConvert, model, symbol, instanceExpression, arguments, long.MinValue);
     }
 
     /// <summary>
@@ -240,6 +241,108 @@ internal partial class MethodConvert
     private static void HandleMathULongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
+    }
+
+    private static void HandleMathSignedDivRem(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments,
+        BigInteger minValue)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        if (RequiresZeroDivRemGuard(model, symbol, arguments))
+            EmitZeroDivRemGuard(methodConvert);
+
+        if (RequiresSignedDivRemOverflowGuard(model, symbol, arguments, minValue))
+            EmitSignedDivRemOverflowGuard(methodConvert, minValue);
+
+        EmitDivRem(methodConvert);
+    }
+
+    /// <summary>
+    /// Determines whether a DivRem call needs an explicit zero-divisor check.
+    /// </summary>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="symbol">The DivRem method symbol.</param>
+    /// <param name="arguments">The call arguments.</param>
+    /// <remarks>
+    /// The VM raises a non-catchable engine fault when DIV or MOD receives a zero divisor,
+    /// so a C# catch block would never observe a DivideByZeroException from a DivRem call.
+    /// A constant non-zero divisor cannot fault, so the check is skipped for it.
+    /// </remarks>
+    private static bool RequiresZeroDivRemGuard(SemanticModel model, IMethodSymbol symbol,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null) return true;
+
+        var argumentExpressions = MapArgumentExpressionsToParameters(symbol, arguments);
+        if (argumentExpressions.TryGetValue(symbol.Parameters[1], out var divisor) &&
+            TryGetIntegerConstant(model, divisor, out var divisorValue) &&
+            divisorValue != 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Emits the zero-divisor guard for arguments prepared with the Cdecl convention.
+    /// The stack order is divisor followed by dividend, with the dividend on top, so
+    /// <see cref="MethodConvert.Pick"/>(1) duplicates the divisor without disturbing it.
+    /// </summary>
+    private static void EmitZeroDivRemGuard(MethodConvert methodConvert)
+    {
+        var endTarget = new JumpTarget();
+        methodConvert.Pick(1);
+        methodConvert.Push(0);
+        methodConvert.JumpIfNotEqual(endTarget);
+
+        methodConvert.RestoreMethodStackDepth();
+        methodConvert.Push("Divide by zero");
+        methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static bool RequiresSignedDivRemOverflowGuard(SemanticModel model, IMethodSymbol symbol,
+        IReadOnlyList<SyntaxNode>? arguments, BigInteger minValue)
+    {
+        if (arguments is null) return true;
+
+        var argumentExpressions = MapArgumentExpressionsToParameters(symbol, arguments);
+        if (argumentExpressions.TryGetValue(symbol.Parameters[1], out var divisor) &&
+            TryGetIntegerConstant(model, divisor, out var divisorValue) &&
+            divisorValue != -1)
+        {
+            return false;
+        }
+
+        return !argumentExpressions.TryGetValue(symbol.Parameters[0], out var dividend) ||
+               !TryGetIntegerConstant(model, dividend, out var dividendValue) ||
+               dividendValue == minValue;
+    }
+
+    /// <summary>
+    /// Emits the signed DivRem overflow guard for arguments prepared with the Cdecl convention.
+    /// The stack order is divisor followed by dividend, with the dividend on top.
+    /// </summary>
+    private static void EmitSignedDivRemOverflowGuard(MethodConvert methodConvert, BigInteger minValue)
+    {
+        var endTarget = new JumpTarget();
+        methodConvert.Dup();
+        methodConvert.Push(minValue);
+        methodConvert.JumpIfNotEqual(endTarget);
+
+        methodConvert.Over();
+        methodConvert.Push(-1);
+        methodConvert.JumpIfNotEqual(endTarget);
+
+        methodConvert.RestoreMethodStackDepth();
+        methodConvert.Push("Overflow");
+        methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     /// <summary>
@@ -260,18 +363,37 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
-        var okTarget = new JumpTarget();
-        // Evaluation stack: value=5 min=0 max=10 <- top
-        methodConvert.Over();                                      // 5 0 10 0
-        methodConvert.Over();                                      // 5 0 10 0 10 <- top
-        methodConvert.JumpIfLessOrEqual(okTarget);                 // 5 0 10  // if 0 <= 10, continue execution
-        methodConvert.Drop(3);                                     // Drop the value, min, max
-        methodConvert.Push("min > max");                           // Push the error message
-        methodConvert.Throw();                                     // Throw if min > max
-        okTarget.Instruction = methodConvert.Nop();                // OK target
+        if (!HasValidConstantClampBounds(model, symbol, arguments))
+        {
+            var okTarget = new JumpTarget();
+            // Evaluation stack: value=5 min=0 max=10 <- top
+            methodConvert.Over();                                  // 5 0 10 0
+            methodConvert.Over();                                  // 5 0 10 0 10 <- top
+            methodConvert.JumpIfLessOrEqual(okTarget);             // 5 0 10  // if 0 <= 10, continue execution
+            methodConvert.Drop(3);                                 // Drop the value, min, max
+            methodConvert.Push("min > max");                       // Push the error message
+            methodConvert.Throw();                                 // Throw if min > max
+            okTarget.Instruction = methodConvert.Nop();            // OK target
+        }
         methodConvert.Reverse3();                                  // 10 0 5
         methodConvert.Max();                                       // 10 5
         methodConvert.Min();                                       // 5
+    }
+
+    /// <summary>
+    /// Returns true only when both Clamp bounds are compile-time integer constants and min &lt;= max,
+    /// so the runtime range validation can be omitted. Any other case keeps the validation.
+    /// </summary>
+    private static bool HasValidConstantClampBounds(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null || symbol.Parameters.Length != 3)
+            return false;
+        var mapped = MapArgumentExpressionsToParameters(symbol, arguments);
+        return mapped.TryGetValue(symbol.Parameters[1], out var minExpr)
+            && mapped.TryGetValue(symbol.Parameters[2], out var maxExpr)
+            && TryGetIntegerConstant(model, minExpr, out var min)
+            && TryGetIntegerConstant(model, maxExpr, out var max)
+            && min <= max;
     }
 
     /// <summary>

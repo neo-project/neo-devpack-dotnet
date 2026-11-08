@@ -78,6 +78,17 @@ internal partial class MethodConvert
 
     private static void HandleStringBuilderAppendString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? value) && value is { Length: 0 })
+        {
+            // Appending a constant empty string is a no-op. Keep the receiver evaluated once and
+            // read its content so a null receiver still faults (PICKITEM on null).
+            methodConvert.ConvertExpression(model, instanceExpression!);
+            methodConvert.Dup();
+            methodConvert.Push(0);
+            methodConvert.PickItem();
+            methodConvert.Drop();
+            return;
+        }
         AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: false, includeArgument: true);
     }
 
@@ -98,45 +109,54 @@ internal partial class MethodConvert
 
     private static void HandleStringBuilderAppendLineWithValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetConstantArgument(model, symbol, "value", arguments, out string? constantValue) && constantValue is not null)
+        {
+            AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: true, includeArgument: false, constantText: constantValue);
+            return;
+        }
         AppendStringBuilderValue(methodConvert, model, instanceExpression, arguments!, symbol.Parameters[0].Type, appendNewLine: true, includeArgument: true);
     }
 
     private static void HandleStringBuilderToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
-        LoadStringBuilderContent(methodConvert, builderSlot);
-        methodConvert.RemoveAnonymousVariable(builderSlot);
+        if (instanceExpression is null)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, "A StringBuilder instance is required for this operation.");
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Push(0);
+        methodConvert.PickItem();
     }
 
     private static void HandleStringBuilderLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
-        LoadStringBuilderContent(methodConvert, builderSlot);
+        if (instanceExpression is null)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, "A StringBuilder instance is required for this operation.");
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Push(0);
+        methodConvert.PickItem();
         methodConvert.Size();
-        methodConvert.RemoveAnonymousVariable(builderSlot);
     }
 
     private static void HandleStringBuilderClear(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
-        methodConvert.AccessSlot(OpCode.LDLOC, builderSlot);
+        if (instanceExpression is null)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, "A StringBuilder instance is required for this operation.");
+        methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.Dup();
         methodConvert.Push(0);
         methodConvert.Push("");
         methodConvert.SetItem();
-        methodConvert.AccessSlot(OpCode.LDLOC, builderSlot);
-        methodConvert.RemoveAnonymousVariable(builderSlot);
     }
 
-    private static void AppendStringBuilderValue(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments, ITypeSymbol? parameterType, bool appendNewLine, bool includeArgument)
+    private static void AppendStringBuilderValue(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments, ITypeSymbol? parameterType, bool appendNewLine, bool includeArgument, string? constantText = null)
     {
         byte builderSlot = CaptureStringBuilderInstance(methodConvert, model, instanceExpression);
         byte currentSlot = methodConvert.AddAnonymousVariable();
-        LoadStringBuilderContent(methodConvert, builderSlot);
-        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
-
         byte? valueSlot = null;
         if (includeArgument && parameterType is not null)
             valueSlot = ConvertStringBuilderArgument(methodConvert, model, parameterType, arguments[0]);
+
+        LoadStringBuilderContent(methodConvert, builderSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
 
         byte resultSlot = methodConvert.AddAnonymousVariable();
         methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
@@ -147,7 +167,12 @@ internal partial class MethodConvert
             methodConvert.Cat();
         }
 
-        if (appendNewLine)
+        if (constantText is not null)
+        {
+            methodConvert.Push(appendNewLine ? constantText + StringBuilderNewLine : constantText);
+            methodConvert.Cat();
+        }
+        else if (appendNewLine)
         {
             methodConvert.Push(StringBuilderNewLine);
             methodConvert.Cat();
@@ -222,7 +247,7 @@ internal partial class MethodConvert
                 else
                 {
                     methodConvert.ConvertExpression(model, charExpression);
-                    methodConvert.ConvertCharToUtf8();
+                    methodConvert.ConvertCharToUtf8(toByteString: false);
                 }
                 slot = methodConvert.AddAnonymousVariable();
                 methodConvert.AccessSlot(OpCode.STLOC, slot);

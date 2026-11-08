@@ -51,31 +51,30 @@ namespace Neo.SmartContract.Framework
     /// </remarks>
     public abstract class AccessControl : SmartContract
     {
-        private const byte Prefix = 0xFB;
+        private const string Prefix = "\xFB";
 
         // Sub-namespace tags. 0x00 is reserved for the one-time init flag only; the role keys use
         // non-zero tags so they can never collide with it.
-        private const byte TAG_MEMBER = 0x01;  // [role][account:20] -> granted
-        private const byte TAG_ADMIN = 0x02;   // [role]             -> admin role override
-        private const byte TAG_COUNT = 0x03;   // [role]             -> member count
+        private const string TAG_MEMBER = "\x01";  // [role][account:20] -> granted
+        private const string TAG_ADMIN = "\x02";   // [role]             -> admin role override
+        private const string TAG_COUNT = "\x03";   // [role]             -> member count
 
         // The init flag lives under tag 0x00 (a fixed single-byte key) so it can never collide with
         // the non-zero tagged variable-length role keys.
-        private const byte TAG_INIT = 0x00;
+        private const string TAG_INIT = "\x00";
 
         private static StorageMap Map => new(Storage.CurrentContext, Prefix);
 
-        private static byte[] MemberKey(BigInteger role, UInt160 account)
-            => new byte[] { TAG_MEMBER }.Concat(RoleBytes(role)).Concat((byte[])account);
+        private static ByteString MemberKey(BigInteger role, UInt160 account)
+            => ((ByteString)TAG_MEMBER).Concat(RoleBytes(role)).Concat(account);
 
-        private static byte[] AdminKey(BigInteger role)
-            => new byte[] { TAG_ADMIN }.Concat(RoleBytes(role));
+        private static ByteString AdminKey(BigInteger role)
+            => ((ByteString)TAG_ADMIN).Concat(RoleBytes(role));
 
-        private static byte[] CountKey(BigInteger role)
-            => new byte[] { TAG_COUNT }.Concat(RoleBytes(role));
+        private static ByteString CountKey(BigInteger role)
+            => ((ByteString)TAG_COUNT).Concat(RoleBytes(role));
 
-        private static byte[] RoleBytes(BigInteger role)
-            => (byte[])(ByteString)role;
+        private static ByteString RoleBytes(BigInteger role) => (ByteString)role;
 
         private static void ValidateRole(BigInteger role)
             => ExecutionEngine.Assert(role >= 0, "AccessControl: role must be non-negative");
@@ -211,9 +210,10 @@ namespace Neo.SmartContract.Framework
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
-            byte[] key = MemberKey(role, account);
-            if (Map.Get(key) is not null)
-                return;
+
+            var key = MemberKey(role, account);
+            if (Map.Get(key) is not null) return;
+
             Map.Put(key, 1);
             Map.Increase(CountKey(role));
             OnRoleGranted(role, account, sender);
@@ -229,9 +229,9 @@ namespace Neo.SmartContract.Framework
         protected static void RevokeRoleInternal(BigInteger role, UInt160 account, UInt160 sender)
         {
             ValidateRole(role);
-            byte[] key = MemberKey(role, account);
-            if (Map.Get(key) is null)
-                return;
+            var key = MemberKey(role, account);
+            if (Map.Get(key) is null) return;
+
             Map.Delete(key);
             Map.Decrease(CountKey(role));
             OnRoleRevoked(role, account, sender);
@@ -253,8 +253,8 @@ namespace Neo.SmartContract.Framework
             ValidateRole(role);
             ValidateRole(adminRole);
             BigInteger previous = GetRoleAdmin(role);
-            if (previous == adminRole)
-                return;
+            if (previous == adminRole) return;
+
             if (adminRole == DEFAULT_ADMIN_ROLE())
                 Map.Delete(AdminKey(role));
             else
@@ -270,11 +270,10 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         protected static void InitializeAccessControl(UInt160? admin, bool update)
         {
-            if (update)
-                return;
+            if (update) return;
 
-            ExecutionEngine.Assert(Map.Get(new byte[] { TAG_INIT }) is null, "AccessControl: already initialized");
-            Map.Put(new byte[] { TAG_INIT }, 1);
+            ExecutionEngine.Assert(Map.Get(TAG_INIT) is null, "AccessControl: already initialized");
+            Map.Put(TAG_INIT, 1);
 
             UInt160 initialAdmin = admin ?? Runtime.Transaction.Sender;
             ExecutionEngine.Assert(initialAdmin.IsValidAndNotZero, "AccessControl: invalid initial admin");

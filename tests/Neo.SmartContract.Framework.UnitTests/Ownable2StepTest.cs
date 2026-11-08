@@ -85,7 +85,7 @@ public class Ownable2StepTest
         var contract = Deploy(engine, out _, out _);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => contract.TransferOwnership(Bob.Account));
         Merge(contract);
     }
 
@@ -95,7 +95,7 @@ public class Ownable2StepTest
         var engine = CreateEngine();
         var contract = Deploy(engine, out _, out _);
 
-        Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Alice.Account));
+        Assert.ThrowsExactly<TestException>(() => contract.TransferOwnership(Alice.Account));
         Merge(contract);
     }
 
@@ -105,7 +105,7 @@ public class Ownable2StepTest
         var engine = CreateEngine();
         var contract = Deploy(engine, out _, out _);
 
-        Assert.ThrowsException<TestException>(() => contract.TransferOwnership(UInt160.Zero));
+        Assert.ThrowsExactly<TestException>(() => contract.TransferOwnership(UInt160.Zero));
         Merge(contract);
     }
 
@@ -116,7 +116,7 @@ public class Ownable2StepTest
         var contract = Deploy(engine, out _, out _);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
         Merge(contract);
     }
 
@@ -129,7 +129,7 @@ public class Ownable2StepTest
         contract.SetPendingOwnerForTest(UInt160.Zero);
 
         Assert.AreEqual(UInt160.Zero, contract.GetPendingOwner());
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
         Merge(contract);
     }
 
@@ -142,11 +142,11 @@ public class Ownable2StepTest
         contract.TransferOwnership(Bob.Account);
 
         // Current owner cannot accept on the pending owner's behalf.
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
 
         // A third party cannot accept either.
         engine.SetTransactionSigners(Charlie);
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
 
         // Pending is still Bob; the offer survives the failed attempts.
         Assert.AreEqual(Bob.Account, contract.GetPendingOwner());
@@ -163,7 +163,7 @@ public class Ownable2StepTest
         engine.SetTransactionSigners(Bob);
         contract.AcceptOwnership();
 
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
         Merge(contract);
     }
 
@@ -181,7 +181,7 @@ public class Ownable2StepTest
 
         // Bob can no longer seize the abandoned contract.
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
         Merge(contract);
     }
 
@@ -199,7 +199,7 @@ public class Ownable2StepTest
 
         // The formerly-pending account can no longer accept.
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
         Merge(contract);
     }
 
@@ -209,7 +209,7 @@ public class Ownable2StepTest
         var engine = CreateEngine();
         var contract = Deploy(engine, out _, out _);
 
-        Assert.ThrowsException<TestException>(() => contract.CancelOwnershipTransfer());
+        Assert.ThrowsExactly<TestException>(() => contract.CancelOwnershipTransfer());
         Merge(contract);
     }
 
@@ -221,7 +221,7 @@ public class Ownable2StepTest
 
         contract.TransferOwnership(Bob.Account);
         engine.SetTransactionSigners(Charlie);
-        Assert.ThrowsException<TestException>(() => contract.CancelOwnershipTransfer());
+        Assert.ThrowsExactly<TestException>(() => contract.CancelOwnershipTransfer());
         Merge(contract);
     }
 
@@ -235,9 +235,9 @@ public class Ownable2StepTest
         Assert.IsNull(contract.GetOwner());
 
         // Every owner-gated method is now permanently uncallable.
-        Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Bob.Account));
-        Assert.ThrowsException<TestException>(() => contract.CancelOwnershipTransfer());
-        Assert.ThrowsException<TestException>(() => contract.RenounceOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.TransferOwnership(Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => contract.CancelOwnershipTransfer());
+        Assert.ThrowsExactly<TestException>(() => contract.RenounceOwnership());
         Merge(contract);
     }
 
@@ -248,7 +248,7 @@ public class Ownable2StepTest
         var contract = Deploy(engine, out _, out _);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.RenounceOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.RenounceOwnership());
         Merge(contract);
     }
 
@@ -261,7 +261,7 @@ public class Ownable2StepTest
         contract.ClearOwnerForTest();
 
         Assert.IsNull(contract.GetOwner());
-        Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Bob.Account));
+        Assert.ThrowsExactly<TestException>(() => contract.TransferOwnership(Bob.Account));
         Merge(contract);
     }
 
@@ -277,7 +277,7 @@ public class Ownable2StepTest
         Assert.AreEqual(Alice.Account, contract.GetOwner());
         Assert.AreEqual(Bob.Account, contract.GetPendingOwner());
 
-        Assert.ThrowsException<TestException>(() => contract.InitializeForTest(UInt160.Zero, false));
+        Assert.ThrowsExactly<TestException>(() => contract.InitializeForTest(UInt160.Zero, false));
         Assert.AreEqual(Alice.Account, contract.GetOwner());
         Assert.AreEqual(Bob.Account, contract.GetPendingOwner());
         Merge(contract);
@@ -307,7 +307,7 @@ public class Ownable2StepTest
 
         contract.SetOwnerWithoutInitializedForTest(Bob.Account);
 
-        Assert.ThrowsException<TestException>(() => contract.InitializeForTest(Charlie.Account, true));
+        Assert.ThrowsExactly<TestException>(() => contract.InitializeForTest(Charlie.Account, true));
         Assert.AreEqual(Bob.Account, contract.GetOwner());
         Merge(contract);
     }
@@ -322,7 +322,7 @@ public class Ownable2StepTest
         contract.InitializeForTest(Bob.Account, true);
 
         Assert.IsNull(contract.GetOwner());
-        Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Charlie.Account));
+        Assert.ThrowsExactly<TestException>(() => contract.TransferOwnership(Charlie.Account));
         Merge(contract);
     }
 
@@ -339,7 +339,7 @@ public class Ownable2StepTest
 
         // Bob's offer was superseded; he can no longer accept.
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Assert.ThrowsExactly<TestException>(() => contract.AcceptOwnership());
 
         // Charlie can.
         engine.SetTransactionSigners(Charlie);

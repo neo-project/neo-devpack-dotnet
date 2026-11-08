@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Throw()
         {
-            var exception = Assert.ThrowsException<TestException>(() => Contract.TestMain([]));
+            var exception = Assert.ThrowsExactly<TestException>(() => Contract.TestMain([]));
             AssertGasConsumed(1063530);
             Assert.IsTrue(exception.Message.Contains("Please supply at least one argument."));
         }
@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_StoredExceptionCanBeThrown()
         {
-            var exception = Assert.ThrowsException<TestException>(Contract.StoreAndThrowException);
+            var exception = Assert.ThrowsExactly<TestException>(Contract.StoreAndThrowException);
             StringAssert.Contains(exception.Message, "boom");
         }
 

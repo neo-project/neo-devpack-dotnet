@@ -33,6 +33,8 @@
 
 Neo DevPack for .NET is a comprehensive suite of development tools for building smart contracts and decentralized applications (dApps) on the neo blockchain platform using .NET. This toolkit enables developers to write, compile, test, and deploy smart contracts using C# and other .NET languages.
 
+See [CHANGELOG.md](CHANGELOG.md) for the release history.
+
 ## Components
 
 The Neo DevPack for .NET consists of several key components:

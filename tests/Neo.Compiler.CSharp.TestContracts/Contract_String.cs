@@ -62,6 +62,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.EndsWith("world");
         }
 
+        public static bool TestEndsWithOneByte(string str)
+        {
+            return str.EndsWith("/");
+        }
+
         public static bool TestEndWith(string strA, string strB)
         {
             return strA.EndsWith(strB);
@@ -82,6 +87,33 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.StartsWith("world");
         }
 
+        public static bool TestStartsWithOneByte(string str)
+        {
+            return str.StartsWith("/");
+        }
+
+        public static bool TestStartsWith2(string str)
+        {
+            return str.StartsWith("ab");
+        }
+
+        public static bool TestStartsWithPrefix(string str, string prefix) => str.StartsWith(prefix);
+
+        public static bool TestStartsWith50(string str)
+        {
+            return str.StartsWith("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        }
+
+        public static bool TestStartsWithUtf8(string str)
+        {
+            return str.StartsWith("éx");
+        }
+
+        public static bool TestStartsWithEmbeddedNull(string str)
+        {
+            return str.StartsWith("a\0b");
+        }
+
         public static int TestCompare(string left, string right)
         {
             return string.Compare(left, right);
@@ -92,9 +124,19 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.IndexOf("world");
         }
 
+        public static int TestIndexOfEmpty(string value)
+        {
+            return value.IndexOf("");
+        }
+
         public static int TestLastIndexOf(string str)
         {
             return str.LastIndexOf("world");
+        }
+
+        public static int TestLastIndexOfValue(string source, string value)
+        {
+            return source.LastIndexOf(value);
         }
 
         public static string TestInterpolatedStringHandler()
@@ -139,6 +181,21 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.TrimEnd();
         }
 
+        public static string TestTrimConst(string str)
+        {
+            return str.Trim('*');
+        }
+
+        public static string TestTrimConstStart(string str)
+        {
+            return str.TrimStart('*');
+        }
+
+        public static string TestTrimConstEnd(string str)
+        {
+            return str.TrimEnd('*');
+        }
+
         public static string TestTrimEndChar(string str, char trimChar)
         {
             return str.TrimEnd(trimChar);
@@ -146,17 +203,32 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static string TestTrimArray(string str)
         {
-            return str.Trim(new[] { '*' });
+            return str.Trim(new char[1] { '*' });  // ArrayCreationExpressionSyntax
         }
 
         public static string TestTrimStartArray(string str)
         {
-            return str.TrimStart(new[] { '*' });
+            return str.TrimStart(new[] { '*' });  // ImplicitArrayCreationExpressionSyntax
         }
 
         public static string TestTrimEndArray(string str)
         {
             return str.TrimEnd(new[] { '*' });
+        }
+
+        public static string TestTrimArrayNonAscii(string str)
+        {
+            return str.Trim(new[] { 'é' });
+        }
+
+        public static string TestTrimStartArrayNonAscii(string str)
+        {
+            return str.TrimStart(new[] { '中' });
+        }
+
+        public static string TestTrimEndArrayNonAscii(string str)
+        {
+            return str.TrimEnd(new[] { '中' });
         }
 
         public static char TestPickItem(string s, int index)
@@ -189,6 +261,36 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public static string[] TestSplitUnicodeTwoByte(string str)
+        {
+            return str.Split('é');
+        }
+
+        public static string[] TestSplitUnicodeThreeByte(string str)
+        {
+            return str.Split('中');
+        }
+
+        public static string[] TestSplitNullChar(string str)
+        {
+            return str.Split('\0');
+        }
+
+        public static string[] TestSplitUnicodeRemoveEmpty(string str)
+        {
+            return str.Split('é', StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string[] TestSplitUnicodeCharArray(string str)
+        {
+            return str.Split(new[] { '中' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string[] TestSplitRuntimeChar(string str, char separator)
+        {
+            return str.Split(separator);
+        }
+
         public static string[] TestSplitStringArray(string str)
         {
             return str.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -217,6 +319,21 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int TestIndexOfChar(string s, char c)
         {
             return s.IndexOf(c);
+        }
+
+        public static int TestIndexOfConstChar(string s)
+        {
+            return s.IndexOf('*');
+        }
+
+        public static int TestLastIndexOfChar(string s, char c)
+        {
+            return s.LastIndexOf(c);
+        }
+
+        public static int TestLastIndexOfConstChar(string s)
+        {
+            return s.LastIndexOf('*');
         }
 
         public static string TestToLower(string s)
@@ -272,6 +389,56 @@ namespace Neo.Compiler.CSharp.TestContracts
             builder.Clear();
             builder.AppendLine("neo");
             builder.Append("contracts");
+            return builder.ToString();
+        }
+
+        public static string TestStringBuilderAppendLineConstants(string dynamicValue)
+        {
+            const string message = "Neo";
+            var builder = new StringBuilder("start:");
+            builder.AppendLine("Hello");
+            builder.AppendLine("");
+            builder.AppendLine("Hello" + " World");
+            builder.AppendLine(message);
+            builder.AppendLine("héllo 你好 \0 end");
+            builder.AppendLine(dynamicValue);
+            builder.AppendLine((string?)null);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineHello()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("Hello");
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineEmpty()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("");
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineConstString()
+        {
+            const string message = "Neo";
+            var builder = new StringBuilder("a");
+            builder.AppendLine(message);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineDynamic(string value)
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine(value);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineLong()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
             return builder.ToString();
         }
 

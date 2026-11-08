@@ -25,6 +25,12 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return short.DivRem(left, right);
     }
 
+    public static int DivRemDeconstruction(int left, int right)
+    {
+        var (quotient, remainder) = int.DivRem(left, right);
+        return quotient * 100 + remainder;
+    }
+
     public static (int quotient, int remainder) DivRemInt(int left, int right)
     {
         return int.DivRem(left, right);

@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 
@@ -17,162 +18,88 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 {
     public partial class CoberturaFormat
     {
-        internal class ContractCoverageWriter
+        internal class ContractCoverageWriter(CoveredContract contract, NeoDebugInfo debugInfo)
         {
-            readonly CoveredContract Contract;
-            readonly NeoDebugInfo DebugInfo;
-
-            /// <summary>
-            /// Constructor
-            /// </summary>
-            /// <param name="contract">Contract</param>
-            /// <param name="debugInfo">Debug info</param>
-            public ContractCoverageWriter(CoveredContract contract, NeoDebugInfo debugInfo)
-            {
-                Contract = contract;
-                DebugInfo = debugInfo;
-            }
-
             public void WritePackage(XmlWriter writer)
             {
-                var allMethods = DebugInfo.Methods.SelectMany(m => m.SequencePoints).ToArray();
-                var (lineCount, hitCount) = GetLineRate(Contract, allMethods);
-                var lineRate = CoverageBase.CalculateHitRate(lineCount, hitCount);
-                var (branchCount, branchHit) = GetBranchRate(Contract, allMethods);
-                var branchRate = CoverageBase.CalculateHitRate(branchCount, branchHit);
-
+                var points = GetPoints(debugInfo).ToArray();
                 writer.WriteStartElement("package");
-                // TODO: complexity
-                writer.WriteAttributeString("name", DebugInfo.Hash.ToString());
-                writer.WriteAttributeString("scripthash", $"{DebugInfo.Hash}");
-                writer.WriteAttributeString("line-rate", $"{lineRate:N4}");
-                writer.WriteAttributeString("branch-rate", $"{branchRate:N4}");
+                writer.WriteAttributeString("name", debugInfo.Hash.ToString());
+                writer.WriteAttributeString("scripthash", debugInfo.Hash.ToString());
+                WriteRates(writer, points);
                 writer.WriteStartElement("classes");
+                foreach (var group in points.GroupBy(point => (point.Method.Namespace, point.Point.Document)))
                 {
-                    foreach (var group in DebugInfo.Methods.GroupBy(NamespaceAndFilename))
-                    {
-                        foreach (var entry in group.Key)
-                        {
-                            WriteClass(writer, entry.@namespace, entry.filename, group);
-                        }
-                    }
+                    WriteClass(writer, group.Key.Namespace, debugInfo.Documents[group.Key.Document], group.ToArray());
                 }
                 writer.WriteEndElement();
                 writer.WriteEndElement();
-
-                IEnumerable<(string @namespace, string filename)> NamespaceAndFilename(NeoDebugInfo.Method method)
-                {
-                    var indexes = method.SequencePoints
-                        .Select(sp => sp.Document)
-                        .Distinct()
-                        .ToList();
-
-                    foreach (var index in indexes)
-                    {
-                        if (index >= 0 && index < DebugInfo.Documents.Count)
-                        {
-                            yield return (method.Namespace, DebugInfo.Documents[index]);
-                        }
-                    }
-                }
             }
 
-            internal void WriteClass(XmlWriter writer, string name, string filename, IEnumerable<NeoDebugInfo.Method> methods)
+            private void WriteRates(XmlWriter writer,
+                IEnumerable<(NeoDebugInfo.Method Method, NeoDebugInfo.SequencePoint Point)> points)
             {
-                var allMethods = methods.SelectMany(m => m.SequencePoints).ToArray();
-                var (lineCount, hitCount) = GetLineRate(Contract, allMethods);
-                var lineRate = CoverageBase.CalculateHitRate(lineCount, hitCount);
-                var (branchCount, branchHit) = GetBranchRate(Contract, allMethods);
-                var branchRate = CoverageBase.CalculateHitRate(branchCount, branchHit);
+                var (lines, hits) = GetLineRate(contract, points.Select(point => point.Point));
+                var (branches, branchHits) = GetBranchRate(contract, points);
+                writer.WriteAttributeString("line-rate", CoverageBase.CalculateHitRate(lines, hits).ToString("F4", CultureInfo.InvariantCulture));
+                writer.WriteAttributeString("branch-rate", CoverageBase.CalculateHitRate(branches, branchHits).ToString("F4", CultureInfo.InvariantCulture));
+            }
 
+            private void WriteClass(XmlWriter writer, string name, string filename,
+                (NeoDebugInfo.Method Method, NeoDebugInfo.SequencePoint Point)[] points)
+            {
                 writer.WriteStartElement("class");
-                // TODO: complexity
                 writer.WriteAttributeString("name", name);
-                if (filename.Length > 0)
-                {
-                    writer.WriteAttributeString("filename", filename);
-                }
-                writer.WriteAttributeString("line-rate", $"{lineRate:N4}");
-                writer.WriteAttributeString("branch-rate", $"{branchRate:N4}");
-
+                if (filename.Length > 0) writer.WriteAttributeString("filename", filename);
+                WriteRates(writer, points);
                 writer.WriteStartElement("methods");
-                foreach (var method in methods)
+                foreach (var group in points.GroupBy(point => point.Method))
                 {
-                    WriteMethod(writer, method);
+                    var method = group.Key;
+                    writer.WriteStartElement("method");
+                    writer.WriteAttributeString("name", method.Name);
+                    writer.WriteAttributeString("signature", $"({string.Join(", ", method.Parameters.Select(parameter => parameter.Type))})");
+                    WriteRates(writer, group);
+                    WriteLines(writer, group);
+                    writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
-
-                writer.WriteStartElement("lines");
-                foreach (var method in methods)
-                {
-                    foreach (var sp in method.SequencePoints)
-                    {
-                        WriteLine(writer, method, sp);
-                    }
-                }
-                writer.WriteEndElement();
-
+                WriteLines(writer, points);
                 writer.WriteEndElement();
             }
 
-            internal void WriteMethod(XmlWriter writer, NeoDebugInfo.Method method)
+            private void WriteLines(XmlWriter writer,
+                IEnumerable<(NeoDebugInfo.Method Method, NeoDebugInfo.SequencePoint Point)> points)
             {
-                var signature = string.Join(", ", method.Parameters.Select(p => p.Type));
-                var (lineCount, hitCount) = GetLineRate(Contract, method.SequencePoints);
-                var lineRate = CoverageBase.CalculateHitRate(lineCount, hitCount);
-                var (branchCount, branchHit) = GetBranchRate(Contract, method.SequencePoints);
-                var branchRate = CoverageBase.CalculateHitRate(branchCount, branchHit);
-
-                writer.WriteStartElement("method");
-                writer.WriteAttributeString("name", method.Name);
-                writer.WriteAttributeString("signature", $"({signature})");
-                writer.WriteAttributeString("line-rate", $"{lineRate:N4}");
-                writer.WriteAttributeString("branch-rate", $"{branchRate:N4}");
                 writer.WriteStartElement("lines");
-                foreach (var sp in method.SequencePoints)
+                foreach (var line in points.GroupBy(point => point.Point.Start.Line).OrderBy(group => group.Key))
                 {
-                    WriteLine(writer, method, sp);
-                }
-                writer.WriteEndElement();
-                writer.WriteEndElement();
-            }
-
-            internal void WriteLine(XmlWriter writer, NeoDebugInfo.Method method, NeoDebugInfo.SequencePoint sp)
-            {
-                var hits = Contract.TryGetLine(sp.Address, out var value) ? value.Hits : 0;
-
-                writer.WriteStartElement("line");
-                writer.WriteAttributeString("number", $"{sp.Start.Line}");
-                writer.WriteAttributeString("address", $"{sp.Address}");
-                writer.WriteAttributeString("hits", $"{hits}");
-
-                if (!Contract.TryGetBranch(sp.Address, out var branch))
-                {
-                    writer.WriteAttributeString("branch", $"{false}");
-                }
-                else
-                {
-                    int branchCount = branch.Count;
-                    int branchHit = branch.Hits;
-                    var branchRate = CoverageBase.CalculateHitRate(branchCount, branchHit);
-
-                    writer.WriteAttributeString("branch", $"{true}");
-                    writer.WriteAttributeString("condition-coverage", $"{branchRate * 100:N}% ({branchHit}/{branchCount})");
-                    writer.WriteStartElement("conditions");
-
-                    foreach ((var address, var branchI) in GetBranchInstructions(Contract, method, sp))
+                    var hits = line.Max(point => contract.TryGetLine(point.Point.Address, out var hit) ? hit.Hits : 0);
+                    var branches = line.SelectMany(point => GetBranchInstructions(contract, point.Method, point.Point))
+                        .DistinctBy(branch => branch.address).ToArray();
+                    writer.WriteStartElement("line");
+                    writer.WriteAttributeString("number", XmlConvert.ToString(line.Key));
+                    writer.WriteAttributeString("address", XmlConvert.ToString(line.Min(point => point.Point.Address)));
+                    writer.WriteAttributeString("hits", XmlConvert.ToString(hits));
+                    writer.WriteAttributeString("branch", XmlConvert.ToString(branches.Length > 0));
+                    if (branches.Length > 0)
                     {
-                        var (condBranchCount, condContinueCount) = (branchI.Count, branchI.Hits);
-                        var coverage = condBranchCount == 0 ? 0m : 1m;
-                        coverage += condContinueCount == 0 ? 0m : 1m;
-
-                        writer.WriteStartElement("condition");
-                        writer.WriteAttributeString("number", $"{address}");
-                        writer.WriteAttributeString("type", $"{branchI.Offset}"); // TODO: Opcode?
-                        writer.WriteAttributeString("coverage", $"{coverage / 2m * 100m}%");
+                        var total = branches.Sum(branch => branch.branch.Count);
+                        var covered = branches.Sum(branch => branch.branch.Hits);
+                        var rate = CoverageBase.CalculateHitRate(total, covered) * 100;
+                        writer.WriteAttributeString("condition-coverage", string.Create(CultureInfo.InvariantCulture, $"{rate:0.##}% ({covered}/{total})"));
+                        writer.WriteStartElement("conditions");
+                        foreach (var (address, branch) in branches)
+                        {
+                            writer.WriteStartElement("condition");
+                            writer.WriteAttributeString("number", XmlConvert.ToString(address));
+                            writer.WriteAttributeString("type", "jump");
+                            writer.WriteAttributeString("coverage", string.Create(CultureInfo.InvariantCulture,
+                                $"{CoverageBase.CalculateHitRate(branch.Count, branch.Hits) * 100:0.##}%"));
+                            writer.WriteEndElement();
+                        }
                         writer.WriteEndElement();
                     }
-
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();

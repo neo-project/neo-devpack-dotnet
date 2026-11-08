@@ -29,7 +29,7 @@ public class UnitTest_StandaloneIndex
         CompilationOptions.OptimizationType.All
     ];
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("""
     public static int Test()
     {
@@ -85,7 +85,7 @@ public class UnitTest_StandaloneIndex
         AssertStandaloneIndexRejected(BuildContract(members), caret);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("flag ? ^2 : fallback", "^2")]
     [DataRow("flag ? fallback : ^1", "^1")]
     public void StoredConditionalCaretInEitherArmIsRejected(string conditional, string caret)

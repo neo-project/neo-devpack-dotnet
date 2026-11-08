@@ -36,7 +36,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             // Technically not possible, but raise 100% coverage
 
             Contract.Storage.Put(new byte[] { 0xff }, 123);
-            Assert.ThrowsException<TestException>(() => Contract.Owner);
+            Assert.ThrowsExactly<TestException>(() => Contract.Owner);
         }
     }
 }

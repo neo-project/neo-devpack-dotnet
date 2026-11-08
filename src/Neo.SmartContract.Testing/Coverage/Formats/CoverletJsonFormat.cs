@@ -9,9 +9,11 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.Coverage.Formats
 {
@@ -91,8 +93,15 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
             foreach (var debugMethod in debugInfo.Methods)
             {
-                foreach (var debugPoint in debugMethod.SequencePoints)
+                var points = debugMethod.SequencePoints.OrderBy(point => point.Address).ToArray();
+                var branches = contract.Branches.Where(branch => !branch.OutOfScript).OrderBy(branch => branch.Offset).ToArray();
+                uint ordinal = 0;
+                for (int pointIndex = 0; pointIndex < points.Length; pointIndex++)
                 {
+                    var debugPoint = points[pointIndex];
+                    if (debugPoint.Document < 0 || debugPoint.Document >= debugInfo.Documents.Count)
+                        continue;
+
                     // Get method
 
                     var debugDoc = debugInfo.Documents[debugPoint.Document];
@@ -115,16 +124,29 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
                     // Branches
 
-                    if (contract.TryGetBranch(debugPoint.Address, out var branch))
+                    long end = (long)debugMethod.Range.End + 1;
+                    if (pointIndex + 1 < points.Length)
+                        end = Math.Min(end, points[pointIndex + 1].Address);
+
+                    foreach (var branch in branches.Where(branch => branch.Offset >= Math.Max(debugPoint.Address, debugMethod.Range.Start) && branch.Offset < end))
                     {
-                        method.Branches.Add(new BranchInfo()
+                        if (!contract.TryGetLine(branch.Offset, out var line)) continue;
+                        var instruction = line.Instruction;
+                        int target = branch.Offset + (instruction.Operand.Length == 1 ? instruction.TokenI8 : instruction.TokenI32);
+                        int fallThrough = branch.Offset + instruction.Size;
+                        bool inverted = instruction.OpCode is OpCode.JMPIFNOT or OpCode.JMPIFNOT_L or OpCode.JMPNE or OpCode.JMPNE_L;
+                        for (int path = 0; path < 2; path++)
                         {
-                            Line = debugPoint.Start.Line,
-                            Path = branch.Count,
-                            Hits = branch.Hits,
-                            Offset = debugPoint.Start.Column,
-                            EndOffset = debugPoint.End.Column
-                        });
+                            method.Branches.Add(new BranchInfo
+                            {
+                                Line = debugPoint.Start.Line,
+                                Path = path,
+                                Hits = path == 0 ? branch.HitsPath2 : branch.HitsPath1,
+                                Offset = branch.Offset,
+                                EndOffset = (path == 1) != inverted ? target : fallThrough,
+                                Ordinal = ordinal++
+                            });
+                        }
                     }
 
                     // Lines

@@ -44,7 +44,7 @@ public class UnitTest_ImplicitArrayForEach
         }
         """;
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]
@@ -107,7 +107,7 @@ public class UnitTest_ImplicitArrayForEach
             ElementType.TypeKind: TypeKind.Error
         });
 
-        var exception = Assert.ThrowsException<CompilationException>(
+        var exception = Assert.ThrowsExactly<CompilationException>(
             () => MethodConvert.ResolveImplicitArrayType(model, expression));
 
         Assert.AreEqual(DiagnosticId.SyntaxNotSupported, exception.Diagnostic.Id);

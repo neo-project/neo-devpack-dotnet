@@ -129,8 +129,9 @@ public class RpcStore : IStore
             // it could return wrong results if we want to get data between contracts
             ConcurrentDictionary<byte[], byte[]> data = new();
 
-            // We ask for 5 bytes because the minimum prefix is one byte
-            foreach (var (Key, Value) in Find([.. key.Take(key.Length == 4 ? 4 : 5)], SeekDirection.Forward))
+            // The seek key is an upper bound, not a storage prefix. Fetch the whole
+            // contract so keys below that bound are included before filtering locally.
+            foreach (var (Key, Value) in Find(key[..sizeof(int)], SeekDirection.Forward))
             {
                 data.TryAdd(Key, Value);
             }
@@ -144,7 +145,9 @@ public class RpcStore : IStore
         }
 
         var skey = new StorageKey(key);
-        var start = 0;
+        JToken? next = null;
+        var continuations = new HashSet<JToken>(new JTokenEqualityComparer());
+        var keyPrefix = Convert.ToBase64String(skey.Key.ToArray());
 
         while (true)
         {
@@ -152,7 +155,9 @@ public class RpcStore : IStore
             {
                 jsonrpc = "2.0",
                 method = "findstorage",
-                @params = new string[] { skey.Id.ToString(), Convert.ToBase64String(skey.Key.ToArray()), start.ToString() },
+                @params = next is null
+                    ? new object[] { skey.Id.ToString(), keyPrefix }
+                    : new object[] { skey.Id.ToString(), keyPrefix, next },
                 id = _id = Interlocked.Increment(ref _id),
             };
 
@@ -164,24 +169,40 @@ public class RpcStore : IStore
 
                 var prefix = skey.ToArray().Take(4);
 
-                foreach (JObject r in results.Cast<JObject>())
+                foreach (var record in results)
                 {
-                    if (r["key"]?.Value<string>() is string jkey &&
-                        r["value"]?.Value<string>() is string kvalue)
+                    if (record is not JObject r ||
+                        r["key"] is not { Type: JTokenType.String } keyToken ||
+                        r["value"] is not { Type: JTokenType.String } valueToken)
+                        throw UnexpectedRpcResponse("findstorage", jo);
+
+                    byte[] recordKey;
+                    byte[] recordValue;
+                    try
                     {
-                        yield return (prefix.Concat(Convert.FromBase64String(jkey)).ToArray(), Convert.FromBase64String(kvalue));
+                        recordKey = Convert.FromBase64String(keyToken.Value<string>()!);
+                        recordValue = Convert.FromBase64String(valueToken.Value<string>()!);
                     }
+                    catch (FormatException)
+                    {
+                        throw UnexpectedRpcResponse("findstorage", jo);
+                    }
+                    yield return (prefix.Concat(recordKey).ToArray(), recordValue);
                 }
 
-                if (result["truncated"]?.Value<bool>() == true &&
-                    result["next"]?.Value<int>() is int next)
-                {
-                    start = next;
-                }
-                else
-                {
+                if (result["truncated"]?.Value<bool>() != true)
                     yield break;
+
+                var continuation = result["next"];
+                if (results.Count == 0 ||
+                    continuation?.Type is not (JTokenType.Integer or JTokenType.String) ||
+                    continuation.Type == JTokenType.String && string.IsNullOrEmpty(continuation.Value<string>()) ||
+                    !continuations.Add(continuation))
+                {
+                    throw UnexpectedRpcResponse("findstorage", jo);
                 }
+
+                next = continuation;
             }
             else
             {

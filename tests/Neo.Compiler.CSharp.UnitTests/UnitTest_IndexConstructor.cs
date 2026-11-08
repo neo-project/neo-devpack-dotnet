@@ -155,8 +155,8 @@ public class UnitTest_IndexConstructor
         };
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetUnsupportedConstructionCases), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(GetUnsupportedConstructionCases))]
     public void FrameworkIndexConstruction_ReportsSingleLocatedDiagnostic(string expression, string member)
     {
         string source = $$"""
@@ -174,7 +174,7 @@ public class UnitTest_IndexConstructor
         AssertUnsupportedConstruction(context, source, expression);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]
@@ -200,7 +200,7 @@ public class UnitTest_IndexConstructor
         AssertUnsupportedConstruction(context, source, expression);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]

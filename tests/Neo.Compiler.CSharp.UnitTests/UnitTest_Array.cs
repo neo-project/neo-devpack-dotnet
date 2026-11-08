@@ -26,7 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_GetTreeByteLengthPrefix()
         {
-            using var fee = Engine.CreateGasWatcher();
+            using var fee = Engine.CreateFeeWatcher();
             var result = Contract.GetTreeByteLengthPrefix();
             Assert.AreEqual(1784760, fee.Value);
 
@@ -152,7 +152,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayInit()
         {
             var arr = Contract.TestDynamicArrayInit(3);
-            AssertGasConsumed(2604720);
+            AssertGasConsumed(2603760);
 
             Assert.AreEqual(3, arr?.Count);
             Assert.AreEqual(new BigInteger(0), arr?[0]);
@@ -160,17 +160,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(2), arr?[2]);
 
             arr = Contract.TestDynamicArrayInit(0);
-            AssertGasConsumed(1863750);
+            AssertGasConsumed(1863510);
             Assert.AreEqual(0, arr?.Count);
-            Assert.ThrowsException<TestException>(() => Contract.TestDynamicArrayInit(-1));
-            Assert.ThrowsException<TestException>(() => Contract.TestDynamicArrayInit(int.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(int.MaxValue));
         }
 
         [TestMethod]
         public void Test_DefaultArray()
         {
             var arr = Contract.TestDefaultArray();
-            AssertGasConsumed(1805160);
+            AssertGasConsumed(1804170);
             Assert.IsTrue(arr!.Value);
         }
 
@@ -280,7 +280,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalAssignments()
         {
             var value = Contract.MultiDimensionalAssignments();
-            AssertGasConsumed(3581910);
+            AssertGasConsumed(3581940);
             Assert.AreEqual(new BigInteger(10), value);
         }
 

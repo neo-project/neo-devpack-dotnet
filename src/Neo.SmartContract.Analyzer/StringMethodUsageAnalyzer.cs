@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Analyzer
             "ToCharArray", "ToLowerInvariant", "ToUpperInvariant"
         };
 
-        private static readonly DiagnosticDescriptor Rule = new(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             "Unsupported string method is used",
             "Unsupported string method: {0}",

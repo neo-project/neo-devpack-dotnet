@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -40,7 +41,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly LocalizableString ParseMessageFormat = "Use '{0}.Parse(...)' instead of implicit initialization from string or ByteString";
         private static readonly LocalizableString ParseDescription = "UInt160/UInt256/ECPoint must be initialized via Parse to ensure validation.";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor Rule = DiagnosticDescriptorFactory.Create(
             DiagnosticId,
             Title,
             MessageFormat,
@@ -49,7 +50,7 @@ namespace Neo.SmartContract.Analyzer
             isEnabledByDefault: true,
             description: Description);
 
-        private static readonly DiagnosticDescriptor ParseRule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor ParseRule = DiagnosticDescriptorFactory.Create(
             ParseDiagnosticId,
             ParseTitle,
             ParseMessageFormat,
@@ -73,11 +74,13 @@ namespace Neo.SmartContract.Analyzer
 
             foreach (var variable in fieldDeclaration.Declaration.Variables)
             {
-                if (variable.Initializer?.Value is LiteralExpressionSyntax literal && literal.Token.ValueText == "default!")
+                if (fieldDeclaration.Declaration.Variables.Count == 1 &&
+                    variable.Initializer is not null &&
+                    IsDefaultInitializer(variable.Initializer.Value))
                 {
                     var attribute = fieldDeclaration.AttributeLists
                         .SelectMany(al => al.Attributes)
-                        .FirstOrDefault(attr => IsTargetAttribute(attr.Name.ToString()));
+                        .FirstOrDefault(attr => IsTargetAttribute(context.SemanticModel, attr, context.CancellationToken));
 
                     if (attribute != null)
                     {
@@ -117,9 +120,6 @@ namespace Neo.SmartContract.Analyzer
                 return;
 
             var initializer = variable.Initializer.Value;
-            if (IsParseInvocation(initializer))
-                return;
-
             var initType = semanticModel.GetTypeInfo(initializer, context.CancellationToken).Type;
             if (initType is null)
                 return;
@@ -133,22 +133,32 @@ namespace Neo.SmartContract.Analyzer
             }
         }
 
-        private static bool IsParseInvocation(ExpressionSyntax initializer)
+        private static bool IsDefaultInitializer(ExpressionSyntax initializer)
         {
-            if (initializer is InvocationExpressionSyntax invocation &&
-                invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
-                memberAccess.Name.Identifier.Text == "Parse")
-            {
+            if (initializer.IsKind(SyntaxKind.DefaultLiteralExpression) || initializer.IsKind(SyntaxKind.DefaultExpression))
                 return true;
-            }
 
-            return false;
+            return initializer is PostfixUnaryExpressionSyntax postfix &&
+                postfix.IsKind(SyntaxKind.SuppressNullableWarningExpression) &&
+                (postfix.Operand.IsKind(SyntaxKind.DefaultLiteralExpression) || postfix.Operand.IsKind(SyntaxKind.DefaultExpression));
         }
 
-        private bool IsTargetAttribute(string attributeName)
+        private static bool IsTargetAttribute(SemanticModel semanticModel, AttributeSyntax attribute, CancellationToken cancellationToken)
         {
-            string normalized = TrimAttributeSuffix(attributeName);
-            return normalized is "InitialValue" or "Hash160" or "PublicKey" or "Integer" or "String";
+            var symbol = semanticModel.GetSymbolInfo(attribute, cancellationToken).Symbol;
+            var type = symbol switch
+            {
+                IMethodSymbol method => method.ContainingType,
+                INamedTypeSymbol namedType => namedType,
+                _ => null
+            };
+
+            return type?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) is
+                "global::Neo.SmartContract.Framework.Attributes.InitialValueAttribute" or
+                "global::Neo.SmartContract.Framework.Attributes.Hash160Attribute" or
+                "global::Neo.SmartContract.Framework.Attributes.PublicKeyAttribute" or
+                "global::Neo.SmartContract.Framework.Attributes.IntegerAttribute" or
+                "global::Neo.SmartContract.Framework.Attributes.StringAttribute";
         }
 
         private static string TrimAttributeSuffix(string attributeName)
@@ -206,11 +216,12 @@ namespace Neo.SmartContract.Analyzer
 
             AttributeSyntax? attribute = fieldDeclaration.AttributeLists
                 .SelectMany(al => al.Attributes)
-                .FirstOrDefault(attr => IsTargetAttribute(attr.Name.ToString()));
+                .FirstOrDefault(attr => semanticModel is not null && IsTargetAttribute(semanticModel, attr, cancellationToken));
 
-            if (attribute != null && attribute.ArgumentList?.Arguments.Count > 0)
+            if (attribute is not null && semanticModel?.GetOperation(attribute, cancellationToken) is
+                IAttributeOperation { Operation: IObjectCreationOperation creation } &&
+                creation.Arguments.FirstOrDefault(argument => argument.Parameter?.Ordinal == 0)?.Value.Syntax is ExpressionSyntax valueExpression)
             {
-                var valueExpression = attribute.ArgumentList.Arguments[0].Expression;
                 var variable = fieldDeclaration.Declaration.Variables[0];
                 var fieldSymbol = semanticModel?.GetDeclaredSymbol(variable, cancellationToken) as IFieldSymbol;
                 var initializerExpression = BuildInitializerExpression(fieldSymbol?.Type, valueExpression);
@@ -219,7 +230,7 @@ namespace Neo.SmartContract.Analyzer
 
                 var newInitializer = SyntaxFactory.EqualsValueClause(initializerExpression);
                 var newVariable = variable.WithInitializer(newInitializer);
-                var cleanedField = RemoveInitialValueAttributes(fieldDeclaration);
+                var cleanedField = RemoveInitialValueAttributes(fieldDeclaration, semanticModel!, cancellationToken);
                 cleanedField = cleanedField.WithDeclaration(fieldDeclaration.Declaration.WithVariables(
                     SyntaxFactory.SingletonSeparatedList(newVariable)));
 
@@ -246,12 +257,12 @@ namespace Neo.SmartContract.Analyzer
             return root is null ? document : document.WithSyntaxRoot(root.ReplaceNode(variable, newVariable));
         }
 
-        private static FieldDeclarationSyntax RemoveInitialValueAttributes(FieldDeclarationSyntax fieldDeclaration)
+        private static FieldDeclarationSyntax RemoveInitialValueAttributes(FieldDeclarationSyntax fieldDeclaration, SemanticModel semanticModel, CancellationToken cancellationToken)
         {
             var remainingLists = new List<AttributeListSyntax>();
             foreach (var list in fieldDeclaration.AttributeLists)
             {
-                var kept = list.Attributes.Where(attr => !IsTargetAttribute(attr.Name.ToString())).ToArray();
+                var kept = list.Attributes.Where(attr => !IsTargetAttribute(semanticModel, attr, cancellationToken)).ToArray();
                 if (kept.Length > 0)
                 {
                     remainingLists.Add(list.WithAttributes(SyntaxFactory.SeparatedList(kept)));
@@ -261,14 +272,32 @@ namespace Neo.SmartContract.Analyzer
             return fieldDeclaration.WithAttributeLists(SyntaxFactory.List(remainingLists));
         }
 
+        private static bool IsTargetAttribute(SemanticModel semanticModel, AttributeSyntax attribute, CancellationToken cancellationToken)
+        {
+            var symbol = semanticModel.GetSymbolInfo(attribute, cancellationToken).Symbol;
+            var type = symbol switch
+            {
+                IMethodSymbol method => method.ContainingType,
+                INamedTypeSymbol namedType => namedType,
+                _ => null
+            };
+
+            return type?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) is
+                "global::Neo.SmartContract.Framework.Attributes.InitialValueAttribute" or
+                "global::Neo.SmartContract.Framework.Attributes.Hash160Attribute" or
+                "global::Neo.SmartContract.Framework.Attributes.PublicKeyAttribute" or
+                "global::Neo.SmartContract.Framework.Attributes.IntegerAttribute" or
+                "global::Neo.SmartContract.Framework.Attributes.StringAttribute";
+        }
+
         private static ExpressionSyntax? BuildInitializerExpression(ITypeSymbol? fieldType, ExpressionSyntax valueExpression)
         {
             string? parseTarget = fieldType?.ToString() switch
             {
-                "Neo.SmartContract.Framework.UInt160" => "Neo.SmartContract.Framework.UInt160.Parse",
-                "Neo.SmartContract.Framework.UInt256" => "Neo.SmartContract.Framework.UInt256.Parse",
-                "Neo.SmartContract.Framework.ECPoint" => "Neo.SmartContract.Framework.ECPoint.Parse",
-                "System.Numerics.BigInteger" => "System.Numerics.BigInteger.Parse",
+                "Neo.SmartContract.Framework.UInt160" => "global::Neo.SmartContract.Framework.UInt160.Parse",
+                "Neo.SmartContract.Framework.UInt256" => "global::Neo.SmartContract.Framework.UInt256.Parse",
+                "Neo.SmartContract.Framework.ECPoint" => "global::Neo.SmartContract.Framework.ECPoint.Parse",
+                "System.Numerics.BigInteger" => "global::System.Numerics.BigInteger.Parse",
                 "string" => null,
                 _ => null
             };
@@ -284,23 +313,5 @@ namespace Neo.SmartContract.Analyzer
                     SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(valueExpression))));
         }
 
-        private static bool IsTargetAttribute(string attributeName)
-        {
-            string normalized = NormalizeAttributeName(attributeName);
-            return normalized is "InitialValue" or "Hash160" or "PublicKey" or "Integer" or "String";
-        }
-
-        private static string NormalizeAttributeName(string attributeName)
-        {
-            return TrimAttributeSuffix(attributeName);
-        }
-
-        private static string TrimAttributeSuffix(string attributeName)
-        {
-            const string suffix = "Attribute";
-            return attributeName.EndsWith(suffix, StringComparison.Ordinal)
-                ? attributeName.Substring(0, attributeName.Length - suffix.Length)
-                : attributeName;
-        }
     }
 }

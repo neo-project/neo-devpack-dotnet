@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
         {
             // Check without being oracle
 
-            Assert.ThrowsException<TestException>(() => Contract.OnOracleResponse(null, null, null, null));
+            Assert.ThrowsExactly<TestException>(() => Contract.OnOracleResponse(null, null, null, null));
 
             // Check empty
 
@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
                      Result = Encoding.UTF8.GetBytes(response),
                 }
             };
-            Assert.ThrowsException<TestException>(Engine.Native.Oracle.Finish);
+            Assert.ThrowsExactly<TestException>(Engine.Native.Oracle.Finish);
 
             // Execute finish
 

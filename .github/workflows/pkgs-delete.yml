@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: '3.x'
       - name: Install Requests
@@ -80,7 +80,7 @@ jobs:
 
     steps:
     - name: Delete Old Package Versions
-      uses: actions/delete-package-versions@v4
+      uses: actions/delete-package-versions@v5
       with:
         package-name: ${{ matrix.package }}
         package-type: nuget

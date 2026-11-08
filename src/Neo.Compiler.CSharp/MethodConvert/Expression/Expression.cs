@@ -27,6 +27,19 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private bool IsPreEvaluatedInstanceExpression(ExpressionSyntax syntax, out byte instanceSlot)
+    {
+        instanceSlot = 0;
+        if (_preEvaluatedInstanceExpression is not null
+            && ReferenceEquals(_preEvaluatedInstanceExpression, syntax)
+            && _preEvaluatedInstanceSlot is byte slot)
+        {
+            instanceSlot = slot;
+            return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Converts an expression to NeoVM instructions.
     /// </summary>
@@ -35,15 +48,43 @@ internal partial class MethodConvert
     /// <param name="syntaxNode">Optional parent syntax node for context.</param>
     private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode = null)
     {
+        if (IsPreEvaluatedInstanceExpression(syntax, out byte instanceSlot))
+        {
+            AccessSlot(OpCode.LDLOC, instanceSlot);
+            return;
+        }
+
         // Insert a sequence point for debugging purposes
         using var sequence = InsertSequencePoint(syntax);
 
-        // Try to convert the expression as a constant first
-        if (TryConvertConstant(model, syntax, syntaxNode))
+        if (!TryConvertConstant(model, syntax, syntaxNode))
+            ConvertNonConstantExpression(model, syntax);
+
+        ApplyUserDefinedImplicitConversion(model, syntax);
+    }
+
+    private static bool IsDeclaredByCurrentCompilation(SemanticModel model, ISymbol symbol) =>
+        SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, model.Compilation.Assembly);
+
+    private void ApplyUserDefinedImplicitConversion(SemanticModel model, ExpressionSyntax syntax)
+    {
+        // Parentheses defer their contextual conversion to the outer expression. Casts
+        // dispatch their own conversion method in ConvertCastExpression.
+        if (syntax.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax)
             return;
 
-        // If it's not a constant, convert it as a non-constant expression
-        ConvertNonConstantExpression(model, syntax);
+        model = model.GetModelForNode(syntax);
+        var conversion = model.GetConversion(syntax);
+        if (!conversion.IsImplicit || !conversion.IsUserDefined ||
+            conversion.MethodSymbol is not IMethodSymbol method ||
+            !IsDeclaredByCurrentCompilation(model, method))
+            return;
+
+        var sourceType = model.GetTypeInfo(syntax).Type;
+        if (IsNullableValueType(sourceType) && !IsNullableValueType(method.Parameters[0].Type))
+            EmitLiftedUnaryOperation(sourceType, () => EmitCall(_context.ConvertMethod(model, method)));
+        else
+            EmitCall(_context.ConvertMethod(model, method));
     }
 
     private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)
@@ -194,6 +235,14 @@ internal partial class MethodConvert
                 break;
             case InitializerExpressionSyntax expression:
                 // Example: { 1, 2, 3 }
+                if (model.GetTypeInfo(expression).ConvertedType is not IArrayTypeSymbol)
+                {
+                    // An embedded nested initializer like `Inner = { X = 1 }` has no type of
+                    // its own; treating it as an array initializer crashed with a
+                    // NullReferenceException instead of a diagnostic.
+                    throw CompilationException.UnsupportedSyntax(expression,
+                        "Embedded nested object initializers ('member = { ... }') are not supported. Assign a fully-typed value instead, for example 'member = new Point { X = 1 }'.");
+                }
                 ConvertInitializerExpression(model, expression);
                 break;
             case InterpolatedStringExpressionSyntax expression:
@@ -264,6 +313,10 @@ internal partial class MethodConvert
             case LiteralExpressionSyntax expression:
                 // Example: 42 or "Hello"
                 ConvertLiteralExpression(model, expression);
+                break;
+            case DefaultExpressionSyntax expression:
+                // Example: default(int?)
+                ConvertDefaultExpression(model, expression);
                 break;
             case TypeOfExpressionSyntax expression:
                 // Example: typeof(int)
@@ -348,12 +401,12 @@ internal partial class MethodConvert
     /// <param name="type">The integer type to be checked.</param>
     private void EnsureIntegerInRange(ITypeSymbol type)
     {
-        if (type.Name == "BigInteger") return;
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
         }
+        if (type.Name == "BigInteger") return;
 
         var (minValue, maxValue, mask) = type.Name switch
         {

@@ -28,9 +28,9 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABCmQAAAAQeDQDQA==
+    /// Script: VwABCmYAAAAQeDQDQA==
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA 64000000 [4 datoshi]
+    /// PUSHA 66000000 [4 datoshi]
     /// PUSH0 [1 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
@@ -43,9 +43,9 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABClMAAAB4NANA
+    /// Script: VwABClUAAAB4NANA
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA 53000000 [4 datoshi]
+    /// PUSHA 55000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
@@ -57,13 +57,13 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeWAKCQAAAHg0oUA=
+    /// Script: VwACeWAKCQAAAHg0n0A=
     /// INITSLOT 0002 [64 datoshi]
     /// LDARG1 [2 datoshi]
     /// STSFLD0 [2 datoshi]
     /// PUSHA 09000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL A1 [512 datoshi]
+    /// CALL 9F [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("anyGreaterThan")]
@@ -73,9 +73,9 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABClYAAAB4NANA
+    /// Script: VwABClgAAAB4NANA
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA 56000000 [4 datoshi]
+    /// PUSHA 58000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
@@ -100,9 +100,22 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABCtMAAAB4NANA
+    /// Script: VwABeDQDQA==
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA D3000000 [4 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("averageLong")]
+    public abstract BigInteger? AverageLong(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABCp0AAAB4NANA
+    /// INITSLOT 0001 [64 datoshi]
+    /// PUSHA 9D000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
@@ -344,9 +357,50 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABCnwAAAB4NANA
+    /// Script: VwABeDSIQA==
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA 7C000000 [4 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 88 [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("countBigIntegers")]
+    public abstract BigInteger? CountBigIntegers(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEBeHBoNANA
+    /// INITSLOT 0101 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("countEnumerable")]
+    public abstract BigInteger? CountEnumerable(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeDQDQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("countGeneric")]
+    public abstract BigInteger? CountGeneric(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABCmMAAAB4NANA
+    /// INITSLOT 0001 [64 datoshi]
+    /// PUSHA 63000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
@@ -358,10 +412,64 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDwpWAAAAeDQDQA==
+    /// Script: VwEAC3BoNV3///9A
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL_L 5DFFFFFF [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("countNull")]
+    public abstract BigInteger? CountNull();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeDV6////QA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL_L 7AFFFFFF [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("countNullable")]
+    public abstract BigInteger? CountNullable(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeDSPQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 8F [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("countStrings")]
+    public abstract BigInteger? CountStrings(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeDSBQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 81 [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("countStructs")]
+    public abstract BigInteger? CountStructs(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABDwpYAAAAeDQDQA==
     /// INITSLOT 0001 [64 datoshi]
     /// PUSHM1 [1 datoshi]
-    /// PUSHA 56000000 [4 datoshi]
+    /// PUSHA 58000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
@@ -387,7 +495,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUBwnB4SnHKchBzIhxpa850aBALEsBsNwAASxBR0GxLEVHQz2ucc2tqMOQKDAAAAGg1Wv///0A=
+    /// Script: VwUBwnB4SnHKchBzIhxpa850aBALEsBsNwAASxBR0GxLEVHQz2ucc2tqMORoCgwAAABQNVf///9A
     /// INITSLOT 0501 [64 datoshi]
     /// NEWARRAY0 [16 datoshi]
     /// STLOC0 [2 datoshi]
@@ -426,9 +534,10 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// LDLOC3 [2 datoshi]
     /// LDLOC2 [2 datoshi]
     /// JMPLT E4 [2 datoshi]
-    /// PUSHA 0C000000 [4 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// CALL_L 5AFFFFFF [512 datoshi]
+    /// PUSHA 0C000000 [4 datoshi]
+    /// SWAP [2 datoshi]
+    /// CALL_L 57FFFFFF [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("selectPersonS")]
@@ -438,9 +547,9 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABClUAAAB4NANA
+    /// Script: VwABClcAAAB4NANA
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA 55000000 [4 datoshi]
+    /// PUSHA 57000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
@@ -479,9 +588,22 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABCncAAAB4NANA
+    /// Script: VwABeDQDQA==
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA 77000000 [4 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("sumLong")]
+    public abstract BigInteger? SumLong(IList<object>? array);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABCl4AAAB4NANA
+    /// INITSLOT 0001 [64 datoshi]
+    /// PUSHA 5E000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
@@ -507,15 +629,18 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBChoAAAB4NWj9//9wCo4AAAAKjgAAAGg0GEA=
+    /// Script: VwEBeAocAAAAUDWo/f//cGgKkwAAAAqTAAAAElI0GEA=
     /// INITSLOT 0101 [64 datoshi]
-    /// PUSHA 1A000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL_L 68FDFFFF [512 datoshi]
+    /// PUSHA 1C000000 [4 datoshi]
+    /// SWAP [2 datoshi]
+    /// CALL_L A8FDFFFF [512 datoshi]
     /// STLOC0 [2 datoshi]
-    /// PUSHA 8E000000 [4 datoshi]
-    /// PUSHA 8E000000 [4 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// PUSHA 93000000 [4 datoshi]
+    /// PUSHA 93000000 [4 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ROLL [16 datoshi]
     /// CALL 18 [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -526,9 +651,9 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABClkAAAB4NANA
+    /// Script: VwABClsAAAB4NANA
     /// INITSLOT 0001 [64 datoshi]
-    /// PUSHA 59000000 [4 datoshi]
+    /// PUSHA 5B000000 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]

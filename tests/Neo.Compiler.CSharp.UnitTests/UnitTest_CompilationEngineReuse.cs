@@ -1,8 +1,11 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -47,7 +50,7 @@ public class UnitTest_CompilationEngineReuse
         var (firstClasses, firstDependencies, firstSymbols) = engine.PrepareProjectContracts(firstProject.ProjectFile);
         var (secondClasses, secondDependencies, secondSymbols) = engine.PrepareProjectContracts(secondProject.ProjectFile);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
             engine.CompileProject(firstProject.ProjectFile, firstClasses, firstDependencies, firstSymbols));
 
         StringAssert.Contains(exception.Message, firstProject.ProjectFile);
@@ -71,10 +74,48 @@ public class UnitTest_CompilationEngineReuse
         Assert.AreEqual("SecondContract", secondResult.ContractName);
     }
 
+    [TestMethod]
+    public void Compile_ReusedEngineDiscardsPreviousSemanticDiagnostics()
+    {
+        using var firstProject = TempContractProject.Create("FirstContract", 1);
+        using var secondProject = TempContractProject.Create("SecondContract", 2);
+        var engine = CreateEngine();
+        MetadataReference[] references = CreateDirectReferences();
+
+        engine.Compile([firstProject.SourceFile], references).Single();
+        SyntaxTree firstTree = engine.Compilation!.SyntaxTrees.Single();
+        CollectionAssert.Contains(CachedSyntaxTrees(engine), firstTree);
+
+        engine.Compile([secondProject.SourceFile], references).Single();
+        SyntaxTree[] currentTrees = engine.Compilation!.SyntaxTrees.ToArray();
+        SyntaxTree[] cachedTrees = CachedSyntaxTrees(engine);
+
+        CollectionAssert.DoesNotContain(cachedTrees, firstTree);
+        CollectionAssert.AreEquivalent(currentTrees, cachedTrees);
+    }
+
     private static CompilationEngine CreateEngine() => new(new CompilationOptions
     {
         SkipRestoreIfAssetsPresent = true
     });
+
+    private static MetadataReference[] CreateDirectReferences()
+    {
+        string trustedAssemblies = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
+        return trustedAssemblies.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(path => MetadataReference.CreateFromFile(path))
+            .ToArray();
+    }
+
+    private static SyntaxTree[] CachedSyntaxTrees(CompilationEngine engine)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        object cache = typeof(CompilationEngine).GetField("_semanticDiagnosticsCache", flags)!
+            .GetValue(engine)!;
+        var keys = (IEnumerable)cache.GetType().GetProperty("Keys")!.GetValue(cache)!;
+        return keys.Cast<SyntaxTree>().ToArray();
+    }
 
     private sealed class TempContractProject : IDisposable
     {

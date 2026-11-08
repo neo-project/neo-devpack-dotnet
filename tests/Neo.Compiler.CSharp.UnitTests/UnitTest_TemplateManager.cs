@@ -276,10 +276,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void TestInvalidTemplate()
         {
-            _templateManager.GenerateContract((ContractTemplate)999, "InvalidContract", _testOutputPath);
+            Assert.ThrowsExactly<ArgumentException>(() =>
+                _templateManager.GenerateContract((ContractTemplate)999, "InvalidContract", _testOutputPath));
         }
 
         [TestMethod]

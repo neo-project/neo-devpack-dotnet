@@ -56,7 +56,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 ["methods"] = new JString("invalid")
             };
 
-            Assert.ThrowsException<ArgumentNullException>(() => NeoDebugInfo.FromDebugInfoJson(json));
+            Assert.ThrowsExactly<ArgumentNullException>(() => NeoDebugInfo.FromDebugInfoJson(json));
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             }
             """)!;
 
-            Assert.ThrowsException<FormatException>(() => NeoDebugInfo.FromDebugInfoJson(json));
+            Assert.ThrowsExactly<FormatException>(() => NeoDebugInfo.FromDebugInfoJson(json));
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             }
             """)!;
 
-            Assert.ThrowsException<FormatException>(() => NeoDebugInfo.FromDebugInfoJson(json));
+            Assert.ThrowsExactly<FormatException>(() => NeoDebugInfo.FromDebugInfoJson(json));
         }
     }
 }

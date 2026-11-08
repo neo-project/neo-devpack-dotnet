@@ -145,6 +145,8 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         [TestMethod]
         public async Task TestImplicitKeyword()
         {
+            // User-defined conversion operators are compiled to the operator method, so
+            // the implicit keyword is allowed in a conversion declaration.
             var test = """
                        class MyClass
                        {
@@ -152,14 +154,14 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
 
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(3, 19, 3, 27).WithArguments("implicit");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
 
         [TestMethod]
         public async Task TestExplicitKeyword()
         {
+            // User-defined conversion operators are compiled to the operator method, so
+            // the explicit keyword is allowed in a conversion declaration.
             var test = """
                        class MyClass
                        {
@@ -167,9 +169,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
 
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(3, 19, 3, 27).WithArguments("explicit");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+            await VerifyCS.VerifyAnalyzerAsync(test);
         }
     }
 }

@@ -52,6 +52,9 @@ namespace Neo.Compiler
         // We can not reuse these converted methods as the offsets are determined while converting
         private readonly MethodConvertCollection _methodsConverted = new();
         private readonly MethodConvertCollection _methodsForward = new();
+        private readonly System.Collections.Generic.List<MethodConvert> _methodsByRefAliases = new();
+        private readonly Dictionary<(MethodConvert Method, int Signature), MethodConvert> _byRefAliasMethods = new();
+        private readonly System.Collections.Generic.List<IReadOnlyDictionary<byte, byte>> _byRefAliasSignatures = new();
         private readonly System.Collections.Generic.List<MethodToken> _methodTokens = new();
         private readonly Dictionary<IFieldSymbol, byte> _staticFields = new(SymbolEqualityComparer.Default);
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
@@ -60,14 +63,16 @@ namespace Neo.Compiler
         private readonly ConcurrentDictionary<IMethodSymbol, bool> _needInstanceConstructorCache = new(SymbolEqualityComparer.Default);
         internal readonly struct OutSyncTarget
         {
-            public OutSyncTarget(ISymbol symbol, byte? instanceSlot = null)
+            public OutSyncTarget(ISymbol symbol, byte? instanceSlot = null, bool instanceSlotIsLocal = false)
             {
                 Symbol = symbol;
                 InstanceSlot = instanceSlot;
+                InstanceSlotIsLocal = instanceSlotIsLocal;
             }
 
             public ISymbol Symbol { get; }
             public byte? InstanceSlot { get; }
+            public bool InstanceSlotIsLocal { get; }
         }
 
         // This dictionary is used to sync value from key symbol to value symbol
@@ -82,6 +87,7 @@ namespace Neo.Compiler
 
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => _vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
+        internal IReadOnlyList<IReadOnlyDictionary<byte, byte>> ByRefAliasSignatures => _byRefAliasSignatures;
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
         private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
@@ -127,7 +133,9 @@ namespace Neo.Compiler
 
         private IEnumerable<Instruction> GetInstructions()
         {
-            return _methodsConverted.SelectMany(p => p.Instructions).Concat(_methodsForward.SelectMany(p => p.Instructions));
+            return _methodsConverted.SelectMany(p => p.Instructions)
+                .Concat(_methodsByRefAliases.SelectMany(p => p.Instructions))
+                .Concat(_methodsForward.SelectMany(p => p.Instructions));
         }
 
         private int GetAbiOffset(IMethodSymbol method)
@@ -171,7 +179,7 @@ namespace Neo.Compiler
             foreach (SyntaxTree tree in _engine.Compilation!.SyntaxTrees)
             {
                 SemanticModel model = _engine.Compilation!.GetSemanticModel(tree);
-                _diagnostics.AddRange(model.GetDiagnostics().Where(u => u.Severity != DiagnosticSeverity.Hidden));
+                _diagnostics.AddRange(_engine.GetSemanticDiagnostics(tree));
                 if (!Success) continue;
                 try
                 {
@@ -184,6 +192,7 @@ namespace Neo.Compiler
             }
             if (Success)
             {
+                FinalizeByRefAliasMethods();
                 RemoveEmptyInitialize();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
@@ -208,6 +217,37 @@ namespace Neo.Compiler
                 foreach (CompilationException violation in CreateManifest().GetStandardsViolations())
                     _diagnostics.Add(violation.Diagnostic);
             }
+
+            // Diagnostics are collected from analyzers, syntax trees, and later
+            // contract validation passes. Keep the public order independent of
+            // which pass produced each item so IDE, build, and CLI consumers see
+            // the same stable sequence.
+            _diagnostics.Sort(static (left, right) =>
+            {
+                int result = string.Compare(
+                    left.Location.SourceTree?.FilePath ?? string.Empty,
+                    right.Location.SourceTree?.FilePath ?? string.Empty,
+                    StringComparison.Ordinal);
+                if (result != 0) return result;
+
+                int leftStart = left.Location.IsInSource ? left.Location.SourceSpan.Start : int.MaxValue;
+                int rightStart = right.Location.IsInSource ? right.Location.SourceSpan.Start : int.MaxValue;
+                result = leftStart.CompareTo(rightStart);
+                if (result != 0) return result;
+
+                int leftLength = left.Location.IsInSource ? left.Location.SourceSpan.Length : int.MaxValue;
+                int rightLength = right.Location.IsInSource ? right.Location.SourceSpan.Length : int.MaxValue;
+                result = leftLength.CompareTo(rightLength);
+                if (result != 0) return result;
+
+                result = string.Compare(left.Id, right.Id, StringComparison.Ordinal);
+                if (result != 0) return result;
+
+                result = left.Severity.CompareTo(right.Severity);
+                if (result != 0) return result;
+
+                return string.Compare(left.GetMessage(), right.GetMessage(), StringComparison.Ordinal);
+            });
         }
 
         public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder = "")
@@ -496,6 +536,13 @@ namespace Neo.Compiler
                     if (attribute.AttributeClass!.IsSubclassOf(nameof(ManifestExtraAttribute)))
                     {
                         _manifestExtra[ManifestExtraAttribute.AttributeType[attribute.AttributeClass!.Name]] = (string)attribute.ConstructorArguments[0].Value!;
+
+                        // ContractSourceCodeAttribute also needs to set the Source property
+                        if (attribute.AttributeClass!.Name == nameof(ContractSourceCodeAttribute))
+                        {
+                            Source = (string)attribute.ConstructorArguments[0].Value!;
+                        }
+
                         continue;
                     }
 
@@ -506,9 +553,6 @@ namespace Neo.Compiler
                             if (string.IsNullOrEmpty(displayName))
                                 throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Contract display name cannot be empty.");
                             _displayName = displayName;
-                            break;
-                        case nameof(ContractSourceCodeAttribute):
-                            Source = (string)attribute.ConstructorArguments[0].Value!;
                             break;
                         case nameof(ManifestExtraAttribute):
                             _manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
@@ -738,6 +782,62 @@ namespace Neo.Compiler
             return method;
         }
 
+        internal MethodConvert AddByRefAliasMethod(MethodConvert method, IReadOnlyDictionary<byte, byte> aliases)
+        {
+            int signature = GetOrAddByRefAliasSignature(aliases);
+            return AddByRefAliasMethod(method, signature);
+        }
+
+        private MethodConvert AddByRefAliasMethod(MethodConvert method, int signature)
+        {
+            if (_byRefAliasMethods.TryGetValue((method, signature), out MethodConvert? existing))
+                return existing;
+
+            MethodConvert alias = new(this, method.Symbol);
+            _byRefAliasMethods.Add((method, signature), alias);
+            _methodsByRefAliases.Add(alias);
+            return alias;
+        }
+
+        private void FinalizeByRefAliasMethods()
+        {
+            var pending = new Queue<(MethodConvert Method, int Signature)>(
+                _byRefAliasMethods.Keys);
+
+            while (pending.Count > 0)
+            {
+                (MethodConvert method, int signature) = pending.Dequeue();
+                MethodConvert alias = _byRefAliasMethods[(method, signature)];
+                if (alias.Instructions.Count > 0)
+                    continue;
+
+                MethodConvert clone = method.CloneWithCapturedStaticFields(_byRefAliasSignatures[signature]);
+                alias.CopyAliasFrom(clone);
+                foreach (MethodConvert callee in method.Callees)
+                {
+                    if (_byRefAliasMethods.Values.Contains(callee))
+                        continue;
+                    MethodConvert aliasCallee = AddByRefAliasMethod(callee, signature);
+                    alias.ReplaceByRefAliasCallee(callee, aliasCallee);
+                    if (aliasCallee.Instructions.Count == 0)
+                        pending.Enqueue((callee, signature));
+                }
+            }
+        }
+
+        internal int GetOrAddByRefAliasSignature(IReadOnlyDictionary<byte, byte> aliases)
+        {
+            var signature = aliases.OrderBy(p => p.Key).ToArray();
+            for (int i = 0; i < _byRefAliasSignatures.Count; i++)
+            {
+                if (_byRefAliasSignatures[i].OrderBy(p => p.Key).SequenceEqual(signature))
+                    return i;
+            }
+
+            _byRefAliasSignatures.Add(signature.ToDictionary(p => p.Key, p => p.Value));
+            return _byRefAliasSignatures.Count - 1;
+        }
+
         internal ushort AddMethodToken(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags)
         {
             int index = _methodTokens.FindIndex(p => p.Hash == hash && p.Method == method &&
@@ -778,6 +878,7 @@ namespace Neo.Compiler
 
         internal byte GetOrAddCapturedStaticField(ISymbol symbol)
         {
+            symbol = CanonicalizeCapturedSymbol(symbol);
             if (_capturedStaticFields.TryGetValue(symbol, out var field))
             {
                 return field;
@@ -790,7 +891,17 @@ namespace Neo.Compiler
 
         internal bool TryGetCapturedStaticField(ISymbol local, out byte staticFieldIndex)
         {
-            return _capturedStaticFields.TryGetValue(local, out staticFieldIndex);
+            return _capturedStaticFields.TryGetValue(CanonicalizeCapturedSymbol(local), out staticFieldIndex);
+        }
+
+        private static ISymbol CanonicalizeCapturedSymbol(ISymbol symbol)
+        {
+            if (symbol is not IParameterSymbol { RefKind: RefKind.Ref or RefKind.Out } parameter)
+                return symbol;
+
+            while (parameter.ContainingSymbol is IMethodSymbol { OverriddenMethod: not null } method)
+                parameter = method.OverriddenMethod.Parameters[parameter.Ordinal];
+            return parameter;
         }
 
         internal byte AddVTable(ITypeSymbol type)
@@ -817,7 +928,7 @@ namespace Neo.Compiler
 
         internal void AssociateCapturedStaticField(ISymbol symbol, byte index)
         {
-            _capturedStaticFields[symbol] = index;
+            _capturedStaticFields[CanonicalizeCapturedSymbol(symbol)] = index;
         }
 
         internal UInt160? GetContractHash() => Script.ToScriptHash();

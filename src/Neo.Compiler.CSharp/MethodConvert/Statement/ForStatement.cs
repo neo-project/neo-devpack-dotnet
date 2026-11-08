@@ -49,7 +49,9 @@ namespace Neo.Compiler
             var variables = (syntax.Declaration?.Variables ?? Enumerable.Empty<VariableDeclaratorSyntax>())
                 .Select(p => (p, (ILocalSymbol)model.GetDeclaredSymbol(p)!))
                 .ToArray();
+            RegisterCapturedSymbolsUsedByLoopControl(model, syntax);
             foreach (ExpressionSyntax expression in syntax.Initializers)
+            {
                 using (InsertSequencePoint(expression))
                 {
                     ITypeSymbol type = model.GetTypeInfo(expression).Type!;
@@ -57,6 +59,8 @@ namespace Neo.Compiler
                     if (type.SpecialType != SpecialType.System_Void)
                         AddInstruction(OpCode.DROP);
                 }
+            }
+
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
@@ -65,21 +69,27 @@ namespace Neo.Compiler
             PushBreakTarget(breakTarget);
             StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
             _generalStatementStack.Push(sc);
+
             foreach (var (variable, symbol) in variables)
             {
-                byte variableIndex = AddLocalVariable(symbol);
+                AddLocalVariable(symbol);
                 if (variable.Initializer is not null)
+                {
                     using (InsertSequencePoint(variable))
                     {
                         ConvertExpression(model, variable.Initializer.Value);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        StLocSlot(symbol);
                     }
+                }
             }
+
             Jump(OpCode.JMP_L, conditionTarget);
             startTarget.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(model, syntax.Statement);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
+
             foreach (ExpressionSyntax expression in syntax.Incrementors)
+            {
                 using (InsertSequencePoint(expression))
                 {
                     ITypeSymbol type = model.GetTypeInfo(expression).Type!;
@@ -87,23 +97,75 @@ namespace Neo.Compiler
                     if (type.SpecialType != SpecialType.System_Void)
                         AddInstruction(OpCode.DROP);
                 }
+            }
             conditionTarget.Instruction = AddInstruction(OpCode.NOP);
             if (syntax.Condition is null)
             {
                 Jump(OpCode.JMP_L, startTarget);
             }
-            else
+            else if (!TryProcessIntegerCompareCondition(model, syntax.Condition, startTarget))
             {
                 ConvertExpression(model, syntax.Condition);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
+
             foreach (var (_, symbol) in variables)
+            {
                 RemoveLocalVariable(symbol);
+            }
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
                 throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in for statement handling. This is a compiler bug that should be reported.");
+        }
+
+        private void RegisterCapturedSymbolsUsedByLoopControl(SemanticModel model, ForStatementSyntax syntax)
+        {
+            if (syntax.Statement is null)
+                return;
+
+            var captured = model.AnalyzeDataFlow(syntax.Statement).Captured;
+            var controlExpressions = syntax.Incrementors.AsEnumerable();
+            if (syntax.Condition is not null)
+                controlExpressions = controlExpressions.Append(syntax.Condition);
+
+            foreach (ExpressionSyntax expression in controlExpressions)
+            {
+                foreach (ISymbol symbol in model.AnalyzeDataFlow(expression).ReadInside)
+                {
+                    if (symbol is not ILocalSymbol and not IParameterSymbol ||
+                        !captured.Any(capturedSymbol => SymbolEqualityComparer.Default.Equals(capturedSymbol, symbol)))
+                        continue;
+
+                    _context.GetOrAddCapturedStaticField(symbol);
+                }
+            }
+        }
+
+        private bool TryProcessIntegerCompareCondition(SemanticModel model, ExpressionSyntax syntax, JumpTarget startTarget)
+        {
+            if (!IsPreEvaluatedInstanceExpression(syntax, out var _) && syntax is BinaryExpressionSyntax expr)
+            {
+                var opcode = expr.OperatorToken.ValueText switch
+                {
+                    "==" => OpCode.JMPEQ_L,
+                    "!=" => OpCode.JMPNE_L,
+                    "<" => OpCode.JMPLT_L,
+                    "<=" => OpCode.JMPLE_L,
+                    ">" => OpCode.JMPGT_L,
+                    ">=" => OpCode.JMPGE_L,
+                    _ => OpCode.NOP,
+                };
+                if (opcode == OpCode.NOP || !IsIntegerBinaryOperator(model, expr)) return false;
+
+                ConvertExpression(model, expr.Left);
+                ConvertExpression(model, expr.Right);
+                Jump(opcode, startTarget);
+                return true;
+            }
+
+            return false;
         }
     }
 }

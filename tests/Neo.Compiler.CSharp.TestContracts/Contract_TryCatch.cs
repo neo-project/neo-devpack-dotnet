@@ -439,5 +439,56 @@ namespace Neo.Compiler.CSharp.TestContracts
             try { throw new System.Exception("Example"); }
             catch (System.Exception e) { return result + e; }
         }
+
+        private static int Thrower(int x)
+        {
+            if (x == 0) throw new System.Exception("zero");
+            return x;
+        }
+
+        /// <summary>
+        /// The exception is thrown through a call, inside a compound assignment, with both
+        /// catch and finally present: the abandoned operand must not leak onto the stack.
+        /// Expected: 0 + 7 + 100 = 107.
+        /// </summary>
+        public static int CatchAndFinallyAfterHelperThrow(int x)
+        {
+            int total = 0;
+            try
+            {
+                total += Thrower(x);
+            }
+            catch (System.Exception)
+            {
+                total += 7;
+            }
+            finally
+            {
+                total += 100;
+            }
+            return total;
+        }
+
+        /// <summary>
+        /// No exception: the compound assignment completes and both handlers are skipped.
+        /// Expected: 5 + 100 = 105.
+        /// </summary>
+        public static int CatchAndFinallyWithoutThrow(int x)
+        {
+            int total = 0;
+            try
+            {
+                total += Thrower(x + 1);
+            }
+            catch (System.Exception)
+            {
+                total += 7;
+            }
+            finally
+            {
+                total += 100;
+            }
+            return total;
+        }
     }
 }

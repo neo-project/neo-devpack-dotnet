@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
+using Neo.SmartContract.Analyzer;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,8 +10,44 @@ using System.Linq;
 namespace Neo.Compiler.CSharp.UnitTests;
 
 [TestClass]
+[DoNotParallelize]
 public class UnitTest_AnalyzerExecution
 {
+    [TestMethod]
+    [DataRow("public float this[int index] => default;", "NC4002")]
+    [DataRow("public static event System.Action<double> Changed;", "NC4004")]
+    [DataRow("public delegate decimal Factory();", "NC4003")]
+    [DataRow("public static System.Collections.Generic.List<int> operator +(Contract value) => default;", "NC4013")]
+    [DataRow("public delegate System.Collections.Generic.List<int> Factory();", "NC4013")]
+    public void CompileProject_ReportsUnsupportedSignaturesBeforeLowering(string member, string diagnosticId)
+    {
+        using var project = TempContractProject.Create("using Neo.SmartContract.Framework; public class Contract : SmartContract { "
+            + member + " public static int Main() => 1; }");
+        var result = CreateEngine().CompileProject(project.ProjectFile).Single();
+        var diagnostics = result.Diagnostics.Where(item => item.Id == diagnosticId).ToArray();
+        Assert.HasCount(1, diagnostics, string.Join(Environment.NewLine, result.Diagnostics));
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(DiagnosticSeverity.Error, diagnostics[0].Severity);
+        Assert.IsFalse(result.Diagnostics.Any(item => item.Id is "NC1002" or "AD0001"));
+    }
+
+    [TestMethod]
+    [DataRow("public static System.Collections.Generic.List<int> values;")]
+    [DataRow("public System.Collections.Generic.List<int> this[int index] => null;")]
+    [DataRow("public static event System.Action<System.Collections.Generic.List<int>> Changed;")]
+    [DataRow("public static event System.Action<System.Collections.Generic.List<int>> Changed { add { } remove { } }")]
+    public void CompileProject_ReportsUnsupportedCollectionMembersBeforeLowering(string member)
+    {
+        using var project = TempContractProject.Create("using Neo.SmartContract.Framework; public class Contract : SmartContract { "
+            + member + " public static int Main() => 1; }");
+        var result = CreateEngine().CompileProject(project.ProjectFile).Single();
+        var diagnostics = result.Diagnostics.Where(item => item.Id == "NC4013").ToArray();
+        Assert.HasCount(1, diagnostics, string.Join(Environment.NewLine, result.Diagnostics));
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(DiagnosticSeverity.Error, diagnostics[0].Severity);
+        Assert.IsFalse(result.Diagnostics.Any(item => item.Id is "NC1002" or "AD0001"));
+    }
+
     [TestMethod]
     public void CompileProject_ReportsNeoAnalyzerErrorsBeforeLowering()
     {
@@ -63,6 +101,47 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
+    public void CompileProject_PreservesTheCompleteAnalyzerDiagnosticSet()
+    {
+        using var project = TempContractProject.Create("""
+using Neo.SmartContract.Framework;
+using System;
+
+public class Contract : SmartContract
+{
+    public static DateTime Main() => DateTime.UtcNow;
+}
+""");
+        var engine = CreateEngine();
+
+        var result = engine.CompileProject(project.ProjectFile).Single();
+        var compilation = engine.GetCompilation(project.ProjectFile);
+        var analyzers = NeoAnalyzerSuite.Create();
+        var analyzerIds = analyzers.SelectMany(analyzer => analyzer.SupportedDiagnostics)
+            .Select(descriptor => descriptor.Id)
+            .ToHashSet(StringComparer.Ordinal);
+        var expected = compilation
+            .WithAnalyzers(analyzers)
+            .GetAnalyzerDiagnosticsAsync()
+            .GetAwaiter()
+            .GetResult();
+
+        Assert.IsTrue(expected.Any(diagnostic => diagnostic.Id == "NC4058"), "The sample must exercise the analyzer suite.");
+        var actual = result.Diagnostics
+            .Where(diagnostic => analyzerIds.Contains(diagnostic.Id) || diagnostic.Id == "AD0001")
+            .Select(FormatDiagnostic)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+        var expectedFormatted = expected
+            .Where(diagnostic => diagnostic.Severity != DiagnosticSeverity.Hidden)
+            .Select(FormatDiagnostic)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+
+        CollectionAssert.AreEqual(expectedFormatted, actual);
+    }
+
+    [TestMethod]
     public void CompileProject_PreservesSupportedContracts()
     {
         using var project = TempContractProject.Create("""
@@ -81,7 +160,7 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
-    public void CompileProject_ReportsAnalyzerWarningsWithoutBlockingOutput()
+    public void CompileProject_ReportsUnsupportedTypedCatchAsAnError()
     {
         using var project = TempContractProject.Create("""
 using Neo.SmartContract.Framework;
@@ -105,8 +184,8 @@ public class Contract : SmartContract
         var result = CreateEngine().CompileProject(project.ProjectFile).Single();
         var diagnostic = result.Diagnostics.Single(item => item.Id == "NC4027");
 
-        Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
-        Assert.AreEqual(DiagnosticSeverity.Warning, diagnostic.Severity);
+        Assert.IsFalse(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+        Assert.AreEqual(DiagnosticSeverity.Error, diagnostic.Severity);
     }
 
     [TestMethod]
@@ -178,6 +257,15 @@ public class Contract : SmartContract
         SkipRestoreIfAssetsPresent = true,
         RunAnalyzers = true
     });
+
+    private static string FormatDiagnostic(Diagnostic diagnostic) => string.Join(
+        "|",
+        diagnostic.Id,
+        diagnostic.Severity,
+        diagnostic.Location.SourceTree?.FilePath,
+        diagnostic.Location.SourceSpan.Start,
+        diagnostic.Location.SourceSpan.Length,
+        diagnostic.GetMessage());
 
     private sealed class TempContractProject : IDisposable
     {

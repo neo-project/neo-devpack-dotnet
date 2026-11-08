@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_OracleResponse()
         {
-            Assert.ThrowsException<TestException>(() => Contract.OnOracleResponse("http://127.0.0.1", "test", 0x14, "{}"));
+            Assert.ThrowsExactly<TestException>(() => Contract.OnOracleResponse("http://127.0.0.1", "test", 0x14, "{}"));
 
             Engine.OnGetCallingScriptHash = (current, expected) => Engine.Native.Oracle.Hash;
             Contract.OnOracleResponse("http://127.0.0.1", "test", 0x14, "{}");

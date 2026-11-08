@@ -42,4 +42,60 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         methodConvert.ReverseItems();                               // Reverse array elements in-place
     }
+
+    /// <summary>
+    /// Handles length properties for arrays and strings.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Returns the size of the collection or string
+    /// </remarks>
+    private static void HandleArrayLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null &&
+            model.GetTypeInfo(instanceExpression).Type is IArrayTypeSymbol { Rank: > 1 } arrayType)
+        {
+            using var tempScope = methodConvert.PreserveAnonymousVariables();
+            byte arraySlot = methodConvert.AddAnonymousVariable();
+            byte lengthSlot = methodConvert.AddAnonymousVariable();
+            JumpTarget endTarget = new();
+
+            methodConvert.ConvertExpression(model, instanceExpression);
+            methodConvert.AccessSlot(OpCode.STLOC, arraySlot);
+            methodConvert.Push(1);
+            methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
+
+            for (int dimension = 0; dimension < arrayType.Rank; dimension++)
+            {
+                methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+                methodConvert.AccessSlot(OpCode.LDLOC, arraySlot);
+                methodConvert.Size();
+                methodConvert.Mul();
+                methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
+
+                if (dimension + 1 == arrayType.Rank)
+                    continue;
+
+                methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+                methodConvert.JumpIfFalse(endTarget);
+                methodConvert.AccessSlot(OpCode.LDLOC, arraySlot);
+                methodConvert.Push(0);
+                methodConvert.PickItem();
+                methodConvert.AccessSlot(OpCode.STLOC, arraySlot);
+            }
+
+            endTarget.Instruction = methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+            return;
+        }
+
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.Size();                                      // Get size using helper method
+    }
 }

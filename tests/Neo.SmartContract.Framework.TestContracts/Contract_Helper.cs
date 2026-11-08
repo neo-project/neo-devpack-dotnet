@@ -71,11 +71,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             ExecutionEngine.Assert(value == true);
         }
 
-        public static byte[] TestByteToByteArray()
+        public static byte[] TestByteToByteArray(byte a)
         {
-            byte a = 0x01;
-            byte[] result = a.ToByteArray();
-            return result;
+            return a.ToByteArray();
         }
 
         public static byte[] testReverse()
@@ -84,11 +82,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return result;
         }
 
-        public static byte[] testSbyteToByteArray()
+        public static byte[] testSbyteToByteArray(sbyte a)
         {
-            sbyte a = -1;
-            var result = a.ToByteArray();
-            return result;
+            return a.ToByteArray();
         }
 
         public static byte[] testStringToByteArray()
@@ -131,5 +127,18 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return hashResult;
         }
+
+
+        public static byte BigIntegerAsByte(BigInteger value) => value.AsByte();
+
+        public static byte IntAsByte(int value) => value.AsByte();
+
+        public static sbyte BigIntegerAsSbyte(BigInteger value) => value.AsSbyte();
+
+        public static sbyte BigIntegerToSbyte(BigInteger value) => value.ToSbyte();
+
+        public static sbyte IntToSbyte(int value) => value.ToSbyte();
+
+        public static sbyte IntAsSbyte(int value) => value.AsSbyte();
     }
 }

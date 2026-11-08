@@ -84,7 +84,7 @@ public class PausableOwnableTest
         var c = Deploy(engine);
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.Pause());
+        Assert.ThrowsExactly<TestException>(() => c.Pause());
         Assert.IsFalse(c.Paused);
         Merge(c);
     }
@@ -97,7 +97,7 @@ public class PausableOwnableTest
         c.Pause();
 
         engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<TestException>(() => c.Unpause());
+        Assert.ThrowsExactly<TestException>(() => c.Unpause());
         Assert.IsTrue(c.Paused);
         Merge(c);
     }
@@ -109,7 +109,7 @@ public class PausableOwnableTest
         var c = Deploy(engine);
         c.Pause();
 
-        Assert.ThrowsException<TestException>(() => c.Pause());
+        Assert.ThrowsExactly<TestException>(() => c.Pause());
         Merge(c);
     }
 
@@ -117,7 +117,7 @@ public class PausableOwnableTest
     public void Unpause_WhenNotPaused_Aborts()
     {
         var c = Deploy(CreateEngine());
-        Assert.ThrowsException<TestException>(() => c.Unpause());
+        Assert.ThrowsExactly<TestException>(() => c.Unpause());
         Merge(c);
     }
 
@@ -132,7 +132,7 @@ public class PausableOwnableTest
 
         // Blocked once paused.
         c.Pause();
-        Assert.ThrowsException<TestException>(() => c.DoWork());
+        Assert.ThrowsExactly<TestException>(() => c.DoWork());
 
         // Runs again after unpausing.
         c.Unpause();
@@ -147,7 +147,7 @@ public class PausableOwnableTest
         var c = Deploy(engine);
 
         // Blocked while not paused.
-        Assert.ThrowsException<TestException>(() => c.DoWhilePaused());
+        Assert.ThrowsExactly<TestException>(() => c.DoWhilePaused());
 
         // Runs once paused.
         c.Pause();

@@ -123,15 +123,15 @@ namespace Neo.SmartContract.Framework.Linq
         public static int Average(this IEnumerable<int> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
-            int sum = 0;
+            BigInteger count = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += item;
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (int)(sum / count);
         }
 
         /// <summary>
@@ -146,15 +146,15 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int count = 0;
-            int sum = 0;
+            BigInteger count = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += selector(item);
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (int)(sum / count);
         }
 
         /// <summary>
@@ -166,15 +166,15 @@ namespace Neo.SmartContract.Framework.Linq
         public static long Average(this IEnumerable<long> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
-            long sum = 0;
+            BigInteger count = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += item;
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (long)(sum / count);
         }
 
         /// <summary>
@@ -189,15 +189,15 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int count = 0;
-            long sum = 0;
+            BigInteger count = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 count++;
                 sum += selector(item);
             }
             if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
-            return sum / count;
+            return (long)(sum / count);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace Neo.SmartContract.Framework.Linq
         public static BigInteger Average(this IEnumerable<BigInteger> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -232,7 +232,7 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int count = 0;
+            BigInteger count = 0;
             BigInteger sum = 0;
             foreach (var item in source)
             {
@@ -262,6 +262,19 @@ namespace Neo.SmartContract.Framework.Linq
         }
 
         /// <summary>
+        /// Returns the number of elements in an array.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">An array that contains elements to be counted.</param>
+        /// <returns>The number of elements in the array.</returns>
+        /// <exception cref="ArgumentNullException">source is null.</exception>
+        public static int Count<T>(this T[] source)
+        {
+            AssertSourceNotNull(source);
+            return source.Length;
+        }
+
+        /// <summary>
         /// Returns the number of elements in a sequence.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -271,12 +284,12 @@ namespace Neo.SmartContract.Framework.Linq
         public static int Count<T>(this IEnumerable<T> source)
         {
             AssertSourceNotNull(source);
-            int count = 0;
+            BigInteger count = 0;
             foreach (var item in source)
             {
                 count++;
             }
-            return count;
+            return (int)count;
         }
 
         /// <summary>
@@ -291,12 +304,12 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(predicate, nameof(predicate));
-            int count = 0;
+            BigInteger count = 0;
             foreach (var item in source)
             {
                 if (predicate(item)) count++;
             }
-            return count;
+            return (int)count;
         }
 
         /// <summary>
@@ -348,7 +361,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
         /// <returns> An collection that contains the elements that occur after the specified index in the input sequence.</returns>
         /// <exception cref="ArgumentNullException">source is null.</exception>
-        public static IEnumerable<T> Skip<T>(this IEnumerable<T> source, int count)
+        public static IEnumerable<T> Skip<T>(this IEnumerable<T> source, BigInteger count)
         {
             AssertSourceNotNull(source);
             var list = new List<T>();
@@ -375,12 +388,12 @@ namespace Neo.SmartContract.Framework.Linq
         public static int Sum(this IEnumerable<int> source)
         {
             AssertSourceNotNull(source);
-            int sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += item;
             }
-            return sum;
+            return (int)sum;
         }
 
         /// <summary>
@@ -394,12 +407,12 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            int sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += selector(item);
             }
-            return sum;
+            return (int)sum;
         }
 
         /// <summary>
@@ -411,12 +424,12 @@ namespace Neo.SmartContract.Framework.Linq
         public static long Sum(this IEnumerable<long> source)
         {
             AssertSourceNotNull(source);
-            long sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += item;
             }
-            return sum;
+            return (long)sum;
         }
 
         /// <summary>
@@ -430,12 +443,12 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             AssertNotNull(selector, nameof(selector));
-            long sum = 0;
+            BigInteger sum = 0;
             foreach (var item in source)
             {
                 sum += selector(item);
             }
-            return sum;
+            return (long)sum;
         }
 
         /// <summary>
@@ -481,7 +494,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <param name="count">The number of elements to return.</param>
         /// <returns>An collection that contains the specified number of elements from the start of the input sequence.</returns>
         /// <exception cref="ArgumentNullException">source is null.</exception>
-        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
+        public static IEnumerable<T> Take<T>(this IEnumerable<T> source, BigInteger count)
         {
             AssertSourceNotNull(source);
             var list = new List<T>();

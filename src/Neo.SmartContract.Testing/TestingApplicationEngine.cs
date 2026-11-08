@@ -22,7 +22,7 @@ using System.Collections.Generic;
 namespace Neo.SmartContract.Testing
 {
     /// <summary>
-    /// TestingApplicationEngine is responsible for redirecting System.Contract.Call syscalls to their corresponding mock if necessary
+    /// TestingApplicationEngine redirects contract calls to their corresponding mock when configured.
     /// </summary>
     internal class TestingApplicationEngine : ApplicationEngine
     {
@@ -97,14 +97,55 @@ namespace Neo.SmartContract.Testing
         private static JumpTable ResolveJumpTable(ProtocolSettings settings, Block persistingBlock)
         {
             var index = persistingBlock.Index;
+            var protocolTable = settings.IsHardforkEnabled(Hardfork.HF_Gorgon, index)
+                ? DefaultJumpTable
+                : !settings.IsHardforkEnabled(Hardfork.HF_Echidna, index)
+                    ? ComposeNotEchidnaJumpTable()
+                    : ComposeNotGorgonJumpTable();
 
-            if (settings.IsHardforkEnabled(Hardfork.HF_Gorgon, index))
-                return DefaultJumpTable;
+            // The protocol table may be shared with ordinary application engines.
+            var table = new JumpTable();
+            foreach (var opcode in Enum.GetValues<OpCode>())
+                table[opcode] = protocolTable[opcode];
 
-            if (!settings.IsHardforkEnabled(Hardfork.HF_Echidna, index))
-                return ComposeNotEchidnaJumpTable();
+            var callToken = protocolTable[OpCode.CALLT];
+            table[OpCode.CALLT] = (engine, instruction) =>
+            {
+                if (engine is TestingApplicationEngine testingEngine && testingEngine.TryInvokeTokenMock(instruction))
+                    return;
 
-            return ComposeNotGorgonJumpTable();
+                callToken(engine, instruction);
+            };
+            return table;
+        }
+
+        private bool TryInvokeTokenMock(Instruction instruction)
+        {
+            var contract = CurrentContext!.GetState<ExecutionContextState>().Contract;
+            var tokenId = instruction.TokenU16;
+            if (contract is null || tokenId >= contract.Nef.Tokens.Length)
+                return false;
+
+            var token = contract.Nef.Tokens[tokenId];
+            if (!Engine.TryGetCustomMock(token.Hash, token.Method, token.ParametersCount, out var customMock))
+                return false;
+
+            ValidateCallFlags(CallFlags.ReadStates | CallFlags.AllowCall);
+            if (token.ParametersCount > CurrentContext.EvaluationStack.Count)
+                throw new InvalidOperationException();
+            if (token.HasReturnValue != (customMock.Method.ReturnType != typeof(void)))
+                throw new InvalidOperationException("The return value type does not match.");
+
+            var args = new StackItem[token.ParametersCount];
+            for (int i = 0; i < args.Length; i++)
+                args[i] = Pop();
+
+            // CALLT's opcode fee is already charged by PreExecuteInstruction.
+            var returnValue = InvokeCustomMock(customMock, args);
+            if (token.HasReturnValue)
+                Push(Convert(returnValue));
+
+            return true;
         }
 
         internal void InvokeTestingSyscall(int index)
@@ -279,39 +320,7 @@ namespace Neo.SmartContract.Testing
                     var hasReturnValue = md.ReturnType != ContractParameterType.Void;
                     */
 
-                    // Convert args to mocked method
-
-                    var methodParameters = customMock.Method.GetParameters();
-                    var parameters = new object[args.Count];
-                    for (int i = 0; i < args.Count; i++)
-                    {
-                        parameters[i] = args[i].ConvertTo(methodParameters[i].ParameterType, Engine.StringInterpreter)!;
-                    }
-
-                    // Invoke
-
-                    object? returnValue;
-                    EngineStorage backup = Engine.Storage;
-
-                    try
-                    {
-                        // We need to switch the Engine's snapshot in case
-                        // that a mock want to query the storage, it's not committed
-
-                        Engine.Storage = new EngineStorage(backup.Store, SnapshotCache);
-
-                        // Invoke snapshot
-
-                        returnValue = customMock.Method.Invoke(customMock.Contract, parameters);
-                    }
-                    catch
-                    {
-                        throw;
-                    }
-                    finally
-                    {
-                        Engine.Storage = backup;
-                    }
+                    var returnValue = InvokeCustomMock(customMock, args);
 
                     if (customMock.Method.ReturnType != typeof(void))
                         Push(Convert(returnValue));
@@ -323,6 +332,28 @@ namespace Neo.SmartContract.Testing
             }
 
             base.OnSysCall(descriptor);
+        }
+
+        private object? InvokeCustomMock(CustomMock customMock, IReadOnlyList<StackItem> args)
+        {
+            var methodParameters = customMock.Method.GetParameters();
+            var parameters = new object[args.Count];
+            for (int i = 0; i < args.Count; i++)
+            {
+                parameters[i] = args[i].ConvertTo(methodParameters[i].ParameterType, Engine.StringInterpreter)!;
+            }
+
+            EngineStorage backup = Engine.Storage;
+            try
+            {
+                // Mock callbacks must see changes in the active, uncommitted snapshot.
+                Engine.Storage = new EngineStorage(backup.Store, SnapshotCache);
+                return customMock.Method.Invoke(customMock.Contract, parameters);
+            }
+            finally
+            {
+                Engine.Storage = backup;
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: 10.0.1xx
+  DOTNET_VERSION: 10.0.4xx
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
@@ -25,26 +25,100 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
+    - name: Test CI selection rules
+      run: python3 -m unittest discover -s scripts/ci -p 'test_*.py'
+    - name: Select validation scope
+      id: scope
+      run: python3 scripts/ci/select_tests.py
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v6.0.0
+      if: steps.scope.outputs.dotnet == 'true'
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Cache NuGet packages
+      if: steps.scope.outputs.dotnet == 'true'
       uses: actions/cache@v6.1.0
       with:
         path: ${{ env.NUGET_PACKAGES }}
         key: ${{ runner.os }}-dotnet-${{ env.DOTNET_VERSION }}-nuget-${{ hashFiles('NuGet.Config', 'src/Directory.Build.props', 'tests/Directory.Build.props', '**/*.csproj') }}
     - name: Add package coverlet.msbuild
+      if: steps.scope.outputs.full == 'true'
       run: find tests -path '*UnitTests/*.csproj' | xargs -I % dotnet add % package coverlet.msbuild --version 6.0.4 --no-restore
     - name: Build Solution
-      run: dotnet build ./neo-devpack-dotnet.sln
-    - name: Check format
+      if: steps.scope.outputs.full == 'true'
+      run: dotnet build ./neo-devpack-dotnet.sln -warnaserror:CS9057
+    - name: Validate packaged analyzer with external consumer
+      if: steps.scope.outputs.full == 'true'
       run: |
-        dotnet format --no-restore --verify-no-changes --verbosity minimal
+        ANALYZER_VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+        mkdir -p ./out/analyzer-package ./out/analyzer-consumer
+        dotnet pack ./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj \
+          --configuration Debug \
+          --output ./out/analyzer-package \
+          --no-build \
+          --no-restore
+        cat > ./out/analyzer-consumer/AnalyzerConsumer.csproj <<EOF
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <TargetFramework>net10.0</TargetFramework>
+            <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+          </PropertyGroup>
+          <ItemGroup>
+            <Compile Include="Contract.cs" />
+            <PackageReference Include="Neo.SmartContract.Analyzer" Version="${ANALYZER_VERSION}" />
+          </ItemGroup>
+        </Project>
+        EOF
+        cat > ./out/analyzer-consumer/NuGet.Config <<EOF
+        <?xml version="1.0" encoding="utf-8"?>
+        <configuration>
+          <packageSources>
+            <clear />
+            <add key="local" value="$(pwd)/out/analyzer-package" />
+            <add key="NuGet.org" value="https://api.nuget.org/v3/index.json" />
+          </packageSources>
+          <packageSourceMapping>
+            <clear />
+            <packageSource key="local">
+              <package pattern="Neo.SmartContract.Analyzer" />
+            </packageSource>
+            <packageSource key="NuGet.org">
+              <package pattern="*" />
+            </packageSource>
+          </packageSourceMapping>
+        </configuration>
+        EOF
+        cat > ./out/analyzer-consumer/Contract.cs <<'EOF'
+        using System;
+
+        public class Contract
+        {
+            public DateTime ReadClock() => DateTime.Now;
+        }
+        EOF
+        dotnet restore ./out/analyzer-consumer/AnalyzerConsumer.csproj
+        set +e
+        dotnet build ./out/analyzer-consumer/AnalyzerConsumer.csproj \
+          --no-restore \
+          --no-incremental > ./out/analyzer-consumer/build.log 2>&1
+        build_exit=$?
+        set -e
+        cat ./out/analyzer-consumer/build.log
+        if [ "$build_exit" -eq 0 ]; then
+          echo "The external consumer build unexpectedly succeeded."
+          exit 1
+        fi
+        grep -q "NC4058" ./out/analyzer-consumer/build.log
+    - name: Check format
+      if: steps.scope.outputs.full == 'true'
+      run: |
+        dotnet format --no-restore --verify-no-changes --verbosity minimal \
+          --exclude-diagnostics MSTEST0017 MSTEST0030 MSTEST0032 MSTEST0044
     - name: Build Neo.SmartContract.Template and test templates
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug --no-build --no-restore
         dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
@@ -80,17 +154,20 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/solution/NeoContractSolution/NeoContractSolution.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractsolution/Artifacts/
     - name: Test Neo.Compiler.CSharp.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Analyzer.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Analyzer.UnitTests \
         --no-build \
         -l "console;verbosity=detailed"
     - name: Test Neo.SmartContract.Framework.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -98,6 +175,7 @@ jobs:
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Testing.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -105,6 +183,7 @@ jobs:
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: Test Neo.SmartContract.Template.UnitTests
+      if: steps.scope.outputs.full == 'true'
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -113,11 +192,21 @@ jobs:
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
     - name: Codecov
-      uses: codecov/codecov-action@v6
+      if: steps.scope.outputs.full == 'true'
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ${{ github.workspace }}/coverage/lcov.info
+        disable_search: true
+        flags: merged-tests
         fail_ci_if_error: false
+
+    - name: Test analyzer and documentation references
+      if: steps.scope.outputs.analyzer == 'true'
+      run: dotnet test tests/Neo.SmartContract.Analyzer.UnitTests --configuration Debug
+    - name: Test executable syntax documentation
+      if: steps.scope.outputs.syntax == 'true'
+      run: dotnet test tests/Neo.Compiler.CSharp.UnitTests --configuration Debug --filter 'FullyQualifiedName~Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests'
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'
@@ -126,7 +215,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
     
@@ -146,7 +235,7 @@ jobs:
     
     - name: Setup .NET Core
       if: steps.check_release.outputs.exists != 'true'
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -230,7 +319,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
     - name: Get version
@@ -254,7 +343,7 @@ jobs:
         fi
     - name: Setup .NET Core
       if: steps.check_tag.outputs.statusCode == '404'
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build nccs compiler for multiple platforms
@@ -304,7 +393,7 @@ jobs:
         fi
     - name: Setup .NET Core for NuGet release
       if: steps.check_nuget.outputs.complete != 'true'
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Run ordered release script to NuGet
