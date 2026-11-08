@@ -358,7 +358,28 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestIsZero(0));
             Assert.IsFalse(Contract.TestIsZero(1));
             Assert.IsFalse(Contract.TestIsZero(-1));
-            AssertGasConsumed(1047270);
+            AssertGasConsumed(1047150);
+        }
+
+        [TestMethod]
+        public void Test_IsZero_Values()
+        {
+            Assert.IsTrue(Contract.TestIsZero(0));
+            Assert.IsFalse(Contract.TestIsZero(int.MaxValue));
+            Assert.IsFalse(Contract.TestIsZero(int.MinValue));
+            Assert.IsFalse(Contract.TestIsZero(BigInteger.Pow(2, 200)));
+            Assert.IsFalse(Contract.TestIsZero(-BigInteger.Pow(2, 200)));
+            Assert.IsFalse(Contract.TestIsZero(BigInteger.Pow(2, 255) - 1));
+            Assert.IsFalse(Contract.TestIsZero(-BigInteger.Pow(2, 255)));
+        }
+
+        [TestMethod]
+        public void Test_IsZero_SideEffect_EvaluatedOnce()
+        {
+            Assert.AreEqual(1, Contract.TestIsZeroSideEffect(0));
+            Assert.AreEqual(-1, Contract.TestIsZeroSideEffect(5));
+            Assert.AreEqual(-1, Contract.TestIsZeroSideEffect(-5));
+            Assert.AreEqual(-1, Contract.TestIsZeroSideEffect(BigInteger.Pow(2, 200)));
         }
 
         [TestMethod]

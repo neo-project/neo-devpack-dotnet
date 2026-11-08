@@ -185,6 +185,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             return input.IsZero;
         }
 
+        public static BigInteger testIsZeroSideEffect(BigInteger input)
+        {
+            int counter = 0;
+            bool zero = (input + counter++ * 0).IsZero;
+            return zero ? counter : -counter;
+        }
+
         public static bool testIsOne(BigInteger input)
         {
             return input.IsOne;

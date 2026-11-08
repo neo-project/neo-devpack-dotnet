@@ -84,8 +84,7 @@ internal partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.Push(0);
-        methodConvert.NumEqual();                                  // Check if value equals 0
+        methodConvert.Not();                                       // Integer GetBoolean() is !IsZero, so NOT == (value == 0)
     }
 
     /// <summary>
