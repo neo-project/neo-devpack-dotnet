@@ -77,6 +77,59 @@ namespace MyContract
 - `Blockchain` - Block and transaction access
 - `ExecutionEngine` - Script execution utilities
 
+### Role-based pausing
+
+Use `PausableOwnable` for a single owner's pause authority, or `PausableAccessControl`
+when multiple accounts need permission to pause and unpause. These are alternative
+authorization models; role-based pausing does not replace the owner-based model.
+
+```csharp
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+
+public class EmergencyContract : PausableAccessControl
+{
+    public static void _deploy(object data, bool update)
+    {
+        InitializePausableAccessControl((UInt160?)data, update);
+    }
+
+    [WhenNotPaused]
+    public static bool DoWork() => true;
+
+    [WhenPaused]
+    public static bool InspectWhilePaused() => true;
+}
+```
+
+On initial deployment, pass an administrator's script hash as deployment data, or
+null to use the transaction sender. The initializer grants that account both
+`DEFAULT_ADMIN_ROLE()` (0) and `PAUSER_ROLE()` (1). Other roles must use distinct
+identifiers: reusing 1 also grants pause authority.
+
+The inherited `GrantRole(PAUSER_ROLE(), admin, pauser)` and
+`RevokeRole(PAUSER_ROLE(), admin, pauser)` manage pauser assignments. The acting
+administrator must hold the role's admin role and witness the invocation.
+`Pause(pauser)` and `Unpause(pauser)` likewise require both the pauser role and a
+valid witness for the supplied account; knowing a pauser's address is insufficient.
+Successful transitions emit `Paused` or `Unpaused` with the acting account.
+
+The pause flag uses storage key `0xFE`, matching the default pause modifiers, while
+access-control storage uses `0xFB`. Do not reuse those prefixes for application storage.
+The modifiers only protect annotated methods; apply other authorization checks to
+sensitive application operations as appropriate.
+
+Always forward the deployment callback's `update` argument to the initializer.
+When true, initialization is a no-op: it preserves the administrator, role assignments
+and pause state without regranting revoked roles. Contracts migrating from a different
+base class need their own authorized migration policy; the update path does not
+bootstrap missing roles.
+
+With the default role-admin policy, if every pauser has been revoked, a default
+administrator can still grant `PAUSER_ROLE()` to itself or another account, then
+unpause with that account's witness. If a derived contract changes the pauser role's
+admin role, it must preserve an authorized recovery path.
+
 ## Documentation
 
 For comprehensive documentation and examples:
