@@ -293,12 +293,33 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.IsTrue(Contract.Contains(array, 0));
-            AssertGasConsumed(1200750);
+            AssertGasConsumed(1147890);
             array.Add(1);
             Assert.IsFalse(Contract.Contains(array, 9));
-            AssertGasConsumed(1264740);
+            AssertGasConsumed(1159320);
             Assert.IsTrue(Contract.Contains(array, 1));
-            AssertGasConsumed(1264320);
+            AssertGasConsumed(1158900);
+        }
+
+        [TestMethod]
+        public void Test_Contains_Regression()
+        {
+            var empty = new List<object>();
+            Assert.IsFalse(Contract.Contains(empty, 1));
+
+            var array = new List<object> { 5, 7, 7, 9 };
+            Assert.IsTrue(Contract.Contains(array, 5));
+            Assert.IsTrue(Contract.Contains(array, 9));
+            Assert.IsTrue(Contract.Contains(array, 7));
+            Assert.IsFalse(Contract.Contains(array, 6));
+
+            var single = new List<object> { 3 };
+            Assert.IsTrue(Contract.Contains(single, 3));
+            Assert.IsFalse(Contract.Contains(single, 4));
+
+            Assert.IsFalse(Contract.ContainsText(empty, "a"));
+            Assert.IsTrue(Contract.ContainsText(new List<object> { "a", "b", "a" }, "a"));
+            Assert.IsFalse(Contract.ContainsText(new List<object> { "a", "b" }, "c"));
         }
 
         [TestMethod]
@@ -311,9 +332,9 @@ namespace Neo.Compiler.CSharp.UnitTests
                 "bbb"
             };
             Assert.IsTrue(Contract.ContainsText(array, "bbb"));
-            AssertGasConsumed(1243950);
+            AssertGasConsumed(1156050);
             Assert.IsFalse(Contract.ContainsText(array, "c"));
-            AssertGasConsumed(1244370);
+            AssertGasConsumed(1156470);
         }
 
         [TestMethod]
@@ -326,12 +347,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.IsFalse(Contract.ContainsPerson(array, 0));
-            AssertGasConsumed(8627520);
+            AssertGasConsumed(8539620);
             array.Add(1);
             Assert.IsFalse(Contract.ContainsPerson(array, 1));
-            AssertGasConsumed(10556490);
+            AssertGasConsumed(10451070);
             Assert.IsTrue(Contract.ContainsPersonIndex(array, 0));
-            AssertGasConsumed(8835150);
+            AssertGasConsumed(8782290);
         }
 
         [TestMethod]
@@ -344,12 +365,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.IsTrue(Contract.ContainsPersonS(array, 0));
-            AssertGasConsumed(8584740);
+            AssertGasConsumed(8531880);
             array.Add(1);
             Assert.IsFalse(Contract.ContainsPersonS(array, 10));
-            AssertGasConsumed(10556490);
+            AssertGasConsumed(10451070);
             Assert.IsTrue(Contract.ContainsPersonS(array, -100));
-            AssertGasConsumed(10534890);
+            AssertGasConsumed(10446990);
         }
 
         [TestMethod]
