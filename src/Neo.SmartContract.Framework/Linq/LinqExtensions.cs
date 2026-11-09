@@ -253,7 +253,12 @@ namespace Neo.SmartContract.Framework.Linq
         /// <exception cref="ArgumentNullException">source is null.</exception>
         public static bool Contains<T>(this IEnumerable<T> source, T value)
         {
-            return Any(source, s => s!.Equals(value));
+            AssertSourceNotNull(source);
+            foreach (var s in source)
+            {
+                if (s!.Equals(value)) return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -493,11 +498,11 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             var list = new List<T>();
+            if (count <= 0) return list;
             foreach (var i in source)
             {
-                if (count <= 0) break;
                 list.Add(i);
-                count--;
+                if (--count == 0) break;
             }
             return list;
         }
