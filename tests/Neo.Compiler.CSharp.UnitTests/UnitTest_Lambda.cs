@@ -120,7 +120,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_InvokeSum2()
         {
             var result = Contract.InvokeSum2(2, 3);
-            AssertGasConsumed(1083990);
+            AssertGasConsumed(1083870);
             Assert.AreEqual(6, result);
         }
 
@@ -128,15 +128,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Fibo()
         {
             var result = Contract.Fibo(2);
-            AssertGasConsumed(1103130);
+            AssertGasConsumed(1103010);
             Assert.AreEqual(1, result);
 
             result = Contract.Fibo(3);
-            AssertGasConsumed(1140450);
+            AssertGasConsumed(1140330);
             Assert.AreEqual(2, result);
 
             result = Contract.Fibo(4);
-            AssertGasConsumed(1215090);
+            AssertGasConsumed(1214970);
             Assert.AreEqual(3, result);
         }
 
@@ -176,15 +176,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CheckZero3()
         {
             var result = Contract.CheckZero3(0);
-            AssertGasConsumed(1083000);
+            AssertGasConsumed(1082880);
             Assert.AreEqual(true, result);
 
             result = Contract.CheckZero3(1);
-            AssertGasConsumed(1083000);
+            AssertGasConsumed(1082880);
             Assert.AreEqual(false, result);
 
             result = Contract.CheckZero3(-1);
-            AssertGasConsumed(1083000);
+            AssertGasConsumed(1082880);
             Assert.AreEqual(false, result);
         }
 
