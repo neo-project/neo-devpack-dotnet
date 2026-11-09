@@ -498,11 +498,11 @@ namespace Neo.SmartContract.Framework.Linq
         {
             AssertSourceNotNull(source);
             var list = new List<T>();
+            if (count <= 0) return list;
             foreach (var i in source)
             {
-                if (count <= 0) break;
                 list.Add(i);
-                count--;
+                if (--count == 0) break;
             }
             return list;
         }
