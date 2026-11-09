@@ -647,6 +647,8 @@ internal partial class MethodConvert
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
+        methodConvert.Drop(); // Consume the typeof(enum) argument before pushing the result.
+
         // Create an array of names
         foreach (IFieldSymbol m in enumMembers.Reverse())          // PACK works in a reversed way
             methodConvert.Push(m.Name);
@@ -698,6 +700,8 @@ internal partial class MethodConvert
 
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
+
+        methodConvert.Drop(); // Consume the typeof(enum) argument before pushing the result.
 
         // Create an array of values
         foreach (IFieldSymbol m in enumMembers.Reverse())          // PACK works in a reversed way
