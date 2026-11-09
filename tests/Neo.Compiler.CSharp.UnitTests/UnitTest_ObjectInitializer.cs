@@ -12,6 +12,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -41,6 +44,73 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_FieldInitializer()
         {
             Assert.AreEqual(new BigInteger(7), Contract.FieldInitializer(7));
+        }
+
+        [TestMethod]
+        [DataRow(CompilationOptions.OptimizationType.None)]
+        [DataRow(CompilationOptions.OptimizationType.Basic)]
+        [DataRow(CompilationOptions.OptimizationType.All)]
+        public void Test_PartialObjectInitializer_PreservesDeclaredInitializers(CompilationOptions.OptimizationType optimization)
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using Neo.SmartContract.Framework.Attributes;
+                using System.ComponentModel;
+                using System.Numerics;
+
+                public class Contract : SmartContract
+                {
+                    public class Position
+                    {
+                        public BigInteger Limit = 1000;
+                        public bool Active { get; set; } = true;
+                        [InitialValue("500", ContractParameterType.Integer)]
+                        public BigInteger Fee;
+                        public BigInteger Deposit;
+                    }
+
+                    public record RecordPosition
+                    {
+                        public BigInteger LockBlocks = 720;
+                        public BigInteger Deposit;
+                    }
+
+                    [DisplayName("positionDefault")]
+                    public static BigInteger PositionDefault() => Value(new Position());
+
+                    [DisplayName("positionPartial")]
+                    public static BigInteger PositionPartial(BigInteger deposit)
+                        => Value(new Position { Deposit = deposit });
+
+                    [DisplayName("positionOverride")]
+                    public static BigInteger PositionOverride(BigInteger deposit)
+                        => Value(new Position { Limit = 2000, Deposit = deposit });
+
+                    [DisplayName("recordDefault")]
+                    public static BigInteger RecordDefault() => new RecordPosition().LockBlocks * 1000;
+
+                    [DisplayName("recordPartial")]
+                    public static BigInteger RecordPartial(BigInteger deposit)
+                        => new RecordPosition { Deposit = deposit }.LockBlocks * 1000 + deposit;
+
+                    private static BigInteger Value(Position position)
+                        => position.Limit * 100000 + (position.Active ? 10000 : 0)
+                           + position.Fee * 10 + position.Deposit;
+                }
+                """;
+
+            var options = TestHelper.CreateDefaultOptions();
+            options.Optimize = optimization;
+            var context = TestHelper.CompileSingleContract(source, options);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(d => d.ToString())));
+
+            var contract = new TestEngine(true).Deploy<PartialObjectInitializerContract>(
+                context.CreateExecutable(), context.CreateManifest());
+            Assert.AreEqual(new BigInteger(100015000), contract.PositionDefault());
+            Assert.AreEqual(new BigInteger(100015250), contract.PositionPartial(250));
+            Assert.AreEqual(new BigInteger(200015250), contract.PositionOverride(250));
+            Assert.AreEqual(new BigInteger(720000), contract.RecordDefault());
+            Assert.AreEqual(new BigInteger(720250), contract.RecordPartial(250));
         }
 
         [TestMethod]
@@ -89,5 +159,24 @@ public static int Probe(int a)
     return w.Inner.X * 100 + w.Inner.Y;
 }", "Embedded nested object initializers should be rejected with a diagnostic instead of crashing.");
         }
+    }
+
+    public abstract class PartialObjectInitializerContract(SmartContractInitialize initialize)
+        : Neo.SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("positionDefault")]
+        public abstract BigInteger? PositionDefault();
+
+        [DisplayName("positionPartial")]
+        public abstract BigInteger? PositionPartial(BigInteger? deposit);
+
+        [DisplayName("positionOverride")]
+        public abstract BigInteger? PositionOverride(BigInteger? deposit);
+
+        [DisplayName("recordDefault")]
+        public abstract BigInteger? RecordDefault();
+
+        [DisplayName("recordPartial")]
+        public abstract BigInteger? RecordPartial(BigInteger? deposit);
     }
 }

@@ -183,6 +183,10 @@ internal partial class MethodConvert
         // no constructor needed
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
         var fields = members.OfType<IFieldSymbol>().ToArray();
+        // CreateObject applies declared field and auto-property initializers. Its packed
+        // replacement must not substitute defaults for those fields.
+        if (fields.Any(HasDeclaredInstanceInitializer))
+            return false;
         Dictionary<int, ExpressionSyntax> indexToValue = new();
         List<(int Index, ExpressionSyntax Value)> initializerValues = new();
         foreach (ExpressionSyntax e in expression.Initializer.Expressions)
@@ -233,6 +237,23 @@ internal partial class MethodConvert
             type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK,
             slot => slot.CanDefer);
         return true;
+    }
+
+    private static bool HasDeclaredInstanceInitializer(IFieldSymbol field)
+    {
+        if (field.GetAttributes().Any(attribute =>
+            attribute.AttributeClass?.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)
+            || attribute.AttributeClass?.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)) == true))
+            return true;
+
+        if (field.DeclaringSyntaxReferences.IsEmpty)
+        {
+            return field.AssociatedSymbol is IPropertySymbol property
+                && !property.DeclaringSyntaxReferences.IsEmpty
+                && property.DeclaringSyntaxReferences[0].GetSyntax() is PropertyDeclarationSyntax { Initializer: not null };
+        }
+
+        return field.DeclaringSyntaxReferences[0].GetSyntax() is VariableDeclaratorSyntax { Initializer: not null };
     }
 
     private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)
