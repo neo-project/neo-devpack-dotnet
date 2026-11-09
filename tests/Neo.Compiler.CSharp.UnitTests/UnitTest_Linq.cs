@@ -521,7 +521,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             var result = (Array)Contract.Take(array, 0)!;
-            AssertGasConsumed(1147770);
+            AssertGasConsumed(1144920);
             Assert.AreEqual(0, result.Count);
 
             array.Add(1);
@@ -529,9 +529,58 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(100);
 
             result = (Array)Contract.Take(array, 2)!;
-            AssertGasConsumed(1646160);
+            AssertGasConsumed(1642860);
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(0, result[0]);
+            Assert.AreEqual(-1, result[1]);
+        }
+
+        [TestMethod]
+        public void Test_Take_Boundaries()
+        {
+            var empty = new List<object>();
+            foreach (int count in new[] { int.MinValue, -1, 0, 1, 3, int.MaxValue })
+                Assert.AreEqual(0, ((Array)Contract.Take(empty, count)!).Count);
+
+            var array = new List<object> { 7, -1, 7, 0, -100, 5 };
+            foreach (int count in new[] { int.MinValue, -1, 0, 1, 2, 5, 6, 10, int.MaxValue })
+            {
+                var result = (Array)Contract.Take(array, count)!;
+                int expectedCount = count <= 0 ? 0 : count < array.Count ? count : array.Count;
+                Assert.AreEqual(expectedCount, result.Count);
+                for (int i = 0; i < expectedCount; i++)
+                    Assert.AreEqual(new BigInteger((int)array[i]), result[i].GetInteger());
+            }
+        }
+
+        [TestMethod]
+        public void Test_Take_NullSource()
+        {
+            foreach (int count in new[] { -1, 0, 1 })
+            {
+                var exception = Assert.ThrowsExactly<TestException>(() => Contract.Take(null, count));
+                Assert.AreEqual("An unhandled exception was thrown. source is null", exception.InnerException?.Message);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Take_BigIntegerCounts()
+        {
+            var array = new List<object> { 7, -1, 7, 0, -100, 5 };
+            BigInteger[] counts = [-(BigInteger.One << 200), (BigInteger)int.MinValue - 1,
+                -1, 0, 1, 2, 6, 10, (BigInteger)int.MaxValue + 1, BigInteger.One << 200];
+            foreach (var count in counts)
+            {
+                Assert.AreEqual(0, ((Array)Contract.TakeBigInteger(new List<object>(), count)!).Count);
+                var result = (Array)Contract.TakeBigInteger(array, count)!;
+                int expectedCount = count <= 0 ? 0 : count < array.Count ? (int)count : array.Count;
+                Assert.AreEqual(expectedCount, result.Count);
+                for (int i = 0; i < expectedCount; i++)
+                    Assert.AreEqual(new BigInteger((int)array[i]), result[i].GetInteger());
+
+                var exception = Assert.ThrowsExactly<TestException>(() => Contract.TakeBigInteger(null, count));
+                Assert.AreEqual("An unhandled exception was thrown. source is null", exception.InnerException?.Message);
+            }
         }
 
         [TestMethod]
