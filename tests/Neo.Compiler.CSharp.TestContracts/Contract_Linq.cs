@@ -229,5 +229,10 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return array.Where(x => x > 0);
         }
+
+        public static object TakeBigInteger(int[] array, BigInteger count)
+        {
+            return array.Take(count);
+        }
     }
 }
