@@ -55,7 +55,7 @@ public class Contract : SmartContract
 {
     public static string Test()
     {
-        return "Jimmy".ToString();
+        return "neo".ToString();
     }
 }
 """);
