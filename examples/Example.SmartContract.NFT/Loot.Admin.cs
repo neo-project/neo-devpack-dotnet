@@ -21,13 +21,6 @@ namespace NFT
     /// Security Requirements:
     ///  All public functions in this partial class
     ///  that has write permission must be owner only
-    ///
-    ///  [SetOwner] -- confirmed by jinghui
-    ///  [_deploy]  -- except this one, confirmed by jinghui
-    ///  [Update]   -- confirmed by jinghui
-    ///  [Destroy]  -- confirmed by jinghui
-    ///  [Pause]    -- confirmed by jinghui
-    ///  [Resume]   -- confirmed by jinghui
     /// </summary>
     public partial class Loot
     {
@@ -55,9 +48,7 @@ namespace NFT
         /// <returns></returns>
         public static UInt160 SetOwner(UInt160 newOwner)
         {
-            // <0> -- confirmed by jinghui
             OwnerOnly();
-            // <1> -- confirmed by jinghui
             ExecutionEngine.Assert(newOwner.IsValid, "Loot::UInt160 is invalid.");
             OwnerMap.Put("owner", newOwner);
             return GetOwner();
