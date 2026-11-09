@@ -35,12 +35,13 @@ namespace Neo.SmartContract.Framework.Helpers
 
             var expectedLength = rawLength / 2;
             var result = new byte[(int)expectedLength];
+            BigInteger index = offset;
             for (int i = 0; i < expectedLength; i++)
             {
-                var index = offset + (BigInteger)i * 2;
                 var high = FromHexByte(value[index]);
                 var low = FromHexByte(value[index + 1]);
                 result[i] = (byte)((high << 4) | low);
+                index += 2;
             }
             return result;
         }
