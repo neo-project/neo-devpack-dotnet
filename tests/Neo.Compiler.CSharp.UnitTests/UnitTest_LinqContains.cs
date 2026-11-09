@@ -66,7 +66,7 @@ public class UnitTest_LinqContains
         AssertClrEquivalent(new[] { (1, 2) }, (1, 2));
         AssertClrEquivalent(new[] { (1, 2) }, (1, 3));
 
-        Assert.ThrowsException<NullReferenceException>(() => FrameworkLinq.Contains(new string?[] { null }, null));
+        Assert.ThrowsExactly<NullReferenceException>(() => FrameworkLinq.Contains(new string?[] { null }, null));
         Assert.IsTrue(FrameworkLinq.Contains(new string?[] { "a", null }, "a"));
     }
 
@@ -99,7 +99,7 @@ public class UnitTest_LinqContains
             Assert.AreEqual(before, after, $"Source={FormatSource(source)}, value={value ?? "null"}");
             TestContext.WriteLine($"Source={FormatSource(source)}, value={value ?? "null"}: {after}");
         }
-        var fault = Assert.ThrowsException<TestException>(() => direct.Contains(null, "a"));
+        var fault = Assert.ThrowsExactly<TestException>(() => direct.Contains(null, "a"));
         StringAssert.Contains(fault.InnerException?.Message ?? fault.Message, "source is null");
         Assert.IsFalse(direct.Contains(new List<object>(), null));
         Assert.IsTrue(direct.Contains(new List<object> { "a", null! }, "a"));
