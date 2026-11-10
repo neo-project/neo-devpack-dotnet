@@ -133,3 +133,39 @@ Never copy an increased measurement into the baseline merely to make CI pass.
 This integration adds baseline comparison and automated reporting only.
 Persistent historical trend storage across runs and automated baseline governance
 are not implemented, so Issue #8 is not fully complete.
+
+## Automatic tracking in unit tests
+
+`TestEngine.Execute` records the GAS of every execution (`ApplicationEngine.FeeConsumed`,
+HALT and FAULT) into a per-test `AsyncLocal` scope (`GasExecutionTracker`). `TestBase<T>`
+starts the scope in `[TestInitialize]`, after the constructor has deployed the contract, so
+deployment is never measured. In `[TestCleanup]` the measurements are compared with
+`GasBaselines/<test assembly>.executions.json`:
+
+- An increase is a regression, a decrease is an accepted improvement.
+- A missing or unexpected execution fails the test.
+- Comparison only happens for tests that passed, so functional failures keep their own diagnostics.
+- Tests excluded by a focused run or skipped never execute, so they are never reported as missing.
+- Tracking is disabled (no overhead beyond a null check) when the assembly has no baseline.
+
+Execution identifiers are `<Class>.<Method>[<case>]#<n>`, or `:<label>` when
+`GasExecutionTracker.Label(...)` is used. Use `GasExecutionTracker.Exclude()` around
+nondeterministic executions.
+
+### Generating baselines (maintainers only)
+
+```powershell
+$env:NEO_GAS_BASELINE_GENERATE_DIR = "$PWD\gen-tmp"
+dotnet test tests/<Project>
+./scripts/gas/merge-baseline.ps1 -InputDirectory gen-tmp/<Assembly> -Output tests/<Project>/GasBaselines/<Assembly>.executions.json
+```
+
+Generation writes one file per test (parallel-safe) and is refused when `CI` or
+`GITHUB_ACTIONS` is set. Committed baselines are never rewritten automatically; review every
+changed value. Run generation twice and compare the merged files to confirm stability.
+
+### Reports
+
+With `NEO_GAS_REPORT_DIR` set, each tracked test writes its own `tracked-<assembly>/tests/*.tsv`.
+`scripts/gas/aggregate-report.ps1` merges them into `gas-tracking-report.md/json`; CI runs it
+even when tests fail.

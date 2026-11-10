@@ -23,7 +23,6 @@ public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
     public void Test_Shift()
     {
         var list = Contract.TestShift()?.Cast<BigInteger>().ToArray();
-        AssertGasConsumed(1048740);
         CollectionAssert.AreEqual(new BigInteger[] { 16, 4 }, list);
     }
 
@@ -31,7 +30,6 @@ public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
     public void Test_Shift_BigInteger()
     {
         var list = Contract.TestShiftBigInt()?.Cast<BigInteger>().ToArray();
-        AssertGasConsumed(1049370);
         CollectionAssert.AreEqual(new BigInteger[] { 8, 16, 4, 2 }, list);
     }
 
@@ -39,33 +37,27 @@ public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
     public void Test_ShiftRightChecked()
     {
         Assert.AreEqual(0, Contract.ShiftRightChecked(8, 4));
-        AssertGasConsumed(1047750);
     }
 
     [TestMethod]
     public void Test_ShiftRightUnchecked()
     {
         Assert.AreEqual(0, Contract.ShiftRightUnchecked(8, 4));
-        AssertGasConsumed(1047750);
     }
 
     [TestMethod]
     public void Test_ShiftLeftCheckedByte()
     {
         Assert.AreEqual(128, Contract.ShiftLeftCheckedByte(8, 4));
-        AssertGasConsumed(1047900);
 
         Assert.AreEqual(16, Contract.ShiftLeftCheckedByte(8, 33));
-        AssertGasConsumed(1047900);
     }
 
     [TestMethod]
     public void Test_ShiftLeftCheckedShort()
     {
         Assert.AreEqual(128, Contract.ShiftLeftCheckedShort(8, 4));
-        AssertGasConsumed(1047900);
 
         Assert.AreEqual(16, Contract.ShiftLeftCheckedShort(8, 33));
-        AssertGasConsumed(1047900);
     }
 }

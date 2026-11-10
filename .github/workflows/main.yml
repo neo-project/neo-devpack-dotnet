@@ -164,12 +164,14 @@ jobs:
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
     - name: GAS regression summary
       if: always() && steps.scope.outputs.full == 'true'
+      shell: pwsh
       run: |
-        if [ -f gas-report/gas-regression-report.md ]; then
-          cat gas-report/gas-regression-report.md >> "$GITHUB_STEP_SUMMARY"
-        else
-          echo "No GAS regression report was generated." >> "$GITHUB_STEP_SUMMARY"
-        fi
+        $core = ([xml](Get-Content tests/Directory.Build.props)).Project.PropertyGroup.NeoCorePackageVersion | Where-Object { $_ } | Select-Object -First 1
+        if (Test-Path gas-report) { ./scripts/gas/aggregate-report.ps1 -ReportDirectory gas-report -NeoCoreVersion $core }
+        foreach ($file in 'gas-report/gas-regression-report.md', 'gas-report/gas-tracking-report.md') {
+          if (Test-Path $file) { Get-Content $file | Add-Content $env:GITHUB_STEP_SUMMARY }
+          else { "No $file was generated." | Add-Content $env:GITHUB_STEP_SUMMARY }
+        }
     - name: Upload GAS regression report
       if: always() && steps.scope.outputs.full == 'true'
       uses: actions/upload-artifact@v4
@@ -185,6 +187,8 @@ jobs:
         -l "console;verbosity=detailed"
     - name: Test Neo.SmartContract.Framework.UnitTests
       if: steps.scope.outputs.full == 'true'
+      env:
+        NEO_GAS_REPORT_DIR: ${{ github.workspace }}/gas-report
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \

@@ -39,32 +39,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchLongLong()
         {
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("a")!).GetInteger());
-            AssertGasConsumed(1049460);
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchLongLong("b")!).GetInteger());
-            AssertGasConsumed(1052100);
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("c")!).GetInteger());
-            AssertGasConsumed(1050810);
             Assert.AreEqual(-1, ((VM.Types.Integer)Contract.SwitchLongLong("d")!).GetInteger());
-            AssertGasConsumed(1053450);
             Assert.AreEqual(1, ((VM.Types.Integer)Contract.SwitchLongLong("e")!).GetInteger());
-            AssertGasConsumed(1054800);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("f")!).GetInteger());
-            AssertGasConsumed(1056090);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("g")!).GetInteger());
-            AssertGasConsumed(1057410);
         }
 
         [TestMethod]
         public void Test_SwitchInteger()
         {
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchInteger(1)!).GetInteger());
-            AssertGasConsumed(1047540);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchInteger(2)!).GetInteger());
-            AssertGasConsumed(1047690);
             Assert.AreEqual(6, ((VM.Types.Integer)Contract.SwitchInteger(3)!).GetInteger());
-            AssertGasConsumed(1047840);
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchInteger(0)!).GetInteger());
-            AssertGasConsumed(1047840);
         }
 
         [TestMethod]
@@ -81,9 +70,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Test default
 
             Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6(6.ToString())!).GetInteger());
-            AssertGasConsumed(1055310);
             Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6Inline(6.ToString())!).GetInteger());
-            AssertGasConsumed(1055250);
         }
     }
 }
