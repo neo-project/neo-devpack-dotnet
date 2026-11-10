@@ -249,7 +249,7 @@ internal partial class MethodConvert
             {
                 if (!_inlineStackDepthSlots.TryGetValue(scope.NestingLevel, out byte slotIndex))
                 {
-                    slotIndex = AddAnonymousVariable();
+                    slotIndex = AddPermanentAnonymousVariable();
                     _inlineStackDepthSlots.Add(scope.NestingLevel, slotIndex);
                 }
                 scope.SlotIndex = slotIndex;
