@@ -195,9 +195,15 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertDelegateInvocationExpression(SemanticModel model, ExpressionSyntax expression, ArgumentSyntax[] arguments)
     {
+        using var anonymousVariableScope = PreserveAnonymousVariables();
         INamedTypeSymbol type = (INamedTypeSymbol)model.GetTypeInfo(expression).Type!;
-        PrepareArgumentsForMethod(model, type.DelegateInvokeMethod!, arguments);
+        byte targetSlot = AddAnonymousVariable();
+        // C# captures the delegate before evaluating arguments, while CALLA
+        // requires the target above them on the VM stack.
         ConvertExpression(model, expression);
+        AccessSlot(OpCode.STLOC, targetSlot);
+        PrepareArgumentsForMethod(model, type.DelegateInvokeMethod!, arguments);
+        AccessSlot(OpCode.LDLOC, targetSlot);
         AddInstruction(OpCode.CALLA);
     }
 }

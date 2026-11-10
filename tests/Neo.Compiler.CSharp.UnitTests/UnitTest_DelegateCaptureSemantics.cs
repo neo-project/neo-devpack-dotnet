@@ -23,6 +23,56 @@ public class UnitTest_DelegateCaptureSemantics
 
         public class Contract : SmartContract
         {
+            private static Func<int, int> _policy;
+            private static int _trace;
+
+            private static int Deny(int _) => 0;
+            private static int Permit(int _) => 1;
+
+            private static int RotatePolicy()
+            {
+                _policy = Permit;
+                return 0;
+            }
+
+            private static Func<int, int> TracedPolicy
+            {
+                get
+                {
+                    _trace = _trace * 10 + 1;
+                    return Deny;
+                }
+            }
+
+            private static int TracedArgument()
+            {
+                _trace = _trace * 10 + 2;
+                return 0;
+            }
+
+            [DisplayName("directTargetAfterMutation")]
+            public static int DirectTargetAfterMutation()
+            {
+                _policy = Deny;
+                return _policy(RotatePolicy());
+            }
+
+            [DisplayName("capturedTargetAfterMutation")]
+            public static int CapturedTargetAfterMutation()
+            {
+                _policy = Deny;
+                Func<int, int> selected = _policy;
+                return selected(RotatePolicy());
+            }
+
+            [DisplayName("delegateExpressionBeforeArgument")]
+            public static int DelegateExpressionBeforeArgument()
+            {
+                _trace = 0;
+                TracedPolicy(TracedArgument());
+                return _trace;
+            }
+
             [DisplayName("captureMutation")]
             public static int CaptureMutation(int seed)
             {
@@ -98,6 +148,18 @@ public class UnitTest_DelegateCaptureSemantics
         Assert.AreEqual(new BigInteger(1209), contract.ArgumentDelegates());
     }
 
+    [TestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.Basic)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
+    public void DelegateTargetIsCapturedBeforeArguments(CompilationOptions.OptimizationType optimization)
+    {
+        var contract = Deploy(optimization);
+        Assert.AreEqual(BigInteger.Zero, contract.CapturedTargetAfterMutation());
+        Assert.AreEqual(BigInteger.Zero, contract.DirectTargetAfterMutation());
+        Assert.AreEqual(new BigInteger(12), contract.DelegateExpressionBeforeArgument());
+    }
+
     private static DelegateCaptureContract Deploy(CompilationOptions.OptimizationType optimization)
     {
         var options = TestHelper.CreateDefaultOptions();
@@ -114,5 +176,8 @@ public class UnitTest_DelegateCaptureSemantics
         [DisplayName("captureBranch")] public abstract BigInteger? CaptureBranch(bool change);
         [DisplayName("loopDelegates")] public abstract BigInteger? LoopDelegates();
         [DisplayName("argumentDelegates")] public abstract BigInteger? ArgumentDelegates();
+        [DisplayName("directTargetAfterMutation")] public abstract BigInteger? DirectTargetAfterMutation();
+        [DisplayName("capturedTargetAfterMutation")] public abstract BigInteger? CapturedTargetAfterMutation();
+        [DisplayName("delegateExpressionBeforeArgument")] public abstract BigInteger? DelegateExpressionBeforeArgument();
     }
 }
