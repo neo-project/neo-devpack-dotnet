@@ -89,6 +89,10 @@ internal partial class MethodConvert
 
         sType = GetNonNullableValueType(sType);
         tType = GetNonNullableValueType(tType);
+        if (sType is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } sEnum)
+            sType = sEnum.EnumUnderlyingType;
+        if (tType is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } tEnum)
+            tType = tEnum.EnumUnderlyingType;
         switch ((sType.Name, tType.Name))
         {
             case ("ByteString", "ECPoint"):
