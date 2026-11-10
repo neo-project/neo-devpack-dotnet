@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2026 The Neo Project.
+﻿// Copyright (C) 2015-2026 The Neo Project.
 //
 // EnumerableSetTest.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -92,7 +92,7 @@ public class EnumerableSetTest
         Assert.AreEqual(0, c.Length());
         Assert.IsFalse(c.Contains(Item(1)));
         Assert.IsFalse(c.Remove(Item(1)));
-        Assert.ThrowsException<TestException>(() => c.At(0));
+        Assert.ThrowsExactly<TestException>(() => c.At(0));
         Assert.AreEqual(0, c.Values()!.Count);
         AssertConsistentA(c, []);
     }
@@ -178,8 +178,8 @@ public class EnumerableSetTest
         var c = Deploy();
         c.Add(Item(1));
         Assert.AreEqual(Item(1), c.At(0));
-        Assert.ThrowsException<TestException>(() => c.At(1));
-        Assert.ThrowsException<TestException>(() => c.At(-1));
+        Assert.ThrowsExactly<TestException>(() => c.At(1));
+        Assert.ThrowsExactly<TestException>(() => c.At(-1));
     }
 
     [TestMethod]
@@ -274,11 +274,11 @@ public class EnumerableSetTest
         c.Add(Item(1));
         c.Add(Item(2));
 
-        Assert.ThrowsException<TestException>(() => c.AddThenAbort(Item(9)));
+        Assert.ThrowsExactly<TestException>(() => c.AddThenAbort(Item(9)));
         Assert.IsFalse(c.Contains(Item(9)));
         AssertConsistentA(c, [Item(1), Item(2)]);
 
-        Assert.ThrowsException<TestException>(() => c.RemoveThenAbort(Item(1)));
+        Assert.ThrowsExactly<TestException>(() => c.RemoveThenAbort(Item(1)));
         Assert.IsTrue(c.Contains(Item(1)));
         AssertConsistentA(c, [Item(1), Item(2)]);
     }
@@ -287,12 +287,12 @@ public class EnumerableSetTest
     public void Invalid_Value_And_Prefix_Fail()
     {
         var c = Deploy();
-        Assert.ThrowsException<TestException>(() => c.AddInvalid(new byte[19]));
-        Assert.ThrowsException<TestException>(() => c.AddInvalid(new byte[21]));
+        Assert.ThrowsExactly<TestException>(() => c.AddInvalid(new byte[19]));
+        Assert.ThrowsExactly<TestException>(() => c.AddInvalid(new byte[21]));
         Assert.AreEqual(0, c.Length());
 
-        Assert.ThrowsException<TestException>(() => c.CreateWithPrefixLength(0));
-        Assert.ThrowsException<TestException>(() => c.CreateWithPrefixLength(EnumerableSet_MaxPrefix + 1));
+        Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(0));
+        Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(EnumerableSet_MaxPrefix + 1));
         Assert.AreEqual(0, c.CreateWithPrefixLength(EnumerableSet_MaxPrefix));
     }
 
