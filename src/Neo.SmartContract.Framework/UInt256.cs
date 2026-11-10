@@ -90,6 +90,12 @@ namespace Neo.SmartContract.Framework
         public static extern explicit operator byte[](UInt256 value);
 
         /// <summary>
+        /// Convert a checked 32-bytes ByteString to UInt256
+        /// </summary>
+        [OpCode(OpCode.NOP)]
+        private static extern UInt256 FromChecked(ByteString value);
+
+        /// <summary>
         /// Implicitly converts a hexadecimal string to a UInt256 object.
         /// Assumes the string is a valid hexadecimal representation.
         /// <example>
@@ -118,7 +124,7 @@ namespace Neo.SmartContract.Framework
             byte[] data = ParseHelper.ParseHex(value);
             if (data.Length != UInt256.Size)
                 throw new FormatException("UInt256 must be 32 bytes long.");
-            return (UInt256)data.Reverse();
+            return FromChecked((ByteString)data.Reverse());
         }
     }
 }
