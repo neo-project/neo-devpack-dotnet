@@ -125,14 +125,14 @@ namespace Neo.Compiler
             if (syntax.Statement is null)
                 return;
 
-            var captured = model.AnalyzeDataFlow(syntax.Statement).Captured;
+            var captured = model.AnalyzeDataFlow(syntax.Statement)?.Captured ?? [];
             var controlExpressions = syntax.Incrementors.AsEnumerable();
             if (syntax.Condition is not null)
                 controlExpressions = controlExpressions.Append(syntax.Condition);
 
             foreach (ExpressionSyntax expression in controlExpressions)
             {
-                foreach (ISymbol symbol in model.AnalyzeDataFlow(expression).ReadInside)
+                foreach (ISymbol symbol in model.AnalyzeDataFlow(expression)?.ReadInside ?? [])
                 {
                     if (symbol is not ILocalSymbol and not IParameterSymbol ||
                         !captured.Any(capturedSymbol => SymbolEqualityComparer.Default.Equals(capturedSymbol, symbol)))
