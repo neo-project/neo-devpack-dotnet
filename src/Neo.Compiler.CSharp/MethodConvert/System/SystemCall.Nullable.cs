@@ -448,7 +448,7 @@ internal partial class MethodConvert
         methodConvert.IsNull();                                    // Check if value is null
         methodConvert.JumpIfTrue(endTarget);                       // Jump if null
         if (IsNullableChar(symbol.ContainingType))
-            methodConvert.ChangeType(StackItemType.ByteString);
+            methodConvert.ConvertCharToUtf8(toByteString: true);
         else
             methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
         methodConvert.JumpAlwaysLong(endTarget2);                   // Jump to end

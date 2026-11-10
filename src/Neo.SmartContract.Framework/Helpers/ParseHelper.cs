@@ -60,9 +60,9 @@ namespace Neo.SmartContract.Framework.Helpers
 
         private static BigInteger FromHexByte(BigInteger value)
         {
-            if (value >= '0' && value <= '9') return value - '0';
-            if (value >= 'a' && value <= 'f') return value - 'a' + 10;
-            if (value >= 'A' && value <= 'F') return value - 'A' + 10;
+            if (value.Within('0', '9' + 1)) return value - '0';
+            if (value.Within('a', 'f' + 1)) return value - 'a' + 10;
+            if (value.Within('A', 'F' + 1)) return value - 'A' + 10;
             throw new FormatException("Invalid hex character.");
         }
     }
