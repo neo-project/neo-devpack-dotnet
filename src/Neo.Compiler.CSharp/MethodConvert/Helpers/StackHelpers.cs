@@ -238,6 +238,9 @@ internal partial class MethodConvert
 
     private Instruction PushDefault(ITypeSymbol type)
     {
+        if (type.TypeKind == TypeKind.Enum)
+            return AddInstruction(OpCode.PUSH0);
+
         return AddInstruction(type.GetStackItemType() switch
         {// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values
             VM.Types.StackItemType.Boolean => OpCode.PUSHF,
