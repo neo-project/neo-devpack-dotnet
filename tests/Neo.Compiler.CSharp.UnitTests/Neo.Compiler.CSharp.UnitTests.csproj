@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="GasBaselines\*.json" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="GasBaselines\**\*.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 </Project>

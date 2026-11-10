@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 {
     /// <summary>
     /// Process-wide collector that validates per-test measurements against version-controlled baselines
-    /// (GasBaselines/{assembly}.executions.json) and writes one report file per test.
+    /// (one JSON file per test class under GasBaselines/{assembly}) and writes one report file per test.
     /// Baselines are never modified unless a maintainer sets <see cref="GenerateDirectoryVariable"/> (refused in CI).
     /// </summary>
     public static class GasTrackingSession
@@ -57,8 +57,20 @@ namespace Neo.SmartContract.Testing.TestingStandards
             return _states.GetOrAdd(name, n =>
             {
                 var state = new AssemblyState();
-                var path = Path.Combine(AppContext.BaseDirectory, "GasBaselines", n + ".executions.json");
-                if (File.Exists(path)) state.Baseline = GasSnapshot.Load(path);
+                var dir = Path.Combine(AppContext.BaseDirectory, "GasBaselines", n);
+                if (Directory.Exists(dir))
+                {
+                    var files = Directory.GetFiles(dir, "*.json");
+                    Array.Sort(files, StringComparer.Ordinal);
+                    if (files.Length > 0)
+                    {
+                        var baseline = new GasSnapshot();
+                        foreach (var file in files)
+                            foreach (var kv in GasSnapshot.Load(file).Measurements)
+                                baseline.Record(kv.Key, kv.Value);
+                        state.Baseline = baseline;
+                    }
+                }
                 return state;
             });
         }

@@ -140,7 +140,7 @@ are not implemented, so Issue #8 is not fully complete.
 HALT and FAULT) into a per-test `AsyncLocal` scope (`GasExecutionTracker`). `TestBase<T>`
 starts the scope in `[TestInitialize]`, after the constructor has deployed the contract, so
 deployment is never measured. In `[TestCleanup]` the measurements are compared with
-`GasBaselines/<test assembly>.executions.json`:
+`GasBaselines/<test assembly>/*.json` (one file per test class; large classes are split into `<Class>.partNN.json`, and all files are merged on load):
 
 - An increase is a regression, a decrease is an accepted improvement.
 - A missing or unexpected execution fails the test.
@@ -157,7 +157,7 @@ nondeterministic executions.
 ```powershell
 $env:NEO_GAS_BASELINE_GENERATE_DIR = "$PWD\gen-tmp"
 dotnet test tests/<Project>
-./scripts/gas/merge-baseline.ps1 -InputDirectory gen-tmp/<Assembly> -Output tests/<Project>/GasBaselines/<Assembly>.executions.json
+-Output tests/<Project>/GasBaselines/<Assembly>
 ```
 
 Generation writes one file per test (parallel-safe) and is refused when `CI` or
