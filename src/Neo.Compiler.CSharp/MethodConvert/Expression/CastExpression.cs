@@ -53,137 +53,7 @@ internal partial class MethodConvert
             ?? (sType is not null ? model.ClassifyConversion(expression.Expression, tType).MethodSymbol : null);
         if (method is not null)
         {
-            if (method.Parameters.Length != 1)
-            {
-                CallMethodWithInstanceExpression(model, method, null, expression.Expression);
-            }
-            else
-            {
-                static bool RequiresCastIntegerRangeCheck(ITypeSymbol? sourceType, ITypeSymbol? targetType)
-                {
-                    if (sourceType is null || targetType is null)
-                        return false;
-
-                    sourceType = GetNonNullableValueType(sourceType);
-                    targetType = GetNonNullableValueType(targetType);
-                    if (sourceType is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } sourceEnum)
-                        sourceType = sourceEnum.EnumUnderlyingType;
-                    if (targetType is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } targetEnum)
-                        targetType = targetEnum.EnumUnderlyingType;
-
-                    return (sourceType.Name, targetType.Name) switch
-                    {
-                        ("SByte", "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
-                        ("Int16", "SByte" or "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
-                        ("Int32", "SByte" or "Int16" or "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
-                        ("Int64", "SByte" or "Int16" or "Int32" or "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
-                        ("Byte", "SByte" or "Char") => true,
-                        ("UInt16", "SByte" or "Int16" or "Byte" or "Char") => true,
-                        ("UInt32", "SByte" or "Int16" or "Int32" or "Byte" or "UInt16" or "Char") => true,
-                        ("UInt64", "SByte" or "Int16" or "Int32" or "Int64" or "Byte" or "UInt16" or "UInt32" or "Char") => true,
-                        ("Char", "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32" or "Int64" or "UInt64") => true,
-                        _ => false
-                    };
-                }
-
-                ITypeSymbol paramType = method.Parameters[0].Type;
-                ITypeSymbol returnType = method.ReturnType;
-                bool liftOrUnwrapSourceNullable = sType is not null
-                    && IsNullableValueType(sType) && paramType.IsValueType && !IsNullableValueType(paramType);
-                bool preRangeCheck = RequiresCastIntegerRangeCheck(sType, paramType);
-                bool postUnwrapNullable = IsNullableValueType(returnType) && tType.IsValueType && !IsNullableValueType(tType);
-                bool postRangeCheck = RequiresCastIntegerRangeCheck(returnType, tType);
-                if (!liftOrUnwrapSourceNullable && !preRangeCheck && !postUnwrapNullable && !postRangeCheck)
-                {
-                    CallMethodWithInstanceExpression(model, method, null, expression.Expression);
-                }
-                else
-                {
-                    ConvertExpression(model, expression.Expression);
-                    JumpTarget? methodNullableEnd = null;
-                    if (liftOrUnwrapSourceNullable)
-                    {
-                        AddInstruction(OpCode.DUP);
-                        AddInstruction(OpCode.ISNULL);
-                        if (IsNullableValueType(tType) || tType.IsReferenceType)
-                        {
-                            methodNullableEnd = new JumpTarget();
-                            Jump(OpCode.JMPIF_L, methodNullableEnd);
-                        }
-                        else
-                        {
-                            JumpTarget nonNull = new();
-                            Jump(OpCode.JMPIFNOT_L, nonNull);
-                            Throw();
-                            nonNull.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                    }
-
-                    if (preRangeCheck)
-                    {
-                        ITypeSymbol nonNullParamType = GetNonNullableValueType(paramType);
-                        if (sType is not null && IsNullableValueType(sType) && IsNullableValueType(paramType))
-                        {
-                            JumpTarget preRangeSkip = new();
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.ISNULL);
-                            Jump(OpCode.JMPIF_L, preRangeSkip);
-                            EnsureIntegerInRange(nonNullParamType);
-                            preRangeSkip.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        else
-                        {
-                            EnsureIntegerInRange(nonNullParamType);
-                        }
-                    }
-
-                    byte operandSlot = AddAnonymousVariable();
-                    AccessSlot(OpCode.STLOC, operandSlot);
-                    var previousInstanceExpression = _preEvaluatedInstanceExpression;
-                    var previousInstanceSlot = _preEvaluatedInstanceSlot;
-                    _preEvaluatedInstanceExpression = expression.Expression;
-                    _preEvaluatedInstanceSlot = operandSlot;
-                    try
-                    {
-                        CallMethodWithInstanceExpression(model, method, null, expression.Expression);
-                    }
-                    finally
-                    {
-                        _preEvaluatedInstanceExpression = previousInstanceExpression;
-                        _preEvaluatedInstanceSlot = previousInstanceSlot;
-                        RemoveAnonymousVariable(operandSlot);
-                    }
-
-                    if (postUnwrapNullable)
-                    {
-                        JumpTarget postNonNull = new();
-                        AddInstruction(OpCode.DUP);
-                        AddInstruction(OpCode.ISNULL);
-                        Jump(OpCode.JMPIFNOT_L, postNonNull);
-                        Throw();
-                        postNonNull.Instruction = AddInstruction(OpCode.NOP);
-                    }
-                    if (postRangeCheck)
-                    {
-                        ITypeSymbol nonNullTargetType = GetNonNullableValueType(tType);
-                        if (IsNullableValueType(returnType) && IsNullableValueType(tType))
-                        {
-                            JumpTarget postRangeSkip = new();
-                            AddInstruction(OpCode.DUP);
-                            AddInstruction(OpCode.ISNULL);
-                            Jump(OpCode.JMPIF_L, postRangeSkip);
-                            EnsureIntegerInRange(nonNullTargetType);
-                            postRangeSkip.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        else
-                        {
-                            EnsureIntegerInRange(nonNullTargetType);
-                        }
-                    }
-                    if (methodNullableEnd is not null)
-                        methodNullableEnd.Instruction = AddInstruction(OpCode.NOP);
-                }
-            }
+            ConvertMethodBackedCast(model, expression.Expression, sType, tType, method);
             return;
         }
 
@@ -330,6 +200,130 @@ internal partial class MethodConvert
 
         if (nullableEnd is not null)
             nullableEnd.Instruction = AddInstruction(OpCode.NOP);
+    }
+
+    private void ConvertMethodBackedCast(SemanticModel model, ExpressionSyntax operand,
+        ITypeSymbol? sourceType, ITypeSymbol targetType, IMethodSymbol method)
+    {
+        if (method.Parameters.Length != 1)
+        {
+            CallMethodWithInstanceExpression(model, method, null, operand);
+            return;
+        }
+
+        ITypeSymbol parameterType = method.Parameters[0].Type;
+        ITypeSymbol returnType = method.ReturnType;
+        bool unwrapSource = sourceType is not null && IsNullableValueType(sourceType)
+            && parameterType.IsValueType && !IsNullableValueType(parameterType);
+        bool checkParameterRange = RequiresCastIntegerRangeCheck(sourceType, parameterType);
+        bool unwrapResult = IsNullableValueType(returnType)
+            && targetType.IsValueType && !IsNullableValueType(targetType);
+        bool checkResultRange = RequiresCastIntegerRangeCheck(returnType, targetType);
+
+        if (!unwrapSource && !checkParameterRange && !unwrapResult && !checkResultRange)
+        {
+            CallMethodWithInstanceExpression(model, method, null, operand);
+            return;
+        }
+
+        ConvertExpression(model, operand);
+        JumpTarget? nullableEnd = unwrapSource ? GuardNullableCastValue(targetType) : null;
+
+        if (checkParameterRange)
+            EnsureCastIntegerInRange(sourceType, parameterType);
+
+        CallMethodWithPreEvaluatedOperand(model, method, operand);
+
+        if (unwrapResult)
+            GuardNullableCastValue(targetType);
+        if (checkResultRange)
+            EnsureCastIntegerInRange(returnType, targetType);
+
+        if (nullableEnd is not null)
+            nullableEnd.Instruction = AddInstruction(OpCode.NOP);
+    }
+
+    private JumpTarget? GuardNullableCastValue(ITypeSymbol targetType)
+    {
+        AddInstruction(OpCode.DUP);
+        AddInstruction(OpCode.ISNULL);
+        if (IsNullableValueType(targetType) || targetType.IsReferenceType)
+        {
+            JumpTarget nullableEnd = new();
+            Jump(OpCode.JMPIF_L, nullableEnd);
+            return nullableEnd;
+        }
+
+        JumpTarget nonNull = new();
+        Jump(OpCode.JMPIFNOT_L, nonNull);
+        Throw();
+        nonNull.Instruction = AddInstruction(OpCode.NOP);
+        return null;
+    }
+
+    private void EnsureCastIntegerInRange(ITypeSymbol? sourceType, ITypeSymbol targetType)
+    {
+        ITypeSymbol nonNullTargetType = GetNonNullableValueType(targetType);
+        if (sourceType is null || !IsNullableValueType(sourceType) || !IsNullableValueType(targetType))
+        {
+            EnsureIntegerInRange(nonNullTargetType);
+            return;
+        }
+
+        JumpTarget nullValue = new();
+        AddInstruction(OpCode.DUP);
+        AddInstruction(OpCode.ISNULL);
+        Jump(OpCode.JMPIF_L, nullValue);
+        EnsureIntegerInRange(nonNullTargetType);
+        nullValue.Instruction = AddInstruction(OpCode.NOP);
+    }
+
+    private void CallMethodWithPreEvaluatedOperand(SemanticModel model, IMethodSymbol method,
+        ExpressionSyntax operand)
+    {
+        byte operandSlot = AddAnonymousVariable();
+        AccessSlot(OpCode.STLOC, operandSlot);
+        var previousInstanceExpression = _preEvaluatedInstanceExpression;
+        var previousInstanceSlot = _preEvaluatedInstanceSlot;
+        _preEvaluatedInstanceExpression = operand;
+        _preEvaluatedInstanceSlot = operandSlot;
+        try
+        {
+            CallMethodWithInstanceExpression(model, method, null, operand);
+        }
+        finally
+        {
+            _preEvaluatedInstanceExpression = previousInstanceExpression;
+            _preEvaluatedInstanceSlot = previousInstanceSlot;
+            RemoveAnonymousVariable(operandSlot);
+        }
+    }
+
+    private static bool RequiresCastIntegerRangeCheck(ITypeSymbol? sourceType, ITypeSymbol? targetType)
+    {
+        if (sourceType is null || targetType is null)
+            return false;
+
+        sourceType = GetNonNullableValueType(sourceType);
+        targetType = GetNonNullableValueType(targetType);
+        if (sourceType is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } sourceEnum)
+            sourceType = sourceEnum.EnumUnderlyingType;
+        if (targetType is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } targetEnum)
+            targetType = targetEnum.EnumUnderlyingType;
+
+        return (sourceType.Name, targetType.Name) switch
+        {
+            ("SByte", "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
+            ("Int16", "SByte" or "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
+            ("Int32", "SByte" or "Int16" or "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
+            ("Int64", "SByte" or "Int16" or "Int32" or "Byte" or "UInt16" or "UInt32" or "UInt64" or "Char") => true,
+            ("Byte", "SByte" or "Char") => true,
+            ("UInt16", "SByte" or "Int16" or "Byte" or "Char") => true,
+            ("UInt32", "SByte" or "Int16" or "Int32" or "Byte" or "UInt16" or "Char") => true,
+            ("UInt64", "SByte" or "Int16" or "Int32" or "Int64" or "Byte" or "UInt16" or "UInt32" or "Char") => true,
+            ("Char", "SByte" or "Byte" or "Int16" or "UInt16" or "Int32" or "UInt32" or "Int64" or "UInt64") => true,
+            _ => false
+        };
     }
 
     private bool TryConvertConstantByteArrayToByteString(SemanticModel model, ExpressionSyntax expression)
