@@ -501,9 +501,16 @@ internal partial class MethodConvert
 
     private void CopyConvertedStructValue(SemanticModel model, ExpressionSyntax? value, ITypeSymbol type)
     {
-        // A lifted operator leaves null on the stack when its nullable input is null.
-        var resultType = value is not null && model.GetConversion(value).IsUserDefined
-            ? model.GetTypeInfo(value).ConvertedType : null;
+        // A lifted operator leaves null on the stack when its nullable input is null. A nullable
+        // struct conversion (implicit or explicit) can leave null as well, so guard the copy
+        // whenever the resulting value is nullable, not only for user-defined operators.
+        ITypeSymbol? resultType = null;
+        if (value is not null)
+        {
+            var convertedType = model.GetTypeInfo(value).ConvertedType;
+            if (model.GetConversion(value).IsUserDefined || IsNullableValueType(convertedType))
+                resultType = convertedType;
+        }
         EmitLiftedUnaryOperation(resultType, () => CopyStructValue(type));
     }
 
@@ -516,12 +523,27 @@ internal partial class MethodConvert
             // the source struct layout. Do not copy the operator result using its input layout.
             if (conversion.IsUserDefined && conversion.MethodSymbol is { } method &&
                 value.Parent is not (ParenthesizedExpressionSyntax or CastExpressionSyntax))
-                return method.ReturnType.IsStructArray() ? method.ReturnType : null;
+            {
+                var operatorReturn = GetNonNullableValueType(method.ReturnType);
+                return operatorReturn.IsStructArray() ? operatorReturn : null;
+            }
 
+            // A nullable struct (Point?) stores the underlying struct layout, so unwrap it before
+            // deciding whether a copy is needed; an explicit (Point?)p cast reports Point? here.
             var sourceType = model.GetTypeInfo(value).Type;
-            if (sourceType?.IsStructArray() == true)
-                return sourceType;
+            if (sourceType is not null)
+            {
+                var underlying = GetNonNullableValueType(sourceType);
+                if (underlying.IsStructArray())
+                    return underlying;
+            }
         }
-        return targetType?.IsStructArray() == true ? targetType : null;
+        if (targetType is not null)
+        {
+            var underlyingTarget = GetNonNullableValueType(targetType);
+            if (underlyingTarget.IsStructArray())
+                return underlyingTarget;
+        }
+        return null;
     }
 }

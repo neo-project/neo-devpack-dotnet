@@ -59,6 +59,10 @@ public class UnitTest_StructValueBoundaries
     [DataRow("MutatingAmount a = new MutatingAmount { Value = 7 }; int result = a; return a.Value * 1000 + result;", 7007)]
     [DataRow("MutatingAmount a = new MutatingAmount { Value = 7 }; int result = (int)a; return a.Value * 1000 + result;", 7007)]
     [DataRow("MutatingAmount? a = new MutatingAmount { Value = 7 }; int? result = a; return ((MutatingAmount)a).Value * 1000 + (int)result;", 7007)]
+    [DataRow("var p = new Point { X = 7 }; var copy = (Point?)p; p.X = 99; return ((Point)copy).X * 1000 + p.X;", 7099)]
+    [DataRow("Point? value = null; Point? copy = (Point?)value; return copy == null ? 0 : 1;", 0)]
+    [DataRow("object boxed = new Point { X = 7 }; ((Point)boxed).SetX(99); return ((Point)boxed).X;", 7)]
+    [DataRow("object boxed = new Point { X = 7 }; Point? copy = (Point?)boxed; ((Point)copy).SetX(99); return ((Point)boxed).X;", 7)]
     public void StructCopiesRemainIndependentAcrossBoundaries(string body, int expected)
     {
         foreach (var optimization in new[] { CompilationOptions.OptimizationType.None, CompilationOptions.OptimizationType.Basic, CompilationOptions.OptimizationType.All })
