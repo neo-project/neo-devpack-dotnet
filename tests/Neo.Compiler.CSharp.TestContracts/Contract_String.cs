@@ -92,6 +92,28 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.StartsWith("/");
         }
 
+        public static bool TestStartsWith2(string str)
+        {
+            return str.StartsWith("ab");
+        }
+
+        public static bool TestStartsWithPrefix(string str, string prefix) => str.StartsWith(prefix);
+
+        public static bool TestStartsWith50(string str)
+        {
+            return str.StartsWith("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        }
+
+        public static bool TestStartsWithUtf8(string str)
+        {
+            return str.StartsWith("éx");
+        }
+
+        public static bool TestStartsWithEmbeddedNull(string str)
+        {
+            return str.StartsWith("a\0b");
+        }
+
         public static int TestCompare(string left, string right)
         {
             return string.Compare(left, right);
@@ -100,6 +122,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int TestIndexOf(string str)
         {
             return str.IndexOf("world");
+        }
+
+        public static int TestIndexOfEmpty(string value)
+        {
+            return value.IndexOf("");
         }
 
         public static int TestLastIndexOf(string str)
@@ -362,6 +389,56 @@ namespace Neo.Compiler.CSharp.TestContracts
             builder.Clear();
             builder.AppendLine("neo");
             builder.Append("contracts");
+            return builder.ToString();
+        }
+
+        public static string TestStringBuilderAppendLineConstants(string dynamicValue)
+        {
+            const string message = "Neo";
+            var builder = new StringBuilder("start:");
+            builder.AppendLine("Hello");
+            builder.AppendLine("");
+            builder.AppendLine("Hello" + " World");
+            builder.AppendLine(message);
+            builder.AppendLine("héllo 你好 \0 end");
+            builder.AppendLine(dynamicValue);
+            builder.AppendLine((string?)null);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineHello()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("Hello");
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineEmpty()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("");
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineConstString()
+        {
+            const string message = "Neo";
+            var builder = new StringBuilder("a");
+            builder.AppendLine(message);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineDynamic(string value)
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine(value);
+            return builder.ToString();
+        }
+
+        public static string TestAppendLineLong()
+        {
+            var builder = new StringBuilder("a");
+            builder.AppendLine("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
             return builder.ToString();
         }
 

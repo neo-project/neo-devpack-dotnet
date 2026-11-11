@@ -57,16 +57,18 @@ internal partial class MethodConvert
 
     private byte AddPermanentAnonymousVariable()
     {
+        // The depth initialization is inserted earlier than this allocation point, so a
+        // previously used slot could still be written before the depth is restored.
         RequireByteSizedSlotCount(Symbol, _localsCount + 1, "local slots");
         byte index = (byte)_localsCount;
-        _anonymousVariables.Add(index);
+        _permanentAnonymousVariables.Add(index);
         _localsCount++;
         return index;
     }
 
     private byte GetAvailableVariableSlot()
     {
-        int preferredIndex = _localVariables.Count + _anonymousVariables.Count;
+        int preferredIndex = _localVariables.Count + _anonymousVariables.Count + _permanentAnonymousVariables.Count;
         RequireByteSizedSlotCount(Symbol, preferredIndex + 1, "local slots");
 
         Span<bool> occupied = stackalloc bool[byte.MaxValue + 1];
@@ -74,6 +76,8 @@ internal partial class MethodConvert
         foreach (byte index in _localVariables.Values)
             occupied[index] = true;
         foreach (byte index in _anonymousVariables)
+            occupied[index] = true;
+        foreach (byte index in _permanentAnonymousVariables)
             occupied[index] = true;
 
         if (!occupied[preferredIndex])

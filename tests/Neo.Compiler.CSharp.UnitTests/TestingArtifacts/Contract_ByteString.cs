@@ -13,16 +13,62 @@ public abstract class Contract_ByteString(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteString"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""literal00ToFF"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""literalWithOtherChar"",""parameters"":[],""returntype"":""ByteArray"",""offset"":260,""safe"":false},{""name"":""textElementCount"",""parameters"":[{""name"":""value"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":274,""safe"":false},{""name"":""startsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":289,""safe"":false},{""name"":""endsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":308,""safe"":false},{""name"":""contains"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":380,""safe"":false},{""name"":""indexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":399,""safe"":false},{""name"":""lastIndexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":416,""safe"":false},{""name"":""split"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""separator"",""type"":""ByteArray""},{""name"":""removeEmptyEntries"",""type"":""Boolean""}],""returntype"":""Array"",""offset"":437,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""memorySearch"",""stringSplit"",""strLen""]}],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteString"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""literal00ToFF"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""literalWithOtherChar"",""parameters"":[],""returntype"":""ByteArray"",""offset"":260,""safe"":false},{""name"":""textElementCount"",""parameters"":[{""name"":""value"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":274,""safe"":false},{""name"":""startsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":289,""safe"":false},{""name"":""endsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":319,""safe"":false},{""name"":""contains"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":349,""safe"":false},{""name"":""indexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":368,""safe"":false},{""name"":""lastIndexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":385,""safe"":false},{""name"":""split"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""separator"",""type"":""ByteArray""},{""name"":""removeEmptyEntries"",""type"":""Boolean""}],""returntype"":""Array"",""offset"":406,""safe"":false},{""name"":""byteStringSub"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""start"",""type"":""Integer""},{""name"":""count"",""type"":""Integer""}],""returntype"":""ByteArray"",""offset"":425,""safe"":false},{""name"":""byteStringTake"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""count"",""type"":""Integer""}],""returntype"":""ByteArray"",""offset"":435,""safe"":false},{""name"":""byteStringLast"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""count"",""type"":""Integer""}],""returntype"":""ByteArray"",""offset"":444,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""memorySearch"",""stringSplit"",""strLen""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXA7znO4OTpJcbCoGp54UQN2G/OrAZzdHJMZW4BAAEFwO85zuDk6SXGwqBqeeFEDdhvzqwMbWVtb3J5U2VhcmNoAgABBcDvOc7g5OklxsKgannhRA3Yb86sDG1lbW9yeVNlYXJjaAMAAQXA7znO4OTpJcbCoGp54UQN2G/OrAxtZW1vcnlTZWFyY2gEAAEFwO85zuDk6SXGwqBqeeFEDdhvzqwLc3RyaW5nU3BsaXQDAAEFAAD9yAENAAEAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/QAwL5L2g5aW9AMKAw79AVwABeDQDQFcAAXg3AABAVwACeXg0A0BXAAJ5eDcBALGqQFcAAnl4NANAVwECecokBAhAeMp5yp9KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waBC1JgQJQGh5eDcCAGizQFcAAnl4NANAVwACeXg3AQAPtEBXAAJ5eDQDQFcAAnl4NwEAQFcAAnl4NANAVwACeHl4yghUNwMAQFcAA3p5eDQDQFcAA3p5eDcEAEAXzBBz").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATA7znO4OTpJcbCoGp54UQN2G/OrAZzdHJMZW4BAAEFwO85zuDk6SXGwqBqeeFEDdhvzqwMbWVtb3J5U2VhcmNoAgABBcDvOc7g5OklxsKgannhRA3Yb86sDG1lbW9yeVNlYXJjaAQAAQXA7znO4OTpJcbCoGp54UQN2G/OrAtzdHJpbmdTcGxpdAMAAQUAAP3FAQ0AAQABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX5/gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f4OHi4+Tl5ufo6err7O3u7/Dx8vP09fb3+Pn6+/z9/v9ADAvkvaDlpb0AwoDDv0BXAAF4NANAVwABeDcAAEBXAAJ5eDQDQFcBAnnKcGh4yrcmBAlAeGiN2yh5l0BXAAJ5eDQDQFcBAnnKcGh4yrcmBAlAeGiO2yh5l0BXAAJ5eDQDQFcAAnl4NwEAD7RAVwACeXg0A0BXAAJ5eDcBAEBXAAJ5eDQDQFcAAnh5eMoIVDcCAEBXAAN6eXg0A0BXAAN6eXg3AwBAVwADeHl6jNsoQFcAAnh5jdsoQFcAAnh5jtsoQA0VKOM=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
     #region Unsafe methods
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmO2yhA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// RIGHT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("byteStringLast")]
+    public abstract byte[]? ByteStringLast(byte[]? value, BigInteger? count);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6jNsoQA==
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// SUBSTR [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("byteStringSub")]
+    public abstract byte[]? ByteStringSub(byte[]? value, BigInteger? start, BigInteger? count);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmN2yhA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LEFT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("byteStringTake")]
+    public abstract byte[]? ByteStringTake(byte[]? value, BigInteger? count);
 
     /// <summary>
     /// Unsafe method

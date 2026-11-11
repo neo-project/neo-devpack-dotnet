@@ -242,6 +242,8 @@ internal partial class MethodConvert
         // fault on the VM, so the default value has to be a zero-initialized struct of the same shape.
         if (type.IsStructArray())
             return CreateDefaultStruct(type);
+        if (type.TypeKind == TypeKind.Enum)
+            return AddInstruction(OpCode.PUSH0);
 
         return AddInstruction(type.GetStackItemType() switch
         {// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values

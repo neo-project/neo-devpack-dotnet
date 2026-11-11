@@ -72,6 +72,25 @@ jobs:
           </ItemGroup>
         </Project>
         EOF
+        cat > ./out/analyzer-consumer/NuGet.Config <<EOF
+        <?xml version="1.0" encoding="utf-8"?>
+        <configuration>
+          <packageSources>
+            <clear />
+            <add key="local" value="$(pwd)/out/analyzer-package" />
+            <add key="NuGet.org" value="https://api.nuget.org/v3/index.json" />
+          </packageSources>
+          <packageSourceMapping>
+            <clear />
+            <packageSource key="local">
+              <package pattern="Neo.SmartContract.Analyzer" />
+            </packageSource>
+            <packageSource key="NuGet.org">
+              <package pattern="*" />
+            </packageSource>
+          </packageSourceMapping>
+        </configuration>
+        EOF
         cat > ./out/analyzer-consumer/Contract.cs <<'EOF'
         using System;
 
@@ -80,9 +99,7 @@ jobs:
             public DateTime ReadClock() => DateTime.Now;
         }
         EOF
-        dotnet restore ./out/analyzer-consumer/AnalyzerConsumer.csproj \
-          --source ./out/analyzer-package \
-          --source https://api.nuget.org/v3/index.json
+        dotnet restore ./out/analyzer-consumer/AnalyzerConsumer.csproj
         set +e
         dotnet build ./out/analyzer-consumer/AnalyzerConsumer.csproj \
           --no-restore \

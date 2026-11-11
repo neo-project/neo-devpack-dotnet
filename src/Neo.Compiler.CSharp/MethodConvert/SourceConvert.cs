@@ -102,6 +102,17 @@ internal partial class MethodConvert
 
     private void InitializeByRefCapturedParameters()
     {
+        // Extension block receivers are registered at argument slot 0, but are not
+        // included in Symbol.Parameters. Initialize their captured field as well.
+        if (NeedInstanceConstructor(Symbol) &&
+            TryGetExtensionReceiverParameter(out IParameterSymbol? receiverParameter) &&
+            receiverParameter is not null &&
+            _context.TryGetCapturedStaticField(receiverParameter, out byte receiverFieldIndex))
+        {
+            AccessSlot(OpCode.LDARG, _parameters[receiverParameter]);
+            AccessSlot(OpCode.STSFLD, receiverFieldIndex);
+        }
+
         foreach (IParameterSymbol parameter in Symbol.Parameters)
         {
             if (IsByRef(parameter.RefKind) ||

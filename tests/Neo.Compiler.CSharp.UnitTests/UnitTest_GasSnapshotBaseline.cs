@@ -27,8 +27,8 @@ public class UnitTest_GasSnapshotBaseline : DebugAndTestBase<Contract_String>
 
         var baseline = GasSnapshot.FromJson("""
             {
-              "string-builder-basic": 2662530,
-              "string-builder-clear": 1978440,
+              "string-builder-basic": 2600550,
+              "string-builder-clear": 1916460,
               "string-builder-length": 2665110
             }
             """);

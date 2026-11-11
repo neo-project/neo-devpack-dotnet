@@ -10,31 +10,38 @@
 // modifications are permitted.
 
 using System;
+using System.Numerics;
 using Neo.SmartContract.Framework.Native;
 
 namespace Neo.SmartContract.Framework.Helpers
 {
     internal static class ParseHelper
     {
-        private static int GetHexPrefixLength(byte[] valueBytes)
+        private static int GetHexPrefixLength(ByteString value)
         {
-            if (valueBytes.Length < 2) return 0;
-            return valueBytes[0] == (byte)'0' && (valueBytes[1] == (byte)'x' || valueBytes[1] == (byte)'X') ? 2 : 0;
+            if (value.Length < 2) return 0;
+            if (value[0] != (byte)'0') return 0;
+
+            byte second = value[1];
+            return (second == (byte)'x' || second == (byte)'X') ? 2 : 0;
         }
 
-        internal static byte[] ParseHex(byte[] valueBytes)
+        internal static byte[] ParseHex(ByteString value)
         {
-            var offset = GetHexPrefixLength(valueBytes);
-            if ((valueBytes.Length - offset) % 2 != 0)
+            var offset = GetHexPrefixLength(value);
+            var rawLength = (BigInteger)value.Length - offset;
+            if (rawLength % 2 != 0)
                 throw new FormatException("Invalid hex string length.");
 
-            var expectedLength = (valueBytes.Length - offset) / 2;
-            var result = new byte[expectedLength];
+            var expectedLength = rawLength / 2;
+            var result = new byte[(int)expectedLength];
+            BigInteger index = offset;
             for (int i = 0; i < expectedLength; i++)
             {
-                byte high = FromHexByte(valueBytes[offset + i * 2]);
-                byte low = FromHexByte(valueBytes[offset + i * 2 + 1]);
+                var high = FromHexByte(value[index]);
+                var low = FromHexByte(value[index + 1]);
                 result[i] = (byte)((high << 4) | low);
+                index += 2;
             }
             return result;
         }
@@ -51,11 +58,11 @@ namespace Neo.SmartContract.Framework.Helpers
             return Helper.Range(decoded, 1, decoded.Length - 1);
         }
 
-        private static byte FromHexByte(byte value)
+        private static BigInteger FromHexByte(BigInteger value)
         {
-            if (value >= (byte)'0' && value <= (byte)'9') return (byte)(value - (byte)'0');
-            if (value >= (byte)'a' && value <= (byte)'f') return (byte)(value - (byte)'a' + 10);
-            if (value >= (byte)'A' && value <= (byte)'F') return (byte)(value - (byte)'A' + 10);
+            if (value.Within('0', '9' + 1)) return value - '0';
+            if (value.Within('a', 'f' + 1)) return value - 'a' + 10;
+            if (value.Within('A', 'F' + 1)) return value - 'A' + 10;
             throw new FormatException("Invalid hex character.");
         }
     }

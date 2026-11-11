@@ -13,12 +13,12 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_OperatorOverload"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""equalityUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""inequalityUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":118,""safe"":false},{""name"":""relationalUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":200,""safe"":false},{""name"":""arithmeticUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":273,""safe"":false},{""name"":""implicitConversionCallsOperator"",""parameters"":[],""returntype"":""Integer"",""offset"":742,""safe"":false},{""name"":""explicitConversionCallsOperator"",""parameters"":[],""returntype"":""Integer"",""offset"":899,""safe"":false},{""name"":""chainedOperators"",""parameters"":[],""returntype"":""Integer"",""offset"":1012,""safe"":false},{""name"":""compoundAssignment"",""parameters"":[],""returntype"":""Integer"",""offset"":1143,""safe"":false},{""name"":""compoundAssignmentAppliesOutConversion"",""parameters"":[],""returntype"":""Integer"",""offset"":1366,""safe"":false},{""name"":""nullableCompoundAssignmentAppliesOutConversion"",""parameters"":[{""name"":""hasValue"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":1525,""safe"":false},{""name"":""incrementDecrement"",""parameters"":[],""returntype"":""Integer"",""offset"":1609,""safe"":false},{""name"":""compoundAssignmentOnElement"",""parameters"":[],""returntype"":""Integer"",""offset"":2091,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_OperatorOverload"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""equalityUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""inequalityUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":118,""safe"":false},{""name"":""relationalUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":200,""safe"":false},{""name"":""arithmeticUsesOperatorBody"",""parameters"":[],""returntype"":""Integer"",""offset"":273,""safe"":false},{""name"":""implicitConversionCallsOperator"",""parameters"":[],""returntype"":""Integer"",""offset"":742,""safe"":false},{""name"":""explicitConversionCallsOperator"",""parameters"":[],""returntype"":""Integer"",""offset"":899,""safe"":false},{""name"":""chainedOperators"",""parameters"":[],""returntype"":""Integer"",""offset"":1012,""safe"":false},{""name"":""compoundAssignment"",""parameters"":[],""returntype"":""Integer"",""offset"":1143,""safe"":false},{""name"":""compoundAssignmentAppliesOutConversion"",""parameters"":[],""returntype"":""Integer"",""offset"":1366,""safe"":false},{""name"":""nullableCompoundAssignmentAppliesOutConversion"",""parameters"":[{""name"":""hasValue"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":1525,""safe"":false},{""name"":""incrementDecrement"",""parameters"":[],""returntype"":""Integer"",""offset"":1598,""safe"":false},{""name"":""compoundAssignmentOnElement"",""parameters"":[],""returntype"":""Integer"",""offset"":2080,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3hCFcCABAQEr8TFxJNNEdwEBASvxkXEk00PHFoaVA0RCYFESIDEGhpUDREJgUSIgMQnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAN5eBBR0Hp4EVHQQFcAAngQznkQzrNAVwACeBDOeRDOtEBXAgAQEBK/ExcSTTTRcBAQEr8TGBJNNMZxaGlQNNkmBREiAxBoaVA0wyYFEiIDEJ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwIAEBASvxkXEk01f////3AQEBK/ERgSTTVx////cWhpUDQRJgQRQGhpUDQTJgQSQBNAVwACeBDOeRDOtUBXAAJ4EM55EM63QFcEABAQEr8TFxJNNTb///9wEBASvxIREk01KP///3FoaVA13wAAABBNEc4RTRDOEr9GcmhpUDU1AQAAEE0RzhFNEM4Sv0ZzahDOAGSgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfahHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2sQzhqgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2sRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACEBASv3gRznkRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ94EM55EM6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfEk015/3//xBNEc4RTRDOEr9GQFcAAhAQEr94Ec55Ec6fSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfeBDOeRDOn0rKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNX39//8QTRHOEU0QzhK/RkBXAQAXNFsQTRHOEU0QzhK/RnBoEM4AZKBKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAARAQEr94nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3gSTTXg/P//EE0RzhFNEM4Sv0ZAVwEAEBASvxMXEk01xPz//3BoEE0RzhFNEM4Sv0Y0A0BXAAF4EM4B6AOgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfeBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAQAXNU3///8QTRHOEU0QzhK/RnBoEBASvxEREk01QPz//1A1+v3//xBNEc4RTRDOEr9GcGgQTRHOEU0QzhK/RjVu////aBAQEr8ZGBJNNQ/8//9QNRf8//8mBREiAxCeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcBABAQEr8UFxJNNdD7//9waBAQEr8SERJNNcH7//9QNXv9//9waBJQNFBwaBDOAGSgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAIQEBK/eBHOeaBKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ94EM55oErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNQ37//8QTRHOEU0QzhK/RkBXAQAQEBK/EBISTTXx+v//cGgTUDQJNEdwaBDOQFcAAhARv3gQznmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSzQKEE0QzhG/RkBXAAJ5eBBR0EBXAAEQEBK/EHgQzgBknkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNW76//8QTRHOEU0QzhK/RkBXAgF4JhEQEBK/EBISTTVP+v//IgMLStgkDRBNEc4RTRDOEr9GcGgTS9gkFUrYJAxQNU3///80iCIKRUULIgVFRQtwaHFp2CYED0BoStgmAzoQzkBXAwAQEBK/EBcSTTX++f//cGhKNQUBAABwEE0RzhFNEM4Sv0ZxaDVXAQAASnAQTRHOEU0QzhK/RnJpEM4BECegSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfaRHOAGSgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2oQzhqgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2oRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwABEBASv3gRzhqeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfeBDOnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNZ34//8QTRHOEU0QzhK/RkBXAAEQEBK/eBHOFZ9KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ94EM6dSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfEk01OPj//xBNEc4RTRDOEr9GQFcBABAQEr8UFxJNNRz4//8QEBK/ERESTTUP+P//UBLAcGgQS0vOEBASvxIREk01+ff//1A1s/n//0pUU9BFaBDOEM4AZKBKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9oEM4Rzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9oEc4Qzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AuId9NA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3WCFcCABAQEr8TFxJNNEdwEBASvxkXEk00PHFoaVA0RCYFESIDEGhpUDREJgUSIgMQnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAN5eBBR0Hp4EVHQQFcAAngQznkQzrNAVwACeBDOeRDOtEBXAgAQEBK/ExcSTTTRcBAQEr8TGBJNNMZxaGlQNNkmBREiAxBoaVA0wyYFEiIDEJ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwIAEBASvxkXEk01f////3AQEBK/ERgSTTVx////cWhpUDQRJgQRQGhpUDQTJgQSQBNAVwACeBDOeRDOtUBXAAJ4EM55EM63QFcEABAQEr8TFxJNNTb///9wEBASvxIREk01KP///3FoaVA13wAAABBNEc4RTRDOEr9GcmhpUDU1AQAAEE0RzhFNEM4Sv0ZzahDOAGSgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfahHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2sQzhqgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2sRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACEBASv3gRznkRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ94EM55EM6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfEk015/3//xBNEc4RTRDOEr9GQFcAAhAQEr94Ec55Ec6fSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfeBDOeRDOn0rKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNX39//8QTRHOEU0QzhK/RkBXAQAXNFsQTRHOEU0QzhK/RnBoEM4AZKBKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAARAQEr94nErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3gSTTXg/P//EE0RzhFNEM4Sv0ZAVwEAEBASvxMXEk01xPz//3BoEE0RzhFNEM4Sv0Y0A0BXAAF4EM4B6AOgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfeBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAQAXNU3///8QTRHOEU0QzhK/RnBoEBASvxEREk01QPz//1A1+v3//xBNEc4RTRDOEr9GcGgQTRHOEU0QzhK/RjVu////aBAQEr8ZGBJNNQ/8//9QNRf8//8mBREiAxCeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcBABAQEr8UFxJNNdD7//9waBAQEr8SERJNNcH7//9QNXv9//9waBJQNFBwaBDOAGSgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAIQEBK/eBHOeaBKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ94EM55oErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNQ37//8QTRHOEU0QzhK/RkBXAQAQEBK/EBISTTXx+v//cGgTUDQJNEdwaBDOQFcAAhARv3gQznmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSzQKEE0QzhG/RkBXAAJ5eBBR0EBXAAEQEBK/EHgQzgBknkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNW76//8QTRHOEU0QzhK/RkBXAgF4JhEQEBK/EBISTTVP+v//IgMLStgkDRBNEc4RTRDOEr9GcGgTS9gkDFA1Uf///zSMIgNFcGhxadgmBA9AaErYJgM6EM5AVwMAEBASvxAXEk01Cfr//3BoSjUFAQAAcBBNEc4RTRDOEr9GcWg1VwEAAEpwEE0RzhFNEM4Sv0ZyaRDOARAnoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2kRzgBkoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9qEM4aoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9qEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAARAQEr94Ec4ankrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3gQzpxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8STTWo+P//EE0RzhFNEM4Sv0ZAVwABEBASv3gRzhWfSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfeBDOnUrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxJNNUP4//8QTRHOEU0QzhK/RkBXAQAQEBK/FBcSTTUn+P//EBASvxEREk01Gvj//1ASwHBoEEtLzhAQEr8SERJNNQT4//9QNb75//9KVFPQRWgQzhDOAGSgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfaBDOEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfaBHOEM6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQLlOt0c=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -355,7 +355,7 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEBASvxQXEk01HPj//xAQEr8RERJNNQ/4//9QEsBwaBBLS84QEBK/EhESTTX59///UDWz+f//SlRT0EVoEM4QzgBkoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2gQzhHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2gRzhDOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// Script: VwEAEBASvxQXEk01J/j//xAQEr8RERJNNRr4//9QEsBwaBBLS84QEBK/EhESTTUE+P//UDW++f//SlRT0EVoEM4QzgBkoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2gQzhHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2gRzhDOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -365,7 +365,7 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// PUSH7 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PICK [2 datoshi]
-    /// CALL_L 1CF8FFFF [512 datoshi]
+    /// CALL_L 27F8FFFF [512 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH2 [1 datoshi]
@@ -374,7 +374,7 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// PUSH1 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PICK [2 datoshi]
-    /// CALL_L 0FF8FFFF [512 datoshi]
+    /// CALL_L 1AF8FFFF [512 datoshi]
     /// SWAP [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACK [2048 datoshi]
@@ -392,9 +392,9 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// PUSH1 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PICK [2 datoshi]
-    /// CALL_L F9F7FFFF [512 datoshi]
+    /// CALL_L 04F8FFFF [512 datoshi]
     /// SWAP [2 datoshi]
-    /// CALL_L B3F9FFFF [512 datoshi]
+    /// CALL_L BEF9FFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// REVERSE4 [2 datoshi]
     /// REVERSE3 [2 datoshi]
@@ -610,7 +610,7 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMAEBASvxAXEk01/vn//3BoSjUFAQAAcBBNEc4RTRDOEr9GcWg1VwEAAEpwEE0RzhFNEM4Sv0ZyaRDOARAnoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2kRzgBkoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9qEM4aoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9qEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQA==
+    /// Script: VwMAEBASvxAXEk01Cfr//3BoSjUFAQAAcBBNEc4RTRDOEr9GcWg1VwEAAEpwEE0RzhFNEM4Sv0ZyaRDOARAnoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2kRzgBkoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9qEM4aoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9qEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQA==
     /// INITSLOT 0300 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -620,7 +620,7 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// PUSH7 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PICK [2 datoshi]
-    /// CALL_L FEF9FFFF [512 datoshi]
+    /// CALL_L 09FAFFFF [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// DUP [2 datoshi]
@@ -809,7 +809,7 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBeCYREBASvxASEk01T/r//yIDC0rYJA0QTRHOEU0QzhK/RnBoE0vYJBVK2CQMUDVN////NIgiCkVFCyIFRUULcGhxadgmBA9AaErYJgM6EM5A
+    /// Script: VwIBeCYREBASvxASEk01T/r//yIDC0rYJA0QTRHOEU0QzhK/RnBoE0vYJAxQNVH///80jCIDRXBocWnYJgQPQGhK2CYDOhDOQA==
     /// INITSLOT 0201 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// JMPIFNOT 11 [2 datoshi]
@@ -843,21 +843,12 @@ public abstract class Contract_OperatorOverload(Neo.SmartContract.Testing.SmartC
     /// PUSH3 [1 datoshi]
     /// OVER [2 datoshi]
     /// ISNULL [2 datoshi]
-    /// JMPIF 15 [2 datoshi]
-    /// DUP [2 datoshi]
-    /// ISNULL [2 datoshi]
     /// JMPIF 0C [2 datoshi]
     /// SWAP [2 datoshi]
-    /// CALL_L 4DFFFFFF [512 datoshi]
-    /// CALL 88 [512 datoshi]
-    /// JMP 0A [2 datoshi]
+    /// CALL_L 51FFFFFF [512 datoshi]
+    /// CALL 8C [512 datoshi]
+    /// JMP 03 [2 datoshi]
     /// DROP [2 datoshi]
-    /// DROP [2 datoshi]
-    /// PUSHNULL [1 datoshi]
-    /// JMP 05 [2 datoshi]
-    /// DROP [2 datoshi]
-    /// DROP [2 datoshi]
-    /// PUSHNULL [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// STLOC1 [2 datoshi]

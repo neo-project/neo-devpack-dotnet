@@ -18,6 +18,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return ((ByteString)"Hello World").StartsWith("Hello");
         }
 
+        public static bool TestStartsWith(ByteString value, ByteString toFind) => value.StartsWith(toFind);
+
         public static int TestIndexOf()
         {
             return ((ByteString)"Hello World").IndexOf("o");
@@ -26,6 +28,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static bool TestEndWith()
         {
             return ((ByteString)"Hello World").EndsWith("World");
+        }
+
+        public static bool TestEndsWith(ByteString value)
+        {
+            return value.EndsWith("World");
         }
 
         public static bool TestContains()

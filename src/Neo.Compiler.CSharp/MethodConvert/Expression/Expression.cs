@@ -415,6 +415,8 @@ internal partial class MethodConvert
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
         }
+        if (type is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } enumType)
+            type = enumType.EnumUnderlyingType;
         if (type.Name == "BigInteger") return;
 
         var (minValue, maxValue, mask) = type.Name switch

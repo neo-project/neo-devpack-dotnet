@@ -92,6 +92,12 @@ namespace Neo.SmartContract.Framework
         public static extern explicit operator byte[](UInt160 value);
 
         /// <summary>
+        /// Convert a checked 20-bytes ByteString to UInt160
+        /// </summary>
+        [OpCode(OpCode.NOP)]
+        private static extern UInt160 FromChecked(ByteString value);
+
+        /// <summary>
         /// Converts the specified script hash to an address, using the current blockchain AddressVersion value.
         /// </summary>
         /// <returns>The converted address.</returns>
@@ -107,9 +113,7 @@ namespace Neo.SmartContract.Framework
         /// <returns>The converted address.</returns>
         public string ToAddress(byte version)
         {
-            byte[] data = { version };
-            data = Helper.Concat(data, this);
-            return StdLib.Base58CheckEncode((ByteString)data);
+            return StdLib.Base58CheckEncode(Helper.Concat(version.ToByteArray(), this));
         }
 
         /// <summary>
@@ -131,10 +135,10 @@ namespace Neo.SmartContract.Framework
 
             try
             {
-                byte[] data = ParseHelper.ParseHex(value.ToByteArray());
+                byte[] data = ParseHelper.ParseHex(value);
                 if (data.Length != UInt160.Size)
                     throw new FormatException("UInt160 must be 20 bytes long.");
-                return (UInt160)data.Reverse();
+                return FromChecked((ByteString)data.Reverse());
             }
             catch (FormatException) { }
 
@@ -152,7 +156,7 @@ namespace Neo.SmartContract.Framework
         /// </example>
         /// <remarks>
         /// This is a compile time conversion, only work with constant string.
-        /// If you want to convert a runtime string, convert it to byte[] first.
+        /// If you want to convert a runtime string, UInt160.Parse(string) or convert it to byte[] first.
         /// </remarks>
         /// </summary>
 #pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it

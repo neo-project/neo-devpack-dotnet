@@ -11,6 +11,7 @@
 
 using System;
 using System.Numerics;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 namespace Neo.SmartContract.Framework;
 
@@ -106,10 +107,7 @@ public static class ByteStringExtension
     /// <param name="toFind">ByteString to search. It cannot be null.</param>
     /// <returns>True if start with</returns>
     [Obsolete("Use StartsWith instead.")]
-    public static bool StartWith(this ByteString byteString, ByteString toFind)
-    {
-        return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind), 0);
-    }
+    public static bool StartWith(this ByteString byteString, ByteString toFind) => byteString.StartsWith(toFind);
 
     /// <summary>
     /// Determines whether the beginning of this string instance matches the specified string.
@@ -119,7 +117,9 @@ public static class ByteStringExtension
     /// <returns>True if starts with</returns>
     public static bool StartsWith(this ByteString byteString, ByteString toFind)
     {
-        return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind), 0);
+        BigInteger toLength = toFind.Length;
+        if (toLength > byteString.Length) return false;
+        return byteString.Take(toLength) == toFind;
     }
 
     /// <summary>
@@ -130,10 +130,9 @@ public static class ByteStringExtension
     /// <returns>True if ends with</returns>
     public static bool EndsWith(this ByteString byteString, ByteString toFind)
     {
-        if (toFind.Length == 0) return true;
-        int startIndex = byteString.Length - toFind.Length;
-        if (startIndex < 0) return false;
-        return Helper.NumEqual(StdLib.MemorySearch(byteString, toFind, startIndex), startIndex);
+        var toLength = toFind.Length;
+        if (toLength > byteString.Length) return false;
+        return byteString.Last(toLength) == toFind;
     }
 
     /// <summary>
@@ -181,4 +180,29 @@ public static class ByteStringExtension
     {
         return StdLib.StrLen(byteString);
     }
+
+    [OpCode(OpCode.CAT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Concat(this ByteString first, ByteString second);
+
+    /// <summary>
+    /// Returns ByteString from start to start + count. Faults if start or start + count out of range.
+    /// </summary>
+    [OpCode(OpCode.SUBSTR)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Substring(this ByteString source, BigInteger start, BigInteger count);
+
+    /// <summary>
+    /// Returns ByteString with first 'count' elements from 'source'. Faults if count out of range.
+    /// </summary>
+    [OpCode(OpCode.LEFT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Take(this ByteString source, BigInteger count);
+
+    /// <summary>
+    /// Returns ByteString with last 'count' elements from 'source'. Faults if count out of range.
+    /// </summary>
+    [OpCode(OpCode.RIGHT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Last(this ByteString source, BigInteger count);
 }
