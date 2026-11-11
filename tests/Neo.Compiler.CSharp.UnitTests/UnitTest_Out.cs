@@ -184,7 +184,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(2, Contract.TestInstanceFieldRefAliases());
             AssertGasConsumed(1882740);
             Assert.AreEqual(111, Contract.TestDistinctInstanceFieldRefs());
-            AssertGasConsumed(2193390);
+            AssertGasConsumed(2439480);
             Assert.AreEqual(12311, Contract.TestRecursiveRefAliases());
         }
 
