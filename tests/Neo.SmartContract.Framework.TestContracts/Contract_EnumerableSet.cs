@@ -16,12 +16,12 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     /// <summary>
-    /// Test contract exposing two independent <see cref="EnumerableUInt160Set"/> instances (set A and set B).
+    /// Test contract exposing two independent <see cref="EnumUInt160Set"/> instances (set A and set B).
     /// </summary>
     public class Contract_EnumerableSet : SmartContract
     {
-        private static EnumerableUInt160Set SetA => new EnumerableUInt160Set(0xE1);
-        private static EnumerableUInt160Set SetB => new EnumerableUInt160Set(new byte[] { 0xE2, 0x00 });
+        private static EnumUInt160Set SetA => new EnumUInt160Set(0xE1);
+        private static EnumUInt160Set SetB => new EnumUInt160Set(new byte[] { 0xE2, 0x00 });
 
         public static bool Add(UInt160 value) => SetA.Add(value);
         public static bool Remove(UInt160 value) => SetA.Remove(value);
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static BigInteger CreateWithPrefixLength(BigInteger size)
         {
-            var set = new EnumerableUInt160Set(new byte[(int)size]);
+            var set = new EnumUInt160Set(new byte[(int)size]);
             return set.Length;
         }
     }

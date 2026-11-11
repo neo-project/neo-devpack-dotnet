@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// EnumerableUInt160Set.cs file belongs to the neo project and is free
+// EnumUInt160Set.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Framework.Services
     /// Any failure (invalid value, index out of range) aborts the execution, which reverts all storage writes.
     /// </para>
     /// </remarks>
-    public class EnumerableUInt160Set
+    public class EnumUInt160Set
     {
         /// <summary>
         /// The maximum prefix length, so that prefix + tag + 20 bytes is not greater than the 64 bytes key limit.
@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Framework.Services
         /// <summary>
         /// Creates a set that stores its data under the specified single byte prefix.
         /// </summary>
-        public EnumerableUInt160Set(byte prefix)
+        public EnumUInt160Set(byte prefix)
         {
             map = new StorageMap(Storage.CurrentContext, prefix);
         }
@@ -67,7 +67,7 @@ namespace Neo.SmartContract.Framework.Services
         /// <summary>
         /// Creates a set that stores its data under the specified prefix (1 to <see cref="MaxPrefixLength"/> bytes).
         /// </summary>
-        public EnumerableUInt160Set(byte[] prefix)
+        public EnumUInt160Set(byte[] prefix)
         {
             ExecutionEngine.Assert(prefix.Length > 0 && prefix.Length <= MaxPrefixLength, "invalid prefix length");
             map = new StorageMap(Storage.CurrentContext, prefix);
