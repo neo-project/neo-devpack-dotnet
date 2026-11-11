@@ -57,6 +57,12 @@ namespace Neo.SmartContract.Framework
         public static extern explicit operator byte[](ECPoint value);
 
         /// <summary>
+        /// Convert a checked 33-bytes ByteString to ECPoint
+        /// </summary>
+        [OpCode(OpCode.NOP)]
+        private static extern ECPoint FromChecked(ByteString value);
+
+        /// <summary>
         /// Parses a compressed public key (66 hex characters, optional <c>0x</c> prefix) into an <see cref="ECPoint"/>.
         /// </summary>
         /// <param name="value">Hex string representing the compressed public key.</param>
@@ -66,10 +72,10 @@ namespace Neo.SmartContract.Framework
         {
             if (value is null) throw new FormatException("Value cannot be null.");
 
-            byte[] data = ParseHelper.ParseHex(value.ToByteArray());
+            byte[] data = ParseHelper.ParseHex(value);
             if (data.Length != 33)
                 throw new FormatException("ECPoint must be 33 bytes long.");
-            return (ECPoint)data;
+            return FromChecked((ByteString)data);
         }
 
         /// <summary>
@@ -82,7 +88,7 @@ namespace Neo.SmartContract.Framework
         /// </example>
         /// <remarks>
         /// This is a compile time conversion, only work with constant string.
-        /// If you want to convert a runtime string, convert it to byte[] first.
+        /// If you want to convert a runtime string, ECPoint.Parse(string) or convert it to byte[] first.
         /// </remarks>
 #pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
         public static extern implicit operator ECPoint(string value);

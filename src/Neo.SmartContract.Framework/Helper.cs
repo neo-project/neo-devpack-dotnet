@@ -195,10 +195,6 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CAT)]
         public extern static byte[] Concat(this byte[] first, ByteString second);
 
-        [OpCode(OpCode.CAT)]
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
-        public extern static ByteString Concat(this ByteString first, ByteString second);
-
         [OpCode(OpCode.SUBSTR)]
         public extern static byte[] Range(this byte[] source, int index, int count);
 
@@ -221,7 +217,17 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.REVERSEITEMS)]
+        [Obsolete("Use Reverse(this byte[]) or Array.Reverse(Array) instead.")]
         public extern static byte[] Reverse(this Array source);
+
+        /// <summary>
+        /// Reverses 'source' in place and returns the same reference.
+        /// The argument is mutated, so do not keep using 'source' expecting its original order.
+        /// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
+        /// </summary>
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.REVERSEITEMS)]
+        public extern static byte[] Reverse(this byte[] source);
 
         /// <summary>
         /// Returns the square root of number x

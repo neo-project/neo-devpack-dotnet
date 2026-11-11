@@ -141,13 +141,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1355940);
 
             Assert.IsTrue(Contract.TestEndWith("hello world", ""));
-            AssertGasConsumed(1048050);
+            AssertGasConsumed(1356180);
 
             Assert.IsFalse(Contract.TestEndWith("", "world"));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048230);
 
             Assert.IsTrue(Contract.TestEndWith("hello world", "ello world"));
-            AssertGasConsumed(1356300);
+            AssertGasConsumed(1356180);
+
+            Assert.Throws<TestException>(() => Assert.IsTrue(Contract.TestEndWith(null, "A")));
+            AssertGasConsumed(1047690);
+
+            Assert.Throws<TestException>(() => Assert.IsTrue(Contract.TestEndWith("A", null)));
+            AssertGasConsumed(1047510);
 
             Assert.IsFalse(Contract.TestEndsWithOneByte("hello"));
             AssertGasConsumed(1049850);
@@ -201,10 +207,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestStartsWith()
         {
             Assert.IsTrue(Contract.TestStartsWith("worldwide"));
-            AssertGasConsumed(2032590);
+            AssertGasConsumed(1355940);
 
             Assert.IsFalse(Contract.TestStartsWith("hello world"));
-            AssertGasConsumed(2032590);
+            AssertGasConsumed(1355940);
 
             Assert.IsFalse(Contract.TestStartsWithOneByte("hello"));
             AssertGasConsumed(1049700);
@@ -217,6 +223,55 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsFalse(Contract.TestStartsWithOneByte(""));
             AssertGasConsumed(1047570);
+
+            Assert.IsTrue(Contract.TestStartsWithPrefix("abc", ""));
+            AssertGasConsumed(1356180);
+
+            Assert.IsFalse(Contract.TestStartsWithPrefix("", "a"));
+            AssertGasConsumed(1048230);
+
+            Assert.IsTrue(Contract.TestStartsWithPrefix("abc", "abc"));
+            AssertGasConsumed(1356180);
+
+            Assert.IsTrue(Contract.TestStartsWithPrefix("", ""));
+            AssertGasConsumed(1356180);
+
+            Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.TestStartsWithPrefix(null, "")));
+            AssertGasConsumed(1047690);
+
+            Assert.ThrowsExactly<TestException>(() => Assert.IsTrue(Contract.TestStartsWithPrefix("", null)));
+            AssertGasConsumed(1047510);
+        }
+
+        [TestMethod]
+        public void Test_TestStartsWithConstantPrefixGas()
+        {
+            var p50 = new string('x', 50);
+            Assert.IsTrue(Contract.TestStartsWith2("abcd"));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith2("xxcd"));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith2("a"));
+            AssertGasConsumed(1047600);
+            Assert.IsTrue(Contract.TestStartsWith50(p50 + "yz"));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith50("y" + p50));
+            AssertGasConsumed(1355940);
+            Assert.IsFalse(Contract.TestStartsWith50("xx"));
+            AssertGasConsumed(1047600);
+        }
+
+        [TestMethod]
+        public void Test_TestStartsWithConstantPrefix()
+        {
+            Assert.IsTrue(Contract.TestStartsWith("world"));
+            Assert.IsFalse(Contract.TestStartsWith("worl"));
+            Assert.IsFalse(Contract.TestStartsWith(""));
+            Assert.IsTrue(Contract.TestStartsWithUtf8("éxito"));
+            Assert.IsFalse(Contract.TestStartsWithUtf8("éy"));
+            Assert.IsFalse(Contract.TestStartsWithUtf8("e"));
+            Assert.IsTrue(Contract.TestStartsWithEmbeddedNull("a\0bc"));
+            Assert.IsFalse(Contract.TestStartsWithEmbeddedNull("a\0c"));
         }
 
         [TestMethod]
@@ -267,6 +322,25 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(-1, Contract.TestIndexOf("hello"));
             AssertGasConsumed(2032470);
+        }
+
+        [TestMethod]
+        public void Test_TestIndexOfEmpty()
+        {
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty(""));
+            AssertGasConsumed(1047510);
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("a"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("hello"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("éxito"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty("a\0b"));
+            Assert.AreEqual(0, Contract.TestIndexOfEmpty(new string('x', 500)));
+            Assert.AreEqual(6, Contract.TestIndexOf("hello world"));
+        }
+
+        [TestMethod]
+        public void Test_TestIndexOfEmptyNullReceiver()
+        {
+            Assert.ThrowsExactly<TestException>(() => Contract.TestIndexOfEmpty(null));
         }
 
         [TestMethod]
@@ -615,10 +689,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestRemoveRange()
         {
             Assert.AreEqual("HeWorld", Contract.TestRemoveRange("HelloWorld", 2, 3));
-            AssertGasConsumed(1478580);
+            AssertGasConsumed(1479480);
 
             Assert.AreEqual("Hello", Contract.TestRemoveRange("HelloWorld", 5, 5));
-            AssertGasConsumed(1478580);
+            AssertGasConsumed(1479480);
+
+            Assert.AreEqual("HelloWorld", Contract.TestRemoveRange("HelloWorld", 10, 0));
+            Assert.AreEqual("HelloWorld", Contract.TestRemoveRange("HelloWorld", 0, 0));
+
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("0", 1, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", -1, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", 11, 0));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestRemoveRange("HelloWorld", 9, 2));
         }
 
         [TestMethod]

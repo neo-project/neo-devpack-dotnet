@@ -103,13 +103,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             // a123b->12
             {
                 var data = (VM.Types.ByteString)Contract.NullCoalescing("a123b")!;
-                AssertGasConsumed(1355460);
+                AssertGasConsumed(1357080);
                 Assert.AreEqual("12", System.Text.Encoding.ASCII.GetString(data.GetSpan()));
             }
             // null->null
             {
                 Assert.IsNull(Contract.NullCoalescing(null));
-                AssertGasConsumed(1047990);
+                AssertGasConsumed(1048110);
             }
         }
 

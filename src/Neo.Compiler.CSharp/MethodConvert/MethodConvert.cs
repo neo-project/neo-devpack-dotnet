@@ -51,6 +51,7 @@ namespace Neo.Compiler
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
         private readonly HashSet<ISymbol> _byRefCapturedSymbols = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
+        private readonly HashSet<byte> _permanentAnonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
@@ -167,6 +168,7 @@ namespace Neo.Compiler
 
                 RegisterMethodParameters();
                 RegisterByRefCapturedSymbols(model);
+                RegisterCapturedSymbolsUsedByLoops(model);
                 InitializeByRefCapturedParameters();
 
                 // Step 3: Process method based on its kind
