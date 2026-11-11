@@ -17,6 +17,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Neo.SmartContract.Framework
 {
@@ -35,6 +36,40 @@ namespace Neo.SmartContract.Framework
         protected const byte Prefix_Token = 0x03;
         protected const byte Prefix_AccountToken = 0x04;
 
+        /// <summary>
+        /// Builds a storage key with the same helper used by every access to this namespace.
+        /// The key is typically a fixed prefix followed by the caller-provided key.
+        /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static byte[] TokenKey(ByteString tokenId) => new byte[] { Prefix_Token }.Concat(tokenId);
+
+        /// <summary>
+        /// Builds the account namespace prefix with the same helper used by every access.
+        /// The resulting storage key is a fixed prefix followed by the account.
+        /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static byte[] AccountKey(ByteString account) => new byte[] { Prefix_AccountToken }.Concat(account);
+
+        /// <summary>
+        /// Builds an account-token storage key with the same helper used by every access.
+        /// The key is a fixed prefix followed by the account and token ID.
+        /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static byte[] AccountTokenKey(ByteString account, ByteString tokenId) =>
+                    new byte[] { Prefix_AccountToken }.Concat(account).Concat(tokenId);
+
         [Safe]
         public sealed override byte Decimals => 0;
 
@@ -42,9 +77,9 @@ namespace Neo.SmartContract.Framework
         public static UInt160 OwnerOf(ByteString tokenId)
         {
             if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
-            var tokenMap = new LocalStorageMap(Prefix_Token);
-            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
-            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
+            var key = TokenKey(tokenId);
+            var value = Storage.Get(key) ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(value);
             return token.Owner;
         }
 
@@ -52,9 +87,10 @@ namespace Neo.SmartContract.Framework
         public virtual Map<string, object> Properties(ByteString tokenId)
         {
             if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
-            var tokenMap = new LocalStorageMap(Prefix_Token);
-            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
-            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
+
+            var key = TokenKey(tokenId);
+            var value = Storage.Get(key) ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(value);
             return new Map<string, object>()
             {
                 ["name"] = token.Name
@@ -64,8 +100,8 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator Tokens()
         {
-            var tokenMap = new LocalStorageMap(Prefix_Token);
-            return tokenMap.Find(FindOptions.KeysOnly | FindOptions.RemovePrefix);
+            var tokenPrefix = new byte[] { Prefix_Token };
+            return Storage.Find(tokenPrefix, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
         [Safe]
@@ -73,8 +109,8 @@ namespace Neo.SmartContract.Framework
         {
             if (!owner.IsValid) throw new Exception("The argument \"owner\" is invalid");
 
-            var accountMap = new LocalStorageMap(Prefix_AccountToken);
-            return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
+            var accountPrefix = AccountKey(owner);
+            return Storage.Find(accountPrefix, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
         public static bool Transfer(UInt160 to, ByteString tokenId, object? data = null)
@@ -82,15 +118,16 @@ namespace Neo.SmartContract.Framework
             if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
             if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
 
-            var tokenMap = new LocalStorageMap(Prefix_Token);
-            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
-            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
+            var key = TokenKey(tokenId);
+            var value = Storage.Get(key) ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(value);
             UInt160 from = token.Owner;
             if (!Runtime.CheckWitness(from)) return false;
+
             if (from != to)
             {
                 token.Owner = to;
-                tokenMap[tokenId] = StdLib.Serialize(token);
+                Storage.Put(key, StdLib.Serialize(token));
                 UpdateBalance(from, tokenId, -1);
                 UpdateBalance(to, tokenId, +1);
             }
@@ -116,9 +153,12 @@ namespace Neo.SmartContract.Framework
         protected static void Mint(ByteString tokenId, TokenState token)
         {
             if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
-            var tokenMap = new LocalStorageMap(Prefix_Token);
-            if (tokenMap[tokenId] is not null) throw new InvalidOperationException("The token with given \"tokenId\" already exists.");
-            tokenMap[tokenId] = StdLib.Serialize(token);
+
+            var key = TokenKey(tokenId);
+            var value = Storage.Get(key);
+            if (value is not null) throw new InvalidOperationException("The token with given \"tokenId\" already exists.");
+
+            Storage.Put(key, StdLib.Serialize(token));
             UpdateBalance(token.Owner, tokenId, +1);
             TotalSupply++;
             PostTransfer(null, token.Owner, tokenId, null);
@@ -126,10 +166,11 @@ namespace Neo.SmartContract.Framework
 
         protected static void Burn(ByteString tokenId)
         {
-            var tokenMap = new LocalStorageMap(Prefix_Token);
-            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
-            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
-            tokenMap.Delete(tokenId);
+            var key = TokenKey(tokenId);
+            var value = Storage.Get(key) ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(value);
+
+            Storage.Delete(key);
             UpdateBalance(token.Owner, tokenId, -1);
             TotalSupply--;
             PostTransfer(token.Owner, null, tokenId, null);
@@ -138,12 +179,12 @@ namespace Neo.SmartContract.Framework
         protected static void UpdateBalance(UInt160 owner, ByteString tokenId, int increment)
         {
             UpdateBalance(owner, increment);
-            var accountMap = new LocalStorageMap(Prefix_AccountToken);
-            ByteString key = owner + tokenId;
+
+            var key = AccountTokenKey(owner, tokenId);
             if (increment > 0)
-                accountMap.Put(key, 0);
+                Storage.Put(key, 0);
             else
-                accountMap.Delete(key);
+                Storage.Delete(key);
         }
 
         protected static void PostTransfer(UInt160? from, UInt160? to, ByteString tokenId, object? data)
