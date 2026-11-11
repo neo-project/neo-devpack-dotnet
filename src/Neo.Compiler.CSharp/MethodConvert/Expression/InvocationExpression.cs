@@ -161,7 +161,9 @@ internal partial class MethodConvert
                         }
                     }
                 }
-                CallInstanceMethod(model, symbol, true, arguments);
+                CallInstanceMethod(model, symbol, true, arguments,
+                    expression.Parent is InvocationExpressionSyntax { Parent: ConditionalAccessExpressionSyntax conditionalCall }
+                        ? conditionalCall.Expression : null);
                 break;
             default:
                 throw CompilationException.UnsupportedSyntax(expression, $"Unsupported invocation expression '{expression.GetType().Name}'. Use supported patterns: method calls, property access, or delegate invocations.");
