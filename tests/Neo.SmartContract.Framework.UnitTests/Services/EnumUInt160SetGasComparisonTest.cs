@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// EnumerableSetGasComparisonTest.cs file belongs to the neo project and is free
+// EnumUInt160SetGasComparisonTest.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -24,7 +24,7 @@ using CompilationOptions = Neo.Compiler.CompilationOptions;
 namespace Neo.SmartContract.Framework.UnitTests.Services;
 
 [TestClass]
-public class EnumerableSetGasComparisonTest
+public class EnumUInt160SetGasComparisonTest
 {
     public TestContext? TestContext { get; set; }
 
@@ -62,7 +62,7 @@ public class EnumerableSetGasComparisonTest
     [TestMethod]
     public void Compare_Gas_Against_Serialized_List_Baseline()
     {
-        var setC = Compile("Contract_EnumerableSet.cs");
+        var setC = Compile("Contract_EnumUInt160Set.cs");
         var naiveC = Compile("Contract_NaiveSerializedSet.cs");
 
         foreach (var size in new[] { 1, 10, 50, 100, 300 })

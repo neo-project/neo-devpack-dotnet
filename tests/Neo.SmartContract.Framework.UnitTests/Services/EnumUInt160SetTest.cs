@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// EnumerableSetTest.cs file belongs to the neo project and is free
+// EnumUInt160SetTest.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -26,7 +26,7 @@ using CompilationOptions = Neo.Compiler.CompilationOptions;
 namespace Neo.SmartContract.Framework.UnitTests.Services;
 
 [TestClass]
-public class EnumerableSetTest
+public class EnumUInt160SetTest
 {
     private const byte PrefixA = 0xE1;
     private static readonly byte[] PrefixB = [0xE2, 0x00];
@@ -38,8 +38,8 @@ public class EnumerableSetTest
     [ClassInitialize]
     public static void ClassInitialize(TestContext _) => _compiled = CompileContract();
 
-    private static EnumerableSetProxy Deploy()
-        => new TestEngine(true).Deploy<EnumerableSetProxy>(_compiled.nef, _compiled.manifest);
+    private static EnumUInt160SetProxy Deploy()
+        => new TestEngine(true).Deploy<EnumUInt160SetProxy>(_compiled.nef, _compiled.manifest);
 
     private static UInt160 Item(int i)
     {
@@ -56,7 +56,7 @@ public class EnumerableSetTest
     /// <summary>
     /// Verifies the three storage structures are mutually consistent for the given set.
     /// </summary>
-    private static void AssertConsistent(EnumerableSetProxy c, byte[] prefix, Func<BigInteger, UInt160?> at, BigInteger length, HashSet<UInt160> expected)
+    private static void AssertConsistent(EnumUInt160SetProxy c, byte[] prefix, Func<BigInteger, UInt160?> at, BigInteger length, HashSet<UInt160> expected)
     {
         var storage = c.Storage;
         var countKey = prefix.Concat(new byte[] { 0x00 }).ToArray();
@@ -82,7 +82,7 @@ public class EnumerableSetTest
         Assert.IsFalse(storage.Contains(Key(prefix, 0x01, IntBytes(length))));
     }
 
-    private static void AssertConsistentA(EnumerableSetProxy c, HashSet<UInt160> expected)
+    private static void AssertConsistentA(EnumUInt160SetProxy c, HashSet<UInt160> expected)
         => AssertConsistent(c, [PrefixA], c.At, c.Length()!.Value, expected);
 
     [TestMethod]
@@ -292,11 +292,11 @@ public class EnumerableSetTest
         Assert.AreEqual(0, c.Length());
 
         Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(0));
-        Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(EnumerableSet_MaxPrefix + 1));
-        Assert.AreEqual(0, c.CreateWithPrefixLength(EnumerableSet_MaxPrefix));
+        Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(EnumUInt160Set_MaxPrefix + 1));
+        Assert.AreEqual(0, c.CreateWithPrefixLength(EnumUInt160Set_MaxPrefix));
     }
 
-    private const int EnumerableSet_MaxPrefix = 43;
+    private const int EnumUInt160Set_MaxPrefix = 43;
 
     [TestMethod]
     public void Gas_Measurements()
@@ -317,7 +317,7 @@ public class EnumerableSetTest
         }
     }
 
-    private static long Measure(EnumerableSetProxy c, Action action)
+    private static long Measure(EnumUInt160SetProxy c, Action action)
     {
         action();
         return c.TestEngine.FeeConsumed.Value;
@@ -327,7 +327,7 @@ public class EnumerableSetTest
     {
         var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
         var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-        var source = Path.Combine(repoRoot, "tests", "Neo.SmartContract.Framework.TestContracts", "Contract_EnumerableSet.cs");
+        var source = Path.Combine(repoRoot, "tests", "Neo.SmartContract.Framework.TestContracts", "Contract_EnumUInt160Set.cs");
 
         var options = new CompilationOptions
         {
@@ -343,7 +343,7 @@ public class EnumerableSetTest
         return (context.CreateExecutable(), context.CreateManifest());
     }
 
-    public abstract class EnumerableSetProxy(SmartContractInitialize initialize)
+    public abstract class EnumUInt160SetProxy(SmartContractInitialize initialize)
         : Neo.SmartContract.Testing.SmartContract(initialize)
     {
         public TestEngine TestEngine { get; } = initialize.Engine;

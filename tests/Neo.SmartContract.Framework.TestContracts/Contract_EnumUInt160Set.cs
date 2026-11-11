@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// Contract_EnumerableSet.cs file belongs to the neo project and is free
+// Contract_EnumUInt160Set.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -18,7 +18,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     /// <summary>
     /// Test contract exposing two independent <see cref="EnumUInt160Set"/> instances (set A and set B).
     /// </summary>
-    public class Contract_EnumerableSet : SmartContract
+    public class Contract_EnumUInt160Set : SmartContract
     {
         private static EnumUInt160Set SetA => new EnumUInt160Set(0xE1);
         private static EnumUInt160Set SetB => new EnumUInt160Set(new byte[] { 0xE2, 0x00 });
