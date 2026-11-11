@@ -54,14 +54,14 @@ namespace Neo.SmartContract.Framework.Services
         private const byte TAG_INDEX = 0x01;
         private const byte TAG_VALUE = 0x02;
 
-        private readonly StorageMap map;
+        private readonly LocalStorageMap map;
 
         /// <summary>
         /// Creates a set that stores its data under the specified single byte prefix.
         /// </summary>
         public UInt160Set(byte prefix)
         {
-            map = new StorageMap(Storage.CurrentContext, prefix);
+            map = new LocalStorageMap(prefix);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Neo.SmartContract.Framework.Services
         public UInt160Set(byte[] prefix)
         {
             ExecutionEngine.Assert(prefix.Length > 0 && prefix.Length <= MaxPrefixLength, "invalid prefix length");
-            map = new StorageMap(Storage.CurrentContext, prefix);
+            map = new LocalStorageMap(prefix);
         }
 
         /// <summary>
