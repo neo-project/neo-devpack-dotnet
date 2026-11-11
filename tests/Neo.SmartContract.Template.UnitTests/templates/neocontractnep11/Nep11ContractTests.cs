@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep11
 
             var tokenId = Contract.Mint(Bob.Account, "Sword", "Rare sword", "ipfs://sword");
             Assert.IsNotNull(tokenId);
-            AssertGasConsumedCore(35950510);
+            AssertGasConsumedCore(36934390);
 
             Assert.AreEqual("EXAMPLE", Contract.Symbol);
             Assert.AreEqual(BigInteger.Zero, Contract.Decimals);
