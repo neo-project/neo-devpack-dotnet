@@ -32,7 +32,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestSubstring();
-            AssertGasConsumed(3567420);
+            AssertGasConsumed(3569610);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(2, log.Count);
@@ -438,13 +438,32 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestSubstringToEnd()
         {
             Assert.AreEqual("World", Contract.TestSubstringToEnd("Hello World", 6));
-            AssertGasConsumed(1355010);
+            AssertGasConsumed(1355820);
 
             Assert.AreEqual("", Contract.TestSubstringToEnd("Test", 4));
-            AssertGasConsumed(1355010);
+            AssertGasConsumed(1355820);
 
             // Test invalid start index
             Assert.ThrowsExactly<TestException>(() => Contract.TestSubstringToEnd("Test", 5));
+        }
+
+        [TestMethod]
+        public void Test_SubstringOutOfRangeStartIsCatchable()
+        {
+            Assert.AreEqual("234567", Contract.SubstringCaught("01234567", 2));
+            Assert.AreEqual("", Contract.SubstringCaught("01234567", 8));
+            Assert.AreEqual("caught", Contract.SubstringCaught("01234567", -1));
+            Assert.AreEqual("caught", Contract.SubstringCaught("01234567", 9));
+        }
+
+        [TestMethod]
+        public void Test_SubstringOutOfRangeRangeIsCatchable()
+        {
+            Assert.AreEqual("2345", Contract.SubstringRangeCaught("01234567", 2, 4));
+            Assert.AreEqual("67", Contract.SubstringRangeCaught("01234567", 6, 2));
+            Assert.AreEqual("caught", Contract.SubstringRangeCaught("01234567", -1, 2));
+            Assert.AreEqual("caught", Contract.SubstringRangeCaught("01234567", 2, -1));
+            Assert.AreEqual("caught", Contract.SubstringRangeCaught("01234567", 6, 4));
         }
 
         [TestMethod]
