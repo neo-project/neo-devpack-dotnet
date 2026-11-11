@@ -27,6 +27,10 @@ namespace Neo.SmartContract.Framework
         /// The key is typically a fixed prefix followed by the caller-provided key, which
         /// keeps reads and writes consistent and avoids storage key collisions.
         /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static byte[] BalanceKey(ByteString key) => new byte[1] { Prefix_Balance }.Concat(key);
 

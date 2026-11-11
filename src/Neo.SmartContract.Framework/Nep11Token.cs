@@ -40,6 +40,10 @@ namespace Neo.SmartContract.Framework
         /// Builds a storage key with the same helper used by every access to this namespace.
         /// The key is typically a fixed prefix followed by the caller-provided key.
         /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static byte[] TokenKey(ByteString tokenId) => new byte[] { Prefix_Token }.Concat(tokenId);
 
@@ -47,6 +51,10 @@ namespace Neo.SmartContract.Framework
         /// Builds the account namespace prefix with the same helper used by every access.
         /// The resulting storage key is a fixed prefix followed by the account.
         /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static byte[] AccountKey(ByteString account) => new byte[] { Prefix_AccountToken }.Concat(account);
 
@@ -54,6 +62,10 @@ namespace Neo.SmartContract.Framework
         /// Builds an account-token storage key with the same helper used by every access.
         /// The key is a fixed prefix followed by the account and token ID.
         /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static byte[] AccountTokenKey(ByteString account, ByteString tokenId) =>
                     new byte[] { Prefix_AccountToken }.Concat(account).Concat(tokenId);
