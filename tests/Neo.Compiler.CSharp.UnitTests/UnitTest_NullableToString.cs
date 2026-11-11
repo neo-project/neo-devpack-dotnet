@@ -74,6 +74,9 @@ public class UnitTest_NullableToString
 
                 [DisplayName("withSuffix")]
                 public static string WithSuffix(char? value) => value.ToString() + "|done";
+
+                [DisplayName("bytes")]
+                public static byte[] Bytes(char? value) => (byte[])(ByteString)value.ToString();
             }
             """;
 
@@ -88,6 +91,14 @@ public class UnitTest_NullableToString
         Assert.AreEqual("", contract.Direct(null));
         Assert.AreEqual("A|done", contract.WithSuffix('A'));
         Assert.AreEqual("|done", contract.WithSuffix(null));
+
+        CollectionAssert.AreEqual(Array.Empty<byte>(), contract.Bytes(null));
+        CollectionAssert.AreEqual(new byte[] { 0x00 }, contract.Bytes('\0'));
+        CollectionAssert.AreEqual(new byte[] { 0x7F }, contract.Bytes('\u007F'));
+        CollectionAssert.AreEqual(new byte[] { 0xC2, 0x80 }, contract.Bytes('\u0080'));
+        CollectionAssert.AreEqual(new byte[] { 0xC3, 0xA9 }, contract.Bytes('\u00E9'));
+        CollectionAssert.AreEqual(new byte[] { 0xE2, 0x82, 0xAC }, contract.Bytes('\u20AC'));
+        CollectionAssert.AreEqual(new byte[] { 0xEF, 0xBF, 0xBD }, contract.Bytes('\uD800'));
     }
 
     private static string ExtractMethodBlock(string assembly, string methodSignature)
@@ -122,5 +133,8 @@ public class UnitTest_NullableToString
 
         [DisplayName("withSuffix")]
         public abstract string? WithSuffix(char? value);
+
+        [DisplayName("bytes")]
+        public abstract byte[]? Bytes(char? value);
     }
 }

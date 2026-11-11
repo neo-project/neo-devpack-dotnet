@@ -26,6 +26,87 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         protected override bool TestGasConsume => true;
 
+        public abstract class EnumCastRangeContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("toRole")] public abstract BigInteger? ToRole(BigInteger value);
+            [DisplayName("checkedToRole")] public abstract BigInteger? CheckedToRole(BigInteger value);
+            [DisplayName("wideToByte")] public abstract BigInteger? WideToByte(BigInteger value);
+            [DisplayName("wideToUInt")] public abstract BigInteger? WideToUInt(BigInteger value);
+        }
+
+        public abstract class EnumArithmeticRangeContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("next")] public abstract BigInteger? Next(BigInteger value);
+        }
+
+        [TestMethod]
+        public void TestEnumCastRangeNormalization()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+                using System.Numerics;
+
+                public class Contract : SmartContract
+                {
+                    public enum Role : byte { None = 0, User = 1, Admin = 2 }
+                    public enum Wide : int { Negative = -1, Large = 300 }
+
+                    [DisplayName("toRole")]
+                    public static int ToRole(int value) => (int)unchecked((Role)value);
+
+                    [DisplayName("checkedToRole")]
+                    public static int CheckedToRole(int value) => (int)checked((Role)value);
+
+                    [DisplayName("wideToByte")]
+                    public static int WideToByte(int value) => unchecked((byte)(Wide)value);
+
+                    [DisplayName("wideToUInt")]
+                    public static BigInteger WideToUInt(int value) => unchecked((uint)(Wide)value);
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<EnumCastRangeContract>(context.CreateExecutable(), context.CreateManifest());
+            Assert.AreEqual(new BigInteger(2), contract.ToRole(258));
+            Assert.AreEqual(new BigInteger(44), contract.ToRole(300));
+            Assert.AreEqual(new BigInteger(255), contract.ToRole(-1));
+            Assert.AreEqual(new BigInteger(2), contract.CheckedToRole(2));
+            Assert.ThrowsExactly<TestException>(() => contract.CheckedToRole(300));
+            Assert.AreEqual(new BigInteger(44), contract.WideToByte(300));
+            Assert.AreEqual(new BigInteger(4294967295), contract.WideToUInt(-1));
+        }
+
+        [TestMethod]
+        public void TestEnumArithmeticRangeNormalization()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    public enum Role : byte { None = 0, User = 1, Admin = 2 }
+
+                    [DisplayName("next")]
+                    public static Role Next(Role value) => unchecked(value + 1);
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<EnumArithmeticRangeContract>(context.CreateExecutable(), context.CreateManifest());
+            Assert.AreEqual(new BigInteger(2), contract.Next(1));
+            Assert.AreEqual(new BigInteger(0), contract.Next(255));
+        }
+
         [TestMethod]
         public void TestEnumParse()
         {
@@ -301,6 +382,15 @@ namespace Neo.Compiler.CSharp.UnitTests
             [DisplayName("tryParseTypeConstTrueUnknown")] public abstract bool TryParseTypeConstTrueUnknown();
         }
 
+        public abstract class NonGenericEnumContract(SmartContractInitialize initialize)
+            : Neo.SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("getNames")] public abstract IList<object>? GetNames();
+            [DisplayName("getValues")] public abstract IList<object>? GetValues();
+            [DisplayName("getNamesLength")] public abstract BigInteger? GetNamesLength();
+            [DisplayName("getValuesSum")] public abstract BigInteger? GetValuesSum();
+        }
+
         [TestMethod]
         public void TestEnumParseIgnoreCase()
         {
@@ -542,6 +632,54 @@ namespace Neo.Compiler.CSharp.UnitTests
             var values = Contract.TestEnumGetValuesGeneric()!;
             CollectionAssert.AreEqual(new[] { new Integer(1), new Integer(2), new Integer(3) }, values.Select(v => new Integer((BigInteger)v!)).ToArray());
             AssertGasConsumed(1046070);
+        }
+
+        [TestMethod]
+        public void TestEnumNonGenericGetValuesAndNamesKeepStackBalanced()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    public enum E { Value1 = 1, Value2 = 2, Value3 = 3 }
+
+                    [DisplayName("getNames")]
+                    public static string[] GetNames() => Enum.GetNames(typeof(E));
+
+                    [DisplayName("getValues")]
+                    public static E[] GetValues() => (E[])Enum.GetValues(typeof(E));
+
+                    [DisplayName("getNamesLength")]
+                    public static int GetNamesLength() => Enum.GetNames(typeof(E)).Length;
+
+                    [DisplayName("getValuesSum")]
+                    public static int GetValuesSum()
+                    {
+                        E[] values = (E[])Enum.GetValues(typeof(E));
+                        return (int)values[0] + (int)values[1] + (int)values[2];
+                    }
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<NonGenericEnumContract>(context.CreateExecutable(), context.CreateManifest());
+
+            var names = contract.GetNames()!;
+            CollectionAssert.AreEqual(new[] { "Value1", "Value2", "Value3" },
+                names.Select(n => ((ByteString)n!).GetString()).ToArray());
+
+            var values = contract.GetValues()!;
+            CollectionAssert.AreEqual(new[] { new Integer(1), new Integer(2), new Integer(3) },
+                values.Select(v => new Integer((BigInteger)v!)).ToArray());
+
+            Assert.AreEqual(new BigInteger(3), contract.GetNamesLength());
+            Assert.AreEqual(new BigInteger(6), contract.GetValuesSum());
         }
     }
 }

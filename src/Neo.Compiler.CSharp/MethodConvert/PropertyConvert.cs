@@ -159,6 +159,28 @@ internal partial class MethodConvert
             Push(key);
             CallInteropMethod(ApplicationEngine.System_Storage_GetReadOnlyContext);
             CallInteropMethod(ApplicationEngine.System_Storage_Get);
+            // An absent key uses the property's backing-field default, regardless of
+            // whether a stored value needs deserialization.
+            AddInstruction(OpCode.DUP);
+            AddInstruction(OpCode.ISNULL);
+            JumpTarget storedValue = new();
+            JumpTarget end = new();
+            Jump(OpCode.JMPIFNOT_L, storedValue);
+            AddInstruction(OpCode.DROP);
+            if (!NeedInstanceConstructor(Symbol))
+            {
+                AccessSlot(OpCode.LDSFLD, _context.AddStaticField(backingField));
+            }
+            else
+            {
+                fields = fields.Where(p => !p.IsStatic).ToArray();
+                int backingFieldIndex = ResolveInstancePropertyBackingFieldIndex(property, fields);
+                AccessSlot(OpCode.LDARG, 0);
+                Push(backingFieldIndex);
+                AddInstruction(OpCode.PICKITEM);
+            }
+            Jump(OpCode.JMP_L, end);
+            storedValue.Instruction = AddInstruction(OpCode.NOP);
             switch (property.Type.Name)
             {
                 case "byte":
@@ -181,30 +203,6 @@ internal partial class MethodConvert
                 case "Int64":
                 case "UInt64":
                 case "BigInteger":
-                case "bool":
-                    // check if its initialized
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    JumpTarget ifFalse = new();
-
-                    Jump(OpCode.JMPIFNOT_L, ifFalse);
-
-                    AddInstruction(OpCode.DROP);
-                    if (!NeedInstanceConstructor(Symbol))
-                    {
-                        AccessSlot(OpCode.LDSFLD, _context.AddStaticField(backingField));
-                    }
-                    else
-                    {
-                        // Check class
-                        fields = fields.Where(p => !p.IsStatic).ToArray();
-                        int backingFieldIndex = ResolveInstancePropertyBackingFieldIndex(property, fields);
-                        AccessSlot(OpCode.LDARG, 0);
-                        Push(backingFieldIndex);
-                        AddInstruction(OpCode.PICKITEM);
-                    }
-
-                    ifFalse.Instruction = AddInstruction(OpCode.NOP);
                     break;
                 case "String":
                 case "ByteString":
@@ -216,6 +214,7 @@ internal partial class MethodConvert
                     CallContractMethod(NativeContract.StdLib.Hash, "deserialize", 1, true);
                     break;
             }
+            end.Instruction = AddInstruction(OpCode.NOP);
         }
         else
         {

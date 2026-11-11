@@ -35,33 +35,34 @@ namespace Neo.SmartContract.Framework.Helpers
 
             var expectedLength = rawLength / 2;
             var result = new byte[(int)expectedLength];
+            BigInteger index = offset;
             for (int i = 0; i < expectedLength; i++)
             {
-                var index = offset + (BigInteger)i * 2;
                 var high = FromHexByte(value[index]);
                 var low = FromHexByte(value[index + 1]);
                 result[i] = (byte)((high << 4) | low);
+                index += 2;
             }
             return result;
         }
 
-        internal static byte[] ParseAddress(string value, byte addressVersion)
+        internal static ByteString ParseAddress(string value, byte addressVersion)
         {
-            var decoded = (byte[])StdLib.Base58CheckDecode(value);
+            var decoded = StdLib.Base58CheckDecode(value);
             if (decoded.Length != 21)
                 throw new FormatException("Invalid address length.");
 
             if (decoded[0] != addressVersion)
                 throw new FormatException("Invalid address version.");
 
-            return Helper.Range(decoded, 1, decoded.Length - 1);
+            return decoded.Substring(1, 20); // decoded.Length - 1 = 20
         }
 
         private static BigInteger FromHexByte(BigInteger value)
         {
-            if (value >= '0' && value <= '9') return value - '0';
-            if (value >= 'a' && value <= 'f') return value - 'a' + 10;
-            if (value >= 'A' && value <= 'F') return value - 'A' + 10;
+            if (value.Within('0', '9' + 1)) return value - '0';
+            if (value.Within('a', 'f' + 1)) return value - 'a' + 10;
+            if (value.Within('A', 'F' + 1)) return value - 'A' + 10;
             throw new FormatException("Invalid hex character.");
         }
     }
