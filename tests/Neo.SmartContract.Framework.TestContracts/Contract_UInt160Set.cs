@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// Contract_EnumUInt160Set.cs file belongs to the neo project and is free
+// Contract_UInt160Set.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -16,12 +16,12 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     /// <summary>
-    /// Test contract exposing two independent <see cref="EnumUInt160Set"/> instances (set A and set B).
+    /// Test contract exposing two independent <see cref="UInt160Set"/> instances (set A and set B).
     /// </summary>
-    public class Contract_EnumUInt160Set : SmartContract
+    public class Contract_UInt160Set : SmartContract
     {
-        private static EnumUInt160Set SetA => new EnumUInt160Set(0xE1);
-        private static EnumUInt160Set SetB => new EnumUInt160Set(new byte[] { 0xE2, 0x00 });
+        private static UInt160Set SetA => new UInt160Set(0xE1);
+        private static UInt160Set SetB => new UInt160Set(new byte[] { 0xE2, 0x00 });
 
         public static bool Add(UInt160 value) => SetA.Add(value);
         public static bool Remove(UInt160 value) => SetA.Remove(value);
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static BigInteger CreateWithPrefixLength(BigInteger size)
         {
-            var set = new EnumUInt160Set(new byte[(int)size]);
+            var set = new UInt160Set(new byte[(int)size]);
             return set.Length;
         }
     }
