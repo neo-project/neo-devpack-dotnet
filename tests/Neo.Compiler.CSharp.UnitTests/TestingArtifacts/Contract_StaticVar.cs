@@ -13,12 +13,12 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StaticVar"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testinitalvalue"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""testMain"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":false},{""name"":""testBigIntegerParse"",""parameters"":[],""returntype"":""Integer"",""offset"":96,""safe"":false},{""name"":""testBigIntegerParse2"",""parameters"":[{""name"":""text"",""type"":""String""}],""returntype"":""Integer"",""offset"":101,""safe"":false},{""name"":""testGetUInt160"",""parameters"":[],""returntype"":""Hash160"",""offset"":109,""safe"":false},{""name"":""testGetECPoint"",""parameters"":[],""returntype"":""PublicKey"",""offset"":132,""safe"":false},{""name"":""testGetString"",""parameters"":[],""returntype"":""String"",""offset"":168,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":182,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""atoi""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StaticVar"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testinitalvalue"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""testMain"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":false},{""name"":""testBigIntegerParse"",""parameters"":[],""returntype"":""Integer"",""offset"":96,""safe"":false},{""name"":""testBigIntegerParse2"",""parameters"":[{""name"":""text"",""type"":""String""}],""returntype"":""Integer"",""offset"":99,""safe"":false},{""name"":""testGetUInt160"",""parameters"":[],""returntype"":""Hash160"",""offset"":107,""safe"":false},{""name"":""testGetECPoint"",""parameters"":[],""returntype"":""PublicKey"",""offset"":130,""safe"":false},{""name"":""testGetString"",""parameters"":[],""returntype"":""String"",""offset"":166,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":180,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""atoi""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABBQAAuwwLaGVsbG8gd29ybGRANAY0KllAWRWeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfYUBZF6BKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9hQAB4E55AVwABeDcAAEAMFH7uGqvrZ+0deR1E5PX8866RcahxQAwhAkcA2y6Q2fAsT5/IYqusqScl+VtP3cyNf/pThpPs9GOpQAwLaGVsbG8gd29ybGRAVgYRYUDsucz5").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABBQAAuQwLaGVsbG8gd29ybGRANAY0KllAWRWeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfYUBZF6BKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9hQAB7QFcAAXg3AABADBR+7hqr62ftHXkdROT1/POukXGocUAMIQJHANsukNnwLE+fyGKrrKknJflbT93MjX/6U4aT7PRjqUAMC2hlbGxvIHdvcmxkQFYGEWFAL0KAsg==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,10 +28,8 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: AHgTnkA=
-    /// PUSHINT8 78 [1 datoshi]
-    /// PUSH3 [1 datoshi]
-    /// ADD [8 datoshi]
+    /// Script: AHtA
+    /// PUSHINT8 7B [1 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerParse")]
