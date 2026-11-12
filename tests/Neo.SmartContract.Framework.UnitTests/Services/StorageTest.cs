@@ -55,7 +55,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Put
             Assert.IsTrue(Contract.TestPutByte(key, value));
-            AssertGasConsumed(3660970);
+            AssertGasConsumed(3661210);
             EnsureChanges(prefix, key, value, 1);
 
             // Get
@@ -66,7 +66,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Delete
             Contract.TestDeleteByte(key);
-            AssertGasConsumed(2714880);
+            AssertGasConsumed(2715120);
             EnsureChanges(prefix, key, 0);
         }
 

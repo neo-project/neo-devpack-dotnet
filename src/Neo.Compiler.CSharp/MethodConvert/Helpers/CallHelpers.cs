@@ -86,17 +86,35 @@ internal partial class MethodConvert
     /// <param name="symbol">The method symbol representing the method to call.</param>
     /// <param name="instanceOnStack">Whether the instance is on the stack.</param>
     /// <param name="arguments">The list of arguments for the method call.</param>
-    private void CallInstanceMethod(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
+    /// <param name="evaluatedInstanceExpression">The source expression for a receiver already evaluated by conditional access.</param>
+    private void CallInstanceMethod(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments, ExpressionSyntax? evaluatedInstanceExpression = null)
     {
         using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
+        var previousInstanceExpression = _preEvaluatedInstanceExpression;
+        var previousInstanceSlot = _preEvaluatedInstanceSlot;
         try
         {
-            if (TryProcessSpecialMethods(model, symbol, null, arguments))
+            bool captureInstance = instanceOnStack && evaluatedInstanceExpression is not null
+                && (IsSpecialMethodWithInstance(symbol) || (symbol.ReducedFrom ?? symbol).IsAggressiveInlineMethod());
+            if (captureInstance)
+            {
+                // Conditional access has already evaluated the receiver. Special handlers
+                // may emit arguments before the receiver, so read it from a local slot.
+                byte slot = AddAnonymousVariable();
+                AccessSlot(OpCode.STLOC, slot);
+                _preEvaluatedInstanceExpression = evaluatedInstanceExpression;
+                _preEvaluatedInstanceSlot = slot;
+            }
+
+            if (TryProcessSpecialMethods(model, symbol, captureInstance ? evaluatedInstanceExpression : null, arguments))
             {
                 EmitOutStaticFieldSync(symbol.Parameters);
                 return;
             }
+
+            if (captureInstance)
+                AccessSlot(OpCode.LDLOC, _preEvaluatedInstanceSlot!.Value);
 
             var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
 
@@ -125,6 +143,8 @@ internal partial class MethodConvert
         }
         finally
         {
+            _preEvaluatedInstanceExpression = previousInstanceExpression;
+            _preEvaluatedInstanceSlot = previousInstanceSlot;
             PopOutStaticFieldSyncScope();
         }
     }
