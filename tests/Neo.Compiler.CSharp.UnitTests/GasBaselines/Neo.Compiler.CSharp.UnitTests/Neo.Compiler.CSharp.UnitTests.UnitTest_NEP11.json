@@ -1,7 +1,7 @@
 {
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NEP11.UnitTest_Decimals#1": 984060,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_NEP11.UnitTest_Properties_MissingToken_Throws#1": 2425320,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NEP11.UnitTest_Properties_MissingToken_Throws#1": 2354310,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NEP11.UnitTest_Properties_ValidateTokenIdLength#1": 1063290,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NEP11.UnitTest_Symbol#1": 984270,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_NEP11.UnitTest_Transfer_MissingToken_Throws#1": 2426280
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NEP11.UnitTest_Transfer_MissingToken_Throws#1": 2355270
 }

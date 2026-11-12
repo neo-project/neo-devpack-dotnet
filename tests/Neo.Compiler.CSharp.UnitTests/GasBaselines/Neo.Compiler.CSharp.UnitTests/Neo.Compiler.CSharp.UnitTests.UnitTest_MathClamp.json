@@ -32,7 +32,7 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEqualBounds#1": 1048200,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEqualBounds#2": 1048200,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEqualBounds#3": 1048200,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEvaluationOrderAndNesting#1": 1019190,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEvaluationOrderAndNesting#1": 1021470,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEvaluationOrderAndNesting#2": 1060350,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEvaluationOrderAndNesting#3": 1060350,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampEvaluationOrderAndNesting#4": 1060350,
@@ -54,5 +54,5 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampNamedArguments#1": 1048200,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampNamedArguments#2": 1048200,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampNamedArguments#3": 1048200,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampSideEffectValueWithConstantBounds#1": 1005030
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_MathClamp.TestClampSideEffectValueWithConstantBounds#1": 1005390
 }

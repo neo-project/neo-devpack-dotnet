@@ -5,7 +5,7 @@
   "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBigIntegerNullableEqualNull#2": 1047180,
   "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBigIntegerNullableNotEqual#1": 1051500,
   "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBigIntegerNullableNotEqual#2": 1048470,
-  "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBigIntegerNullableToString#1": 2154540,
+  "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBigIntegerNullableToString#1": 2154660,
   "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBigIntegerNullableToString#2": 1048890,
   "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBoolNullableEqual#1": 1051500,
   "Neo.SmartContract.Framework.UnitTests.NullableTest.TestBoolNullableEqual#2": 1048470,

@@ -10,7 +10,7 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.IfNull#1": 1047780,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.IsNull#1": 1047870,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.IsNull#2": 1047870,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.NullCoalescing#1": 1355460,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.NullCoalescing#1": 1355580,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.NullCoalescing#2": 1047990,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.NullCoalescingAssignment#1": 2867850,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_NULL.NullCollation#1": 1048200,
