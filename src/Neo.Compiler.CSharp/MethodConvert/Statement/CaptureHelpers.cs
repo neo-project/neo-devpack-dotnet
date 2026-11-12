@@ -25,8 +25,8 @@ namespace Neo.Compiler
             {
                 BaseMethodDeclarationSyntax method => (SyntaxNode?)method.Body ?? method.ExpressionBody?.Expression,
                 AccessorDeclarationSyntax accessor => (SyntaxNode?)accessor.Body ?? accessor.ExpressionBody?.Expression,
-                SimpleLambdaExpressionSyntax lambda => lambda.Body ?? lambda.ExpressionBody,
-                ParenthesizedLambdaExpressionSyntax lambda => lambda.Body ?? lambda.ExpressionBody,
+                SimpleLambdaExpressionSyntax lambda => lambda.Body,
+                ParenthesizedLambdaExpressionSyntax lambda => lambda.Body,
                 ArrowExpressionClauseSyntax arrow => arrow.Expression,
                 _ => null
             };

@@ -40,6 +40,56 @@ public class UnitTest_CapturedConditionalLocals
                 if (useCallback) callback = () => paused;
                 return paused;
             }
+
+            public static bool ExpressionBody(bool paused) => Invoke(() => paused);
+
+            private static bool Invoke(Func<bool> callback) => callback();
+
+            public static bool Getter
+            {
+                get
+                {
+                    bool paused = true;
+                    Func<bool> callback = () => paused;
+                    return callback();
+                }
+            }
+
+            public static bool GetterValue() => Getter;
+
+            public static bool SimpleLambda(bool paused)
+            {
+                Func<bool, bool> outer = value =>
+                {
+                    bool local = value;
+                    Func<bool> inner = () => local;
+                    return inner();
+                };
+                return outer(paused);
+            }
+
+            public static bool ParenthesizedLambda(bool paused)
+            {
+                Func<bool, bool> outer = (bool value) =>
+                {
+                    bool local = value;
+                    Func<bool> inner = () => local;
+                    return inner();
+                };
+                return outer(paused);
+            }
+
+            public static bool LoopParameter(bool paused)
+            {
+                int count = 0;
+                while (count < 1)
+                {
+                    Func<bool> callback = () => paused;
+                    if (!callback()) return false;
+                    count++;
+                }
+                return paused;
+            }
         }
         """;
 
@@ -63,10 +113,38 @@ public class UnitTest_CapturedConditionalLocals
         Assert.AreEqual(true, contract.Parameter(false, true));
     }
 
+    [TestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.Basic)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
+    public void CapturesInOtherBodyShapesKeepTheirValues(CompilationOptions.OptimizationType optimization)
+    {
+        var options = TestHelper.CreateDefaultOptions();
+        options.Optimize = optimization;
+        var context = TestHelper.CompileSingleContract(Source, options);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+
+        var contract = new TestEngine(true).Deploy<ConditionalContract>(context.CreateExecutable(), context.CreateManifest());
+        Assert.AreEqual(true, contract.ExpressionBody(true));
+        Assert.AreEqual(false, contract.ExpressionBody(false));
+        Assert.AreEqual(true, contract.GetterValue());
+        Assert.AreEqual(true, contract.SimpleLambda(true));
+        Assert.AreEqual(false, contract.SimpleLambda(false));
+        Assert.AreEqual(true, contract.ParenthesizedLambda(true));
+        Assert.AreEqual(false, contract.ParenthesizedLambda(false));
+        Assert.AreEqual(true, contract.LoopParameter(true));
+        Assert.AreEqual(false, contract.LoopParameter(false));
+    }
+
     public abstract class ConditionalContract(SmartContractInitialize initialize)
         : SmartContract.Testing.SmartContract(initialize)
     {
         [DisplayName("guard")] public abstract bool? Guard(bool useCallback);
         [DisplayName("parameter")] public abstract bool? Parameter(bool useCallback, bool paused);
+        [DisplayName("expressionBody")] public abstract bool? ExpressionBody(bool paused);
+        [DisplayName("getterValue")] public abstract bool? GetterValue();
+        [DisplayName("simpleLambda")] public abstract bool? SimpleLambda(bool paused);
+        [DisplayName("parenthesizedLambda")] public abstract bool? ParenthesizedLambda(bool paused);
+        [DisplayName("loopParameter")] public abstract bool? LoopParameter(bool paused);
     }
 }
