@@ -10,7 +10,6 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Services;
-using System.Collections.Generic;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
@@ -27,7 +26,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static bool Remove(UInt160 value) => SetA.Remove(value);
         public static bool Contains(UInt160 value) => SetA.Contains(value);
         public static BigInteger Length() => SetA.Length;
-        public static UInt160 At(BigInteger index) => SetA.At(index);
 
         public static UInt160[] Values()
         {
@@ -43,12 +41,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         public static bool RemoveB(UInt160 value) => SetB.Remove(value);
         public static bool ContainsB(UInt160 value) => SetB.Contains(value);
         public static BigInteger LengthB() => SetB.Length;
-        public static UInt160 AtB(BigInteger index) => SetB.At(index);
 
         public static bool AddInvalid(byte[] value) => SetA.Add((UInt160)(ByteString)value);
-
         public static bool ContainsInvalid(byte[] value) => SetA.Contains((UInt160)(ByteString)value);
-
         public static bool RemoveInvalid(byte[] value) => SetA.Remove((UInt160)(ByteString)value);
 
         public static void AddThenAbort(UInt160 value)
