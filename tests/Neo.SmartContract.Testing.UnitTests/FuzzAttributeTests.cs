@@ -10,6 +10,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing.Attributes;
+using Neo.SmartContract.Testing.Fuzzing;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -103,6 +104,63 @@ public class FuzzAttributeTests
         var attribute = new FuzzTestAttribute();
 
         Assert.ThrowsExactly<NotSupportedException>(() => attribute.GetData(method).Single());
+    }
+
+    [TestMethod]
+    public void GeneratorSupportsAllPrimitiveAndNeoTypes()
+    {
+        Type[] supportedTypes =
+        [
+            typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort),
+            typeof(sbyte), typeof(byte), typeof(bool), typeof(byte[]), typeof(UInt256)
+        ];
+        var random = new Random(42);
+
+        foreach (var type in supportedTypes)
+            Assert.IsTrue(type.IsInstanceOfType(FuzzGenerator.NextValue(random, type)), type.Name);
+    }
+
+    [TestMethod]
+    public void GeneratorHandlesAmountAndLengthBoundaries()
+    {
+        var random = new Random(42);
+
+        Assert.AreEqual(BigInteger.One, FuzzGenerator.NextAmount(random, BigInteger.One, BigInteger.One));
+        for (int i = 0; i < 64; i++)
+        {
+            var value = FuzzGenerator.NextAmount(random, BigInteger.One, BigInteger.Zero);
+            Assert.IsTrue(value == BigInteger.Zero || value == BigInteger.One);
+        }
+        Assert.AreEqual(string.Empty, FuzzGenerator.NextString(random, -1));
+        Assert.AreEqual(string.Empty, FuzzGenerator.NextString(random, 0));
+        Assert.AreEqual(0, FuzzGenerator.NextBytes(random, -1).Length);
+        Assert.IsInstanceOfType<long>(FuzzGenerator.NextInt64(random));
+    }
+
+    [TestMethod]
+    public void FuzzAttributesValidateCountsAndFormatDisplayNames()
+    {
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new FuzzTestAttribute(iterations: 0));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new FuzzIntAttribute(count: 0));
+
+        var fuzzTest = new FuzzTestAttribute(iterations: 1, seed: 42);
+        StringAssert.Contains(fuzzTest.GetDisplayName(FuzzMethod, null), nameof(FuzzParameters));
+        StringAssert.Contains(fuzzTest.GetDisplayName(FuzzMethod, [1, "x", null, BigInteger.One]), "fuzz:");
+
+        var fuzzInt = new FuzzIntAttribute(count: 1, seed: 42);
+        StringAssert.Contains(fuzzInt.GetDisplayName(FuzzMethod, null), nameof(FuzzParameters));
+        StringAssert.Contains(fuzzInt.GetDisplayName(FuzzMethod, [7]), "7");
+    }
+
+    [TestMethod]
+    public void FuzzIntNormalizesReversedBounds()
+    {
+        var attribute = new FuzzIntAttribute(count: 64, seed: 42) { Min = 1, Max = 0 };
+        var values = attribute.GetData(FuzzMethod).Select(row => (int)row[0]!).ToArray();
+
+        Assert.IsTrue(values.All(value => value is 0 or 1));
+        Assert.IsTrue(values.Contains(0));
+        Assert.IsTrue(values.Contains(1));
     }
 
     [FuzzTest(iterations: 2, seed: 42)]
