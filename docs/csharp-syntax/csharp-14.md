@@ -259,9 +259,9 @@ public partial class PartialMembers
 
 ### user_defined_compound_assignment - User-defined compound assignment operators
 
-Status: unsupported
+Status: supported
 Scope: class
-Notes: C# 14 compound assignment operators are instance operators that return `void`. Roslyn recognizes the declaration, but Neo does not lower it; the analyzer reports `NC4064`.
+Notes: C# 14 compound assignment operators are void instance operators such as `public void operator +=(int amount)`. Neo lowers `x op= y` to a single invocation of the operator on the current value of `x`; the target is evaluated exactly once and mutated in place, so no result is written back.
 ```csharp
 public class Counter
 {
