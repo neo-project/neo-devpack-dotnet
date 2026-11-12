@@ -26,7 +26,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     {
         int total = 0;
         int[] values = new int[] { 1, 2, 3 };
-        outer: foreach (int v in values)
+    outer: foreach (int v in values)
         {
             foreach (int w in values)
             {
@@ -44,7 +44,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     {
         int total = 0;
         int[] values = new int[] { 1, 2, 3 };
-        outer: foreach (int v in values)
+    outer: foreach (int v in values)
         {
             foreach (int w in values)
             {
@@ -62,7 +62,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     {
         int total = 0;
         int i = 0;
-        outer: while (i < 5)
+    outer: while (i < 5)
         {
             i++;
             int j = 0;
@@ -82,7 +82,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     public int ContinueLabeledFor()
     {
         int total = 0;
-        outer: for (int i = 0; i < 4; i++)
+    outer: for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 4; j++)
             {
@@ -101,7 +101,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     public int BreakLabeledSwitch(int a, int b)
     {
         int total = 0;
-        outer: switch (a)
+    outer: switch (a)
         {
             case 1:
                 total += 1;
@@ -128,7 +128,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     {
         int total = 0;
         int[] values = new int[] { 1, 2, 3 };
-        outer: foreach (int v in values)
+    outer: foreach (int v in values)
         {
             try
             {
@@ -149,7 +149,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     {
         int total = 0;
         int[] values = new int[] { 1, 2, 3 };
-        outer: foreach (int v in values)
+    outer: foreach (int v in values)
         {
             try
             {
@@ -170,7 +170,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     {
         int total = 0;
         int[] values = new int[] { 1, 2 };
-        outer: foreach (int v in values)
+    outer: foreach (int v in values)
         {
             foreach (int w in values)
             {
@@ -194,7 +194,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
         int[] values = new int[] { 1, 2 };
         foreach (int v in values)
         {
-            middle: foreach (int w in values)
+        middle: foreach (int w in values)
             {
                 foreach (int u in values)
                 {
@@ -214,7 +214,7 @@ public class Contract_LabeledBreakContinue : SmartContract.Framework.SmartContra
     {
         int total = 0;
         int i = 0;
-        outer: do
+    outer: do
         {
             i++;
             int j = 0;
