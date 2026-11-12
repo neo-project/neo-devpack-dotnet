@@ -90,6 +90,48 @@ public class UnitTest_CapturedConditionalLocals
                 }
                 return paused;
             }
+
+            public static bool OutCapture(bool paused)
+            {
+                bool local;
+                Assign(out local, paused);
+                Func<bool> callback = () => local;
+                return callback();
+            }
+
+            private static void Assign(out bool target, bool value) => target = value;
+
+            public static bool RefCapture(bool paused)
+            {
+                bool local = paused;
+                Toggle(ref local);
+                Func<bool> callback = () => local;
+                return callback();
+            }
+
+            private static void Toggle(ref bool target) => target = !target;
+
+            public static bool GenericLocal(bool paused) => GenericCapture(paused);
+
+            private static bool GenericCapture<T>(T value)
+            {
+                T local = value;
+                Func<T> callback = () => local;
+                return callback().Equals(value);
+            }
+
+            public static bool GenericWrite(bool paused) => GenericAssign(!paused, paused);
+
+            private static bool GenericAssign<T>(T initial, T next)
+            {
+                T local = initial;
+                Func<T> callback = () =>
+                {
+                    local = next;
+                    return local;
+                };
+                return callback().Equals(next) && local.Equals(next);
+            }
         }
         """;
 
@@ -134,6 +176,14 @@ public class UnitTest_CapturedConditionalLocals
         Assert.AreEqual(false, contract.ParenthesizedLambda(false));
         Assert.AreEqual(true, contract.LoopParameter(true));
         Assert.AreEqual(false, contract.LoopParameter(false));
+        Assert.AreEqual(true, contract.OutCapture(true));
+        Assert.AreEqual(false, contract.OutCapture(false));
+        Assert.AreEqual(false, contract.RefCapture(true));
+        Assert.AreEqual(true, contract.RefCapture(false));
+        Assert.AreEqual(true, contract.GenericLocal(true));
+        Assert.AreEqual(true, contract.GenericLocal(false));
+        Assert.AreEqual(true, contract.GenericWrite(true));
+        Assert.AreEqual(true, contract.GenericWrite(false));
     }
 
     public abstract class ConditionalContract(SmartContractInitialize initialize)
@@ -146,5 +196,9 @@ public class UnitTest_CapturedConditionalLocals
         [DisplayName("simpleLambda")] public abstract bool? SimpleLambda(bool paused);
         [DisplayName("parenthesizedLambda")] public abstract bool? ParenthesizedLambda(bool paused);
         [DisplayName("loopParameter")] public abstract bool? LoopParameter(bool paused);
+        [DisplayName("outCapture")] public abstract bool? OutCapture(bool paused);
+        [DisplayName("refCapture")] public abstract bool? RefCapture(bool paused);
+        [DisplayName("genericLocal")] public abstract bool? GenericLocal(bool paused);
+        [DisplayName("genericWrite")] public abstract bool? GenericWrite(bool paused);
     }
 }
