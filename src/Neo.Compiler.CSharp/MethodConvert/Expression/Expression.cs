@@ -459,15 +459,14 @@ internal partial class MethodConvert
         {
             if (_checkedStack.Peek())
             {
-                var checkUpperBoundTarget = new JumpTarget();
+                var throwTarget = new JumpTarget();
                 Dup();
                 Push(minValue);
-                JumpIfGreaterOrEqual(checkUpperBoundTarget);
-                Throw();
-                checkUpperBoundTarget.Instruction = Dup();
+                JumpIfLess(throwTarget);
+                Dup();
                 Push(maxValue);
                 JumpIfLessOrEqual(endTarget);
-                Throw();
+                throwTarget.Instruction = Throw();
             }
             else
             {
