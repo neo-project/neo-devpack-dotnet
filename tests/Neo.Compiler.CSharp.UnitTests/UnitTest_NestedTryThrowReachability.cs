@@ -105,6 +105,28 @@ public class UnitTest_NestedTryThrowReachability
                 catch { log = log * 10 + 3; }
                 return log;
             }
+
+            public static int FinallyOverridesPendingException()
+            {
+                int log = 0;
+                try
+                {
+                    try
+                    {
+                        log = 1;
+                        throw new Exception("first");
+                    }
+                    finally
+                    {
+                        log = log * 10 + 2;
+                        throw new Exception("second");
+                    }
+                }
+                catch
+                {
+                    return log == 12 ? 2 : 1;
+                }
+            }
         }
         """;
 
@@ -162,6 +184,15 @@ public class UnitTest_NestedTryThrowReachability
         Assert.AreEqual(new BigInteger(123), contract.ThrowInFinally());
     }
 
+    [TestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
+    public void FinallyExceptionReplacesPendingException(CompilationOptions.OptimizationType optimization)
+    {
+        var contract = Deploy(optimization);
+        Assert.AreEqual(new BigInteger(2), contract.FinallyOverridesPendingException());
+    }
+
     private static CasesContract Deploy(CompilationOptions.OptimizationType optimization)
     {
         var options = TestHelper.CreateDefaultOptions();
@@ -181,5 +212,6 @@ public class UnitTest_NestedTryThrowReachability
         [DisplayName("throwInCatch")] public abstract BigInteger? ThrowInCatch();
         [DisplayName("throwInCatchWithFinally")] public abstract BigInteger? ThrowInCatchWithFinally();
         [DisplayName("throwInFinally")] public abstract BigInteger? ThrowInFinally();
+        [DisplayName("finallyOverridesPendingException")] public abstract BigInteger? FinallyOverridesPendingException();
     }
 }
