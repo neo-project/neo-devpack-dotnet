@@ -75,6 +75,15 @@ namespace Neo.Compiler.CSharp.UnitTests
                         public BigInteger Deposit;
                     }
 
+                    private static BigInteger Counter;
+
+                    public class DynamicPosition
+                    {
+                        public BigInteger Limit = NextLimit();
+                    }
+
+                    private static BigInteger NextLimit() => ++Counter;
+
                     [DisplayName("positionDefault")]
                     public static BigInteger PositionDefault() => Value(new Position());
 
@@ -85,6 +94,17 @@ namespace Neo.Compiler.CSharp.UnitTests
                     [DisplayName("positionOverride")]
                     public static BigInteger PositionOverride(BigInteger deposit)
                         => Value(new Position { Limit = 2000, Deposit = deposit });
+
+                    [DisplayName("positionAllOverride")]
+                    public static BigInteger PositionAllOverride(BigInteger deposit)
+                        => Value(new Position { Limit = 2000, Active = false, Fee = 8, Deposit = deposit });
+
+                    [DisplayName("dynamicOverride")]
+                    public static BigInteger DynamicOverride(BigInteger limit)
+                    {
+                        var position = new DynamicPosition { Limit = limit };
+                        return Counter * 1000 + position.Limit;
+                    }
 
                     [DisplayName("recordDefault")]
                     public static BigInteger RecordDefault() => new RecordPosition().LockBlocks * 1000;
@@ -109,6 +129,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(100015000), contract.PositionDefault());
             Assert.AreEqual(new BigInteger(100015250), contract.PositionPartial(250));
             Assert.AreEqual(new BigInteger(200015250), contract.PositionOverride(250));
+            Assert.AreEqual(new BigInteger(200000330), contract.PositionAllOverride(250));
+            Assert.AreEqual(new BigInteger(1250), contract.DynamicOverride(250));
             Assert.AreEqual(new BigInteger(720000), contract.RecordDefault());
             Assert.AreEqual(new BigInteger(720250), contract.RecordPartial(250));
         }
@@ -172,6 +194,12 @@ public static int Probe(int a)
 
         [DisplayName("positionOverride")]
         public abstract BigInteger? PositionOverride(BigInteger? deposit);
+
+        [DisplayName("positionAllOverride")]
+        public abstract BigInteger? PositionAllOverride(BigInteger? deposit);
+
+        [DisplayName("dynamicOverride")]
+        public abstract BigInteger? DynamicOverride(BigInteger? limit);
 
         [DisplayName("recordDefault")]
         public abstract BigInteger? RecordDefault();
