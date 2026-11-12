@@ -196,9 +196,13 @@ internal partial class MethodConvert
                     // Problem:
                     //   public void Test() => a+=1; // this will push an int value to the stack
                     //   public void Test() { a+=1; } // this will not push value to the stack
-                    if (syntax is MethodDeclarationSyntax methodSyntax
-                        && methodSyntax.ReturnType.ToString() == "void"
-                        && IsExpressionReturningValue(model, methodSyntax))
+                    bool returnsVoid = syntax switch
+                    {
+                        MethodDeclarationSyntax methodSyntax => methodSyntax.ReturnType.ToString() == "void",
+                        OperatorDeclarationSyntax operatorSyntax => operatorSyntax.ReturnType.ToString() == "void",
+                        _ => false
+                    };
+                    if (returnsVoid && IsExpressionReturningValue(model, syntax))
                         AddInstruction(OpCode.DROP);
                 }
                 else
@@ -315,7 +319,7 @@ internal partial class MethodConvert
         ConvertFieldBackedProperty(property);
     }
 
-    private static bool IsExpressionReturningValue(SemanticModel semanticModel, MethodDeclarationSyntax methodDeclaration)
+    private static bool IsExpressionReturningValue(SemanticModel semanticModel, BaseMethodDeclarationSyntax methodDeclaration)
     {
         // Check if it's a method declaration with an expression body
         if (methodDeclaration is { ExpressionBody: not null })
