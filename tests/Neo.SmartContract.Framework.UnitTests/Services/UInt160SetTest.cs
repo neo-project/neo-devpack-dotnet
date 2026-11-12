@@ -14,6 +14,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ public class UInt160SetTest
     private const byte PrefixA = 0xE1;
     private static readonly byte[] PrefixB = [0xE2, 0x00];
 
-    private static (NefFile nef, ContractManifest manifest) _compiled;
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) _compiled;
 
     public TestContext? TestContext { get; set; }
 
@@ -40,6 +41,9 @@ public class UInt160SetTest
 
     private static UInt160SetProxy Deploy()
         => new TestEngine(true).Deploy<UInt160SetProxy>(_compiled.nef, _compiled.manifest);
+
+    private static void Merge(UInt160SetProxy contract)
+        => DynamicCoverageMergeHelper.Merge(contract, _compiled.debugInfo);
 
     private static UInt160 Item(int i)
     {
@@ -95,6 +99,7 @@ public class UInt160SetTest
         Assert.ThrowsExactly<TestException>(() => c.At(0));
         Assert.AreEqual(0, c.Values()!.Count);
         AssertConsistentA(c, []);
+        Merge(c);
     }
 
     [TestMethod]
@@ -112,6 +117,7 @@ public class UInt160SetTest
         }
         AssertConsistentA(c, expected);
         Assert.AreEqual(5, c.Values()!.Count);
+        Merge(c);
     }
 
     [TestMethod]
@@ -124,6 +130,7 @@ public class UInt160SetTest
         Assert.AreEqual(changes, c.TestEngine.Storage.Snapshot.GetChangeSet().Count());
         Assert.AreEqual(1, c.Length());
         AssertConsistentA(c, [Item(1)]);
+        Merge(c);
     }
 
     [TestMethod]
@@ -159,6 +166,7 @@ public class UInt160SetTest
             AssertConsistentA(c, expected);
         }
         Assert.AreEqual(0, c.Length());
+        Merge(c);
     }
 
     [TestMethod]
@@ -170,6 +178,7 @@ public class UInt160SetTest
         Assert.IsFalse(c.Remove(Item(2)));
         Assert.AreEqual(changes, c.TestEngine.Storage.Snapshot.GetChangeSet().Count());
         AssertConsistentA(c, [Item(1)]);
+        Merge(c);
     }
 
     [TestMethod]
@@ -180,6 +189,7 @@ public class UInt160SetTest
         Assert.AreEqual(Item(1), c.At(0));
         Assert.ThrowsExactly<TestException>(() => c.At(1));
         Assert.ThrowsExactly<TestException>(() => c.At(-1));
+        Merge(c);
     }
 
     [TestMethod]
@@ -203,6 +213,7 @@ public class UInt160SetTest
 
         AssertConsistentA(c, [Item(1), Item(2)]);
         AssertConsistent(c, PrefixB, c.AtB, c.LengthB()!.Value, [Item(3)]);
+        Merge(c);
     }
 
     [TestMethod]
@@ -230,6 +241,7 @@ public class UInt160SetTest
             expected.Remove(e);
         }
         AssertConsistentA(c, expected);
+        Merge(c);
     }
 
     [TestMethod]
@@ -244,6 +256,7 @@ public class UInt160SetTest
         var values = c.Values()!;
         Assert.AreEqual(expected.Count, values.Count);
         Assert.IsTrue(expected.SetEquals(values.Select(v => new UInt160(((Neo.VM.Types.ByteString)v).GetSpan()))));
+        Merge(c);
     }
 
     [TestMethod]
@@ -265,6 +278,7 @@ public class UInt160SetTest
         }
         Assert.AreEqual(200, c.Length());
         AssertConsistentA(c, expected);
+        Merge(c);
     }
 
     [TestMethod]
@@ -281,6 +295,7 @@ public class UInt160SetTest
         Assert.ThrowsExactly<TestException>(() => c.RemoveThenAbort(Item(1)));
         Assert.IsTrue(c.Contains(Item(1)));
         AssertConsistentA(c, [Item(1), Item(2)]);
+        Merge(c);
     }
 
     [TestMethod]
@@ -294,6 +309,7 @@ public class UInt160SetTest
         Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(0));
         Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(UInt160Set_MaxPrefix + 1));
         Assert.AreEqual(0, c.CreateWithPrefixLength(UInt160Set_MaxPrefix));
+        Merge(c);
     }
 
     private const int UInt160Set_MaxPrefix = 43;
@@ -323,7 +339,7 @@ public class UInt160SetTest
         return c.TestEngine.FeeConsumed.Value;
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompileContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
         var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
@@ -340,7 +356,8 @@ public class UInt160SetTest
         Assert.AreEqual(1, contexts.Count);
         var context = contexts[0];
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
-        return (context.CreateExecutable(), context.CreateManifest());
+        var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+        return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
     }
 
     public abstract class UInt160SetProxy(SmartContractInitialize initialize)
