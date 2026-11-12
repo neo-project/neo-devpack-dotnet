@@ -140,6 +140,27 @@ public class RoyaltyNep11TokenTest
     }
 
     [TestMethod]
+    public void Burn_RemovesPerTokenRoyalty_BeforeTokenIdIsReused()
+    {
+        var c = Deploy(CreateEngine());
+        var id = new byte[] { 0x42, 0x01 };
+        var royaltyKey = new byte[] { 0x06, 0x42, 0x01 };
+
+        c.SetDefault(Bob.Account, 500);
+        c.MintWithId(id, Alice.Account, "first edition");
+        c.SetToken(id, Charlie.Account, 1000);
+        Assert.IsTrue(c.Storage.Contains(royaltyKey));
+
+        c.BurnToken(id);
+        Assert.IsFalse(c.Storage.Contains(royaltyKey));
+
+        c.MintWithId(id, Alice.Account, "reissued edition");
+        Assert.AreEqual(Bob.Account, c.RoyaltyRecipient(id, Gas, 10_000));
+        Assert.AreEqual(new BigInteger(500), c.RoyaltyAmount(id, Gas, 10_000));
+        Merge(c);
+    }
+
+    [TestMethod]
     public void Manifest_Nep24Conformance()
     {
         var method = _compiled.manifest.Abi.GetMethod("royaltyInfo", 3);
@@ -171,6 +192,10 @@ public class Contract : RoyaltyNep11Token<Nep11TokenState>
         Mint(id, new Nep11TokenState { Owner = owner, Name = name });
         return id;
     }
+
+    public static void MintWithId(ByteString id, UInt160 owner, string name)
+        => Mint(id, new Nep11TokenState { Owner = owner, Name = name });
+    public static void BurnToken(ByteString tokenId) => Burn(tokenId);
 
     public static void SetDefault(UInt160 recipient, BigInteger basisPoints) => SetDefaultRoyalty(recipient, basisPoints);
     public static void SetToken(ByteString tokenId, UInt160 recipient, BigInteger basisPoints) => SetTokenRoyalty(tokenId, recipient, basisPoints);
@@ -231,6 +256,12 @@ public class Contract : RoyaltyNep11Token<Nep11TokenState>
     {
         [DisplayName("mintToken")]
         public abstract byte[]? MintToken(UInt160 owner, string name);
+
+        [DisplayName("mintWithId")]
+        public abstract void MintWithId(byte[] id, UInt160 owner, string name);
+
+        [DisplayName("burnToken")]
+        public abstract void BurnToken(byte[] tokenId);
 
         [DisplayName("setDefault")]
         public abstract void SetDefault(UInt160 recipient, BigInteger basisPoints);
