@@ -183,7 +183,7 @@ jobs:
       shell: pwsh
       run: |
         $core = ([xml](Get-Content tests/Directory.Build.props)).Project.PropertyGroup.NeoCorePackageVersion | Where-Object { $_ } | Select-Object -First 1
-        ./.github/scripts/gas/aggregate-report.ps1
+        if (Test-Path gas-report) { ./.github/scripts/gas/aggregate-report.ps1 -ReportDirectory gas-report -NeoCoreVersion $core }
         foreach ($file in 'gas-report/gas-regression-report.md', 'gas-report/gas-tracking-report.md') {
           if (Test-Path $file) { Get-Content $file | Add-Content $env:GITHUB_STEP_SUMMARY }
           else { "No $file was generated." | Add-Content $env:GITHUB_STEP_SUMMARY }
