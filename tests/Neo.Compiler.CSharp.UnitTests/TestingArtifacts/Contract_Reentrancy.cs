@@ -13,12 +13,12 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Reentrancy"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""hasReentrancy"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""hasReentrancyFromSingleBasicBlock"",""parameters"":[],""returntype"":""Void"",""offset"":134,""safe"":false},{""name"":""hasReentrancyFromCall"",""parameters"":[],""returntype"":""Void"",""offset"":251,""safe"":false},{""name"":""noReentrancy"",""parameters"":[],""returntype"":""Void"",""offset"":353,""safe"":false},{""name"":""noReentrancyFromCall"",""parameters"":[],""returntype"":""Void"",""offset"":470,""safe"":false},{""name"":""noReentrancyFromJump"",""parameters"":[{""name"":""input"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":493,""safe"":false},{""name"":""noReentrancyByAttribute"",""parameters"":[],""returntype"":""Void"",""offset"":614,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":768,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Reentrancy"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""hasReentrancy"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""hasReentrancyFromSingleBasicBlock"",""parameters"":[],""returntype"":""Void"",""offset"":134,""safe"":false},{""name"":""hasReentrancyFromCall"",""parameters"":[],""returntype"":""Void"",""offset"":251,""safe"":false},{""name"":""noReentrancy"",""parameters"":[],""returntype"":""Void"",""offset"":353,""safe"":false},{""name"":""noReentrancyFromCall"",""parameters"":[],""returntype"":""Void"",""offset"":470,""safe"":false},{""name"":""noReentrancyFromJump"",""parameters"":[{""name"":""input"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":493,""safe"":false},{""name"":""noReentrancyByAttribute"",""parameters"":[],""returntype"":""Void"",""offset"":614,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":772,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0QA1cFAEN0O2UADBT1Y+pAvCg9TQ4FxI6jBbPyoHNA73AMCHRyYW5zZmVycR9yDBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAAQC1QUwHNramloQWJ9W1JFPR1wQ2wyBUUi+0Gb9mfODAEB2zARU0HmPxiEPQJAVwQADBT1Y+pAvCg9TQ4FxI6jBbPyoHNA73AMCHRyYW5zZmVycR9yDBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAAQC1QUwHNramloQWJ9W1JFQZv2Z84MAQHbMBFTQeY/GIRAVwQADBTPduKL0AYsSkeO41VhARMZ88+k0nAMCHRyYW5zZmVycR9yDBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAAQC1QUwHNramloQWJ9W1JFNANAVwQAQZv2Z84MAQHbMBFTQeY/GIQMFPVj6kC8KD1NDgXEjqMFs/Kgc0DvcAwIdHJhbnNmZXJxH3IMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABALVBTAc2tqaWhBYn1bUkVAQZv2Z84MAQHbMBFTQeY/GIQ1ev///0BXBAF4JmMMFM924ovQBixKR47jVWEBExnzz6TScAwIdHJhbnNmZXJxH3IMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABALVBTAc2tqaWhBYn1bUkVAQZv2Z84MAQHbMBFTQeY/GIRAWNgmHFkLCxPADAtub1JlZW50cmFudAH/ABJNNA9gWDQnNf/9//9YNF9AVwADengRUdBBm/ZnznkRiE4QUdBQEsB4EFHQQFcDAXgRzngQzsFFU4tQQZJd6DFwaNhxDA9BbHJlYWR5IGVudGVyZWRyaSQEauAReBHOeBDOwUVTi1BB5j8YhEBXAAF4Ec54EM7BRVOLUEEvWMXtQFYCCur///8Kpf///xLAYUD0a++E").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0UA1cFAEN0O2UADBT1Y+pAvCg9TQ4FxI6jBbPyoHNA73AMCHRyYW5zZmVycR9yDBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAAQC1QUwHNramloQWJ9W1JFPR1wQ2wyBUUi+0Gb9mfODAEB2zARU0HmPxiEPQJAVwQADBT1Y+pAvCg9TQ4FxI6jBbPyoHNA73AMCHRyYW5zZmVycR9yDBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAAQC1QUwHNramloQWJ9W1JFQZv2Z84MAQHbMBFTQeY/GIRAVwQADBTPduKL0AYsSkeO41VhARMZ88+k0nAMCHRyYW5zZmVycR9yDBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAAQC1QUwHNramloQWJ9W1JFNANAVwQAQZv2Z84MAQHbMBFTQeY/GIQMFPVj6kC8KD1NDgXEjqMFs/Kgc0DvcAwIdHJhbnNmZXJxH3IMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABALVBTAc2tqaWhBYn1bUkVAQZv2Z84MAQHbMBFTQeY/GIQ1ev///0BXBAF4JmMMFM924ovQBixKR47jVWEBExnzz6TScAwIdHJhbnNmZXJxH3IMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABALVBTAc2tqaWhBYn1bUkVAQZv2Z84MAQHbMBFTQeY/GIRAWNgmHFkLCxPADAtub1JlZW50cmFudAH/ABJNNA9gWDQrNf/9//9YNGNAVwIDengRUdBBm/ZnznB5cWhpEYhOEFHQUBLAeBBR0EBXAwF4Ec54EM7BRVOLUEGSXegxcGjYcQwPQWxyZWFkeSBlbnRlcmVkcmkkBGrgEXgRzngQzsFFU4tQQeY/GIRAVwABeBHOeBDOwUVTi1BBL1jF7UBWAgrq////CqX///8SwGFAcrIa3w==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -182,7 +182,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: WNgmHFkLCxPADAtub1JlZW50cmFudAH/ABJNNA9gWDQnNf/9//9YNF9A
+    /// Script: WNgmHFkLCxPADAtub1JlZW50cmFudAH/ABJNNA9gWDQrNf/9//9YNGNA
     /// LDSFLD0 [2 datoshi]
     /// ISNULL [2 datoshi]
     /// JMPIFNOT 1C [2 datoshi]
@@ -198,10 +198,10 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// CALL 0F [512 datoshi]
     /// STSFLD0 [2 datoshi]
     /// LDSFLD0 [2 datoshi]
-    /// CALL 27 [512 datoshi]
+    /// CALL 2B [512 datoshi]
     /// CALL_L FFFDFFFF [512 datoshi]
     /// LDSFLD0 [2 datoshi]
-    /// CALL 5F [512 datoshi]
+    /// CALL 63 [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("noReentrancyByAttribute")]
