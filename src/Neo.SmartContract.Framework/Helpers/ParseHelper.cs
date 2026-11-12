@@ -46,16 +46,16 @@ namespace Neo.SmartContract.Framework.Helpers
             return result;
         }
 
-        internal static byte[] ParseAddress(string value, byte addressVersion)
+        internal static ByteString ParseAddress(string value, byte addressVersion)
         {
-            var decoded = (byte[])StdLib.Base58CheckDecode(value);
+            var decoded = StdLib.Base58CheckDecode(value);
             if (decoded.Length != 21)
                 throw new FormatException("Invalid address length.");
 
             if (decoded[0] != addressVersion)
                 throw new FormatException("Invalid address version.");
 
-            return Helper.Range(decoded, 1, decoded.Length - 1);
+            return decoded.Substring(1, 20); // decoded.Length - 1 = 20
         }
 
         private static BigInteger FromHexByte(BigInteger value)

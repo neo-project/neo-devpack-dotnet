@@ -146,7 +146,7 @@ public class UnitTest_LinqContains
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(1, false)]
     [DataRow(10, false)]
     [DataRow(100, false)]

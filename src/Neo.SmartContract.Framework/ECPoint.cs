@@ -57,6 +57,12 @@ namespace Neo.SmartContract.Framework
         public static extern explicit operator byte[](ECPoint value);
 
         /// <summary>
+        /// Convert a checked 33-bytes ByteString to ECPoint
+        /// </summary>
+        [OpCode(OpCode.NOP)]
+        private static extern ECPoint FromChecked(ByteString value);
+
+        /// <summary>
         /// Parses a compressed public key (66 hex characters, optional <c>0x</c> prefix) into an <see cref="ECPoint"/>.
         /// </summary>
         /// <param name="value">Hex string representing the compressed public key.</param>
@@ -69,7 +75,7 @@ namespace Neo.SmartContract.Framework
             byte[] data = ParseHelper.ParseHex(value);
             if (data.Length != 33)
                 throw new FormatException("ECPoint must be 33 bytes long.");
-            return (ECPoint)data;
+            return FromChecked((ByteString)data);
         }
 
         /// <summary>

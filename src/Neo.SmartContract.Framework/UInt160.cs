@@ -92,6 +92,12 @@ namespace Neo.SmartContract.Framework
         public static extern explicit operator byte[](UInt160 value);
 
         /// <summary>
+        /// Convert a checked 20-bytes ByteString to UInt160
+        /// </summary>
+        [OpCode(OpCode.NOP)]
+        private static extern UInt160 FromChecked(ByteString value);
+
+        /// <summary>
         /// Converts the specified script hash to an address, using the current blockchain AddressVersion value.
         /// </summary>
         /// <returns>The converted address.</returns>
@@ -132,12 +138,12 @@ namespace Neo.SmartContract.Framework
                 byte[] data = ParseHelper.ParseHex(value);
                 if (data.Length != UInt160.Size)
                     throw new FormatException("UInt160 must be 20 bytes long.");
-                return (UInt160)data.Reverse();
+                return FromChecked((ByteString)data.Reverse());
             }
             catch (FormatException) { }
 
             if (value.Length == 34) // The address is 34 characters base58check encoded (20 bytes + 1 version byte)
-                return (UInt160)ParseHelper.ParseAddress(value, Runtime.AddressVersion);
+                return FromChecked(ParseHelper.ParseAddress(value, Runtime.AddressVersion));
             throw new FormatException("Invalid UInt160 string format.");
         }
 
