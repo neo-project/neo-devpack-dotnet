@@ -162,23 +162,6 @@ jobs:
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
-    - name: GAS regression summary
-      if: always() && steps.scope.outputs.full == 'true'
-      shell: pwsh
-      run: |
-        $core = ([xml](Get-Content tests/Directory.Build.props)).Project.PropertyGroup.NeoCorePackageVersion | Where-Object { $_ } | Select-Object -First 1
-        if (Test-Path gas-report) { ./scripts/gas/aggregate-report.ps1 -ReportDirectory gas-report -NeoCoreVersion $core }
-        foreach ($file in 'gas-report/gas-regression-report.md', 'gas-report/gas-tracking-report.md') {
-          if (Test-Path $file) { Get-Content $file | Add-Content $env:GITHUB_STEP_SUMMARY }
-          else { "No $file was generated." | Add-Content $env:GITHUB_STEP_SUMMARY }
-        }
-    - name: Upload GAS regression report
-      if: always() && steps.scope.outputs.full == 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: gas-report
-        path: gas-report/
-        if-no-files-found: warn
     - name: Test Neo.SmartContract.Analyzer.UnitTests
       if: steps.scope.outputs.full == 'true'
       run: |
@@ -195,6 +178,16 @@ jobs:
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+    - name: GAS regression summary
+      if: always() && steps.scope.outputs.full == 'true'
+      shell: pwsh
+      run: |
+        $core = ([xml](Get-Content tests/Directory.Build.props)).Project.PropertyGroup.NeoCorePackageVersion | Where-Object { $_ } | Select-Object -First 1
+        if (Test-Path gas-report) { ./scripts/gas/aggregate-report.ps1 -ReportDirectory gas-report -NeoCoreVersion $core }
+        foreach ($file in 'gas-report/gas-regression-report.md', 'gas-report/gas-tracking-report.md') {
+          if (Test-Path $file) { Get-Content $file | Add-Content $env:GITHUB_STEP_SUMMARY }
+          else { "No $file was generated." | Add-Content $env:GITHUB_STEP_SUMMARY }
+        }
     - name: Test Neo.SmartContract.Testing.UnitTests
       if: steps.scope.outputs.full == 'true'
       run: |

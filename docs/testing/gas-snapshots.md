@@ -71,15 +71,17 @@ When `NEO_GAS_REPORT_DIR` is set, `WriteReportIfConfiguredAndAssert()` writes
 the policy. Without this variable, normal local execution creates no reports.
 Publication uses the evaluated snapshots, not replacements supplied by a caller.
 
-The `Test` job sets this directory for its existing full compiler test step;
-it does not run the compiler suite again. Summary and upload steps use
-`always()` with the existing full-scope condition, so a GAS assertion failure
-does not prevent publication. Documentation-only selection remains unchanged.
+The `Test` job sets this directory for its full compiler and framework test
+steps; it does not run those suites again. The summary step runs after the last
+tracked suite and uses `always()` with the existing full-scope condition, so a
+GAS assertion failure does not prevent publication. Documentation-only
+selection remains unchanged.
 
-Download the `gas-report` artifact from the workflow run and open its Markdown
-file. Compare `baseline.json` with `current.json` to inspect the exact datoshi
-values. An unavailable report is noted in the summary if tests never reached
-report generation, for example because the baseline was missing.
+The report is published in the job summary of the workflow run. No artifact is
+uploaded. To inspect exact datoshi values, run the tests locally with
+`NEO_GAS_REPORT_DIR` set and compare `baseline.json` with `current.json`. An
+unavailable report is noted in the summary if tests never reached report
+generation, for example because the baseline was missing.
 
 The representative report records the loaded Neo Core assembly version, actual
 compiler optimization, benchmark contract, and the engine's hardfork activation
