@@ -306,6 +306,12 @@ public class UInt160SetTest
         Assert.ThrowsExactly<TestException>(() => c.AddInvalid(new byte[21]));
         Assert.AreEqual(0, c.Length());
 
+        Assert.ThrowsExactly<TestException>(() => c.ContainsInvalid(new byte[19]));
+        Assert.ThrowsExactly<TestException>(() => c.ContainsInvalid(new byte[21]));
+        Assert.ThrowsExactly<TestException>(() => c.RemoveInvalid(new byte[19]));
+        Assert.ThrowsExactly<TestException>(() => c.RemoveInvalid(new byte[21]));
+        Assert.AreEqual(0, c.Length());
+
         Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(0));
         Assert.ThrowsExactly<TestException>(() => c.CreateWithPrefixLength(UInt160Set_MaxPrefix + 1));
         Assert.AreEqual(0, c.CreateWithPrefixLength(UInt160Set_MaxPrefix));
@@ -379,6 +385,8 @@ public class UInt160SetTest
         [DisplayName("atB")] public abstract UInt160? AtB(BigInteger index);
 
         [DisplayName("addInvalid")] public abstract bool? AddInvalid(byte[] value);
+        [DisplayName("containsInvalid")] public abstract bool? ContainsInvalid(byte[] value);
+        [DisplayName("removeInvalid")] public abstract bool? RemoveInvalid(byte[] value);
         [DisplayName("addThenAbort")] public abstract void AddThenAbort(UInt160 value);
         [DisplayName("removeThenAbort")] public abstract void RemoveThenAbort(UInt160 value);
         [DisplayName("createWithPrefixLength")] public abstract BigInteger? CreateWithPrefixLength(BigInteger size);

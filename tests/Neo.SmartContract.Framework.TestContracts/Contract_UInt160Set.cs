@@ -47,6 +47,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static bool AddInvalid(byte[] value) => SetA.Add((UInt160)(ByteString)value);
 
+        public static bool ContainsInvalid(byte[] value) => SetA.Contains((UInt160)(ByteString)value);
+
+        public static bool RemoveInvalid(byte[] value) => SetA.Remove((UInt160)(ByteString)value);
+
         public static void AddThenAbort(UInt160 value)
         {
             SetA.Add(value);
