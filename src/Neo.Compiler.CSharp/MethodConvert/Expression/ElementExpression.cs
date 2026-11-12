@@ -163,8 +163,8 @@ internal partial class MethodConvert
 
             if (range.RightOperand is null)
             {
-                AddInstruction(OpCode.OVER);
-                AddInstruction(OpCode.SIZE);
+                Over();
+                Size();
             }
             else
             {
@@ -172,13 +172,19 @@ internal partial class MethodConvert
             }
 
             // Decode from-end values only after both endpoint expressions have run.
-            ResolveRangeEndpointOffset();
-            AddInstruction(OpCode.SWAP);
-            ResolveRangeEndpointOffset();
-            AddInstruction(OpCode.SWAP);
+            if (range.RightOperand is not null) // [left, right]
+            {
+                ResolveRangeEndpointOffset();  // [left, right']
+            }
+            if (range.LeftOperand is not null)
+            {
+                Swap();                        // [right, left]
+                ResolveRangeEndpointOffset();  // [right, left']
+                Swap();                        // [left', right]
+            }
 
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.SUB);
+            Over();   // [left, right, left]
+            Sub();    // [left, count]
             switch (type.ToString())
             {
                 case "byte[]":
@@ -334,16 +340,14 @@ internal partial class MethodConvert
     private void ResolveRangeEndpointOffset()
     {
         JumpTarget absoluteTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(0);
+        Dup();             // [value, value]
+        Push(0);           // [value, value, 0]
         JumpIfGreaterOrEqual(absoluteTarget);
-        Push(2);
-        AddInstruction(OpCode.PICK);
-        AddInstruction(OpCode.SIZE);
-        AddInstruction(OpCode.SWAP);
-        AddInstruction(OpCode.ADD);
-        AddInstruction(OpCode.INC);
-        absoluteTarget.Instruction = Nop();
+        Pick(2);
+        Size();           // [value, size]
+        Add();            // [value + size]
+        Inc();            // [value + size + 1]
+        absoluteTarget.Instruction = Nop();    // [offset]
     }
 
     private void EnsureMultiDimensionalArguments(SeparatedSyntaxList<ArgumentSyntax> arguments, int expectedRank, SyntaxNode errorNode)
