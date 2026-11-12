@@ -69,6 +69,53 @@ public class UnitTest_ArgumentEvaluationOrder
     }
 
     [TestMethod]
+    public void MappedStdCallNamedArgumentsEvaluateInSourceOrder()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+            using System.Numerics;
+
+            public class Contract : SmartContract
+            {
+                private static BigInteger _credit;
+                private static BigInteger _counter;
+
+                [DisplayName("addAfterClear")]
+                public static BigInteger AddAfterClear()
+                {
+                    _credit = 7;
+                    return BigInteger.Add(right: ClearCredit(), left: ReadCredit());
+                }
+
+                [DisplayName("subtractInSourceOrder")]
+                public static BigInteger SubtractInSourceOrder()
+                {
+                    _counter = 0;
+                    return BigInteger.Subtract(right: Next(), left: Next());
+                }
+
+                private static BigInteger ClearCredit()
+                {
+                    _credit = 0;
+                    return 0;
+                }
+
+                private static BigInteger ReadCredit() => _credit;
+
+                private static BigInteger Next() => ++_counter;
+            }
+            """;
+
+        var context = TestHelper.CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join("\n", context.Diagnostics));
+        var contract = new TestEngine(true).Deploy<MappedStdCallOrderContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual(BigInteger.Zero, contract.AddAfterClear());
+        Assert.AreEqual(BigInteger.One, contract.SubtractInSourceOrder());
+    }
+
+    [TestMethod]
     public void ExpandedParamsArgumentsEvaluateLeftToRight()
     {
         const string source = """
@@ -327,6 +374,16 @@ public class UnitTest_ArgumentEvaluationOrder
 
         [DisplayName("namedOutOfOrder")]
         public abstract BigInteger? NamedOutOfOrder();
+    }
+
+    public abstract class MappedStdCallOrderContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("addAfterClear")]
+        public abstract BigInteger? AddAfterClear();
+
+        [DisplayName("subtractInSourceOrder")]
+        public abstract BigInteger? SubtractInSourceOrder();
     }
 
     public abstract class ParamsOrderContract(SmartContractInitialize initialize)

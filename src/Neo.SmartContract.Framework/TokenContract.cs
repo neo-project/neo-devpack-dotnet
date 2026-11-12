@@ -13,6 +13,7 @@ using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Neo.SmartContract.Framework
 {
@@ -20,6 +21,18 @@ namespace Neo.SmartContract.Framework
     {
         protected const byte Prefix_TotalSupply = 0x00;
         protected const byte Prefix_Balance = 0x01;
+
+        /// <summary>
+        /// Builds a storage key with the same helper used by every access to this namespace.
+        /// The key is typically a fixed prefix followed by the caller-provided key, which
+        /// keeps reads and writes consistent and avoids storage key collisions.
+        /// </summary>
+        /// <remarks>
+        /// This raw-key form is a performance optimization. The recommended way is to use
+        /// <see cref="StorageMap"/> / <see cref="LocalStorageMap"/>, which is safer against storage injection.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static byte[] BalanceKey(ByteString key) => new byte[1] { Prefix_Balance }.Concat(key);
 
         public abstract string Symbol { [Safe] get; }
 
@@ -33,21 +46,20 @@ namespace Neo.SmartContract.Framework
         {
             if (!owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid.");
-            var balanceMap = new LocalStorageMap(Prefix_Balance);
-            return (BigInteger)balanceMap[owner]!;
+            return (BigInteger)Storage.Get(BalanceKey(owner))!;
         }
 
         protected static bool UpdateBalance(UInt160 owner, BigInteger increment)
         {
-            var balanceMap = new LocalStorageMap(Prefix_Balance);
-            BigInteger balance = (BigInteger)balanceMap[owner]!;
+            var key = BalanceKey(owner);
+            BigInteger balance = (BigInteger)Storage.Get(key)!;
             balance += increment;
             if (balance < 0)
                 return false;
             if (balance.IsZero)
-                balanceMap.Delete(owner);
+                Storage.Delete(key);
             else
-                balanceMap.Put(owner, balance);
+                Storage.Put(key, balance);
             return true;
         }
     }

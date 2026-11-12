@@ -337,7 +337,7 @@ internal partial class MethodConvert
         var argumentMap = MapArgumentsToParameters(model, symbol, arguments);
         var argumentExpressions = MapArgumentExpressionsToParameters(symbol, arguments);
 
-        if (ShouldPreserveArgumentEvaluationOrder(model, symbol, arguments, callingConvention))
+        if (ShouldPreserveArgumentEvaluationOrder(model, symbol, arguments))
         {
             if (TryPrepareParamsArgumentsPreservingEvaluationOrder(model, symbol, arguments, callingConvention))
                 return;
@@ -496,8 +496,7 @@ internal partial class MethodConvert
         IReadOnlyList<SyntaxNode> arguments,
         CallingConvention callingConvention)
     {
-        if (callingConvention != CallingConvention.Cdecl ||
-            symbol.Parameters.LastOrDefault() is not { IsParams: true } paramsParameter)
+        if (symbol.Parameters.LastOrDefault() is not { IsParams: true } paramsParameter)
             return false;
 
         Dictionary<IParameterSymbol, byte> regularSlots = new(SymbolEqualityComparer.Default);
@@ -672,11 +671,8 @@ internal partial class MethodConvert
         }
     }
 
-    private static bool ShouldPreserveArgumentEvaluationOrder(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
+    private static bool ShouldPreserveArgumentEvaluationOrder(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments)
     {
-        if (callingConvention != CallingConvention.Cdecl)
-            return false;
-
         bool hasParams = symbol.Parameters.Any(parameter => parameter.IsParams);
         if (!hasParams && symbol.Parameters.Length <= 1)
             return false;
