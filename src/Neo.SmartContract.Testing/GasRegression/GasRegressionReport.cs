@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// GasRegressionPolicy.cs file belongs to the neo project and is free
+// GasRegressionReport.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -12,37 +12,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Neo.SmartContract.Testing.TestingStandards;
 
-namespace Neo.SmartContract.Testing.TestingStandards;
-
-/// <summary>
-/// Classification of a single gas measurement compared with its baseline.
-/// </summary>
-public enum GasChangeStatus
-{
-    Unchanged,
-    WithinTolerance,
-    Improvement,
-    Regression,
-    Missing,
-    Unexpected
-}
-
-/// <summary>
-/// One compared measurement.
-/// </summary>
-public sealed record GasChange(string Name, long? Baseline, long? Current, GasChangeStatus Status)
-{
-    /// <summary>
-    /// Current minus baseline, or null when either side is absent.
-    /// </summary>
-    public Int128? Difference => Baseline is null || Current is null ? null : (Int128)Current.Value - Baseline.Value;
-
-    /// <summary>
-    /// True when this change must fail CI.
-    /// </summary>
-    public bool IsFailure => Status is GasChangeStatus.Regression or GasChangeStatus.Missing or GasChangeStatus.Unexpected;
-}
+namespace Neo.SmartContract.Testing.GasRegression;
 
 /// <summary>
 /// CI regression policy: gas decreases pass, increases beyond the tolerance fail,

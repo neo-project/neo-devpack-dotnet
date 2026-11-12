@@ -1,6 +1,6 @@
 # Aggregates per-test GAS tracking files (tracked-<assembly>/tests/*.tsv) into a deterministic
 # Markdown and JSON report. Safe to run after failures; never touches committed baselines.
-# Usage: ./aggregate-report.ps1 -ReportDirectory gas-report
+# Usage: ./.github/scripts/gas/aggregate-report.ps1 -ReportDirectory gas-report
 param(
     [Parameter(Mandatory)][string]$ReportDirectory,
     [string]$NeoCoreVersion = $env:NEO_CORE_VERSION,
@@ -9,6 +9,8 @@ param(
 )
 
 $culture = [System.Globalization.CultureInfo]::InvariantCulture
+# Test ids are written escaped (\\, \t, \n, \r) so they cannot break the tab-separated rows.
+function Unescape([string]$v) { if ($null -eq $v) { return $v }; [regex]::Replace($v, '\\(.)', { param($m) switch ($m.Groups[1].Value) { 't' { "`t" } 'n' { "`n" } 'r' { "`r" } default { $m.Groups[1].Value } } }) }
 $sb = [System.Text.StringBuilder]::new()
 $json = [System.Collections.Generic.SortedDictionary[string, object]]::new([System.StringComparer]::Ordinal)
 [void]$sb.Append("# GAS tracking report`n")
@@ -19,7 +21,7 @@ $json['_metadata'] = [ordered]@{ neoCore = $NeoCoreVersion; optimization = $Opti
 foreach ($dir in (Get-ChildItem -Path $ReportDirectory -Directory -Filter 'tracked-*' | Sort-Object Name -CaseSensitive)) {
 	$rows = foreach ($file in (Get-ChildItem -Path (Join-Path $dir.FullName 'tests') -Filter *.tsv -ErrorAction SilentlyContinue)) {
 		foreach ($line in (Get-Content -Path $file.FullName)) {
-			if ($line) { $f = $line -split "`t"; [pscustomobject]@{ Name = $f[0]; Status = $f[1]; Baseline = $f[2]; Current = $f[3] } }
+			if ($line) { $f = $line -split "`t"; [pscustomobject]@{ Name = Unescape $f[0]; Status = $f[1]; Baseline = $f[2]; Current = $f[3] } }
 		}
 	}
 	$rows = @($rows | Sort-Object { $_.Name } -CaseSensitive)
@@ -33,7 +35,7 @@ foreach ($dir in (Get-ChildItem -Path $ReportDirectory -Directory -Filter 'track
 	}
 	if ($failures.Count -gt 0) {
 		[void]$sb.Append("`n| Execution | Status | Baseline | Current |`n|---|---|---:|---:|`n")
-		foreach ($r in $failures) { [void]$sb.Append("| $($r.Name -replace '\|','\|') | $($r.Status) | $($r.Baseline) | $($r.Current) |`n") }
+		foreach ($r in $failures) { [void]$sb.Append("| $((($r.Name -replace '\|','\|') -replace "`t",'\t') -replace "`r",'\r' -replace "`n",'\n') | $($r.Status) | $($r.Baseline) | $($r.Current) |`n") }
 	}
 	$json[$dir.Name.Substring(8)] = [ordered]@{
 		executions = $rows.Count

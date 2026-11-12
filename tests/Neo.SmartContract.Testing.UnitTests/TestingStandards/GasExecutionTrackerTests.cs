@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
+using Neo.SmartContract.Testing.GasRegression;
 using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System;
@@ -37,6 +38,25 @@ namespace Neo.SmartContract.Testing.UnitTests.TestingStandards
             sb.Emit(OpCode.NOP);
             sb.Emit(OpCode.THROW);
             return sb.ToArray();
+        }
+
+        [TestMethod]
+        public void NestedScopeRestoresOuterScopeOnDispose()
+        {
+            using var outer = GasExecutionTracker.Begin("Outer.Test");
+            var engine = new TestEngine(true);
+            engine.Execute(Push(1));
+
+            using (var inner = GasExecutionTracker.Begin("Inner.Test"))
+            {
+                Assert.AreSame(inner, GasExecutionTracker.Current);
+                engine.Execute(Push(2));
+                Assert.AreEqual(1, inner.Measurements.Count);
+            }
+
+            Assert.AreSame(outer, GasExecutionTracker.Current);
+            engine.Execute(Push(3));
+            CollectionAssert.AreEqual(new[] { "Outer.Test#1", "Outer.Test#2" }, outer.Measurements.Select(m => m.Id).ToArray());
         }
 
         [TestMethod]

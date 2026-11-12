@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using Neo.SmartContract.Testing.GasRegression;
 
 namespace Neo.SmartContract.Testing.TestingStandards
 {
@@ -25,7 +26,13 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
         public string TestId { get; }
 
-        internal GasExecutionScope(string testId) => TestId = testId;
+        internal GasExecutionScope? Parent { get; }
+
+        internal GasExecutionScope(string testId, GasExecutionScope? parent = null)
+        {
+            TestId = testId;
+            Parent = parent;
+        }
 
         /// <summary>
         /// Snapshot of the measurements in recording order.

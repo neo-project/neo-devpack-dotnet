@@ -7,6 +7,7 @@
 // for more details.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.GasRegression;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Generic;

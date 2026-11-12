@@ -271,6 +271,27 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_Contains_Regression()
+        {
+            var empty = new List<object>();
+            Assert.IsFalse(Contract.Contains(empty, 1));
+
+            var array = new List<object> { 5, 7, 7, 9 };
+            Assert.IsTrue(Contract.Contains(array, 5));
+            Assert.IsTrue(Contract.Contains(array, 9));
+            Assert.IsTrue(Contract.Contains(array, 7));
+            Assert.IsFalse(Contract.Contains(array, 6));
+
+            var single = new List<object> { 3 };
+            Assert.IsTrue(Contract.Contains(single, 3));
+            Assert.IsFalse(Contract.Contains(single, 4));
+
+            Assert.IsFalse(Contract.ContainsText(empty, "a"));
+            Assert.IsTrue(Contract.ContainsText(new List<object> { "a", "b", "a" }, "a"));
+            Assert.IsFalse(Contract.ContainsText(new List<object> { "a", "b" }, "c"));
+        }
+
+        [TestMethod]
         public void Test_ContainsText()
         {
             var array = new List<object>

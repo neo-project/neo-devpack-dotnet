@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
         public static GasExecutionScope Begin(string testId)
         {
             if (string.IsNullOrWhiteSpace(testId)) throw new ArgumentException("Test id is required.", nameof(testId));
-            var scope = new GasExecutionScope(testId);
+            var scope = new GasExecutionScope(testId, _current.Value);
             _current.Value = scope;
             return scope;
         }
@@ -79,7 +79,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
         internal static void End(GasExecutionScope scope)
         {
-            if (ReferenceEquals(_current.Value, scope)) _current.Value = null;
+            if (ReferenceEquals(_current.Value, scope)) _current.Value = scope.Parent;
         }
 
         private sealed record ExecutionModifier(bool Excluded, string? Label);

@@ -169,5 +169,5 @@ changed value. Run generation twice and compare the merged files to confirm stab
 ### Reports
 
 With `NEO_GAS_REPORT_DIR` set, each tracked test writes its own `tracked-<assembly>/tests/*.tsv`.
-`scripts/gas/aggregate-report.ps1` merges them into `gas-tracking-report.md/json`; CI runs it
+`.github/scripts/gas/aggregate-report.ps1`
 even when tests fail.

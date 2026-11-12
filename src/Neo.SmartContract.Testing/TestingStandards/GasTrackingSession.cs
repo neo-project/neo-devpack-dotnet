@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Neo.SmartContract.Testing.GasRegression;
 
 namespace Neo.SmartContract.Testing.TestingStandards
 {
@@ -112,11 +113,17 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
             var directory = Path.Combine(reportDir, "tracked-" + assembly.GetName().Name, "tests");
             Directory.CreateDirectory(directory);
-            var lines = report.Changes.Select(c => string.Join("\t", c.Name, c.Status,
+            var lines = report.Changes.Select(c => string.Join("\t", EscapeField(c.Name), c.Status,
                 c.Baseline?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "",
                 c.Current?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? ""));
             File.WriteAllText(Path.Combine(directory, TestFileName(testId) + ".tsv"), string.Join("\n", lines) + "\n", new System.Text.UTF8Encoding(false));
         }
+
+        private static string EscapeField(string value) => value
+            .Replace("\\", "\\\\")
+            .Replace("\t", "\\t")
+            .Replace("\n", "\\n")
+            .Replace("\r", "\\r");
 
         private static string TestFileName(string testId)
         {
