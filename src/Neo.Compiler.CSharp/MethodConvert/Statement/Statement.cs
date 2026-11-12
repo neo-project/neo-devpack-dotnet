@@ -77,6 +77,37 @@ namespace Neo.Compiler
 
         private readonly Stack<StatementContext> _generalStatementStack = new();
 
+        /// <summary>
+        /// Resolves the jump target of a C# 15 labeled break/continue statement. Roslyn guarantees
+        /// that the referenced label is attached directly to the loop (or switch) being exited, so the
+        /// target is the break/continue target of the closest such statement between the current point
+        /// and the matching labeled statement. Try statements crossed on the way are staged so the
+        /// caller can unwind them with ENDTRY, exactly like the unlabeled break/continue logic.
+        /// </summary>
+        /// <param name="labelName">The label referenced by the break/continue statement.</param>
+        /// <param name="isContinue"><see langword="true"/> to resolve a continue target; <see langword="false"/> to resolve a break target.</param>
+        /// <param name="visitedTry">Receives the try contexts that must be unwound, ordered from the deepest to the most external one.</param>
+        /// <returns>The jump target of the labeled loop (or switch), or <see langword="null"/> when no enclosing label matches.</returns>
+        private JumpTarget? FindLabeledJumpTarget(string labelName, bool isContinue, List<StatementContext> visitedTry)
+        {
+            JumpTarget? jumpTarget = null;
+            foreach (StatementContext sc in _generalStatementStack)
+            {// start from the deepest context
+                // the label names the loop (or switch) to exit
+                if (sc.StatementSyntax is LabeledStatementSyntax labeled && labeled.Identifier.ValueText == labelName)
+                    // the most recent target seen belongs to the statement the label is attached to
+                    return jumpTarget;
+                // track the loop (or switch) directly inside the label
+                JumpTarget? candidate = isContinue ? sc.ContinueTarget : sc.BreakTarget;
+                if (candidate != null)
+                    jumpTarget = candidate;
+                // stage the try stacks on the way
+                if (sc.StatementSyntax is TryStatementSyntax)
+                    visitedTry.Add(sc);
+            }
+            return null;
+        }
+
         private void ConvertStatement(SemanticModel model, StatementSyntax statement)
         {
             switch (statement)

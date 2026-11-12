@@ -63,3 +63,5 @@ This catalog is the stable landing page for analyzer diagnostics. Each descripto
 | <a id="nc4063"></a>[NC4063](#nc4063) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4064"></a>[NC4064](#nc4064) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4065"></a>[NC4065](#nc4065) | String concatenation inside a loop copies the accumulated value on every iteration. Bound the accumulated length and iteration count, or move the concatenation outside the loop. |
+| <a id="nc4066"></a>[NC4066](#nc4066) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
+| <a id="nc4067"></a>[NC4067](#nc4067) | See the diagnostic message and the contract compatibility profile for the supported replacement. |

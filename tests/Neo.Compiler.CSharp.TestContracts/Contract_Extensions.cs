@@ -32,6 +32,8 @@ namespace Neo.Compiler.CSharp.TestContracts
                 get => box.Value;
                 set => box.Value = value;
             }
+
+            public int this[int offset] => box.Value + offset;
         }
     }
 
@@ -67,6 +69,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             var box = new ExtensionBox();
             box.ExtensionValue = value;
             return box.Value;
+        }
+
+        public static int TestExtensionIndexer(int value, int offset)
+        {
+            var box = new ExtensionBox();
+            box.ExtensionValue = value;
+            return box[offset];
         }
     }
 }
