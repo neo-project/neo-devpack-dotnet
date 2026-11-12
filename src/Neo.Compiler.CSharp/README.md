@@ -64,7 +64,7 @@ Add to your `.csproj` file:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <NeoContract>true</NeoContract>
   </PropertyGroup>
   

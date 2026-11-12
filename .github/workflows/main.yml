@@ -63,7 +63,7 @@ jobs:
         cat > ./out/analyzer-consumer/AnalyzerConsumer.csproj <<EOF
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
-            <TargetFramework>net10.0</TargetFramework>
+            <TargetFramework>net11.0</TargetFramework>
             <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
           </PropertyGroup>
           <ItemGroup>
@@ -148,11 +148,11 @@ jobs:
         dotnet remove package Neo.SmartContract.Framework
         dotnet add reference ../../../../../Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
         popd >/dev/null
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep11/Nep11Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep11/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/solution/NeoContractSolution/NeoContractSolution.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractsolution/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net11.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net11.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep11/Nep11Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep11/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net11.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net11.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
+        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net11.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/solution/NeoContractSolution/NeoContractSolution.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractsolution/Artifacts/
     - name: Test Neo.Compiler.CSharp.UnitTests
       if: steps.scope.outputs.full == 'true'
       run: |

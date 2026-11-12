@@ -113,7 +113,7 @@ dotnet test
 
 ### Creating a New Smart Contract
 
-1. Create a new class library project targeting .NET 10.0 or later
+1. Create a new class library project targeting .NET 11.0 or later
 2. Add a reference to the Neo.SmartContract.Framework package
 3. Create a class that inherits from `SmartContract`
 4. Implement your contract logic
