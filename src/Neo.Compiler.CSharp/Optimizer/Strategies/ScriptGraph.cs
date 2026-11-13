@@ -1109,14 +1109,6 @@ namespace Neo.Optimizer
             return CreateInstruction(instruction.OpCode, instruction.Operand.ToArray());
         }
 
-        private static bool IsIntegerPush(Instruction instruction, int value)
-        {
-            if (instruction.OpCode is OpCode.PUSH0 or OpCode.PUSH1)
-                return value == (instruction.OpCode == OpCode.PUSH1 ? 1 : 0);
-            if (!pushInt.Contains(instruction.OpCode)) return false;
-            return new System.Numerics.BigInteger(instruction.Operand.Span) == value;
-        }
-
         private static bool TryGetConstantPushTruth(OpCode opcode, out bool truth)
         {
             switch (opcode)

@@ -101,11 +101,8 @@ namespace Neo.Optimizer
                 }
 
                 // PUSH0|PUSHINT(0), NUMEQUAL, NOT -> NZ, NOP, NOP
-                if (index + 2 < block.Count
-                    && rules.HasFlag(PeepholeRule.FoldNotInEqual)
-                    && IsIntegerPush(current, 0)
-                    && opcodes[index + 1] == OpCode.NUMEQUAL
-                    && opcodes[index + 2] == OpCode.NOT)
+                if (index + 2 < block.Count && rules.HasFlag(PeepholeRule.FoldNotInEqual)
+                    && IsIntegerPush(current, 0) && opcodes[index + 1] == OpCode.NUMEQUAL && opcodes[index + 2] == OpCode.NOT)
                 {
                     SetOpcode(index, OpCode.NZ);
                     NopRemainder(output, addresses[index], current.Size - 1);
@@ -116,11 +113,8 @@ namespace Neo.Optimizer
                 }
 
                 // PUSHNULL, NOTEQUAL, NOT -> ISNULL, NOP, NOP
-                if (index + 2 < block.Count
-                    && rules.HasFlag(PeepholeRule.FoldNotInEqual)
-                    && opcodes[index] == OpCode.PUSHNULL
-                    && opcodes[index + 1] == OpCode.NOTEQUAL
-                    && opcodes[index + 2] == OpCode.NOT)
+                if (index + 2 < block.Count && rules.HasFlag(PeepholeRule.FoldNotInEqual)
+                    && opcodes[index] == OpCode.PUSHNULL && opcodes[index + 1] == OpCode.NOTEQUAL && opcodes[index + 2] == OpCode.NOT)
                 {
                     SetOpcode(index, OpCode.ISNULL);
                     SetOpcode(index + 1, OpCode.NOP);
@@ -130,11 +124,8 @@ namespace Neo.Optimizer
                 }
 
                 // DUP, <side-effect/store>, DROP -> NOP, <side-effect/store>, NOP
-                if (index + 2 < block.Count
-                    && rules.HasFlag(PeepholeRule.RemoveDupDrop)
-                    && opcodes[index] == OpCode.DUP
-                    && IsDupDropMiddle(opcodes[index + 1])
-                    && opcodes[index + 2] == OpCode.DROP)
+                if (index + 2 < block.Count && rules.HasFlag(PeepholeRule.RemoveDupDrop)
+                 && opcodes[index] == OpCode.DUP && IsDupDropMiddle(opcodes[index + 1]) && opcodes[index + 2] == OpCode.DROP)
                 {
                     SetOpcode(index, OpCode.NOP);
                     SetOpcode(index + 2, OpCode.NOP);
@@ -144,10 +135,8 @@ namespace Neo.Optimizer
 
                 // PUSH1|PUSHINT(1), ADD -> INC, NOP
                 // PUSH1|PUSHINT(1), SUB -> DEC, NOP
-                if (index + 1 < block.Count
-                    && rules.HasFlag(PeepholeRule.UseIncDec)
-                    && IsIntegerPush(current, 1)
-                    && opcodes[index + 1] is OpCode.ADD or OpCode.SUB)
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.UseIncDec)
+                    && IsIntegerPush(current, 1) && opcodes[index + 1] is OpCode.ADD or OpCode.SUB)
                 {
                     SetOpcode(index, opcodes[index + 1] == OpCode.ADD ? OpCode.INC : OpCode.DEC);
                     NopRemainder(output, addresses[index], current.Size - 1);
@@ -158,10 +147,8 @@ namespace Neo.Optimizer
 
                 // PUSHNULL, EQUAL    -> ISNULL, NOP
                 // PUSHNULL, NOTEQUAL -> ISNULL, NOT
-                if (index + 1 < block.Count
-                    && rules.HasFlag(PeepholeRule.UseIsNull)
-                    && opcodes[index] == OpCode.PUSHNULL
-                    && opcodes[index + 1] is OpCode.EQUAL or OpCode.NOTEQUAL)
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.UseIsNull)
+                    && opcodes[index] == OpCode.PUSHNULL && opcodes[index + 1] is OpCode.EQUAL or OpCode.NOTEQUAL)
                 {
                     SetOpcode(index, OpCode.ISNULL);
                     SetOpcode(index + 1, opcodes[index + 1] == OpCode.NOTEQUAL ? OpCode.NOT : OpCode.NOP);
@@ -170,10 +157,8 @@ namespace Neo.Optimizer
 
                 // PUSH0|PUSHINT(0), NUMEQUAL    -> NZ, NOT
                 // PUSH0|PUSHINT(0), NUMNOTEQUAL -> NZ, NOP
-                if (index + 1 < block.Count
-                    && rules.HasFlag(PeepholeRule.UseNz)
-                    && IsIntegerPush(current, 0)
-                    && opcodes[index + 1] is OpCode.NUMEQUAL or OpCode.NUMNOTEQUAL)
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.UseNz)
+                    && IsIntegerPush(current, 0) && opcodes[index + 1] is OpCode.NUMEQUAL or OpCode.NUMNOTEQUAL)
                 {
                     OpCode comparison = opcodes[index + 1];
                     SetOpcode(index, OpCode.NZ);
@@ -186,10 +171,8 @@ namespace Neo.Optimizer
                 // NOTEQUAL, NOT   -> EQUAL, NOP
                 // NUMEQUAL, NOT   -> NUMNOTEQUAL, NOP
                 // NUMNOTEQUAL, NOT -> NUMEQUAL, NOP
-                if (index + 1 < block.Count
-                    && rules.HasFlag(PeepholeRule.FoldNotInEqual)
-                    && opcodes[index + 1] == OpCode.NOT
-                    && opcodes[index] is OpCode.EQUAL or OpCode.NOTEQUAL or OpCode.NUMEQUAL or OpCode.NUMNOTEQUAL)
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.FoldNotInEqual)
+                    && opcodes[index + 1] == OpCode.NOT && opcodes[index] is OpCode.EQUAL or OpCode.NOTEQUAL or OpCode.NUMEQUAL or OpCode.NUMNOTEQUAL)
                 {
                     SetOpcode(index, opcodes[index] switch
                     {
@@ -208,10 +191,8 @@ namespace Neo.Optimizer
                 // NOT, JMPIFNOT   -> NOP, JMPIF
                 // NOT, JMPIF_L    -> NOP, JMPIFNOT_L
                 // NOT, JMPIFNOT_L -> NOP, JMPIF_L
-                if (index + 1 < block.Count
-                    && rules.HasFlag(PeepholeRule.FoldNotInJmp)
-                    && opcodes[index] == OpCode.NOT
-                    && opcodes[index + 1] is OpCode.JMPIF or OpCode.JMPIFNOT or OpCode.JMPIF_L or OpCode.JMPIFNOT_L)
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.FoldNotInJmp)
+                    && opcodes[index] == OpCode.NOT && opcodes[index + 1] is OpCode.JMPIF or OpCode.JMPIFNOT or OpCode.JMPIF_L or OpCode.JMPIFNOT_L)
                 {
                     SetOpcode(index, OpCode.NOP);
                     SetOpcode(index + 1, opcodes[index + 1] switch

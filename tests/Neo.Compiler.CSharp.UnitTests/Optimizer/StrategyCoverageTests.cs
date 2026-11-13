@@ -35,12 +35,51 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         }
 
         [TestMethod]
+        public void UseNz_RewritesIntegerPushZero()
+        {
+            var (optimizedNef, _, _) = Strategies.ApplyPeephole(
+                CreateNefFile([(byte)OpCode.PUSHINT8, 0, (byte)OpCode.NUMEQUAL, (byte)OpCode.RET]),
+                CreateManifest(), null, PeepholeRule.UseNz);
+            CollectionAssert.AreEqual(new[] { OpCode.NZ, OpCode.NOT, OpCode.RET }, GetOpCodes(optimizedNef));
+        }
+
+        [TestMethod]
+        public void UseNz_PreservesNonMatchingIntegerPush()
+        {
+            var (optimizedNef, _, _) = Strategies.ApplyPeephole(
+                CreateNefFile([(byte)OpCode.PUSHINT8, 2, (byte)OpCode.NUMEQUAL, (byte)OpCode.RET]),
+                CreateManifest(), null, PeepholeRule.UseNz);
+            CollectionAssert.AreEqual(new[] { OpCode.PUSHINT8, OpCode.NUMEQUAL, OpCode.RET }, GetOpCodes(optimizedNef));
+        }
+
+        [TestMethod]
         public void FoldNotInEqual_FoldsEqualityNegation()
         {
             var (optimizedNef, _, _) = Strategies.ApplyPeephole(
                 CreateNefFile([(byte)OpCode.EQUAL, (byte)OpCode.NOT, (byte)OpCode.RET]),
                 CreateManifest(), null, PeepholeRule.FoldNotInEqual);
             CollectionAssert.AreEqual(new[] { OpCode.NOTEQUAL, OpCode.RET }, GetOpCodes(optimizedNef));
+        }
+
+        [TestMethod]
+        [DataRow(OpCode.NOTEQUAL, OpCode.EQUAL)]
+        [DataRow(OpCode.NUMEQUAL, OpCode.NUMNOTEQUAL)]
+        [DataRow(OpCode.NUMNOTEQUAL, OpCode.NUMEQUAL)]
+        public void FoldNotInEqual_FoldsOtherComparisonNegations(OpCode comparison, OpCode expected)
+        {
+            var (optimizedNef, _, _) = Strategies.ApplyPeephole(
+                CreateNefFile([(byte)comparison, (byte)OpCode.NOT, (byte)OpCode.RET]),
+                CreateManifest(), null, PeepholeRule.FoldNotInEqual);
+            CollectionAssert.AreEqual(new[] { expected, OpCode.RET }, GetOpCodes(optimizedNef));
+        }
+
+        [TestMethod]
+        public void FoldNotInEqual_FoldsNullInequalityNegation()
+        {
+            var (optimizedNef, _, _) = Strategies.ApplyPeephole(
+                CreateNefFile([(byte)OpCode.PUSHNULL, (byte)OpCode.NOTEQUAL, (byte)OpCode.NOT, (byte)OpCode.RET]),
+                CreateManifest(), null, PeepholeRule.FoldNotInEqual);
+            CollectionAssert.AreEqual(new[] { OpCode.ISNULL, OpCode.RET }, GetOpCodes(optimizedNef));
         }
 
         [TestMethod]
@@ -122,15 +161,22 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         public void CollapseAdjacentReturns_IgnoresUnreachableDebugMethodEntries()
         {
-            JObject debugInfo = new()
-            {
-                ["methods"] = new JArray(new JObject { ["range"] = "1-1" })
-            };
-            ScriptGraph graph = ScriptGraph.Parse(
-                CreateNefFile([(byte)OpCode.RET, (byte)OpCode.RET]), CreateManifest(), debugInfo);
+            JObject debugInfo = new() { ["methods"] = new JArray(new JObject { ["range"] = "1-1" }) };
+            ScriptGraph graph = ScriptGraph.Parse(CreateNefFile([(byte)OpCode.RET, (byte)OpCode.RET]), CreateManifest(), debugInfo);
             graph.CollapseAdjacentReturns();
-
             CollectionAssert.AreEqual(new[] { OpCode.RET }, graph.Instructions.Select(static instruction => instruction.OpCode).ToArray());
+        }
+
+        [TestMethod]
+        [DataRow(1, 3)]
+        [DataRow(100, 0)]
+        public void ResolveOriginalAddress_UsesNearestInstructionOrScriptStart(int originalOffset, int expectedOffset)
+        {
+            byte[] script = [(byte)OpCode.PUSHINT16, 0, 0, (byte)OpCode.RET];
+            ScriptGraph graph = ScriptGraph.Parse(CreateNefFile(script), CreateManifest(originalOffset));
+
+            var (_, optimizedManifest, _) = graph.Emit();
+            Assert.AreEqual(expectedOffset, optimizedManifest.Abi.Methods[0].Offset);
         }
 
         private static readonly OpCode[] OneOperandJumps = [OpCode.JMPIF, OpCode.JMPIFNOT, OpCode.JMPIF_L, OpCode.JMPIFNOT_L];
