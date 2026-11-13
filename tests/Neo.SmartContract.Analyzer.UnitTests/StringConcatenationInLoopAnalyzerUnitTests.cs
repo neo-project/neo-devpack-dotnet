@@ -531,4 +531,239 @@ public class StringConcatenationInLoopAnalyzerUnitTests
         await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
+    [TestMethod]
+    public async Task InterpolationSelfReference_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                               {|#0:result = $"{result}{i}"|};
+                           return result;
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task InterpolationInsideBinaryChain_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                               {|#0:result = "[" + $"{result}" + "]"|};
+                           return result;
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task InterpolationOfMemberReceiver_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       public string Text { get; set; }
+                       void Build(int count)
+                       {
+                           for (int i = 0; i < count; i++)
+                               {|#0:Text = $"{Text}a"|};
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("Text"));
+    }
+
+    [TestMethod]
+    public async Task ConcatInvocationSelfReference_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                               {|#0:result = string.Concat(result, "a")|};
+                           return result;
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task FormatInvocationSelfReference_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                               {|#0:result = string.Format("{0}{1}", result, i)|};
+                           return result;
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("result"));
+    }
+
+    [TestMethod]
+    public async Task StringBuilderAppendInLoop_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var builder = new System.Text.StringBuilder();
+                           for (int i = 0; i < count; i++)
+                               {|#0:builder.Append(i)|};
+                           return builder.ToString();
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("builder"));
+    }
+
+    [TestMethod]
+    public async Task StringBuilderAppendLineInLoop_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var builder = new System.Text.StringBuilder();
+                           for (int i = 0; i < count; i++)
+                               {|#0:builder.AppendLine()|};
+                           return builder.ToString();
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("builder"));
+    }
+
+    [TestMethod]
+    public async Task StringBuilderMemberReceiverInLoop_ShouldReportDiagnostic()
+    {
+        var test = """
+                   class Holder { public System.Text.StringBuilder Builder = new System.Text.StringBuilder(); }
+                   class Test
+                   {
+                       void Build(int count)
+                       {
+                           var holder = new Holder();
+                           for (int i = 0; i < count; i++)
+                               {|#0:holder.Builder.Append("a")|};
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test,
+            VerifyCS.Diagnostic(StringConcatenationInLoopAnalyzer.DiagnosticId).WithLocation(0).WithArguments("holder.Builder"));
+    }
+
+    [TestMethod]
+    public async Task StringBuilderCreatedInsideLoop_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           for (int i = 0; i < count; i++)
+                           {
+                               var builder = new System.Text.StringBuilder();
+                               builder.Append(i);
+                           }
+                           return "";
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task UnrelatedInterpolationInLoop_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(string prefix, int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                               result = $"{prefix}{i}";
+                           return result;
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task UnrelatedConcatInvocationInLoop_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(string left, string right, int count)
+                       {
+                           var result = "";
+                           for (int i = 0; i < count; i++)
+                               result = string.Concat(left, right);
+                           return result;
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task StringBuilderAppendOutsideLoop_ShouldNotReportDiagnostic()
+    {
+        var test = """
+                   class Test
+                   {
+                       string Build(int count)
+                       {
+                           var builder = new System.Text.StringBuilder();
+                           builder.Append(count);
+                           return builder.ToString();
+                       }
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
 }
