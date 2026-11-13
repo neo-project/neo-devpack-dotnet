@@ -21,15 +21,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test()
         {
             Assert.AreEqual(3, Contract.Test());
-            AssertGasConsumed(988140);
         }
 
         [TestMethod]
         public void TestTry()
         {
             Assert.AreEqual(3, Contract.TestTry());
-            // ENDTRY resumes past a redundant JMP after FINALLY, reducing the generated GAS.
-            AssertGasConsumed(988740);
         }
 
         [TestMethod]

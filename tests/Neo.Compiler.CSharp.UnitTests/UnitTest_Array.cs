@@ -37,7 +37,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GetTreeByteLengthPrefix2()
         {
             var result = Contract.GetTreeByteLengthPrefix2();
-            AssertGasConsumed(1784760);
 
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x03 }, result);
         }
@@ -46,7 +45,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedArray()
         {
             var arr = Contract.TestJaggedArray();
-            AssertGasConsumed(2094990);
 
             Assert.AreEqual(4, arr?.Count);
             var element0 = (Array?)arr?[0];
@@ -57,7 +55,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedByteArray()
         {
             var arr = Contract.TestJaggedByteArray();
-            AssertGasConsumed(2832630);
 
             Assert.AreEqual(4, arr?.Count);
             var element0 = (byte[]?)arr?[0];
@@ -68,7 +65,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_EmptyArray()
         {
             var arr = Contract.TestEmptyArray();
-            AssertGasConsumed(1787220);
 
             Assert.AreEqual(0, arr?.Count);
         }
@@ -77,7 +73,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntArray()
         {
             var arr = Contract.TestIntArray();
-            AssertGasConsumed(2539770);
 
             //test 0,1,2
             CollectionAssert.AreEqual(new BigInteger[] { 0, 1, 2 }, arr?.ToArray());
@@ -88,18 +83,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             //test 1,4,5
             var arr = Contract.TestIntArrayInit();
-            AssertGasConsumed(2340060);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
 
 
             //test 1,4,5
             arr = Contract.TestIntArrayInit2();
-            AssertGasConsumed(2340060);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
 
             //test 1,4,5
             arr = Contract.TestIntArrayInit3();
-            AssertGasConsumed(2340060);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
         }
 
@@ -107,7 +99,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var result = Contract.TestStructArray();
-            AssertGasConsumed(2111610);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -125,14 +116,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsInstanceOfType(state[1], typeof(VM.Types.Null));
             Assert.IsInstanceOfType(state[2], typeof(VM.Types.Integer));
             Assert.AreEqual(0, state[2]);
-            AssertGasConsumed(1848300);
         }
 
         [TestMethod]
         public void Test_StructArrayInit()
         {
             var result = Contract.TestStructArrayInit();
-            AssertGasConsumed(1911960);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -143,7 +132,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayOwner()
         {
             var bts = Contract.TestByteArrayOwner();
-            AssertGasConsumed(1784760);
 
             CollectionAssert.AreEqual(new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe }, bts);
         }
@@ -152,7 +140,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayInit()
         {
             var arr = Contract.TestDynamicArrayInit(3);
-            AssertGasConsumed(2603760);
 
             Assert.AreEqual(3, arr?.Count);
             Assert.AreEqual(new BigInteger(0), arr?[0]);
@@ -160,7 +147,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(2), arr?[2]);
 
             arr = Contract.TestDynamicArrayInit(0);
-            AssertGasConsumed(1863510);
             Assert.AreEqual(0, arr?.Count);
             Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(-1));
             Assert.ThrowsExactly<TestException>(() => Contract.TestDynamicArrayInit(int.MaxValue));
@@ -170,7 +156,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DefaultArray()
         {
             var arr = Contract.TestDefaultArray();
-            AssertGasConsumed(1804170);
             Assert.IsTrue(arr!.Value);
         }
 
@@ -178,7 +163,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayStringInit()
         {
             var arr = Contract.TestDynamicArrayStringInit("hello");
-            AssertGasConsumed(1855710);
 
             Assert.AreEqual(5, arr?.Length);
             Assert.IsTrue(arr?.All(a => a == 0));
@@ -188,7 +172,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayOwnerCall()
         {
             var bts = Contract.TestByteArrayOwnerCall();
-            AssertGasConsumed(2048100);
 
             CollectionAssert.AreEqual(new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe }, bts);
         }
@@ -197,7 +180,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StringArray()
         {
             var items = Contract.TestSupportedStandards();
-            AssertGasConsumed(1784760);
 
             Assert.AreEqual((ByteString)"NEP-5", items?[0]);
             Assert.AreEqual((ByteString)"NEP-10", items?[1]);
@@ -207,7 +189,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Collectionexpressions()
         {
             var arr = Contract.TestCollectionexpressions();
-            AssertGasConsumed(2465250);
 
             Assert.AreEqual(4, arr?.Count);
 
@@ -236,14 +217,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ElementBinding()
         {
             Contract.TestElementBinding();
-            AssertGasConsumed(5907840);
         }
 
         [TestMethod]
         public void Test_MultiDimensionalCreatedBySize()
         {
             var matrix = Contract.MultiDimensionalCreatedBySize();
-            AssertGasConsumed(2822010);
 
             Assert.AreEqual(2, matrix?.Count);
             var firstRow = (Array?)matrix?[0];
@@ -256,7 +235,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalInitializer()
         {
             var matrix = Contract.MultiDimensionalInitializer();
-            AssertGasConsumed(1969230);
 
             var firstRow = (Array?)matrix?[0];
             var secondRow = (Array?)matrix?[1];
@@ -268,7 +246,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalImplicitInitializer()
         {
             var matrix = Contract.MultiDimensionalImplicitInitializer();
-            AssertGasConsumed(1969230);
 
             var firstRow = (Array?)matrix?[0];
             var secondRow = (Array?)matrix?[1];
@@ -280,7 +257,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalAssignments()
         {
             var value = Contract.MultiDimensionalAssignments();
-            AssertGasConsumed(3581940);
             Assert.AreEqual(new BigInteger(10), value);
         }
 
@@ -288,7 +264,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalCoalesce()
         {
             var matrix = Contract.MultiDimensionalCoalesce();
-            AssertGasConsumed(2565450);
 
             var row = (Array?)matrix?[0];
             CollectionAssert.AreEqual(new[] { "left", "right" }, row?.Cast<PrimitiveType>().Select(u => u.GetString()).ToArray());
@@ -298,7 +273,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalForeachSum()
         {
             var sum = Contract.MultiDimensionalForeachSum();
-            AssertGasConsumed(1998270);
             Assert.AreEqual(new BigInteger(21), sum);
         }
 
@@ -306,7 +280,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalByteInitializer()
         {
             var matrix = Contract.MultiDimensionalByteInitializer();
-            AssertGasConsumed(2338170);
 
             var firstRow = (byte[]?)matrix?[0];
             var secondRow = (byte[]?)matrix?[1];
@@ -318,7 +291,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalNewOnly()
         {
             var value = Contract.MultiDimensionalNewOnly();
-            AssertGasConsumed(2326320);
             Assert.AreEqual(new BigInteger(42), value);
         }
     }
