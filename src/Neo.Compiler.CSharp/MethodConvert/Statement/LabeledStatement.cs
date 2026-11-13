@@ -30,6 +30,8 @@ namespace Neo.Compiler
         /// any pending 'goto' statements within a try block, it updates those 'goto' instructions
         /// to jump to the newly created label. Then, it converts the statement following the label.
         /// This is essential in implementing the label and goto mechanism found in many programming languages.
+        /// The statement context pushed around the labeled statement lets C# 15 labeled break/continue
+        /// statements resolve the loop (or switch) the label is attached to.
         /// </remarks>
         /// <example>
         /// Example of a labeled statement syntax:
@@ -47,7 +49,11 @@ namespace Neo.Compiler
             ILabelSymbol symbol = model.GetDeclaredSymbol(syntax)!;
             JumpTarget target = AddLabel(symbol);
             target.Instruction = AddInstruction(OpCode.NOP);
+            StatementContext sc = new(syntax);
+            _generalStatementStack.Push(sc);
             ConvertStatement(model, syntax.Statement);
+            if (_generalStatementStack.Pop() != sc)
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in labeled statement handling. This is a compiler bug that should be reported.");
         }
     }
 }
