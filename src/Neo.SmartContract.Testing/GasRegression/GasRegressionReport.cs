@@ -163,5 +163,4 @@ public sealed class GasRegressionReport
         GasChangeStatus.Missing => "Missing measurement",
         _ => "Unexpected measurement"
     };
-
 }
