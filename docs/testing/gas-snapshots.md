@@ -171,3 +171,24 @@ changed value. Run generation twice and compare the merged files to confirm stab
 With `NEO_GAS_REPORT_DIR` set, each tracked test writes its own `tracked-<assembly>/tests/*.tsv`.
 `.github/scripts/gas/aggregate-report.ps1`
 even when tests fail.
+
+#### GAS improvements
+
+The aggregated report (`gas-tracking-report.md` / `.json`) lists every `Improvement` per assembly:
+
+| Execution | Baseline | Current | GAS saved | Reduction |
+|---|---:|---:|---:|---:|
+
+`GAS saved = Baseline - Current` (datoshi) and `Reduction = (Baseline - Current) / Baseline * 100`
+(two decimals, `0.00%` for a zero baseline). Rows are sorted by GAS saved (descending), then by
+execution id. The JSON keeps `executions`, `regressions`, `improvements`, `missing` and `unexpected`,
+and adds `totalGasSaved`, `largestGasSaved` and `improvementDetails` (`execution`, `baseline`,
+`current`, `gasSaved`, `reductionPercent`) per assembly, plus `_totals.totalGasSaved`.
+
+The totals are the sum of savings over measured test executions; they are not a transaction fee
+estimate nor a percentage of real contract costs. Improvements pass because only a GAS increase
+beyond tolerance is a regression and fails the test.
+
+In GitHub Actions the report appears in the workflow run **Summary**. Locally, set
+`NEO_GAS_REPORT_DIR`, run the tests and execute the script above, then open
+`gas-tracking-report.md`.
