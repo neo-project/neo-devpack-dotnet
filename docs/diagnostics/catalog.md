@@ -90,5 +90,6 @@ This catalog is the stable landing page for analyzer and compiler diagnostics. E
 | <a id="nc4061"></a>[NC4061](#nc4061) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4062"></a>[NC4062](#nc4062) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4063"></a>[NC4063](#nc4063) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
-| <a id="nc4065"></a>[NC4065](#nc4065) | String concatenation inside a loop copies the accumulated value on every iteration. Bound the accumulated length and iteration count, or move the concatenation outside the loop. |
+| <a id="nc4064"></a>[NC4064](#nc4064) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
+| <a id="nc4065"></a>[NC4065](#nc4065) | String accumulation inside a loop (`+=`, `s = s + x`, interpolation, `string.Concat`/`Format`, or `StringBuilder` appends) extends the accumulated value on every iteration. Bound the accumulated length and iteration count, or move the accumulation outside the loop. |
 | <a id="nc5001"></a>[NC5001](#nc5001) | An unexpected compiler error occurred; see the diagnostic message for the failing operation and the underlying exception. |
