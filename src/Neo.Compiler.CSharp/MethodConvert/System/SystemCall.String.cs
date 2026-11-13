@@ -623,28 +623,126 @@ internal partial class MethodConvert
         endTarget.Instruction = methodConvert.Nop();
     }
 
+    /// <summary>
+    /// Handles string.Substring(startIndex, length).
+    /// </summary>
+    /// <remarks>
+    /// The native SUBSTR opcode raises a non-catchable engine fault for an out-of-range
+    /// start or length, so a C# catch block would never observe the
+    /// <see cref="ArgumentOutOfRangeException"/> that .NET requires. The operands are
+    /// normalized to slots and checked (startIndex &gt;= 0, length &gt;= 0,
+    /// startIndex + length &lt;= size); a violation throws through the catchable THROW
+    /// path, mirroring the division guard. In-range calls keep the native lowering.
+    /// </remarks>
     private static void HandleStringSubstring(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        byte lengthSlot = methodConvert.AddAnonymousVariable();
+        byte startSlot = methodConvert.AddAnonymousVariable();
+        byte sourceSlot = methodConvert.AddAnonymousVariable();
+        byte sizeSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);       // [source, startIndex]
+        methodConvert.AccessSlot(OpCode.STLOC, startSlot);        // [source]
+        methodConvert.AccessSlot(OpCode.STLOC, sourceSlot);       // []
+        methodConvert.AccessSlot(OpCode.LDLOC, sourceSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.STLOC, sizeSlot);
+
+        JumpTarget startOk = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.Push(0);
+        methodConvert.JumpIfGreaterOrEqual(startOk);
+        EmitSubstringThrow(methodConvert, "startIndex");
+        startOk.Instruction = methodConvert.Nop();
+
+        JumpTarget lengthOk = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Push(0);
+        methodConvert.JumpIfGreaterOrEqual(lengthOk);
+        EmitSubstringThrow(methodConvert, "length");
+        lengthOk.Instruction = methodConvert.Nop();
+
+        JumpTarget rangeOk = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Add();
+        methodConvert.AccessSlot(OpCode.LDLOC, sizeSlot);
+        methodConvert.JumpIfLessOrEqual(rangeOk);
+        EmitSubstringThrow(methodConvert, "length");
+        rangeOk.Instruction = methodConvert.Nop();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, sourceSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
         methodConvert.SubStr();
         methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
     }
 
+    /// <summary>
+    /// Handles string.Substring(startIndex).
+    /// </summary>
+    /// <remarks>
+    /// Like the two-argument overload, an out-of-range startIndex must surface as a
+    /// catchable <see cref="ArgumentOutOfRangeException"/> rather than the native
+    /// SUBSTR engine fault. The guard checks 0 &lt;= startIndex &lt;= size before
+    /// computing the remaining length and lowering to SUBSTR.
+    /// </remarks>
     private static void HandleStringSubStringToEnd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Over();
+
+        byte startSlot = methodConvert.AddAnonymousVariable();
+        byte sourceSlot = methodConvert.AddAnonymousVariable();
+        byte sizeSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, startSlot);        // [source]
+        methodConvert.AccessSlot(OpCode.STLOC, sourceSlot);       // []
+        methodConvert.AccessSlot(OpCode.LDLOC, sourceSlot);
         methodConvert.Size();
-        methodConvert.Over();
+        methodConvert.AccessSlot(OpCode.STLOC, sizeSlot);
+
+        JumpTarget startOk = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.Push(0);
+        methodConvert.JumpIfGreaterOrEqual(startOk);
+        EmitSubstringThrow(methodConvert, "startIndex");
+        startOk.Instruction = methodConvert.Nop();
+
+        JumpTarget rangeOk = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, sizeSlot);
+        methodConvert.JumpIfLessOrEqual(rangeOk);
+        EmitSubstringThrow(methodConvert, "startIndex");
+        rangeOk.Instruction = methodConvert.Nop();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, sourceSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, sizeSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
         methodConvert.Sub();
         methodConvert.SubStr();
         methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
+    }
+
+    /// <summary>
+    /// Throws a catchable Substring range exception, restoring the evaluation stack to
+    /// the nearest inline or method boundary first so outer temporaries are not leaked.
+    /// </summary>
+    private static void EmitSubstringThrow(MethodConvert methodConvert, string parameterName)
+    {
+        methodConvert.RestoreMethodStackDepth();
+        methodConvert.Push(parameterName);
+        methodConvert.Throw();
     }
 
     private static void HandleStringIsNullOrEmpty(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)

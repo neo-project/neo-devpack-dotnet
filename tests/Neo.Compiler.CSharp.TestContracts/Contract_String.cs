@@ -241,6 +241,30 @@ namespace Neo.Compiler.CSharp.TestContracts
             return s.Substring(startIndex);
         }
 
+        public static string SubstringCaught(string s, int startIndex)
+        {
+            try
+            {
+                return s.Substring(startIndex);
+            }
+            catch
+            {
+                return "caught";
+            }
+        }
+
+        public static string SubstringRangeCaught(string s, int startIndex, int length)
+        {
+            try
+            {
+                return s.Substring(startIndex, length);
+            }
+            catch
+            {
+                return "caught";
+            }
+        }
+
         public static string TestConcat(string? s1, string? s2)
         {
             return string.Concat(s1, s2);
