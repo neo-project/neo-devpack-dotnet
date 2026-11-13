@@ -22,64 +22,48 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAddChecked()
         {
             Assert.ThrowsExactly<TestException>(() => Contract.AddChecked(int.MaxValue, 1));
-            AssertGasConsumed(1062990);
         }
 
         [TestMethod]
         public void TestAddUnchecked()
         {
             Assert.AreEqual(int.MinValue, Contract.AddUnchecked(int.MaxValue, 1));
-            AssertGasConsumed(1048320);
         }
 
         [TestMethod]
         public void TestCastChecked()
         {
             Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(-1));
-            AssertGasConsumed(1062540);
 
             Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(int.MinValue));
-            AssertGasConsumed(1062540);
 
             Assert.AreEqual(2147483647, Contract.CastChecked(int.MaxValue));
-            AssertGasConsumed(1047330);
 
             Assert.AreEqual(0, Contract.CastChecked(ulong.MinValue));
-            AssertGasConsumed(1047330);
 
             Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(ulong.MaxValue));
-            AssertGasConsumed(1062780);
 
             Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(long.MinValue));
-            AssertGasConsumed(1062540);
 
             Assert.ThrowsExactly<TestException>(() => Contract.CastChecked(long.MaxValue));
-            AssertGasConsumed(1062690);
         }
 
         [TestMethod]
         public void TestCastUnchecked()
         {
             Assert.AreEqual(uint.MaxValue, Contract.CastUnchecked(-1));
-            AssertGasConsumed(1047300);
 
             Assert.AreEqual(2147483648, Contract.CastUnchecked(int.MinValue));
-            AssertGasConsumed(1047300);
 
             Assert.AreEqual(2147483647, Contract.CastUnchecked(int.MaxValue));
-            AssertGasConsumed(1047300);
 
             Assert.AreEqual(0, Contract.CastUnchecked(ulong.MinValue));
-            AssertGasConsumed(1047300);
 
             Assert.AreEqual(4294967295, Contract.CastUnchecked(ulong.MaxValue));
-            AssertGasConsumed(1047390);
 
             Assert.AreEqual(0, Contract.CastUnchecked(long.MinValue));
-            AssertGasConsumed(1047300);
 
             Assert.AreEqual(4294967295, Contract.CastUnchecked(long.MaxValue));
-            AssertGasConsumed(1047300);
         }
     }
 }

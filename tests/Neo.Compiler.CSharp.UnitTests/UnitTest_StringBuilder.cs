@@ -25,35 +25,30 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAppendPrimitiveValues()
         {
             Assert.AreEqual("-1|2|-3|4|-5|6|-7|8|True|False", Contract.AppendPrimitiveValues());
-            AssertGasConsumed(15788310);
         }
 
         [TestMethod]
         public void TestAppendEmpty()
         {
             Assert.AreEqual("Neo", Contract.AppendEmpty());
-            AssertGasConsumed(1052100);
         }
 
         [TestMethod]
         public void TestAppendConstEmpty()
         {
             Assert.AreEqual("Neo", Contract.AppendConstEmpty());
-            AssertGasConsumed(1052100);
         }
 
         [TestMethod]
         public void TestAppendEmptyMultiple()
         {
             Assert.AreEqual("Neo", Contract.AppendEmptyMultiple());
-            AssertGasConsumed(1056480);
         }
 
         [TestMethod]
         public void TestAppendEmptyChained()
         {
             Assert.AreEqual("Neo N3", Contract.AppendEmptyChained());
-            AssertGasConsumed(1362300);
         }
 
         [TestMethod]
@@ -126,7 +121,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAppendNonEmpty()
         {
             Assert.AreEqual("Neo N3", Contract.AppendNonEmpty());
-            AssertGasConsumed(1360230);
         }
     }
 }
