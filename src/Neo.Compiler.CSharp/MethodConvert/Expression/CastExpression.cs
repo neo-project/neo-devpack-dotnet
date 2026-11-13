@@ -68,6 +68,19 @@ internal partial class MethodConvert
 
         ConvertExpression(model, expression.Expression);
 
+        var castConversion = model.ClassifyConversion(expression.Expression, tType);
+        if (sType.IsStructArray() && castConversion.IsBoxing)
+            CopyStructValue(sType);
+        else if (castConversion.IsUnboxing)
+        {
+            // Unboxing produces a value copy in C#, so a mutating receiver such as
+            // ((Point)boxed).SetX(99) must not write through to the boxed instance. Copy at the
+            // unboxing boundary itself; a nullable target keeps null instead of copying it.
+            var unboxedType = GetNonNullableValueType(tType);
+            if (unboxedType.IsStructArray())
+                EmitLiftedUnaryOperation(tType, () => CopyStructValue(unboxedType));
+        }
+
         JumpTarget? nullableEnd = null;
         if (IsNullableValueType(sType) && tType.IsValueType)
         {

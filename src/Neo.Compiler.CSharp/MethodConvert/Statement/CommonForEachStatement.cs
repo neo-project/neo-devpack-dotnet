@@ -103,6 +103,8 @@ namespace Neo.Compiler
             {
                 startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
                 CallInteropMethod(ApplicationEngine.System_Iterator_Value);
+                if (elementSymbol.Type.IsStructArray())
+                    CopyStructValue(elementSymbol.Type);
                 StLocSlot(elementSymbol);
             }
             ConvertStatement(model, syntax.Statement);
@@ -206,6 +208,8 @@ namespace Neo.Compiler
                     }
                     else
                     {
+                        if (symbols[i]!.Type.IsStructArray())
+                            CopyStructValue(symbols[i]!.Type);
                         AddLocalVariable(symbols[i]!);
                         StLocSlot(symbols[i]!);
                     }
@@ -277,6 +281,10 @@ namespace Neo.Compiler
                 startTarget.Instruction = AccessSlot(OpCode.LDLOC, arrayIndex);
                 AccessSlot(OpCode.LDLOC, iIndex);
                 AddInstruction(OpCode.PICKITEM);
+                // The iteration variable is a copy of the element, so a write to the array
+                // inside the loop body is not visible through it.
+                if (elementSymbol.Type.IsStructArray())
+                    CopyStructValue(elementSymbol.Type);
                 StLocSlot(elementSymbol);
             }
             ConvertStatement(model, syntax.Statement);
@@ -432,6 +440,8 @@ namespace Neo.Compiler
                     }
                     else
                     {
+                        if (symbols[i]!.Type.IsStructArray())
+                            CopyStructValue(symbols[i]!.Type);
                         AddLocalVariable(symbols[i]!);
                         StLocSlot(symbols[i]!);
                     }
@@ -488,6 +498,8 @@ namespace Neo.Compiler
             {
                 using (InsertSequencePoint(syntax.Identifier))
                 {
+                    if (elementSymbol.Type.IsStructArray())
+                        CopyStructValue(elementSymbol.Type);
                     StLocSlot(elementSymbol);
                 }
                 ConvertStatement(model, syntax.Statement);
@@ -548,6 +560,8 @@ namespace Neo.Compiler
                         }
                         else
                         {
+                            if (symbols[i]!.Type.IsStructArray())
+                                CopyStructValue(symbols[i]!.Type);
                             AddLocalVariable(symbols[i]!);
                             StLocSlot(symbols[i]!);
                         }

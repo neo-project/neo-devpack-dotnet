@@ -146,7 +146,12 @@ internal partial class MethodConvert
     {
         EmitPackedItemsLeftToRight(
             expression.Elements.ToArray(),
-            element => ConvertElement(model, element),
+            element =>
+            {
+                ConvertElement(model, element);
+                if (element is ExpressionElementSyntax expressionElement)
+                    CopyStructValueBeforeStore(model, null, expressionElement.Expression);
+            },
             OpCode.PACK,
             element => element is ExpressionElementSyntax expressionElement &&
                 CanDeferExpressionEmission(model, expressionElement.Expression));
