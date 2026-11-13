@@ -15,7 +15,7 @@ using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Framework.UnitTests;
 
-public class DebugAndTestBase<T> : TestBase<T>
+public class DebugAndTestBase<T> : TestBaseWithGasTracking<T>
     where T : SmartContract.Testing.SmartContract, IContractInfo
 {
 
