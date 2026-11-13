@@ -345,10 +345,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrimStart()
         {
             Assert.AreEqual("Hello", Contract.TestTrimStart("   Hello"));
-
             Assert.AreEqual("Hello", Contract.TestTrimStart("Hello"));
-
             Assert.AreEqual("", Contract.TestTrimStart("   "));
+            Assert.AreEqual("", Contract.TestTrimStart(""));
+            Assert.AreEqual("Hello", Contract.TestTrimStart("\t\n\v\f\r Hello"));
         }
 
         [TestMethod]
