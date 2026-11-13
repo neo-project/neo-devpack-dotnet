@@ -75,7 +75,7 @@ nccs MyContract.csproj --optimize all          # All optimizations
 - **Non-zero simplification** (`UseNz`): collapses compare-against-zero sequences
 - **Boolean-negation folding** (`FoldNotInEqual`, `FoldNotInJmp`): folds a `NOT` into the following `EQUAL`/`NOTEQUAL` or conditional jump
 
-There is currently no arithmetic constant folding (e.g. `PUSH1 PUSH2 ADD` is **not** folded to `PUSH3`).
+Arithmetic constant folding runs as a separate strategy pass (see `ConstantFold.cs` below); `PUSH1 PUSH2 ADD` is folded to `PUSH3` at the `Experimental` and `All` levels.
 
 ### 2. Jump Compression (`JumpCompresser.cs`)
 
@@ -105,6 +105,24 @@ There is currently no arithmetic constant folding (e.g. `PUSH1 PUSH2 ADD` is **n
 - **Method-token rewriting** (`RemoveMethodToken`): drops unused method tokens and renumbers `CALLT` operands accordingly
 
 (NOP removal is part of the in-codegen cleanup, not a strategy pass.)
+
+### 5. Constant Folding (`ConstantFold.cs`)
+
+**Purpose**: Folds operations whose operands are both constant pushes into a single constant push.
+
+**Key Optimizations**:
+- **Arithmetic folding** (`FoldConstants`): `PUSH7 PUSH5 ADD` becomes `PUSH12`; also `SUB`, `MUL`, `DIV`, `MOD`, `MIN`, `MAX`
+- **Bitwise folding**: `AND`, `OR`, `XOR`, `SHL`, `SHR` on constant pairs
+- **Comparison folding**: `NUMEQUAL`, `NUMNOTEQUAL`, `LT`, `LE`, `GT`, `GE` on constant pairs produce `PUSHT`/`PUSHF`
+- **Boolean folding**: `NOT` on a constant, `BOOLAND`/`BOOLOR` on constant boolean pairs
+- **Byte-string folding**: `CAT` of two constant byte strings, `SIZE` of a constant byte string, `EQUAL`/`NOTEQUAL` of constant byte strings
+- **Unary numeric folding**: `ABS` on constant integers
+
+**Notes**:
+- Runs after `InitStaticToConst`, so combinations of statically initialized fields (for example `static readonly int A = 7, B = 5; A + B`) are folded.
+- Runs before `FoldConstantConditionalJump`, so comparisons folded to `PUSHT`/`PUSHF` then feed constant-conditional jump folding.
+- Division by a constant zero is left unfolded to preserve the runtime fault.
+- Patterns whose operands or operation are jump or exception-handler targets are left unfolded.
 
 ## Usage
 
