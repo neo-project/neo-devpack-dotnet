@@ -1,0 +1,8 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_Assign#1": 2311320,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_ReadTupleElements#1": 1120080,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_ReadTupleRest#1": 1115010,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_TupleAssignmentEvaluationOrder#1": 1883550,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_TuplePropertyAndStaticAssignment#1": 1842360,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_WriteTupleElement#1": 1357260
+}

@@ -25,7 +25,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod()
         {
             var arr = Contract.TestProperty()!;
-            AssertGasConsumed(1622700);
 
             Assert.AreEqual(2, arr.Count);
             Assert.AreEqual("NEO3", (arr[0] as StackItem)!.GetString());
@@ -36,7 +35,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod2()
         {
             Contract.TestProperty2();
-            AssertGasConsumed(1557150);
             // No errors
         }
 
@@ -44,7 +42,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod3()
         {
             var person = Contract.TestProperty3()! as Array;
-            AssertGasConsumed(1291740); // Adjust this value based on actual gas consumption
 
             Assert.IsNotNull(person);
             Assert.AreEqual(3, person.Count);
@@ -56,7 +53,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod4()
         {
             var map = Contract.TestProperty4()!;
-            AssertGasConsumed(1230570); // Adjust this value based on actual gas consumption
 
             Assert.IsNotNull(map);
             Assert.AreEqual(1, map.Count);
@@ -70,7 +66,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod5()
         {
             var list = Contract.TestProperty5()!;
-            AssertGasConsumed(1046190); // Adjust this value based on actual gas consumption
 
             Assert.IsNotNull(list);
             Assert.AreEqual(5, list.Count);
@@ -84,7 +79,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyInit()
         {
             var arr = Contract.TestPropertyInit()!;
-            AssertGasConsumed(1870860);
 
             Assert.AreEqual(3, arr.Count);
             Assert.AreEqual("NEO3", (arr[0] as StackItem)!.GetString());

@@ -1,0 +1,9 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UserDefinedCompoundAssignment.Test_ClassLocalTarget#1": 2187630,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UserDefinedCompoundAssignment.Test_ClassParameterTarget#1": 1939050,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UserDefinedCompoundAssignment.Test_ReceiverEvaluatedBeforeArgument#1": 2260050,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UserDefinedCompoundAssignment.Test_StructArrayElementTarget#1": 2299590,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UserDefinedCompoundAssignment.Test_StructLocalTarget#1": 2436270,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UserDefinedCompoundAssignment.Test_StructMemberAccessTarget#1": 2233020,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UserDefinedCompoundAssignment.Test_StructStaticFieldTarget#1": 1902390
+}

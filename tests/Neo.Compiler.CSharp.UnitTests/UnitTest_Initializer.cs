@@ -23,11 +23,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Initializer_Test()
         {
             Assert.AreEqual(3, Contract.Sum());
-            AssertGasConsumed(1052070);
             Assert.AreEqual(12, Contract.Sum1(5, 7));
-            AssertGasConsumed(1113240);
             Assert.AreEqual(12, Contract.Sum2(5, 7));
-            AssertGasConsumed(1604940);
         }
 
         [TestMethod]
