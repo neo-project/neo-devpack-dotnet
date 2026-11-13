@@ -59,7 +59,6 @@ internal static class SyntaxProbeExpectedDiagnostics
             ["span_arraysegment_conversions"] = ["NC4013"],
             ["lambda_parameter_modifiers"] = ["CS8171"],
             ["partial_events_constructors"] = ["CS0079"],
-            ["user_defined_compound_assignment"] = ["NC4064"],
             ["collection_expression_arguments"] = ["NC4066"],
             ["union_types"] = ["NC4067"]
         };

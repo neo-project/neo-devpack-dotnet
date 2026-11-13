@@ -1,10 +1,39 @@
-# Neo analyzer diagnostic catalog
+# Neo diagnostic catalog
 
-This catalog is the stable landing page for analyzer diagnostics. Each descriptor has a source link to this catalog or to a more specific guidance page. The descriptor message and the rule-specific guidance remain the normative source for the diagnostic behavior.
+This catalog is the stable landing page for analyzer and compiler diagnostics. Each descriptor has a source link to this catalog or to a more specific guidance page. The descriptor message and the rule-specific guidance remain the normative source for the diagnostic behavior.
 
 | ID | Guidance |
 | --- | --- |
+| <a id="nc1001"></a>[NC1001](#nc1001) | The compilation unit declares no contract entry point; add a class deriving from `SmartContract`. |
+| <a id="nc1002"></a>[NC1002](#nc1002) | Extern methods cannot be compiled into a contract; replace the extern declaration with a supported implementation. |
+| <a id="nc1003"></a>[NC1003](#nc1003) | The contract class requires a parameterless constructor for deployment. |
+| <a id="nc1004"></a>[NC1004](#nc1004) | Only one contract class is supported per compilation unit. |
+| <a id="nc2001"></a>[NC2001](#nc2001) | The syntax construct is not supported by the Neo compiler; see the diagnostic message for the supported replacement. |
+| <a id="nc2002"></a>[NC2002](#nc2002) | Events cannot return a value; remove the return type from the event declaration. |
+| <a id="nc2003"></a>[NC2003](#nc2003) | Only static delegates are supported inside contracts. |
+| <a id="nc2004"></a>[NC2004](#nc2004) | Floating-point numbers are not supported; use integer or fixed-point arithmetic. |
+| <a id="nc2005"></a>[NC2005](#nc2005) | See the diagnostic message for the specific error and how to restructure the code. |
+| <a id="nc2006"></a>[NC2006](#nc2006) | See the diagnostic message for the specific error and how to restructure the code. |
+| <a id="nc2007"></a>[NC2007](#nc2007) | Catch filters (`catch ... when`) are not supported; remove the filter condition. |
+| <a id="nc2008"></a>[NC2008](#nc2008) | Multidimensional arrays are not supported; use jagged arrays instead. |
+| <a id="nc2009"></a>[NC2009](#nc2009) | Calls through interfaces are not supported; invoke the concrete type instead. |
 | <a id="nc2010"></a>[NC2010](#nc2010) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
+| <a id="nc2011"></a>[NC2011](#nc2011) | The type does not support `ToString` conversion in a contract; see the diagnostic message. |
+| <a id="nc2012"></a>[NC2012](#nc2012) | Interpolated string alignment clauses are not supported; remove the alignment component. |
+| <a id="nc2013"></a>[NC2013](#nc2013) | Interpolated string format clauses are not supported; remove the format component. |
+| <a id="nc3001"></a>[NC3001](#nc3001) | The initial value type is not supported for static contract fields; see the diagnostic message. |
+| <a id="nc3002"></a>[NC3002](#nc3002) | The method display name is not valid; see the diagnostic message. |
+| <a id="nc3003"></a>[NC3003](#nc3003) | Two contract methods share the same name and parameter count; rename one of them. |
+| <a id="nc3004"></a>[NC3004](#nc3004) | Two contract events share the same name; rename one of them. |
+| <a id="nc3005"></a>[NC3005](#nc3005) | The declared initial value is not valid for the field type; see the diagnostic message. |
+| <a id="nc3006"></a>[NC3006](#nc3006) | The manifest does not satisfy the NEP standard it declares; see the diagnostic message. |
+| <a id="nc3007"></a>[NC3007](#nc3007) | A captured static field was not found; see the diagnostic message. |
+| <a id="nc3008"></a>[NC3008](#nc3008) | The type is not supported in this context; see the diagnostic message for the supported alternatives. |
+| <a id="nc3009"></a>[NC3009](#nc3009) | The argument is not valid; see the diagnostic message. |
+| <a id="nc3010"></a>[NC3010](#nc3010) | Safe setters are not allowed; see the diagnostic message. |
+| <a id="nc3011"></a>[NC3011](#nc3011) | The safe method mutates contract state; see the diagnostic message. |
+| <a id="nc3012"></a>[NC3012](#nc3012) | The safe method calls a write-capable method; see the diagnostic message. |
+| <a id="nc4001"></a>[NC4001](#nc4001) | A file operation failed during compilation; see the diagnostic message for the file and the underlying error. |
 | <a id="nc4002"></a>[NC4002](#nc4002) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4003"></a>[NC4003](#nc4003) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4004"></a>[NC4004](#nc4004) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
@@ -61,7 +90,7 @@ This catalog is the stable landing page for analyzer diagnostics. Each descripto
 | <a id="nc4061"></a>[NC4061](#nc4061) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4062"></a>[NC4062](#nc4062) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4063"></a>[NC4063](#nc4063) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
-| <a id="nc4064"></a>[NC4064](#nc4064) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4065"></a>[NC4065](#nc4065) | String concatenation inside a loop copies the accumulated value on every iteration. Bound the accumulated length and iteration count, or move the concatenation outside the loop. |
 | <a id="nc4066"></a>[NC4066](#nc4066) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4067"></a>[NC4067](#nc4067) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
+| <a id="nc5001"></a>[NC5001](#nc5001) | An unexpected compiler error occurred; see the diagnostic message for the failing operation and the underlying exception. |
