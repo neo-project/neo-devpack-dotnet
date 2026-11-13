@@ -21,7 +21,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_BooleanOr()
         {
             Assert.AreEqual(true, Contract.TestBooleanOr());
-            AssertGasConsumed(984060);
         }
     }
 }

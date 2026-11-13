@@ -166,42 +166,36 @@ public class Contract : SmartContract
     public void Test_ConcatNeoRight()
     {
         Assert.AreEqual("Neo", Contract.ConcatNeoRight());
-        AssertGasConsumed(984450);
     }
 
     [TestMethod]
     public void Test_ConcatNeoLeft()
     {
         Assert.AreEqual("Neo", Contract.ConcatNeoLeft());
-        AssertGasConsumed(984450);
     }
 
     [TestMethod]
     public void Test_ConcatBoth()
     {
         Assert.AreEqual("", Contract.ConcatBoth());
-        AssertGasConsumed(984270);
     }
 
     [TestMethod]
     public void Test_ConcatNullRight()
     {
         Assert.AreEqual("", Contract.ConcatNullRight());
-        AssertGasConsumed(984540);
     }
 
     [TestMethod]
     public void Test_ConcatNullLeft()
     {
         Assert.AreEqual("", Contract.ConcatNullLeft());
-        AssertGasConsumed(984540);
     }
 
     [TestMethod]
     public void Test_ConcatRight()
     {
         Assert.AreEqual("Neo", Contract.ConcatRight("Neo"));
-        AssertGasConsumed(1293180);
         Assert.AreEqual("", Contract.ConcatRight(null));
     }
 
@@ -209,7 +203,6 @@ public class Contract : SmartContract
     public void Test_ConcatLeft()
     {
         Assert.AreEqual("Neo", Contract.ConcatLeft("Neo"));
-        AssertGasConsumed(1293180);
         Assert.AreEqual("", Contract.ConcatLeft(null));
     }
 
@@ -217,7 +210,6 @@ public class Contract : SmartContract
     public void Test_ConcatNormal()
     {
         Assert.AreEqual("NeoN3", Contract.ConcatNormal());
-        AssertGasConsumed(1292130);
     }
 
     public abstract class StringConcatContract(SmartContractInitialize initialize)

@@ -23,6 +23,7 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Interpreters;
 using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -736,6 +737,8 @@ namespace Neo.SmartContract.Testing
             // Increment fee
 
             foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
+
+            GasExecutionTracker.Record(engine.FeeConsumed, executionResult == VMState.HALT);
 
             // Process result
 
