@@ -1,0 +1,10 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.AttributeTest#1": 984060,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.ExplicitInitialValueTypesArePreserved#1": 1001060680,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.ExplicitInitialValueTypesArePreserved#2": 985710,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.ExplicitInitialValueTypesArePreserved#3": 985710,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.SingleParameterInitialValueInfersFieldType#1": 1001060680,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.SingleParameterInitialValueInfersFieldType#2": 985650,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.SingleParameterInitialValueInfersFieldType#3": 985710,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Attribute.SingleParameterInitialValueInfersFieldType#4": 985650
+}
