@@ -139,7 +139,20 @@ are not implemented, so Issue #8 is not fully complete.
 ## Automatic tracking in unit tests
 
 `TestEngine.Execute` records the GAS of every execution (`ApplicationEngine.FeeConsumed`,
-HALT and FAULT) into a per-test `AsyncLocal` scope (`GasExecutionTracker`). `TestBase<T>`
+HALT and FAULT) into a per-test `AsyncLocal` scope (`GasExecutionTracker`). Automatic tracking is
+**opt-in**: `TestBase<T>` does not track GAS and never fails because of a baseline. Inherit
+`TestBaseWithGasTracking<T>` to enable it:
+
+```csharp
+public class MyTests : TestBase<MyContract> { }                   // no automatic GAS tracking
+public class MyGasTests : TestBaseWithGasTracking<MyContract> { } // automatic GAS tracking
+```
+
+The internal compiler and framework suites keep tracking because their `DebugAndTestBase<T>`
+inherits `TestBaseWithGasTracking<T>`. Automatic tracking is unrelated to explicit
+`AssertGasConsumed` checks (and the `TestGasConsume` flag), which assert a value in the test itself.
+
+`TestBaseWithGasTracking<T>`
 starts the scope in `[TestInitialize]`, after the constructor has deployed the contract, so
 deployment is never measured. In `[TestCleanup]` the measurements are compared with
 `GasBaselines/<test assembly>/*.json` (one file per test class; large classes are split into `<Class>.partNN.json`, and all files are merged on load):
