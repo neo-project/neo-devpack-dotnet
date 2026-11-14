@@ -30,6 +30,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -154,6 +156,16 @@ namespace Neo.SmartContract.Testing
         /// Enable coverage capture
         /// </summary>
         public bool EnableCoverageCapture { get; set; } = true;
+
+        /// <summary>
+        /// Controls execution tracing. Tracing is disabled by default.
+        /// </summary>
+        public VerboseLevel Verbose { get; set; } = VerboseLevel.None;
+
+        /// <summary>
+        /// Destination for execution tracing. Defaults to <see cref="Console.Out"/>.
+        /// </summary>
+        public TextWriter TraceOutput { get; set; } = Console.Out;
 
         /// <summary>
         /// Method detection
@@ -385,8 +397,44 @@ namespace Neo.SmartContract.Testing
 
         #region Invoke events
 
+        internal void Trace(VerboseLevel level, string message)
+        {
+            if (Verbose >= level) TraceOutput.WriteLine(message);
+        }
+
+        internal static string FormatStackItem(StackItem item)
+        {
+            if (item.IsNull) return "null";
+
+            try
+            {
+                return item.Type switch
+                {
+                    StackItemType.Boolean => item.GetBoolean() ? "true" : "false",
+                    StackItemType.Integer => item.GetInteger().ToString(CultureInfo.InvariantCulture),
+                    StackItemType.ByteString or StackItemType.Buffer => FormatBytes(item.GetSpan()),
+                    StackItemType.Array or StackItemType.Struct => $"{item.Type}[{((Neo.VM.Types.Array)item).Count}]",
+                    _ => item.Type.ToString()
+                };
+            }
+            catch (Exception)
+            {
+                // Tracing must not change execution when a malformed stack item cannot be formatted.
+                return item.Type.ToString();
+            }
+        }
+
+        private static string FormatBytes(ReadOnlySpan<byte> value)
+        {
+            var length = Math.Min(value.Length, 16);
+            var suffix = value.Length > length ? "..." : string.Empty;
+            return $"0x{Convert.ToHexString(value[..length])}{suffix}";
+        }
+
         internal void ApplicationEngineNotify(object? sender, NotifyEventArgs e)
         {
+            Trace(VerboseLevel.Basic,
+                $"EVENT script={e.ScriptHash} name={e.EventName} state=[{string.Join(", ", e.State.Select(FormatStackItem))}]");
             OnRuntimeNotify?.Invoke(e.ScriptHash, e.EventName, e.State);
 
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
@@ -400,6 +448,7 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineLog(object? sender, LogEventArgs e)
         {
+            Trace(VerboseLevel.Basic, $"LOG script={e.ScriptHash} message={e.Message}");
             OnRuntimeLog?.Invoke(e.ScriptHash, e.Message);
 
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
@@ -730,9 +779,12 @@ namespace Neo.SmartContract.Testing
             engine.Notify += ApplicationEngineNotify;
 
             // Execute
+            Trace(VerboseLevel.Basic, $"EXECUTION START script={engine.CurrentScriptHash}");
             if (ResetFeeConsumed) FeeConsumed.Reset();
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
+            Trace(VerboseLevel.Basic,
+                $"EXECUTION END state={executionResult} gas={engine.FeeConsumed} results={engine.ResultStack.Count}");
 
             // Increment fee
 

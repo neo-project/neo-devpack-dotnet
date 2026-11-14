@@ -31,6 +31,8 @@ namespace Neo.SmartContract.Testing
         private int? InstructionPointer;
         private long PreExecuteInstructionFeeConsumed;
         private bool? BranchPath;
+        private ExecutionContext? _traceContext;
+        private readonly HashSet<ExecutionContext> _traceContexts = [];
 
         /// <summary>
         /// Register dynamic argument syscall
@@ -155,6 +157,8 @@ namespace Neo.SmartContract.Testing
 
         protected override void PreExecuteInstruction(Instruction instruction)
         {
+            TraceExecution(instruction);
+
             // Cache coverage data
 
             if (Engine.EnableCoverageCapture)
@@ -286,8 +290,58 @@ namespace Neo.SmartContract.Testing
             InstructionPointer = null;
         }
 
+        private void TraceExecution(Instruction instruction)
+        {
+            if (Engine.Verbose < VerboseLevel.Detailed || CurrentContext is null) return;
+
+            if (!ReferenceEquals(_traceContext, CurrentContext))
+            {
+                var returning = !_traceContexts.Add(CurrentContext);
+                Engine.Trace(VerboseLevel.Detailed,
+                    $"{(returning ? "RETURN" : "CALL")} depth={InvocationStack.Count} script={CurrentScriptHash}");
+                _traceContext = CurrentContext;
+            }
+
+            if (Engine.Verbose < VerboseLevel.Trace) return;
+
+            var stackCount = CurrentContext.EvaluationStack.Count;
+            var formattedCount = Math.Min(stackCount, 8);
+            var stack = new string[formattedCount];
+            for (var i = 0; i < formattedCount; i++) stack[i] = TestEngine.FormatStackItem(Peek(i));
+            var suffix = stackCount > formattedCount ? ", ..." : string.Empty;
+
+            Engine.Trace(VerboseLevel.Trace,
+                $"INSTRUCTION script={CurrentScriptHash} offset={CurrentContext.InstructionPointer} opcode={instruction.OpCode} gas={FeeConsumed} stack=[{string.Join(", ", stack)}{suffix}]");
+        }
+
+        private void TraceStorage(InteropDescriptor descriptor)
+        {
+            if (Engine.Verbose < VerboseLevel.Detailed || CurrentContext is null) return;
+
+            string? operation = null;
+            var includeValue = false;
+            if (descriptor == System_Storage_Get || descriptor == System_Storage_Find) operation = "READ";
+            else if (descriptor == System_Storage_Put)
+            {
+                operation = "WRITE";
+                includeValue = true;
+            }
+            else if (descriptor == System_Storage_Delete) operation = "DELETE";
+
+            if (operation is null || CurrentContext.EvaluationStack.Count < 2) return;
+
+            var key = TestEngine.FormatStackItem(Peek(1));
+            var value = includeValue && CurrentContext.EvaluationStack.Count >= 3
+                ? $" value={TestEngine.FormatStackItem(Peek(2))}"
+                : string.Empty;
+            Engine.Trace(VerboseLevel.Detailed,
+                $"STORAGE {operation} script={CurrentScriptHash} key={key}{value}");
+        }
+
         protected override void OnSysCall(InteropDescriptor descriptor)
         {
+            TraceStorage(descriptor);
+
             //  descriptor.Hash == 1381727586 && descriptor.Name == "System.Contract.Call" && descriptor.Parameters.Count == 4)
             if (descriptor == System_Contract_Call)
             {

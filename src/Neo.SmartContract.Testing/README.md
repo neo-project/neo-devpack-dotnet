@@ -11,6 +11,7 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Properties](#properties)
     - [Methods](#methods)
     - [Example of use](#example-of-use)
+    - [Execution tracing](#execution-tracing)
 - [NativeArtifacts](#nativeartifacts)
     - [Methods](#methods)
     - [Example of use](#example-of-use)
@@ -89,6 +90,8 @@ And for read and write, we have:
 - **Fee**: Sets the fee execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
 - **FeeConsumed**: Get or set the consumed execution fee.
 - **EnableCoverageCapture**: Enables or disables the coverage capture. 
+- **Verbose**: Selects the execution tracing level. It defaults to `VerboseLevel.None`.
+- **TraceOutput**: Destination for execution tracing. It defaults to `Console.Out` and can be replaced with another `TextWriter`.
 - **Trigger**: The trigger of the execution.
 - **StringInterpreter**: Define the interpreter used when a ByteString or Buffer is converted to `string` type.
 - **CallFlags**: Define the `CallFlags` for the mocked function, `All` by default.
@@ -125,6 +128,29 @@ var neo = engine.FromHash<NeoToken>(engine.Native.NEO.Hash, false);
 Assert.AreEqual(100_000_000, neo.TotalSupply);
 Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.ValidatorsAddress));
 ```
+
+#### Execution tracing
+
+Execution tracing is opt-in and does not change the existing runtime log or notification events:
+
+```csharp
+var engine = new TestEngine(true)
+{
+    Verbose = VerboseLevel.Trace,
+    TraceOutput = Console.Out
+};
+
+contract.Invoke();
+```
+
+| Level | Output |
+| --- | --- |
+| `None` | No tracing. |
+| `Basic` | Execution start/result, consumed gas, contract logs, and notifications. Fault summaries are written before `TestException` is thrown. |
+| `Detailed` | Everything in `Basic`, plus contract calls/returns and storage reads, writes, and deletes. |
+| `Trace` | Everything in `Detailed`, plus each instruction's script hash, offset, opcode, gas, and evaluation stack. |
+
+Instruction gas is measured immediately before the instruction executes. Stack output is bounded to the top eight items, and byte strings and buffers are bounded to their first 16 bytes. Assign a `StringWriter` to `TraceOutput` to capture traces in tests without writing to the console.
 
 ### NativeArtifacts
 
