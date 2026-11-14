@@ -202,6 +202,66 @@ public class Contract : SmartContract
         Assert.AreEqual(new BigInteger(30), contract.Test());
     }
 
+    [TestMethod]
+    public void UserDefinedIndexerFromEndUsesCountForReadsAndWrites()
+    {
+        const string source = """
+using Neo.SmartContract.Framework;
+using System.ComponentModel;
+using System.Numerics;
+
+public class Contract : SmartContract
+{
+    public class Table
+    {
+        private BigInteger[] _values = { 10, 20, 30, 40 };
+        public int Count => _values.Length;
+        public BigInteger this[int index]
+        {
+            get => _values[index];
+            set => _values[index] = value;
+        }
+    }
+
+    [DisplayName("writeAndIncrement")]
+    public static BigInteger WriteAndIncrement()
+    {
+        var table = new Table();
+        table[^1] = 900;
+        table[^1]++;
+        ++table[^1];
+        return table[3] * 10000 + table[0];
+    }
+
+    [DisplayName("readWithOuterOperand")]
+    public static BigInteger ReadWithOuterOperand()
+    {
+        var table = new Table();
+        return (BigInteger)100 + table[^1];
+    }
+
+    [DisplayName("readDirect")]
+    public static BigInteger ReadDirect()
+    {
+        var table = new Table();
+        return table[^1];
+    }
+}
+""";
+
+        foreach (CompilationOptions.OptimizationType optimization in OptimizationModes)
+        {
+            CompilationContext context = Compile(source, optimization);
+            Assert.IsTrue(context.Success, $"{optimization}:{Environment.NewLine}{FormatDiagnostics(context)}");
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<UserDefinedIndexerContract>(context.CreateExecutable(), context.CreateManifest());
+            Assert.AreEqual(new BigInteger(9020010), contract.WriteAndIncrement(), optimization.ToString());
+            Assert.AreEqual(new BigInteger(140), contract.ReadWithOuterOperand(), optimization.ToString());
+            Assert.AreEqual(new BigInteger(40), contract.ReadDirect(), optimization.ToString());
+        }
+    }
+
     private static string BuildContract(string members) => $$"""
 using Neo.SmartContract.Framework;
 using System;
@@ -262,5 +322,18 @@ public class Contract : SmartContract
     {
         [DisplayName("test")]
         public abstract BigInteger? Test();
+    }
+
+    public abstract class UserDefinedIndexerContract(SmartContractInitialize initialize)
+        : Neo.SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("writeAndIncrement")]
+        public abstract BigInteger? WriteAndIncrement();
+
+        [DisplayName("readWithOuterOperand")]
+        public abstract BigInteger? ReadWithOuterOperand();
+
+        [DisplayName("readDirect")]
+        public abstract BigInteger? ReadDirect();
     }
 }
