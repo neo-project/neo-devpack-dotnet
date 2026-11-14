@@ -44,7 +44,7 @@ public class DebugAndTestBase<T> : TestBase<T>
     {
         // Make sure the contract is optimized with RemoveUncoveredInstructions
         // Basic block analysis does not consider jump targets that are not covered
-        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+        (nef, manifest, debugInfo) = Strategies.RemoveUnreachable(nef, manifest, debugInfo);
         var basicBlocks = new ContractInBasicBlocks(nef, manifest, debugInfo);
 
         List<VM.Instruction> instructions = basicBlocks.coverage.addressAndInstructions.Select(kv => kv.i).ToList();

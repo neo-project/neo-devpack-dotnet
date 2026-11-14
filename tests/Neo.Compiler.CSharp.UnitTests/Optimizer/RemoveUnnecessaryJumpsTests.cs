@@ -10,25 +10,21 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 {
     /// <summary>
-    /// Coverage for <see cref="Neo.Optimizer.JumpCompresser.RemoveUnnecessaryJumps"/>
-    /// and its interaction with <see cref="Neo.Optimizer.JumpCompresser.FoldJump"/>.
-    /// </summary>
-    /// <remarks>
     /// Conditional jumps that target the next instruction are deliberately preserved
     /// (they convert their operands and may fault, so replacing them with DROPs would
     /// change VM behavior); the tests document that decision instead of asserting a
     /// simplification.
-    /// </remarks>
+    /// </summary>
     [TestClass]
     public class RemoveUnnecessaryJumpsTests
     {
@@ -38,8 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             // [0] JMP +2 -> [2] PUSH1; [2] PUSH1; [3] RET
             var nef = CreateNefFile(new byte[] { (byte)OpCode.JMP, 0x02, (byte)OpCode.PUSH1, (byte)OpCode.RET });
 
-            (nef, _, _) = Neo.Optimizer.JumpCompresser.RemoveUnnecessaryJumps(nef, CreateManifest());
-
+            (nef, _, _) = Strategies.RemoveUnnecessaryJumps(nef, CreateManifest(), null);
             CollectionAssert.AreEqual(new[] { OpCode.PUSH1, OpCode.RET }, GetOpCodes(nef),
                 "short JMP to its own next instruction must be removed");
         }
@@ -54,8 +49,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 (byte)OpCode.PUSH1, (byte)OpCode.RET
             });
 
-            (nef, _, _) = Neo.Optimizer.JumpCompresser.RemoveUnnecessaryJumps(nef, CreateManifest());
-
+            (nef, _, _) = Strategies.RemoveUnnecessaryJumps(nef, CreateManifest(), null);
             CollectionAssert.AreEqual(new[] { OpCode.PUSH1, OpCode.RET }, GetOpCodes(nef),
                 "long JMP to its own next instruction must be removed");
         }
@@ -74,7 +68,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 (byte)OpCode.PUSH1, (byte)OpCode.RET
             });
 
-            (nef, _, _) = Neo.Optimizer.JumpCompresser.RemoveUnnecessaryJumps(nef, CreateManifest());
+            (nef, _, _) = Strategies.RemoveUnnecessaryJumps(nef, CreateManifest(), null);
 
             // Inner JMP is removed; outer JMP is retargeted to PUSH1.
             CollectionAssert.AreEqual(new[] { OpCode.JMP, OpCode.PUSH1, OpCode.RET }, GetOpCodes(nef),
@@ -99,12 +93,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 OpCode.JMPEQ, OpCode.JMPNE, OpCode.JMPGT, OpCode.JMPGE, OpCode.JMPLT, OpCode.JMPLE
             })
             {
-                var (nef, _, _) = Neo.Optimizer.JumpCompresser.RemoveUnnecessaryJumps(
+                var (nef, _, _) = Strategies.RemoveUnnecessaryJumps(
                     CreateNefFile(new byte[] { (byte)OpCode.PUSH0, (byte)OpCode.PUSH0, (byte)opCode, 0x02, (byte)OpCode.PUSH1, (byte)OpCode.RET }),
-                    CreateManifest());
-
-                CollectionAssert.Contains(GetOpCodes(nef), opCode,
-                    $"conditional {opCode} targeting the next instruction is intentionally preserved");
+                    CreateManifest(), null);
+                CollectionAssert.Contains(GetOpCodes(nef), opCode, $"conditional {opCode} targeting the next instruction is intentionally preserved");
             }
         }
 
@@ -129,9 +121,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 (byte)OpCode.PUSH2, (byte)OpCode.RET
             });
 
-            (nef, _, _) = Neo.Optimizer.JumpCompresser.FoldJump(nef, CreateManifest());
-            (nef, _, _) = Neo.Optimizer.JumpCompresser.RemoveUnnecessaryJumps(nef, CreateManifest());
-
+            (nef, _, _) = Strategies.NormalizeJumps(nef, CreateManifest(), null);
             CollectionAssert.AreEqual(
                 new[] { OpCode.PUSH1, OpCode.RET, OpCode.JMP, OpCode.PUSH2, OpCode.RET },
                 GetOpCodes(nef),
@@ -144,7 +134,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             {
                 Compiler = "test",
                 Source = "test.cs",
-                Tokens = Array.Empty<MethodToken>(),
+                Tokens = [],
                 Script = script
             };
         }
@@ -154,14 +144,14 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             return new ContractManifest
             {
                 Name = "test",
-                Groups = Array.Empty<ContractGroup>(),
-                SupportedStandards = Array.Empty<string>(),
+                Groups = [],
+                SupportedStandards = [],
                 Abi = new ContractAbi
                 {
-                    Methods = Array.Empty<ContractMethodDescriptor>(),
-                    Events = Array.Empty<ContractEventDescriptor>()
+                    Methods = [],
+                    Events = []
                 },
-                Permissions = Array.Empty<ContractPermission>(),
+                Permissions = [],
                 Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
             };
         }
