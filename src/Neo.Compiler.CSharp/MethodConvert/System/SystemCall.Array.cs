@@ -59,36 +59,26 @@ internal partial class MethodConvert
         if (instanceExpression is not null &&
             model.GetTypeInfo(instanceExpression).Type is IArrayTypeSymbol { Rank: > 1 } arrayType)
         {
-            using var tempScope = methodConvert.PreserveAnonymousVariables();
-            byte arraySlot = methodConvert.AddAnonymousVariable();
-            byte lengthSlot = methodConvert.AddAnonymousVariable();
             JumpTarget endTarget = new();
 
             methodConvert.ConvertExpression(model, instanceExpression);
-            methodConvert.AccessSlot(OpCode.STLOC, arraySlot);
-            methodConvert.Push(1);
-            methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
+            methodConvert.Dup();                               // [array, array]
+            methodConvert.Size();                              // [array, outer length]
 
-            for (int dimension = 0; dimension < arrayType.Rank; dimension++)
+            for (int dimension = 1; dimension < arrayType.Rank; dimension++)
             {
-                methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-                methodConvert.AccessSlot(OpCode.LDLOC, arraySlot);
-                methodConvert.Size();
-                methodConvert.Mul();
-                methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
-
-                if (dimension + 1 == arrayType.Rank)
-                    continue;
-
-                methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-                methodConvert.JumpIfFalse(endTarget);
-                methodConvert.AccessSlot(OpCode.LDLOC, arraySlot);
+                methodConvert.Dup();
+                methodConvert.JumpIfFalse(endTarget);          // [array, length]
+                methodConvert.Swap();                          // [length, array]
                 methodConvert.Push(0);
-                methodConvert.PickItem();
-                methodConvert.AccessSlot(OpCode.STLOC, arraySlot);
+                methodConvert.PickItem();                      // [length, next array]
+                methodConvert.Swap();                          // [next array, length]
+                methodConvert.Over();                          // [next array, length, next array]
+                methodConvert.Size();                          // [next array, length, next size]
+                methodConvert.Mul();                           // [next array, length * next size]
             }
 
-            endTarget.Instruction = methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+            endTarget.Instruction = methodConvert.Nip();       // [length]
             return;
         }
 
