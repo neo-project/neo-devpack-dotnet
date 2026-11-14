@@ -134,24 +134,19 @@ Optimizer/
 │   ├── DebugInfoBuilder.cs
 │   └── OptimizedScriptBuilder.cs
 ├── Strategies/          # Optimization strategies
-│   ├── Peephole.cs
-│   ├── JumpCompresser.cs
-│   ├── Reachability.cs
-│   └── Miscellaneous.cs
+│   ├── ScriptGraph.cs          # Persistent graph, rewrites, reachability, final layout
+│   ├── Peephole.cs    # Fixed-length local rewrites using NOP placeholders
+│   └── Strategies.cs # Ordered built-in transformations
 ├── BasicOptimizer.cs    # Main optimizer entry point
 └── DumpNef.cs           # NEF file utilities
 ```
 
-## Adding New Strategies
+## Adding New Optimizations
 
-1. Create a new class in `Strategies/`
-2. Implement the optimization logic
-3. Add the `[Strategy]` attribute
-4. Use the standard public static strategy signature
-
-Valid attributed methods are discovered automatically when the optimizer is initialized.
-Strategies run by descending priority. Equal priorities are ordered by assembly, declaring
-type, method name, and metadata token so execution order does not depend on reflection order.
+1. Add local fixed-width rewrites to `NPeephole`, or graph transformations to
+   `ScriptGraph` without emitting assets midway.
+2. Invoke the transformation from `Strategies.Run` in the required semantic phase.
+3. Add VM differential tests and artifact-level offset/debug checks.
 
 ## Performance Impact
 
