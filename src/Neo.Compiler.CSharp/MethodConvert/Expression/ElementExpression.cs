@@ -171,41 +171,58 @@ internal partial class MethodConvert
         if (indexOrRange is RangeExpressionSyntax range)
         {
             if (range.LeftOperand is null)
-                Push(0);
+            {
+                if (range.RightOperand is null)
+                {
+                    Dup();
+                    Size();
+                }
+                else
+                {
+                    ConvertRangeEndpointValue(model, range.RightOperand);
+                    ResolveRangeEndpointOffset(receiverDepth: 1);
+                }
+                Left(null);
+            }
+            else if (range.RightOperand is null &&
+                range.LeftOperand is PrefixUnaryExpressionSyntax prefix &&
+                prefix.OperatorToken.IsKind(SyntaxKind.CaretToken))
+            {
+                ConvertExpression(model, prefix.Operand);
+                ValidateRangeEndpointValue();
+                Right(null);
+            }
             else
+            {
                 ConvertRangeEndpointValue(model, range.LeftOperand);
 
-            if (range.RightOperand is null)
-            {
-                Over();
-                Size();
-            }
-            else
-            {
-                ConvertRangeEndpointValue(model, range.RightOperand);
+                if (range.RightOperand is null)
+                {
+                    Over();
+                    Size();
+                }
+                else
+                {
+                    ConvertRangeEndpointValue(model, range.RightOperand);
+                }
+                // Decode from-end values only after both endpoint expressions have run.
+                if (range.RightOperand is not null) // [left, right]
+                {
+                    ResolveRangeEndpointOffset(receiverDepth: 2);  // [left, right']
+                }
+                Swap();                                        // [right, left]
+                ResolveRangeEndpointOffset(receiverDepth: 2);  // [right, left']
+                Swap();                                        // [left', right]
+                Over();                                        // [left, right, left]
+                Sub();                                         // [left, count]
+                SubStr();
             }
 
-            // Decode from-end values only after both endpoint expressions have run.
-            if (range.RightOperand is not null) // [left, right]
-            {
-                ResolveRangeEndpointOffset();  // [left, right']
-            }
-            if (range.LeftOperand is not null)
-            {
-                Swap();                        // [right, left]
-                ResolveRangeEndpointOffset();  // [right, left']
-                Swap();                        // [left', right]
-            }
-
-            Over();   // [left, right, left]
-            Sub();    // [left, count]
             switch (type.ToString())
             {
                 case "byte[]":
-                    AddInstruction(OpCode.SUBSTR);
                     break;
                 case "string":
-                    AddInstruction(OpCode.SUBSTR);
                     ChangeType(VM.Types.StackItemType.ByteString);
                     break;
                 default:
@@ -351,17 +368,17 @@ internal partial class MethodConvert
         nonNegativeTarget.Instruction = Nop();
     }
 
-    private void ResolveRangeEndpointOffset()
+    private void ResolveRangeEndpointOffset(int receiverDepth)
     {
         JumpTarget absoluteTarget = new();
-        Dup();             // [value, value]
-        Push(0);           // [value, value, 0]
+        Dup();             // [receiver, value, value]
+        Push(0);           // [receiver, value, value, 0]
         JumpIfGreaterOrEqual(absoluteTarget);
-        Pick(2);
-        Size();           // [value, size]
-        Add();            // [value + size]
-        Inc();            // [value + size + 1]
-        absoluteTarget.Instruction = Nop();    // [offset]
+        _ = receiverDepth == 1 ? Over() : Pick(receiverDepth);
+        Size();           // [receiver, value, size]
+        Add();            // [receiver, value + size]
+        Inc();            // [receiver, offset]
+        absoluteTarget.Instruction = Nop();    // [receiver, offset]
     }
 
     private void EnsureMultiDimensionalArguments(SeparatedSyntaxList<ArgumentSyntax> arguments, int expectedRank, SyntaxNode errorNode)
