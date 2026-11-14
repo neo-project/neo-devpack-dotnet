@@ -19,7 +19,10 @@ namespace Neo.SmartContract.Framework.Attributes
     public class StoredAttribute : Attribute
     {
         /// <summary>
-        /// The property will be backed in the storage using the specific key using the property name as storage key
+        /// Stores the property using its name as the storage key.
+        /// If the property hides an inherited stored property with the same name using <c>new</c>,
+        /// both properties use the same key and writing one overwrites the other's stored value.
+        /// Use an overload that accepts a byte or string key to give the hiding property a distinct key.
         /// </summary>
         public StoredAttribute() { }
 
