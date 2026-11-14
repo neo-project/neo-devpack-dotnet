@@ -14,8 +14,10 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
@@ -48,6 +50,18 @@ internal partial class MethodConvert
     {
         if (model.GetSymbolInfo(expression).Symbol is IPropertySymbol property)
         {
+            if (property.GetMethod is not null &&
+                property.ContainingType.SpecialType != SpecialType.System_String &&
+                !HasDeclarativeLowering(property.GetMethod) &&
+                expression.ArgumentList.Arguments.Count == 1 &&
+                model.GetOperation(expression) is IImplicitIndexerReferenceOperation)
+            {
+                ConvertExpression(model, expression.Expression);
+                ConvertExpression(model, expression.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.SWAP);
+                CallMethodWithConvention(model, property.GetMethod, CallingConvention.Cdecl);
+                return;
+            }
             CallMethodWithInstanceExpression(model, property.GetMethod!, expression.Expression, expression.ArgumentList.Arguments.ToArray());
         }
         else
@@ -157,41 +171,58 @@ internal partial class MethodConvert
         if (indexOrRange is RangeExpressionSyntax range)
         {
             if (range.LeftOperand is null)
-                Push(0);
+            {
+                if (range.RightOperand is null)
+                {
+                    Dup();
+                    Size();
+                }
+                else
+                {
+                    ConvertRangeEndpointValue(model, range.RightOperand);
+                    ResolveRangeEndpointOffset(receiverDepth: 1);
+                }
+                Left(null);
+            }
+            else if (range.RightOperand is null &&
+                range.LeftOperand is PrefixUnaryExpressionSyntax prefix &&
+                prefix.OperatorToken.IsKind(SyntaxKind.CaretToken))
+            {
+                ConvertExpression(model, prefix.Operand);
+                ValidateRangeEndpointValue();
+                Right(null);
+            }
             else
+            {
                 ConvertRangeEndpointValue(model, range.LeftOperand);
 
-            if (range.RightOperand is null)
-            {
-                Over();
-                Size();
-            }
-            else
-            {
-                ConvertRangeEndpointValue(model, range.RightOperand);
+                if (range.RightOperand is null)
+                {
+                    Over();
+                    Size();
+                }
+                else
+                {
+                    ConvertRangeEndpointValue(model, range.RightOperand);
+                }
+                // Decode from-end values only after both endpoint expressions have run.
+                if (range.RightOperand is not null) // [left, right]
+                {
+                    ResolveRangeEndpointOffset(receiverDepth: 2);  // [left, right']
+                }
+                Swap();                                        // [right, left]
+                ResolveRangeEndpointOffset(receiverDepth: 2);  // [right, left']
+                Swap();                                        // [left', right]
+                Over();                                        // [left, right, left]
+                Sub();                                         // [left, count]
+                SubStr();
             }
 
-            // Decode from-end values only after both endpoint expressions have run.
-            if (range.RightOperand is not null) // [left, right]
-            {
-                ResolveRangeEndpointOffset();  // [left, right']
-            }
-            if (range.LeftOperand is not null)
-            {
-                Swap();                        // [right, left]
-                ResolveRangeEndpointOffset();  // [right, left']
-                Swap();                        // [left', right]
-            }
-
-            Over();   // [left, right, left]
-            Sub();    // [left, count]
             switch (type.ToString())
             {
                 case "byte[]":
-                    AddInstruction(OpCode.SUBSTR);
                     break;
                 case "string":
-                    AddInstruction(OpCode.SUBSTR);
                     ChangeType(VM.Types.StackItemType.ByteString);
                     break;
                 default:
@@ -337,17 +368,17 @@ internal partial class MethodConvert
         nonNegativeTarget.Instruction = Nop();
     }
 
-    private void ResolveRangeEndpointOffset()
+    private void ResolveRangeEndpointOffset(int receiverDepth)
     {
         JumpTarget absoluteTarget = new();
-        Dup();             // [value, value]
-        Push(0);           // [value, value, 0]
+        Dup();             // [receiver, value, value]
+        Push(0);           // [receiver, value, value, 0]
         JumpIfGreaterOrEqual(absoluteTarget);
-        Pick(2);
-        Size();           // [value, size]
-        Add();            // [value + size]
-        Inc();            // [value + size + 1]
-        absoluteTarget.Instruction = Nop();    // [offset]
+        _ = receiverDepth == 1 ? Over() : Pick(receiverDepth);
+        Size();           // [receiver, value, size]
+        Add();            // [receiver, value + size]
+        Inc();            // [receiver, offset]
+        absoluteTarget.Instruction = Nop();    // [receiver, offset]
     }
 
     private void EnsureMultiDimensionalArguments(SeparatedSyntaxList<ArgumentSyntax> arguments, int expectedRank, SyntaxNode errorNode)
