@@ -85,7 +85,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 foreach (string assembly in runtimeAssemblies)
                 {
                     Assert.IsTrue(
-                        package.Entries.Any(entry => entry.FullName == $"tools/net10.0/any/{assembly}"),
+                        package.Entries.Any(entry => entry.FullName == $"tools/net11.0/any/{assembly}"),
                         $"The compiler tool package should contain {assembly}.");
                 }
             }
