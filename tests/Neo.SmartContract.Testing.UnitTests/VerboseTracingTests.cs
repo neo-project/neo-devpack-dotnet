@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             TestEngine engine = new(true);
             var contract = DeployStorageContract(engine);
             using var output = new StringWriter();
-            engine.VerboseOutput = output;
+            engine.TraceOutput = output;
 
             using var script = new ScriptBuilder();
             script.EmitDynamicCall(contract.Hash, "readWrite");
@@ -60,7 +60,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             TestEngine engine = new(true);
             var contract = DeployStorageContract(engine);
             using var output = new StringWriter();
-            engine.VerboseOutput = output;
+            engine.TraceOutput = output;
             engine.Verbose = VerboseLevel.Detailed;
 
             using var script = new ScriptBuilder();
@@ -84,7 +84,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             TestEngine engine = new(true);
             using var output = new StringWriter();
-            engine.VerboseOutput = output;
+            engine.TraceOutput = output;
             engine.Verbose = VerboseLevel.Trace;
 
             using var script = new ScriptBuilder();
@@ -108,7 +108,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             TestEngine engine = new(true);
             using var output = new StringWriter();
-            engine.VerboseOutput = output;
+            engine.TraceOutput = output;
             engine.Verbose = VerboseLevel.Basic;
 
             using var script = new ScriptBuilder();

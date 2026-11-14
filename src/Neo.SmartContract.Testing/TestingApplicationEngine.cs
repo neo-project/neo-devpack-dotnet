@@ -297,7 +297,7 @@ namespace Neo.SmartContract.Testing
             if (!ReferenceEquals(_traceContext, CurrentContext))
             {
                 var returning = !_traceContexts.Add(CurrentContext);
-                Engine.WriteVerbose(VerboseLevel.Detailed,
+                Engine.Trace(VerboseLevel.Detailed,
                     $"{(returning ? "RETURN" : "CALL")} depth={InvocationStack.Count} script={CurrentScriptHash}");
                 _traceContext = CurrentContext;
             }
@@ -310,7 +310,7 @@ namespace Neo.SmartContract.Testing
             for (var i = 0; i < formattedCount; i++) stack[i] = TestEngine.FormatStackItem(Peek(i));
             var suffix = stackCount > formattedCount ? ", ..." : string.Empty;
 
-            Engine.WriteVerbose(VerboseLevel.Trace,
+            Engine.Trace(VerboseLevel.Trace,
                 $"INSTRUCTION script={CurrentScriptHash} offset={CurrentContext.InstructionPointer} opcode={instruction.OpCode} gas={FeeConsumed} stack=[{string.Join(", ", stack)}{suffix}]");
         }
 
@@ -334,7 +334,7 @@ namespace Neo.SmartContract.Testing
             var value = includeValue && CurrentContext.EvaluationStack.Count >= 3
                 ? $" value={TestEngine.FormatStackItem(Peek(2))}"
                 : string.Empty;
-            Engine.WriteVerbose(VerboseLevel.Detailed,
+            Engine.Trace(VerboseLevel.Detailed,
                 $"STORAGE {operation} script={CurrentScriptHash} key={key}{value}");
         }
 

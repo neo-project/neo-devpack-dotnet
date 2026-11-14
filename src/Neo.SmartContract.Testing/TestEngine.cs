@@ -165,7 +165,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Destination for execution tracing. Defaults to <see cref="Console.Out"/>.
         /// </summary>
-        public TextWriter VerboseOutput { get; set; } = Console.Out;
+        public TextWriter TraceOutput { get; set; } = Console.Out;
 
         /// <summary>
         /// Method detection
@@ -397,9 +397,9 @@ namespace Neo.SmartContract.Testing
 
         #region Invoke events
 
-        internal void WriteVerbose(VerboseLevel level, string message)
+        internal void Trace(VerboseLevel level, string message)
         {
-            if (Verbose >= level) VerboseOutput.WriteLine(message);
+            if (Verbose >= level) TraceOutput.WriteLine(message);
         }
 
         internal static string FormatStackItem(StackItem item)
@@ -433,7 +433,7 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineNotify(object? sender, NotifyEventArgs e)
         {
-            WriteVerbose(VerboseLevel.Basic,
+            Trace(VerboseLevel.Basic,
                 $"EVENT script={e.ScriptHash} name={e.EventName} state=[{string.Join(", ", e.State.Select(FormatStackItem))}]");
             OnRuntimeNotify?.Invoke(e.ScriptHash, e.EventName, e.State);
 
@@ -448,7 +448,7 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineLog(object? sender, LogEventArgs e)
         {
-            WriteVerbose(VerboseLevel.Basic, $"LOG script={e.ScriptHash} message={e.Message}");
+            Trace(VerboseLevel.Basic, $"LOG script={e.ScriptHash} message={e.Message}");
             OnRuntimeLog?.Invoke(e.ScriptHash, e.Message);
 
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
@@ -779,11 +779,11 @@ namespace Neo.SmartContract.Testing
             engine.Notify += ApplicationEngineNotify;
 
             // Execute
-            WriteVerbose(VerboseLevel.Basic, $"EXECUTION START script={engine.CurrentScriptHash}");
+            Trace(VerboseLevel.Basic, $"EXECUTION START script={engine.CurrentScriptHash}");
             if (ResetFeeConsumed) FeeConsumed.Reset();
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
-            WriteVerbose(VerboseLevel.Basic,
+            Trace(VerboseLevel.Basic,
                 $"EXECUTION END state={executionResult} gas={engine.FeeConsumed} results={engine.ResultStack.Count}");
 
             // Increment fee
