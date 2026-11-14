@@ -1,0 +1,194 @@
+name: ApproveGasBaselineIncrease
+
+# Controlled approval of a legitimate GAS increase. Nothing is accepted automatically:
+#  1. A maintainer with write access dispatches this workflow with the pull request number and the exact reviewed head SHA
+#     (workflow_dispatch cannot be started by contributors without write access, and labels are not used).
+#  2. Measure runs the pull request code with read-only permissions and no secrets (same trust level as a pull_request run).
+#  3. Approve needs the protected environment "gas-baseline-approval" (required reviewers configured in repository
+#     settings). Only then does it generate the updated JSON with trusted scripts and open a bot pull request against master-n3.
+# The generated integration PR contains the exact reviewed code and generated baselines, and is never auto-merged.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Pull request number whose GAS increase is approved
+        required: true
+      base_sha:
+        description: Exact master-n3 SHA on which the reviewed PR is rebased
+        required: true
+      head_sha:
+        description: Exact head commit SHA of the pull request that was reviewed
+        required: true
+      justification:
+        description: Why the GAS increase is legitimate
+        required: true
+
+permissions: {}
+
+concurrency:
+  group: gas-baseline-sync
+  cancel-in-progress: false
+
+env:
+  DOTNET_VERSION: 10.0.4xx
+  GAS_ASSEMBLIES: Neo.Compiler.CSharp.UnitTests,Neo.SmartContract.Framework.UnitTests
+
+jobs:
+  Measure:
+    if: github.ref == 'refs/heads/master-n3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout pull request head
+      uses: actions/checkout@v7.0.1
+      with:
+        ref: refs/pull/${{ inputs.pull_request }}/head
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Verify reviewed commit
+      env:
+        EXPECTED: ${{ inputs.head_sha }}
+        BASE: ${{ inputs.base_sha }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        [[ "$EXPECTED" =~ ^[0-9a-f]{40}$ && "$BASE" =~ ^[0-9a-f]{40}$ ]] || exit 1
+        if [ "$(git rev-parse HEAD)" != "$EXPECTED" ]; then
+          echo "The pull request head changed since it was reviewed."; exit 1
+        fi
+        test "$(gh api 'repos/${{ github.repository }}/git/ref/heads/master-n3' --jq .object.sha)" = "$BASE"
+        git merge-base --is-ancestor "$BASE" HEAD
+        test -z "$(git diff --name-only "$BASE" HEAD -- 'tests/*/GasBaselines/*/*.json')"
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Build Solution
+      run: dotnet build ./neo-devpack-dotnet.sln
+    - name: Test suites (GAS regressions are expected and approved separately)
+      id: tests
+      shell: pwsh
+      env:
+        NEO_GAS_BASELINE_CANDIDATE_DIR: ${{ github.workspace }}/gas-candidates
+        HEAD_SHA: ${{ inputs.head_sha }}
+      run: |
+        $suites = [ordered]@{}
+        foreach ($suite in 'Neo.Compiler.CSharp.UnitTests', 'Neo.SmartContract.Framework.UnitTests') {
+          dotnet test "./tests/$suite" --no-build --logger "trx;LogFileName=$suite.trx" --results-directory "$env:RUNNER_TEMP/trx"
+          $exit = $LASTEXITCODE
+          # Only failures caused by the GAS policy may be approved; any other failed test makes the suite ineligible.
+          $trx = [xml](Get-Content "$env:RUNNER_TEMP/trx/$suite.trx" -Raw)
+          $ns = [System.Xml.XmlNamespaceManager]::new($trx.NameTable); $ns.AddNamespace('t', $trx.DocumentElement.NamespaceURI)
+          $failed = @($trx.SelectNodes("//t:UnitTestResult[@outcome='Failed']", $ns))
+          $functional = @($failed | Where-Object { $_.Output.ErrorInfo.Message -notlike 'GAS regression detected:*' })
+          $counters = $trx.SelectSingleNode('//t:ResultSummary/t:Counters', $ns)
+          $valid = $exit -in 0, 1 -and $functional.Count -eq 0 -and $counters -and
+            [int]$counters.total -gt 0 -and [int]$counters.executed -eq ([int]$counters.passed + $failed.Count) -and
+            [int]$counters.failed -eq $failed.Count -and ($exit -eq 0 -or $failed.Count -gt 0)
+          if (-not $valid) { throw "Functional failure or incomplete suite: $suite (exit $exit)" }
+          $suites[$suite] = 'success'
+        }
+        New-Item -ItemType Directory -Force -Path gas-candidates | Out-Null
+        [ordered]@{ schema = 1; sha = $env:HEAD_SHA; filtered = $false; suites = $suites;
+          runId = $env:GITHUB_RUN_ID; runAttempt = $env:GITHUB_RUN_ATTEMPT } |
+          ConvertTo-Json -Depth 4 | Set-Content gas-candidates/manifest.json -Encoding utf8NoBOM
+        $global:LASTEXITCODE = 0
+    - name: Upload GAS candidates
+      uses: actions/upload-artifact@v4
+      with:
+        name: gas-candidates-approval
+        path: gas-candidates
+        retention-days: 3
+
+  Approve:
+    needs: Measure
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: gas-baseline-approval
+    permissions:
+      contents: read
+    steps:
+    - name: Create GitHub App token
+      id: app
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ vars.GAS_SYNC_APP_ID }}
+        private-key: ${{ secrets.GAS_SYNC_APP_PRIVATE_KEY }}
+        repositories: ${{ github.event.repository.name }}
+    - name: Checkout trusted master-n3 (scripts and baselines)
+      uses: actions/checkout@v7.0.1
+      with:
+        ref: ${{ inputs.base_sha }}
+        token: ${{ steps.app.outputs.token }}
+        fetch-depth: 0
+        path: trusted
+    - name: Prepare reviewed integration tree without executing PR code
+      env:
+        GH_TOKEN: ${{ steps.app.outputs.token }}
+        PR: ${{ inputs.pull_request }}
+        SHA: ${{ inputs.head_sha }}
+        BASE: ${{ inputs.base_sha }}
+      working-directory: trusted
+      run: |
+        [[ "$PR" =~ ^[0-9]+$ && "$SHA" =~ ^[0-9a-f]{40}$ && "$BASE" =~ ^[0-9a-f]{40}$ ]] || exit 1
+        test "$(gh api 'repos/${{ github.repository }}/git/ref/heads/master-n3' --jq .object.sha)" = "$BASE"
+        git fetch origin "refs/pull/$PR/head"
+        test "$(git rev-parse FETCH_HEAD)" = "$SHA"
+        git merge-base --is-ancestor "$BASE" "$SHA"
+        test -z "$(git diff --name-only "$BASE" "$SHA" -- 'tests/*/GasBaselines/*/*.json')"
+        if git ls-tree -r "$SHA" -- tests | grep -q '^120000 '; then
+          echo "Symbolic links are not allowed in the integration test tree."; exit 1
+        fi
+        git worktree add --detach ../integration "$SHA"
+    - name: Download GAS candidates
+      uses: actions/download-artifact@v4
+      with:
+        name: gas-candidates-approval
+        path: ${{ runner.temp }}/gas-candidates
+    - name: Generate and apply the approved baselines
+      shell: pwsh
+      env:
+        HEAD_SHA: ${{ inputs.head_sha }}
+      run: |
+        $sha = $env:HEAD_SHA
+        ./trusted/scripts/gas/sync-baseline.ps1 -Mode Plan -AllowIncrease `
+          -TestsRoot integration/tests -CandidateRoot "$env:RUNNER_TEMP/gas-candidates" `
+          -ManifestPath "$env:RUNNER_TEMP/gas-candidates/manifest.json" -ExpectedSha $sha `
+          -ExpectedRunId $env:GITHUB_RUN_ID -ExpectedRunAttempt $env:GITHUB_RUN_ATTEMPT `
+          -RequiredAssemblies $env:GAS_ASSEMBLIES -StagingDirectory "$env:RUNNER_TEMP/gas-staged"
+        if ($LASTEXITCODE -ne 0) { throw 'Candidate plan rejected.' }
+        ./trusted/scripts/gas/sync-baseline.ps1 -Mode Apply -AllowIncrease `
+          -TestsRoot integration/tests -StagingDirectory "$env:RUNNER_TEMP/gas-staged" -RequiredAssemblies $env:GAS_ASSEMBLIES
+        if ($LASTEXITCODE -ne 0) { throw 'Candidate apply rejected.' }
+    - name: Open the approval pull request
+      working-directory: integration
+      env:
+        GH_TOKEN: ${{ steps.app.outputs.token }}
+        PR: ${{ inputs.pull_request }}
+        SHA: ${{ inputs.head_sha }}
+        JUSTIFICATION: ${{ inputs.justification }}
+        ACTOR: ${{ github.actor }}
+        BASE: ${{ inputs.base_sha }}
+      run: |
+        if [ -z "$(git status --porcelain)" ]; then echo "No baseline differences."; exit 0; fi
+        unexpected=$(git status --porcelain | grep -Ev '^( M|\?\?|A | D|D ) tests/[A-Za-z0-9_.]+/GasBaselines/[A-Za-z0-9_.]+/[^/]+\.json$' || true)
+        if [ -n "$unexpected" ]; then echo "$unexpected"; exit 1; fi
+        branch="bot/gas-baseline-approval-pr${PR}"
+        git config user.name "neo-gas-sync[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -B "$branch"
+        git add -A -- 'tests/*/GasBaselines/*/*.json'
+        git -c core.hooksPath=/dev/null commit -m "chore: approve GAS baseline increase for #${PR}"
+        test "$(gh api 'repos/${{ github.repository }}/git/ref/heads/master-n3' --jq .object.sha)" = "$BASE"
+        test "$(gh api "repos/${{ github.repository }}/pulls/$PR" --jq .head.sha)" = "$SHA"
+        previous=$(git ls-remote origin "refs/heads/$branch" | cut -f1)
+        git -c core.hooksPath=/dev/null push --force-with-lease="refs/heads/$branch:$previous" origin "HEAD:refs/heads/$branch"
+        body="$(head -c 50000 "$RUNNER_TEMP/gas-staged/summary.md")"$'\n\n'"Approved by @${ACTOR} for #${PR} at ${SHA}."$'\n\n'"Justification: ${JUSTIFICATION}"
+        number=$(gh pr list --head "$branch" --base master-n3 --state open --json number --jq '.[0].number // empty')
+        if [ -z "$number" ]; then
+          gh pr create --base master-n3 --head "$branch" --title "chore: approve GAS baseline increase for #${PR}" --body "$body"
+        else
+          gh pr edit "$number" --body "$body"
+        fi

@@ -33,6 +33,8 @@ class SelectionTests(unittest.TestCase):
                      'src/Neo.SmartContract.Analyzer/AnalyzerReleases.Shipped.md',
                      'tests/Directory.Build.props', 'global.json', 'NuGet.Config',
                      '.github/workflows/main.yml', 'profiles/notes.txt',
+                     '.github/workflows/gas-baseline-sync.yml', 'scripts/gas/sync-baseline.ps1',
+                     'tests/Neo.Compiler.CSharp.UnitTests/GasBaselines/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.UnitTest_Enum.json',
                      'tests/Neo.Compiler.CSharp.UnitTests/Test.cs', 'new-module/file']:
             with self.subTest(path=path):
                 self.assertEqual({'full'}, select(['README.md', path]))

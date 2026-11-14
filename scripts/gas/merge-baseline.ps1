@@ -1,62 +1,50 @@
 # Maintainer-only: merges per-test GAS files generated with NEO_GAS_BASELINE_GENERATE_DIR
 # into deterministic baseline files (one per test class, sorted ordinally, LF, no timestamps).
 # Classes with more than -MaxEntries executions are split into <Class>.partNN.json (the loader merges all files).
-# Usage: ./merge-baseline.ps1 -InputDirectory <dir>/<Assembly> -Output tests/<Project>/GasBaselines/<Assembly>
+# By default the existing baseline is preserved and only the measurements present in the input are added or
+# overwritten (safe for filtered runs). Use -Replace after a complete run to drop measurements that no longer exist.
+# Files are staged and validated before anything is replaced; a failure leaves the baseline untouched.
+# Usage: ./merge-baseline.ps1 -InputDirectory <dir>/<Assembly> -Output tests/<Project>/GasBaselines/<Assembly> [-Replace]
 param(
 	[Parameter(Mandatory)][string]$InputDirectory,
 	[Parameter(Mandatory)][string]$Output,
-	[int]$MaxEntries = 2000
+	[int]$MaxEntries = 2000,
+	[switch]$Replace
 )
 
+$ErrorActionPreference = 'Stop'
 if ($env:CI -eq 'true' -or $env:GITHUB_ACTIONS) { throw 'GAS baselines must not be generated in CI.' }
+. (Join-Path $PSScriptRoot 'gas-baseline-lib.ps1')
+$lock = Enter-GasLock ([IO.Path]::GetFullPath((Join-Path $Output '../../..')))
+try {
 
+if (-not (Test-Path -LiteralPath $InputDirectory -PathType Container)) { throw "Input directory '$InputDirectory' does not exist." }
+$observed = Read-GasBaselineDirectory -Directory $InputDirectory
+if ($observed.Count -eq 0) { throw "No measurements found in '$InputDirectory'." }
+
+$existing = Read-GasBaselineDirectory -Directory $Output
 $merged = [System.Collections.Generic.SortedDictionary[string, long]]::new([System.StringComparer]::Ordinal)
-foreach ($file in Get-ChildItem -Path $InputDirectory -Filter *.json) {
-	$json = Get-Content -Raw -Path $file.FullName | ConvertFrom-Json
-	foreach ($p in $json.PSObject.Properties) {
-		if ($merged.ContainsKey($p.Name)) { throw "Duplicate measurement '$($p.Name)' in $($file.Name)" }
-		$merged[$p.Name] = [long]$p.Value
+if (-not $Replace) { foreach ($kv in $existing.GetEnumerator()) { $merged[$kv.Key] = $kv.Value } }
+foreach ($kv in $observed.GetEnumerator()) { $merged[$kv.Key] = $kv.Value }
+
+$all = Get-GasClassFiles -Measurements $merged -MaxEntries $MaxEntries
+$files = [ordered]@{}
+foreach ($class in $all.Keys) {
+	foreach ($name in $all[$class].Keys) {
+		$path = Join-Path $Output $name
+		if (-not (Test-Path -LiteralPath $path) -or [System.IO.File]::ReadAllText($path) -cne $all[$class][$name]) { $files[$name] = $all[$class][$name] }
 	}
 }
-
-$classes = [System.Collections.Generic.SortedDictionary[string, object]]::new([System.StringComparer]::Ordinal)
-foreach ($kv in $merged.GetEnumerator()) {
-	$test = $kv.Key -replace '[#:].*$', ''
-	$class = ($test -replace '\[.*$', '') -replace '\.[^.]+$', ''
-	if (-not $classes.ContainsKey($class)) { $classes[$class] = [System.Collections.Generic.SortedDictionary[string, object]]::new([System.StringComparer]::Ordinal) }
-	if (-not $classes[$class].ContainsKey($test)) { $classes[$class][$test] = [System.Collections.Generic.List[object]]::new() }
-	$classes[$class][$test].Add($kv)
+$keep = @($all.Keys | ForEach-Object { $all[$_].Keys })
+$delete = @()
+if (Test-Path -LiteralPath $Output -PathType Container) {
+	$delete = @(Get-ChildItem -LiteralPath $Output -Filter *.json -File | ForEach-Object { $_.Name } | Where-Object { $keep -cnotcontains $_ })
 }
 
-New-Item -ItemType Directory -Force -Path $Output | Out-Null
-Get-ChildItem -Path $Output -Filter *.json | Remove-Item -Force
+$overlay = Get-GasOverlay -BaselineDirectory $Output -Files $files -Delete $delete
+if (-not (Test-GasMeasurementsEqual $overlay $merged)) { throw 'Validation of the generated baseline failed; nothing was changed.' }
 
-function Write-Chunk($path, $entries) {
-	$lines = foreach ($kv in $entries) {
-		'  ' + (ConvertTo-Json $kv.Key -Compress) + ': ' + $kv.Value.ToString([System.Globalization.CultureInfo]::InvariantCulture)
-	}
-	[System.IO.File]::WriteAllText($path, "{`n" + ($lines -join ",`n") + "`n}", [System.Text.UTF8Encoding]::new($false))
+Publish-GasFiles -Directory $Output -Files $files -Delete $delete
+Write-Host "Wrote $($merged.Count) executions ($($files.Count) files updated, $($delete.Count) removed) to $Output"
 }
-
-$files = 0
-foreach ($class in $classes.Keys) {
-	$chunks = [System.Collections.Generic.List[object]]::new()
-	$current = [System.Collections.Generic.List[object]]::new()
-	foreach ($test in $classes[$class].Keys) {
-		foreach ($entry in $classes[$class][$test]) {
-			if ($current.Count -ge $MaxEntries) {
-				$chunks.Add($current)
-				$current = [System.Collections.Generic.List[object]]::new()
-			}
-			$current.Add($entry)
-		}
-	}
-	if ($current.Count -gt 0) { $chunks.Add($current) }
-
-	for ($i = 0; $i -lt $chunks.Count; $i++) {
-		$name = if ($chunks.Count -eq 1) { "$class.json" } else { '{0}.part{1:D2}.json' -f $class, ($i + 1) }
-		Write-Chunk (Join-Path $Output $name) $chunks[$i]
-		$files++
-	}
-}
-Write-Host "Wrote $($merged.Count) executions in $files files to $Output"
+finally { $lock.Dispose() }

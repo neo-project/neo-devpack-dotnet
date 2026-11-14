@@ -1,0 +1,187 @@
+name: UpdateGasBaselines
+
+# Synchronizes GAS baseline JSON files after a successful run of the main workflow on master-n3.
+#
+# Security model:
+#  - It only reacts to *push* runs of this repository (never to pull requests or forks), so the candidate
+#    measurements come from code that is already reviewed and merged.
+#  - Candidates are produced by the read-only Test job; this workflow never executes code from artifacts.
+#    Scripts are always taken from the checked-out trusted commit; artifacts are only parsed as data.
+#  - The job that holds write credentials (Publish) re-validates the staged files before committing.
+#  - Commits go to a bot branch and a pull request, so branch protection and required reviews still apply.
+#
+# Required configuration: see docs/testing/gas-snapshots.md (GitHub App, repository variable GAS_SYNC_APP_ID,
+# secret GAS_SYNC_APP_PRIVATE_KEY, optional environment "gas-baseline-sync").
+
+on:
+  workflow_run:
+    workflows: [".NET Core Test and Publish"]
+    types: [completed]
+    branches: [master-n3]
+
+permissions: {}
+
+concurrency:
+  group: gas-baseline-sync
+  cancel-in-progress: false
+
+env:
+  GAS_ASSEMBLIES: Neo.Compiler.CSharp.UnitTests,Neo.SmartContract.Framework.UnitTests
+  GAS_BRANCH: bot/gas-baseline-sync
+
+jobs:
+  Plan:
+    if: >-
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'master-n3' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+      auto_merge: ${{ steps.result.outputs.auto_merge }}
+      current: ${{ steps.tip.outputs.current }}
+    steps:
+    - name: Checkout tested commit
+      uses: actions/checkout@v7.0.1
+      with:
+        ref: ${{ github.event.workflow_run.head_sha }}
+        persist-credentials: false
+    - name: Check that master-n3 has not advanced
+      id: tip
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        tip=$(gh api "repos/${{ github.repository }}/git/ref/heads/master-n3" --jq .object.sha)
+        if [ "$tip" = "${{ github.event.workflow_run.head_sha }}" ]; then
+          echo "current=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "current=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::master-n3 advanced to $tip; the newer run will synchronize the baselines."
+        fi
+    - name: Download GAS candidates of the tested run
+      if: steps.tip.outputs.current == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: gas-candidates
+        path: gas-candidates
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ github.token }}
+    - name: Validate candidates and stage baselines
+      id: plan
+      if: steps.tip.outputs.current == 'true'
+      shell: pwsh
+      run: |
+        ./scripts/gas/sync-baseline.ps1 -Mode Plan `
+          -TestsRoot tests `
+          -CandidateRoot gas-candidates `
+          -ManifestPath gas-candidates/manifest.json `
+          -ExpectedSha '${{ github.event.workflow_run.head_sha }}' `
+          -ExpectedRunId '${{ github.event.workflow_run.id }}' `
+          -ExpectedRunAttempt '${{ github.event.workflow_run.run_attempt }}' `
+          -RequiredAssemblies $env:GAS_ASSEMBLIES `
+          -StagingDirectory gas-staged
+    - name: Publish GAS baseline summary
+      id: result
+      if: always() && steps.tip.outputs.current == 'true'
+      shell: pwsh
+      run: |
+        if (Test-Path gas-staged/summary.md) { Get-Content gas-staged/summary.md | Add-Content $env:GITHUB_STEP_SUMMARY }
+        if (Test-Path gas-staged/result.json) {
+          $result = Get-Content -Raw gas-staged/result.json | ConvertFrom-Json
+          "status=$($result.status)" | Add-Content $env:GITHUB_OUTPUT
+          "auto_merge=$(([string]$result.autoMergeEligible).ToLowerInvariant())" | Add-Content $env:GITHUB_OUTPUT
+        }
+    - name: Upload staged baselines
+      if: always() && steps.tip.outputs.current == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gas-baseline-staged
+        path: gas-staged
+        retention-days: 7
+
+  Publish:
+    needs: Plan
+    if: needs.Plan.outputs.status == 'Update' && needs.Plan.outputs.current == 'true' && vars.GAS_SYNC_APP_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ needs.Plan.outputs.auto_merge == 'true' && 'gas-baseline-sync' || 'gas-baseline-approval' }}
+    permissions:
+      contents: read
+      actions: read
+    steps:
+    - name: Create GitHub App token
+      id: app
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ vars.GAS_SYNC_APP_ID }}
+        private-key: ${{ secrets.GAS_SYNC_APP_PRIVATE_KEY }}
+        repositories: ${{ github.event.repository.name }}
+    - name: Checkout master-n3
+      uses: actions/checkout@v7.0.1
+      with:
+        ref: master-n3
+        token: ${{ steps.app.outputs.token }}
+    - name: Verify that master-n3 is still the tested commit
+      id: tip
+      run: |
+        if [ "$(git rev-parse HEAD)" = "${{ github.event.workflow_run.head_sha }}" ]; then
+          echo "current=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "current=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::master-n3 advanced during validation; skipping. The newer run will synchronize."
+        fi
+    - name: Download staged baselines
+      if: steps.tip.outputs.current == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: gas-baseline-staged
+        path: ${{ runner.temp }}/gas-staged
+    - name: Re-validate and apply staged baselines
+      if: steps.tip.outputs.current == 'true'
+      shell: pwsh
+      run: |
+        ./scripts/gas/sync-baseline.ps1 -Mode Apply `
+          -TestsRoot tests `
+          -StagingDirectory "$env:RUNNER_TEMP/gas-staged" `
+          -RequiredAssemblies $env:GAS_ASSEMBLIES
+    - name: Commit and open or update the synchronization pull request
+      if: steps.tip.outputs.current == 'true'
+      env:
+        GH_TOKEN: ${{ steps.app.outputs.token }}
+        AUTO_MERGE: ${{ needs.Plan.outputs.auto_merge }}
+      run: |
+        unexpected=$(git status --porcelain | grep -Ev '^( M|\?\?|A | D|D ) tests/[A-Za-z0-9_.]+/GasBaselines/[A-Za-z0-9_.]+/[^/]+\.json$' || true)
+        if [ -n "$unexpected" ]; then
+          echo "Unexpected modified files:"; echo "$unexpected"; exit 1
+        fi
+        if [ -z "$(git status --porcelain)" ]; then
+          echo "No baseline differences; nothing to do."; exit 0
+        fi
+        git config user.name "neo-gas-sync[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -B "$GAS_BRANCH"
+        git add -A -- 'tests/*/GasBaselines/*/*.json'
+        git commit -m "chore: sync GAS baselines after successful CI"
+        tip=$(gh api "repos/${{ github.repository }}/git/ref/heads/master-n3" --jq .object.sha)
+        if [ "$tip" != "${{ github.event.workflow_run.head_sha }}" ]; then
+          echo "::notice::Base advanced; a newer run must regenerate baselines."; exit 0
+        fi
+        previous=$(git ls-remote origin "refs/heads/$GAS_BRANCH" | cut -f1)
+        git push --force-with-lease="refs/heads/$GAS_BRANCH:$previous" origin "HEAD:refs/heads/$GAS_BRANCH"
+        number=$(gh pr list --head "$GAS_BRANCH" --base master-n3 --state open --json number --jq '.[0].number // empty')
+        if [ -z "$number" ]; then
+          number=$(gh pr create --base master-n3 --head "$GAS_BRANCH" --title "chore: sync GAS baselines after successful CI" --body-file "$RUNNER_TEMP/gas-staged/summary.md" | grep -oE '[0-9]+$')
+        else
+          gh pr edit "$number" --body-file "$RUNNER_TEMP/gas-staged/summary.md"
+        fi
+        if [ "$AUTO_MERGE" = "true" ]; then
+          gh pr merge "$number" --auto --squash || echo "::notice::Auto-merge is not available; the PR awaits normal approval."
+        else
+          gh pr merge "$number" --disable-auto
+          echo "::notice::New tests are included; the PR requires review and is not auto-merged."
+        fi
