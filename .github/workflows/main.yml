@@ -21,6 +21,8 @@ concurrency:
 jobs:
 
   Test:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -28,6 +30,7 @@ jobs:
       uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
+        persist-credentials: false
     - name: Test CI selection rules
       run: python3 -m unittest discover -s scripts/ci -p 'test_*.py'
     - name: Select validation scope
@@ -154,9 +157,11 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/solution/NeoContractSolution/NeoContractSolution.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractsolution/Artifacts/
     - name: Test Neo.Compiler.CSharp.UnitTests
+      id: test_compiler
       if: steps.scope.outputs.full == 'true'
       env:
         NEO_GAS_REPORT_DIR: ${{ github.workspace }}/gas-report
+        NEO_GAS_BASELINE_CANDIDATE_DIR: ${{ github.workspace }}/gas-candidates
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -169,9 +174,11 @@ jobs:
         --no-build \
         -l "console;verbosity=detailed"
     - name: Test Neo.SmartContract.Framework.UnitTests
+      id: test_framework
       if: steps.scope.outputs.full == 'true'
       env:
         NEO_GAS_REPORT_DIR: ${{ github.workspace }}/gas-report
+        NEO_GAS_BASELINE_CANDIDATE_DIR: ${{ github.workspace }}/gas-candidates
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -188,6 +195,36 @@ jobs:
           if (Test-Path $file) { Get-Content $file | Add-Content $env:GITHUB_STEP_SUMMARY }
           else { "No $file was generated." | Add-Content $env:GITHUB_STEP_SUMMARY }
         }
+    - name: Write GAS candidate manifest
+      if: always() && steps.scope.outputs.full == 'true'
+      shell: pwsh
+      env:
+        SUITE_COMPILER: ${{ steps.test_compiler.outcome }}
+        SUITE_FRAMEWORK: ${{ steps.test_framework.outcome }}
+      run: |
+        New-Item -ItemType Directory -Force -Path gas-candidates | Out-Null
+        $manifest = [ordered]@{
+          schema = 1
+          sha = $env:GITHUB_SHA
+          ref = $env:GITHUB_REF
+          event = $env:GITHUB_EVENT_NAME
+          runId = $env:GITHUB_RUN_ID
+          runAttempt = $env:GITHUB_RUN_ATTEMPT
+          filtered = $false
+          suites = [ordered]@{
+            'Neo.Compiler.CSharp.UnitTests' = $env:SUITE_COMPILER
+            'Neo.SmartContract.Framework.UnitTests' = $env:SUITE_FRAMEWORK
+          }
+        }
+        ($manifest | ConvertTo-Json -Depth 4) | Set-Content -Path gas-candidates/manifest.json -Encoding utf8NoBOM
+    - name: Upload GAS candidates
+      if: always() && steps.scope.outputs.full == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: gas-candidates
+        path: gas-candidates
+        if-no-files-found: ignore
+        retention-days: 7
     - name: Test Neo.SmartContract.Testing.UnitTests
       if: steps.scope.outputs.full == 'true'
       run: |
