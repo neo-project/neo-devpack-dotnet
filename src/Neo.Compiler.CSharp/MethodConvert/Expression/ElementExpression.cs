@@ -14,8 +14,10 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
@@ -48,6 +50,18 @@ internal partial class MethodConvert
     {
         if (model.GetSymbolInfo(expression).Symbol is IPropertySymbol property)
         {
+            if (property.GetMethod is not null &&
+                property.ContainingType.SpecialType != SpecialType.System_String &&
+                !HasDeclarativeLowering(property.GetMethod) &&
+                expression.ArgumentList.Arguments.Count == 1 &&
+                model.GetOperation(expression) is IImplicitIndexerReferenceOperation)
+            {
+                ConvertExpression(model, expression.Expression);
+                ConvertExpression(model, expression.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.SWAP);
+                CallMethodWithConvention(model, property.GetMethod, CallingConvention.Cdecl);
+                return;
+            }
             CallMethodWithInstanceExpression(model, property.GetMethod!, expression.Expression, expression.ArgumentList.Arguments.ToArray());
         }
         else
