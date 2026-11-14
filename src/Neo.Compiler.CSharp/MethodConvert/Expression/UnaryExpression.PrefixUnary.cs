@@ -100,6 +100,15 @@ internal partial class MethodConvert
                     throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported,
                         "Standalone from-end Index expressions are not supported. Store the distance as an int and inline '^' in an element or range access, for example values[^distance] or values[^distance..].");
                 }
+                if (TryGetUserDefinedIndexerLengthGetter(model, expression) is IMethodSymbol lengthGetter)
+                {
+                    ConvertExpression(model, expression.Operand);
+                    AddInstruction(OpCode.OVER);
+                    CallMethodWithConvention(model, lengthGetter);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    break;
+                }
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.SIZE);
                 ConvertExpression(model, expression.Operand);
@@ -193,6 +202,33 @@ internal partial class MethodConvert
 
         return argumentIndex >= 0 && argumentIndex < property.Parameters.Length &&
             property.Parameters[argumentIndex].Type.SpecialType == SpecialType.System_Int32;
+    }
+
+    private static IMethodSymbol? TryGetUserDefinedIndexerLengthGetter(SemanticModel model, PrefixUnaryExpressionSyntax expression)
+    {
+        SyntaxNode? current = expression;
+        while (current is not null && current is not ArgumentSyntax)
+            current = current.Parent;
+
+        if (current?.Parent?.Parent is not ElementAccessExpressionSyntax elementAccess ||
+            model.GetSymbolInfo(elementAccess).Symbol is not IPropertySymbol property ||
+            property.ContainingType.SpecialType == SpecialType.System_String ||
+            (property.GetMethod is not null && HasDeclarativeLowering(property.GetMethod)) ||
+            (property.SetMethod is not null && HasDeclarativeLowering(property.SetMethod)))
+            return null;
+
+        IImplicitIndexerReferenceOperation? implicitIndexer = model.GetOperation(elementAccess) as IImplicitIndexerReferenceOperation;
+        if (implicitIndexer is null && elementAccess.Parent is not null)
+        {
+            implicitIndexer = model.GetOperation(elementAccess.Parent) switch
+            {
+                ISimpleAssignmentOperation assignment => assignment.Target as IImplicitIndexerReferenceOperation,
+                IIncrementOrDecrementOperation increment => increment.Target as IImplicitIndexerReferenceOperation,
+                _ => null
+            };
+        }
+
+        return (implicitIndexer?.LengthSymbol as IPropertySymbol)?.GetMethod;
     }
 
     private void ConvertPreIncrementOrDecrementExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
