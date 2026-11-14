@@ -1857,7 +1857,58 @@ internal partial class MethodConvert
     }
 
     private static void HandleStringTrimStart(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-        => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
+    {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        var lengthIndex = methodConvert.AddAnonymousVariable();
+        var startIndex = methodConvert.AddAnonymousVariable();
+        methodConvert.Dup();
+        methodConvert.Size();
+        methodConvert.StLoc(lengthIndex);                          // [string]
+        methodConvert.Push0();
+        methodConvert.StLoc(startIndex);                           // [string]
+
+        var sliceTarget = new JumpTarget();
+        var nonWhiteSpaceTarget = new JumpTarget();
+        var endTarget = new JumpTarget();
+
+        var loopStart = new JumpTarget();
+        loopStart.Instruction = methodConvert.Nop();
+        methodConvert.LdLoc(startIndex);                 // [string, index]
+        methodConvert.LdLoc(lengthIndex);                // [string, index, length]
+        methodConvert.JumpIfGreaterOrEqual(sliceTarget); // [string]
+        methodConvert.Dup();                             // [string, string]
+        methodConvert.LdLoc(startIndex);                 // [string, string, index]
+        methodConvert.PickItem();                        // [string, byte]
+        methodConvert.Push(WhiteSpaceByteMask);
+        methodConvert.Swap();
+        methodConvert.ShR();
+        methodConvert.Push1();
+        methodConvert.And();
+        methodConvert.JumpIfFalse(nonWhiteSpaceTarget); // [string]
+        methodConvert.LdLoc(startIndex);
+        methodConvert.Inc();
+        methodConvert.StLoc(startIndex);
+        methodConvert.JumpAlways(loopStart);
+
+        nonWhiteSpaceTarget.Instruction = methodConvert.Nop();
+        methodConvert.LdLoc(startIndex);
+        methodConvert.JumpIfTrue(sliceTarget);  // [string]
+        methodConvert.JumpAlways(endTarget);
+
+        sliceTarget.Instruction = methodConvert.Nop();
+        methodConvert.LdLoc(lengthIndex);              // [string, length]
+        methodConvert.LdLoc(startIndex);               // [string, length, index]
+        methodConvert.Sub();                           // [string, length - index]
+        methodConvert.Right(null);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.JumpAlways(endTarget);
+
+        endTarget.Instruction = methodConvert.Nop();
+    }
 
     private static void HandleStringTrimStartChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
