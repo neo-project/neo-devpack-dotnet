@@ -26,6 +26,81 @@ namespace Neo.Optimizer
         public static HashSet<OpCode> JmpWithNotOpCodes = new() { OpCode.JMPIF, OpCode.JMPIFNOT, OpCode.JMPIF_L, OpCode.JMPIFNOT_L };
         public static HashSet<OpCode> EqualOpCodes = new() { OpCode.EQUAL, OpCode.NOTEQUAL, OpCode.NUMEQUAL, OpCode.NUMNOTEQUAL };
 
+        private static OpCode? GetEmptyCollectionReplacement(OpCode first, OpCode second)
+        {
+            if (first != OpCode.PUSH0)
+                return null;
+
+            return second switch
+            {
+                OpCode.PACK => OpCode.NEWARRAY0,
+                OpCode.NEWARRAY => OpCode.NEWARRAY0,
+                OpCode.NEWSTRUCT => OpCode.NEWSTRUCT0,
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// PUSH0 PACK -> NEWARRAY0
+        /// PUSH0 NEWARRAY -> NEWARRAY0
+        /// PUSH0 NEWSTRUCT -> NEWSTRUCT0
+        /// Applied only inside one basic block, and never when the second instruction is a jump target.
+        /// PUSH0 NEWARRAY_T is not rewritten.
+        /// </summary>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 9)]
+        public static (NefFile, ContractManifest, JObject?) UseEmptyCollectionOpcodes(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            Dictionary<int, Instruction> oldAddressToInstruction = contractInBasicBlocks.coverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (contractInBasicBlocks.coverage.jumpInstructionSourceToTargets,
+                contractInBasicBlocks.coverage.tryInstructionSourceToTargets,
+                contractInBasicBlocks.coverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        OpCode? replacement = GetEmptyCollectionReplacement(current.OpCode, next.OpCode);
+                        if (replacement is not null && !jumpTargetToSources.ContainsKey(next))
+                        {
+                            Script script = new Script(new byte[] { (byte)replacement.Value });
+                            Instruction newInstruction = script.GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(newInstruction, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                            oldAddr += current.Size;
+                            currentAddress += newInstruction.Size;
+                            oldAddr += next.Size;
+                            index += 1;
+                            OptimizedScriptBuilder.RetargetJump(current, newInstruction,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            continue;
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
         /// <summary>
         /// DUP SOMEOP DROP
         /// delete DUP and DROP when they are meaningless, optimizing to SOMPOP only
