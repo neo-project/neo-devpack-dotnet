@@ -168,7 +168,7 @@ namespace Neo.Compiler
 
                 RegisterMethodParameters();
                 RegisterByRefCapturedSymbols(model);
-                RegisterCapturedSymbolsUsedByLoops(model);
+                RegisterCapturedSymbols(model);
                 InitializeByRefCapturedParameters();
 
                 // Step 3: Process method based on its kind
