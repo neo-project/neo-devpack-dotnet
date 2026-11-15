@@ -100,6 +100,17 @@ namespace Neo.Optimizer
                     opcodes[targetIndex] = opcode;
                 }
 
+                // <push>, DROP -> NOP, NOP
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.RemovePushDrop)
+                    && push.Contains(current.OpCode) && opcodes[index + 1] == OpCode.DROP)
+                {
+                    SetOpcode(index, OpCode.NOP);
+                    NopRemainder(output, addresses[index], current.Size - 1);
+                    SetOpcode(index + 1, OpCode.NOP);
+                    index++;
+                    continue;
+                }
+
                 // PUSH0|PUSHINT(0), NUMEQUAL, NOT -> NZ, NOP, NOP
                 if (index + 2 < block.Count && rules.HasFlag(PeepholeRule.FoldNotInEqual)
                     && IsIntegerPush(current, 0) && opcodes[index + 1] == OpCode.NUMEQUAL && opcodes[index + 2] == OpCode.NOT)
