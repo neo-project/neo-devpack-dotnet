@@ -20,63 +20,37 @@ namespace Neo.SmartContract.Testing.UnitTests.TestingStandards
     [DoNotParallelize]
     public class GasTrackingSessionTests
     {
-        private string? _ci, _actions, _generate;
-
-        [TestInitialize]
-        public void Save()
-        {
-            _ci = Environment.GetEnvironmentVariable("CI");
-            _actions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS");
-            _generate = Environment.GetEnvironmentVariable(GasTrackingSession.GenerateDirectoryVariable);
-        }
-
-        [TestCleanup]
-        public void Restore()
-        {
-            Environment.SetEnvironmentVariable("CI", _ci);
-            Environment.SetEnvironmentVariable("GITHUB_ACTIONS", _actions);
-            Environment.SetEnvironmentVariable(GasTrackingSession.GenerateDirectoryVariable, _generate);
-        }
-
         [TestMethod]
-        public void NoTrackingWithoutBaselineOrGeneration()
+        public void ExternalConsumersDoNotTrackNorWriteWithoutOptIn()
         {
-            Environment.SetEnvironmentVariable(GasTrackingSession.GenerateDirectoryVariable, null);
-            Assert.IsNull(GasTrackingSession.Begin(typeof(GasTrackingSessionTests).Assembly, "X.Y"));
+            Assert.IsNull(Environment.GetEnvironmentVariable(GasTrackingSession.ModeVariable));
+            var assembly = typeof(GasTrackingSessionTests).Assembly;
+            Assert.IsNull(GasTrackingSession.Begin(assembly, "X.Y"));
             Assert.IsNull(GasExecutionTracker.Current);
+            GasTrackingSession.Finish(assembly);
         }
 
         [TestMethod]
-        public void GenerationIsRefusedInCi()
+        public void InventoryOnlyListsTestBaseClasses()
         {
-            Environment.SetEnvironmentVariable("CI", "true");
-            Environment.SetEnvironmentVariable(GasTrackingSession.GenerateDirectoryVariable, Path.GetTempPath());
-            Assert.ThrowsExactly<InvalidOperationException>(() => GasTrackingSession.Begin(typeof(GasTrackingSessionTests).Assembly, "X.Y"));
+            var inventory = GasTrackingSession.BuildInventory(typeof(GasTrackingSessionTests).Assembly);
+            Assert.IsFalse(inventory.ExpectedMethods.ContainsKey(typeof(GasTrackingSessionTests).FullName + "." + nameof(ExternalConsumersDoNotTrackNorWriteWithoutOptIn)));
         }
 
         [TestMethod]
-        public void GenerationWritesOneFilePerTestAndNeverTouchesBaselines()
+        public void ModeWithoutDirectoryIsRejected()
         {
-            Environment.SetEnvironmentVariable("CI", null);
-            Environment.SetEnvironmentVariable("GITHUB_ACTIONS", null);
-            var dir = Path.Combine(Path.GetTempPath(), "gas-gen-" + Path.GetRandomFileName());
-            Environment.SetEnvironmentVariable(GasTrackingSession.GenerateDirectoryVariable, dir);
+            var previous = Environment.GetEnvironmentVariable(GasTrackingSession.ModeVariable);
+            Environment.SetEnvironmentVariable(GasTrackingSession.ModeVariable, "update");
+            GasTrackingSession.Reset();
             try
             {
-                var assembly = typeof(GasTrackingSessionTests).Assembly;
-                var scope = GasTrackingSession.Begin(assembly, "G.T[1]");
-                Assert.IsNotNull(scope);
-                scope.Add("G.T[1]#1", 10, true);
-                GasTrackingSession.Complete(assembly, scope, true);
-
-                var files = Directory.GetFiles(Path.Combine(dir, assembly.GetName().Name!), "*.json");
-                Assert.HasCount(1, files);
-                StringAssert.Contains(File.ReadAllText(files[0]), "\"G.T[1]#1\": 10");
-                Assert.IsNull(GasExecutionTracker.Current);
+                Assert.ThrowsExactly<InvalidOperationException>(() => GasTrackingSession.Begin(typeof(GasTrackingSessionTests).Assembly, "X.Y"));
             }
             finally
             {
-                if (Directory.Exists(dir)) Directory.Delete(dir, true);
+                Environment.SetEnvironmentVariable(GasTrackingSession.ModeVariable, previous);
+                GasTrackingSession.Reset();
             }
         }
     }
