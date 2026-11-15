@@ -65,7 +65,8 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 
         private static byte[] Apply(byte[] script)
         {
-            var (nef, _, _) = Peephole.UseEmptyCollectionOpcodes(CreateNefFile(script), CreateManifest());
+            var (nef, _, _) = Strategies.ApplyPeephole(
+                CreateNefFile(script), CreateManifest(), null, PeepholeRule.UseEmptyCollectionOpcodes);
             return nef.Script.ToArray();
         }
 
@@ -137,6 +138,56 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             Assert.AreEqual(instructions[6].address, target);
 
             AssertSameBehavior(original, optimized, expectedResult);
+        }
+
+        [TestMethod]
+        [DataRow(OpCode.PACK, "Array[]")]
+        [DataRow(OpCode.NEWARRAY, "Array[]")]
+        [DataRow(OpCode.NEWSTRUCT, "Struct[]")]
+        public void Rewrite_ShrinksJumpsThatCrossThePattern(OpCode op, string expectedResult)
+        {
+            // Forward: PUSH1 JMPIF(->RET) PUSH0 op DROP RET  -> the jump passes over the pattern and must shrink by one byte.
+            byte[] forward =
+            [
+                (byte)OpCode.PUSH1, (byte)OpCode.JMPIF, 7,
+                (byte)OpCode.PUSH0, (byte)op, (byte)OpCode.DROP,
+                (byte)OpCode.PUSH0, (byte)OpCode.PUSH0, (byte)op, (byte)OpCode.RET
+            ];
+            // JMPIF at 1 targets 8 (the second PUSH0 sits at 7): re-aim to land on the final PUSH0 op sequence start.
+            forward[2] = 6;
+
+            byte[] optimizedForward = Apply(forward);
+            Assert.IsLessThan(forward.Length, optimizedForward.Length);
+            AssertJumpTargetsAreInstructionStarts(optimizedForward);
+            CollectionAssert.AreEqual(Run(forward).Stack, Run(optimizedForward).Stack);
+
+            // Backward: loop counter jumps back over a pattern.
+            // PUSH2 | PUSH0 op DROP DEC DUP JMPIF(->PUSH0) | DROP PUSH0 op RET
+            byte[] backward =
+            [
+                (byte)OpCode.PUSH2,
+                (byte)OpCode.PUSH0, (byte)op, (byte)OpCode.DROP, (byte)OpCode.DEC, (byte)OpCode.DUP, (byte)OpCode.JMPIF, 0xFB,
+                (byte)OpCode.DROP, (byte)OpCode.PUSH0, (byte)op, (byte)OpCode.RET
+            ];
+
+            byte[] optimizedBackward = Apply(backward);
+            Assert.IsLessThan(backward.Length, optimizedBackward.Length);
+            AssertJumpTargetsAreInstructionStarts(optimizedBackward);
+            var actual = Run(optimizedBackward);
+            Assert.AreEqual(VMState.HALT, actual.State);
+            CollectionAssert.AreEqual(Run(backward).Stack, actual.Stack);
+            Assert.AreEqual(expectedResult, actual.Stack.Single());
+        }
+
+        private static void AssertJumpTargetsAreInstructionStarts(byte[] script)
+        {
+            Script parsed = new(script, true);
+            HashSet<int> starts = parsed.EnumerateInstructions().Select(static item => item.address).ToHashSet();
+            foreach (var (address, instruction) in parsed.EnumerateInstructions())
+            {
+                if (instruction.OpCode is OpCode.JMP or OpCode.JMPIF or OpCode.JMPIFNOT)
+                    Assert.Contains(address + instruction.TokenI8, starts);
+            }
         }
 
         [TestMethod]
