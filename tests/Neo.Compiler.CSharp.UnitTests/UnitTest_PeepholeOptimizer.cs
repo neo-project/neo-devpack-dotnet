@@ -102,6 +102,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             CollectionAssert.AreEqual(new[] { OpCode.PUSH1, OpCode.DROP, OpCode.RET }, GetOpCodes(rewritten));
         }
 
+        [TestMethod]
+        public void Test_RemovePushDrop_DoesNotRewriteWhenDropIsJumpTarget()
+        {
+            byte[] script = [(byte)OpCode.PUSH9, (byte)OpCode.JMP, 0x03 /* to DROP */, (byte)OpCode.PUSH1, (byte)OpCode.DROP, (byte)OpCode.RET];
+            NefFile rewritten = Peephole.Rewrite(CreateNefFile(script), CreateManifest(), PeepholeRule.RemovePushDrop);
+            CollectionAssert.AreEqual(script, rewritten.Script.ToArray());
+        }
+
         /// <summary>
         /// Test that PUSH1 ADD pattern does not crash during optimization.
         /// This tests the operator precedence fix in peephole optimization.
