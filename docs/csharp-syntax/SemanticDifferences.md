@@ -82,6 +82,8 @@ nullable value to a non-nullable destination faults. See
 
 This behavior exists primarily so supported enum helpers such as `Enum.Parse(typeof(MyEnum), value)` and `Enum.GetNames(typeof(MyEnum))` can identify the enum type during contract compilation.
 
+Enum parsing supports decimal values, surrounding ASCII whitespace, and comma-separated member names. Case-insensitive parsing folds ASCII letters only. Unicode whitespace and non-ASCII case folding may therefore differ from .NET; contracts that accept such input should normalize it explicitly.
+
 Guidance:
 - Do not use `typeof` for .NET reflection or `System.Type` behavior in contracts. Reflection is outside the supported contract surface.
 - Treat direct `typeof` results as Neo string semantics, not standard .NET type metadata.
