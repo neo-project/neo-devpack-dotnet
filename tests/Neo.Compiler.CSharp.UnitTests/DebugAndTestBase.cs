@@ -23,7 +23,7 @@ using Neo.Compiler.ControlFlow;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
-public class DebugAndTestBase<T> : TestBase<T>
+public class DebugAndTestBase<T> : TestBaseWithGasTracking<T>
     where T : SmartContract.Testing.SmartContract, IContractInfo
 {
     // allowing specific derived class to enable/disable Gas test
