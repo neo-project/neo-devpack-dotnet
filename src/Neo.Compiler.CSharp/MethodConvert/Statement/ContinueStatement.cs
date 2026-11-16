@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler
 {
@@ -28,6 +29,8 @@ namespace Neo.Compiler
         /// continue target count is zero, it generates an `ENDTRY_L` opcode to properly handle the loop
         /// continuation within the try block. Otherwise, a standard jump (`JMP_L`) is used to continue
         /// the loop.
+        /// C# 15 labeled continue statements (`continue outer;`) are resolved to the loop the label is
+        /// attached to, unwinding every try block crossed on the way out.
         /// </remarks>
         /// <example>
         /// Example of a 'continue' statement in a loop:
@@ -47,21 +50,31 @@ namespace Neo.Compiler
             {
                 JumpTarget? continueTarget = null;
                 List<StatementContext> visitedTry = [];  // from shallow to deep
-                foreach (StatementContext sc in _generalStatementStack)
-                {// start from the deepest context
-                    // find the final continue target
-                    if (sc.ContinueTarget != null)
-                    {
-                        continueTarget = sc.ContinueTarget;
-                        break;
-                    }
-                    // stage the try stacks on the way
-                    if (sc.StatementSyntax is TryStatementSyntax)
-                        visitedTry.Add(sc);
+                if (syntax.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault() is { } label)
+                {// C# 15 labeled continue: continue the loop the label is attached to
+                    continueTarget = FindLabeledJumpTarget(label.Identifier.ValueText, isContinue: true, visitedTry);
+                    if (continueTarget == null)
+                        // labeled continue is not handled
+                        throw CompilationException.UnsupportedSyntax(syntax, $"Cannot find the labeled loop '{label.Identifier.ValueText}' for the continue statement. Ensure the label is attached to an enclosing loop.");
                 }
-                if (continueTarget == null)
-                    // continue is not handled
-                    throw CompilationException.UnsupportedSyntax(syntax, "Continue statement must be inside a loop (for, while, do-while, foreach). If this appears to be valid code, it may indicate a compiler bug.");
+                else
+                {
+                    foreach (StatementContext sc in _generalStatementStack)
+                    {// start from the deepest context
+                        // find the final continue target
+                        if (sc.ContinueTarget != null)
+                        {
+                            continueTarget = sc.ContinueTarget;
+                            break;
+                        }
+                        // stage the try stacks on the way
+                        if (sc.StatementSyntax is TryStatementSyntax)
+                            visitedTry.Add(sc);
+                    }
+                    if (continueTarget == null)
+                        // continue is not handled
+                        throw CompilationException.UnsupportedSyntax(syntax, "Continue statement must be inside a loop (for, while, do-while, foreach). If this appears to be valid code, it may indicate a compiler bug.");
+                }
 
                 foreach (StatementContext sc in visitedTry)
                     // start from the most external try
