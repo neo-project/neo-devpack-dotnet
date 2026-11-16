@@ -1149,6 +1149,7 @@ namespace Neo.Optimizer
         UseNz = 1 << 4,
         FoldNotInJmp = 1 << 5,
         UseEmptyCollectionOpcodes = 1 << 6,
-        All = FoldNotInEqual | RemoveDupDrop | UseIncDec | UseIsNull | UseNz | FoldNotInJmp | UseEmptyCollectionOpcodes,
+        RemovePushDrop = 1 << 7,
+        All = FoldNotInEqual | RemoveDupDrop | UseIncDec | UseIsNull | UseNz | FoldNotInJmp | UseEmptyCollectionOpcodes | RemovePushDrop,
     }
 }
