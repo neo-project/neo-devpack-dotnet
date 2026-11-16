@@ -58,8 +58,7 @@ internal static class SyntaxProbeExpectedDiagnostics
             ["lambda_default_parameters"] = ["CS1746"],
             ["span_arraysegment_conversions"] = ["NC4013"],
             ["lambda_parameter_modifiers"] = ["CS8171"],
-            ["partial_events_constructors"] = ["CS0079"],
-            ["user_defined_compound_assignment"] = ["NC4064"]
+            ["partial_events_constructors"] = ["CS0079"]
         };
 
     internal static IEnumerable<string> ProbeIds => ExpectedByProbe.Keys;

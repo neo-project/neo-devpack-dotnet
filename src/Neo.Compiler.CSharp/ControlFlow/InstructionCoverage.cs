@@ -188,6 +188,8 @@ namespace Neo.Compiler.ControlFlow
             public BranchType PendingBranchResult;
             public ExceptionResult PendingExceptionResult;
             public ExceptionCompletion PendingExceptionCompletion;
+            // Try stack below the TRY whose finally is running, used to keep propagating a pending exception after ENDFINALLY
+            public Stack<TryState>? PendingOuterTryStack;
         }
 
         private enum PendingKind
@@ -236,34 +238,44 @@ namespace Neo.Compiler.ControlFlow
             return Finalize(frame, result);
         }
 
-        private bool BeginException(Frame frame, Stack<Frame> frames, ExceptionCompletion completion)
-        {
-            Stack<TryState> stack = CopyStack(frame.TryStack);
-            TryType tryStateType;
-            int catchAddr;
-            int finallyAddr;
-            do
-                (catchAddr, finallyAddr, tryStateType, _) = stack.Pop();
-            while (tryStateType != TryType.TRY && tryStateType != TryType.CATCH && stack.Count > 0);
+        private static bool IsThrowCompletion(ExceptionCompletion completion)
+            => completion == ExceptionCompletion.ReturnThrow || completion == ExceptionCompletion.ReturnThrowUnassigned;
 
+        private bool BeginException(Frame frame, Stack<Frame> frames, ExceptionCompletion completion, Stack<TryState>? sourceStack = null)
+        {
+            Stack<TryState> stack = CopyStack(sourceStack ?? frame.TryStack);
             int handlerAddr;
             ExceptionResult exceptionResult;
-            if (tryStateType == TryType.TRY && catchAddr != -1)
+            frame.PendingOuterTryStack = null;
+            while (true)
             {
-                handlerAddr = catchAddr;
-                stack.Push(new TryState(-1, finallyAddr, TryType.CATCH, true));
-                exceptionResult = ExceptionResult.Catch;
-            }
-            else if ((tryStateType == TryType.TRY || tryStateType == TryType.CATCH) && finallyAddr != -1)
-            {
-                handlerAddr = finallyAddr;
-                stack.Push(new TryState(-1, -1, TryType.FINALLY, false));
-                exceptionResult = ExceptionResult.Finally;
-            }
-            else
-            {
+                TryType tryStateType;
+                int catchAddr;
+                int finallyAddr;
+                do
+                    (catchAddr, finallyAddr, tryStateType, _) = stack.Pop();
+                while (tryStateType != TryType.TRY && tryStateType != TryType.CATCH && stack.Count > 0);
+
+                if (tryStateType == TryType.TRY && catchAddr != -1)
+                {
+                    handlerAddr = catchAddr;
+                    stack.Push(new TryState(-1, finallyAddr, TryType.CATCH, true));
+                    exceptionResult = ExceptionResult.Catch;
+                    break;
+                }
+                if ((tryStateType == TryType.TRY || tryStateType == TryType.CATCH) && finallyAddr != -1)
+                {
+                    handlerAddr = finallyAddr;
+                    frame.PendingOuterTryStack = CopyStack(stack);
+                    stack.Push(new TryState(-1, -1, TryType.FINALLY, false));
+                    exceptionResult = ExceptionResult.Finally;
+                    break;
+                }
                 if (tryStateType == TryType.TRY)
                     throw new BadScriptException("Try without catch or finally");
+                // An exception thrown inside a catch without finally leaves this try and is handled by outer handlers
+                if (tryStateType == TryType.CATCH && IsThrowCompletion(completion) && stack.Count > 0)
+                    continue;
                 return false;
             }
 
@@ -382,6 +394,13 @@ namespace Neo.Compiler.ControlFlow
 
                 if (pending == PendingKind.Exception)
                 {
+                    // The finally block ended normally, so the pending exception continues to outer handlers
+                    if (frame.PendingExceptionResult == ExceptionResult.Finally
+                        && result == BranchType.OK
+                        && IsThrowCompletion(frame.PendingExceptionCompletion)
+                        && frame.PendingOuterTryStack != null
+                        && BeginException(frame, frames, frame.PendingExceptionCompletion, frame.PendingOuterTryStack))
+                        return null;
                     BranchType throwResult = frame.PendingExceptionResult == ExceptionResult.Catch
                         ? result
                         : result == BranchType.ABORT ? BranchType.ABORT : BranchType.THROW;

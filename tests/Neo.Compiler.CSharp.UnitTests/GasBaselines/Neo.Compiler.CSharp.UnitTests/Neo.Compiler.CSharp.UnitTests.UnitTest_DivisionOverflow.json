@@ -1,0 +1,18 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_BigIntegerDivRem_ZeroIsCatchableAndNormalResultIsPreserved#1": 1172130,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_BigIntegerDivRem_ZeroIsCatchableAndNormalResultIsPreserved#2": 1064310,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideAssignUncheckedInt32_Overflow_ShouldThrow#1": 1064070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideAssignUncheckedInt64_Overflow_ShouldThrow#1": 1064070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideCheckedBigInteger_NoOverflow#1": 1047630,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideCheckedBigInteger_Normal_ShouldWork#1": 1047630,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideCheckedInt32_Normal_ShouldWork#1": 1047780,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideCheckedInt32_Overflow_ShouldThrow#1": 1064070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideCheckedInt64_Normal_ShouldWork#1": 1047780,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideCheckedInt64_Overflow_ShouldThrow#1": 1064070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideUncheckedInt32_Overflow_ShouldThrow#1": 1064070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_DivideUncheckedInt64_Overflow_ShouldThrow#1": 1064070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_IntDivRem_ZeroIsCatchableAndNormalResultIsPreserved#1": 1172820,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_IntDivRem_ZeroIsCatchableAndNormalResultIsPreserved#2": 1064310,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_MathDivRem_ZeroIsCatchableAndNormalResultIsPreserved#1": 1172820,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_DivisionOverflow.Test_MathDivRem_ZeroIsCatchableAndNormalResultIsPreserved#2": 1064310
+}

@@ -1,0 +1,13 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_CreateRecord#1": 1618170,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_CreateRecord2#1": 1618200,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_CreateRecordWithExtras#1": 1618380,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_DeconstructRecord#1": 1679850,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_DerivedRecordWith#1": 3578460,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_RecordEquality#1": 2190090,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_RecordStructIsolation#1": 2295000,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_RecordStructWith#1": 2250900,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_UpdateRecord#1": 2004870,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_UpdateRecord2#1": 2575620,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Record.Test_WithRecordExtras#1": 2543310
+}

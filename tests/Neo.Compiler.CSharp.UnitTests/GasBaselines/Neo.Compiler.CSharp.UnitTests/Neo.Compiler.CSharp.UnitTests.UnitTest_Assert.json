@@ -1,0 +1,7 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Assert.Test_AssertFalse#1": 986250,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Assert.Test_AssertInCatch#1": 1019790,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Assert.Test_AssertInFinally#1": 1004070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Assert.Test_AssertInFunction#1": 1003620,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Assert.Test_AssertInTry#1": 1003860
+}

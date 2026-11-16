@@ -196,6 +196,11 @@ internal partial class MethodConvert
             indexToValue.Add(index, ae.Right);
             initializerValues.Add((index, ae.Right));
         }
+        // An overwritten constant initializer has no observable effect. Keep the packed
+        // path in that case; otherwise CreateObject must apply the declared initializer.
+        if (fields.Select((field, index) => (field, index)).Any(item =>
+            RequiresDeclaredInstanceInitializer(item.field, indexToValue.ContainsKey(item.index))))
+            return false;
         if (!CanUseFieldOrderPackedInitializer(model, initializerValues))
             return false;
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
@@ -233,6 +238,38 @@ internal partial class MethodConvert
             type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK,
             slot => slot.CanDefer);
         return true;
+    }
+
+    private static bool RequiresDeclaredInstanceInitializer(IFieldSymbol field, bool isOverwritten)
+    {
+        if (field.GetAttributes().Any(attribute =>
+            attribute.AttributeClass?.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)
+            || attribute.AttributeClass?.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)) == true))
+            return !isOverwritten;
+
+        EqualsValueClauseSyntax? initializer;
+        if (field.DeclaringSyntaxReferences.IsEmpty)
+        {
+            initializer = field.AssociatedSymbol is IPropertySymbol property
+                && !property.DeclaringSyntaxReferences.IsEmpty
+                && property.DeclaringSyntaxReferences[0].GetSyntax() is PropertyDeclarationSyntax syntax
+                ? syntax.Initializer : null;
+        }
+        else
+        {
+            initializer = (field.DeclaringSyntaxReferences[0].GetSyntax() as VariableDeclaratorSyntax)?.Initializer;
+        }
+        if (initializer is null) return false;
+        if (!isOverwritten) return true;
+        var assembly = (ISourceAssemblySymbol)field.ContainingAssembly;
+        var initializerModel = assembly.Compilation.GetSemanticModel(initializer.SyntaxTree);
+        if (initializerModel.GetConstantValue(initializer.Value).HasValue) return false;
+        // The compiler lowers string.Empty to a literal and it is safe to discard
+        // when the object initializer immediately replaces that field.
+        return initializerModel.GetSymbolInfo(initializer.Value).Symbol is not IFieldSymbol
+        {
+            Name: "Empty", ContainingType.SpecialType: SpecialType.System_String
+        };
     }
 
     private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)

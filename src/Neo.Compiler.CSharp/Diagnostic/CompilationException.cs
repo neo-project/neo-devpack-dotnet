@@ -16,12 +16,31 @@ namespace Neo.Compiler
 {
     class CompilationException : Exception
     {
+        /// <summary>
+        /// The diagnostic catalog every compiler diagnostic links to, mirroring the
+        /// help link convention of the Neo analyzers (DiagnosticDescriptorFactory).
+        /// </summary>
+        private const string CatalogBase =
+            "https://github.com/neo-project/neo-devpack-dotnet/blob/master-n3/docs/diagnostics/catalog.md#";
+
         public Diagnostic Diagnostic { get; }
 
         private CompilationException(Location? location, string id, string message, Exception? innerException = null)
             : base(message, innerException)
         {
-            Diagnostic = Diagnostic.Create(id, DiagnosticCategory.Default, message, DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0, location: location);
+            Diagnostic = Diagnostic.Create(
+                new DiagnosticDescriptor(
+                    id,
+                    title: message,
+                    // Compiler messages can contain literal braces; pass the message
+                    // as an argument instead of treating it as a format string.
+                    messageFormat: "{0}",
+                    category: DiagnosticCategory.Default,
+                    defaultSeverity: DiagnosticSeverity.Error,
+                    isEnabledByDefault: true,
+                    helpLinkUri: CatalogBase + id.ToLowerInvariant()),
+                location,
+                message);
         }
 
         public CompilationException(string id, string message, Exception? innerException = null)

@@ -1,0 +1,10 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_Shift#1": 1048740,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_ShiftLeftCheckedByte#1": 1047900,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_ShiftLeftCheckedByte#2": 1047900,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_ShiftLeftCheckedShort#1": 1047900,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_ShiftLeftCheckedShort#2": 1047900,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_ShiftRightChecked#1": 1047750,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_ShiftRightUnchecked#1": 1047750,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Shift.Test_Shift_BigInteger#1": 1049370
+}

@@ -71,7 +71,6 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
   - Additional Span/ReadOnlySpan conversions (`span_arraysegment_conversions`)
   - Modifiers on simple lambda parameters (`lambda_parameter_modifiers`)
   - Partial events and constructors (`partial_events_constructors`)
-  - User-defined compound assignment operators (`user_defined_compound_assignment`)
 
 ## Next Actions
 

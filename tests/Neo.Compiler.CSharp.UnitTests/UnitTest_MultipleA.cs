@@ -21,7 +21,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test()
         {
             Assert.IsTrue(Contract.Test());
-            AssertGasConsumed(984060);
         }
     }
 }

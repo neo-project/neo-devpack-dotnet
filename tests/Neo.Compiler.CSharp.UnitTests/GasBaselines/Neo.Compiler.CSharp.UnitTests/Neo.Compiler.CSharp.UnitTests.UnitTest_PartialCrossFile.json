@@ -1,0 +1,8 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PartialCrossFile.Test_ComplexCrossFileExpression#1": 1002120,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PartialCrossFile.Test_CrossFileCall#1": 999960,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PartialCrossFile.Test_CrossFileCallReverse#1": 999960,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PartialCrossFile.Test_ExpressionBodyCrossFile#1": 984060,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PartialCrossFile.Test_GetBaseValue#1": 984060,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PartialCrossFile.Test_GetMultiplier#1": 984060
+}

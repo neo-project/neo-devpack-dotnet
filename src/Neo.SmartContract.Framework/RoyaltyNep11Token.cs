@@ -121,6 +121,15 @@ namespace Neo.SmartContract.Framework
             TokenRoyaltyStorage.Delete(tokenId);
         }
 
+        /// <summary>
+        /// Burns a token and removes its per-token royalty override.
+        /// </summary>
+        protected static new void Burn(ByteString tokenId)
+        {
+            Nep11Token<TokenState>.Burn(tokenId);
+            DeleteTokenRoyalty(tokenId);
+        }
+
         private static ByteString SerializeRoyalty(UInt160 recipient, BigInteger basisPoints)
         {
             ExecutionEngine.Assert(recipient.IsValidAndNotZero, "The royalty recipient is invalid.");

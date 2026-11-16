@@ -1,0 +1,16 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendConstEmpty#1": 1052100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmpty#1": 1052100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyChained#1": 1362300,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyEvaluatesReceiverOnce#1": 1001060680,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyEvaluatesReceiverOnce#2": 3163140,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyEvaluatesReceiverOnce#3": 1130010,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyKeepsContent#1": 1674750,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyKeepsInstance#1": 1362420,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyMultiple#1": 1056480,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyNullReceiverFaults#1": 988110,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendNonEmpty#1": 1360230,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendPrimitiveValues#1": 15788310,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendRuntimeString#1": 1421280,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendRuntimeString#2": 1421280
+}

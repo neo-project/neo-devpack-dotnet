@@ -53,6 +53,11 @@ internal partial class MethodConvert
     private void ConvertComplexAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+        if (IsUserDefinedCompoundAssignmentOperator(model, expression, out IMethodSymbol? operatorSymbol))
+        {
+            ConvertUserDefinedCompoundAssignmentExpression(model, expression, operatorSymbol!);
+            return;
+        }
         switch (expression.Left)
         {
             case ElementAccessExpressionSyntax left:
@@ -67,6 +72,46 @@ internal partial class MethodConvert
             default:
                 throw CompilationException.UnsupportedSyntax(expression.Left, $"Complex assignment operators (+=, -=, etc.) can only be used with element access, identifiers, or member access expressions. Found: {expression.Left.GetType().Name}");
         }
+    }
+
+    /// <summary>
+    /// Determines whether the compound assignment binds to a C# 14 user-defined compound
+    /// assignment operator, which is declared as a non-static operator returning void,
+    /// e.g. <c>public void operator +=(int amount)</c>. The classic static operators like
+    /// <c>operator +</c> are not matched here; they keep flowing through
+    /// <see cref="EmitComplexAssignmentOperator"/>.
+    /// </summary>
+    private static bool IsUserDefinedCompoundAssignmentOperator(SemanticModel model, AssignmentExpressionSyntax expression, out IMethodSymbol? operatorSymbol)
+    {
+        operatorSymbol = null;
+        if (model.GetSymbolInfo(expression).Symbol is not IMethodSymbol { IsImplicitlyDeclared: false, IsStatic: false } symbol ||
+            symbol.MethodKind != MethodKind.UserDefinedOperator ||
+            !IsDeclaredByCurrentCompilation(model, symbol))
+            return false;
+        operatorSymbol = symbol;
+        return true;
+    }
+
+    /// <summary>
+    /// Converts a compound assignment bound to a C# 14 user-defined compound assignment
+    /// operator, e.g. <c>counter += 2</c> where <c>Counter</c> declares
+    /// <c>public void operator +=(int amount)</c>.
+    /// </summary>
+    /// <remarks>
+    /// The operator is invoked once on the current value of the target, which is evaluated
+    /// exactly once and mutated in place, so no result is written back to the target and
+    /// nothing is left on the stack (the operator returns <c>void</c>).
+    /// </remarks>
+    private void ConvertUserDefinedCompoundAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression, IMethodSymbol operatorSymbol)
+    {
+        ICompoundAssignmentOperation operation = (ICompoundAssignmentOperation)model.GetOperation(expression)!;
+        // The receiver is passed as `this` and Roslyn leaves the in-conversion empty
+        // (a CommonConversion with every flag cleared) for void compound operators, so
+        // only a user-defined conversion would require lowering work we do not support.
+        if (operation.InConversion.IsUserDefined)
+            throw CompilationException.UnsupportedSyntax(expression, $"User-defined compound assignment is only supported when the target needs no user-defined conversion to the operator's declaring type. Found target conversion '{operation.InConversion}'.");
+
+        CallMethodWithInstanceExpression(model, operatorSymbol, expression.Left, expression.Right);
     }
 
     private void ConvertElementAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ElementAccessExpressionSyntax left, ExpressionSyntax right)
@@ -285,10 +330,11 @@ internal partial class MethodConvert
         // A compound assignment bound to a user-defined operator lowers to a call to the
         // operator method, like the plain binary form. The current value of the target is
         // already on the stack, so the right operand is evaluated on top of it and the pair
-        // is reversed for the Cdecl parameter order.
+        // is reversed for the Cdecl parameter order. C# 14 void instance compound operators
+        // never reach this point; they are intercepted in ConvertComplexAssignmentExpression.
         if (right.Parent is AssignmentExpressionSyntax assignment &&
             model.GetSymbolInfo(assignment).Symbol is IMethodSymbol operatorSymbol &&
-            operatorSymbol is { MethodKind: MethodKind.UserDefinedOperator, IsImplicitlyDeclared: false } &&
+            operatorSymbol is { MethodKind: MethodKind.UserDefinedOperator, IsStatic: true, IsImplicitlyDeclared: false } &&
             IsDeclaredByCurrentCompilation(model, operatorSymbol))
         {
             ConvertExpression(model, right);
