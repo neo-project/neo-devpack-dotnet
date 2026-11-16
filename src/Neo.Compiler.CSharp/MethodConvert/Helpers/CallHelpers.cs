@@ -893,12 +893,33 @@ internal partial class MethodConvert
         AddInstruction(OpCode.CALLA);
     }
 
-    private void InvokeMethod(SemanticModel model, IMethodSymbol method)
+    private void InvokeMethod(SemanticModel model, IMethodSymbol method, ITypeSymbol? delegateType = null)
     {
         var convert = _context.ConvertMethod(model, method);
-        Jump(OpCode.PUSHA, convert._startTarget);
+        InvokeMethod(convert, delegateType);
     }
 
-    private void InvokeMethod(MethodConvert convert)
-        => Jump(OpCode.PUSHA, convert._startTarget);
+    private void InvokeMethod(MethodConvert convert, ITypeSymbol? delegateType = null)
+    {
+        if (delegateType is INamedTypeSymbol { TypeKind: TypeKind.Delegate } type)
+        {
+            // The call site uses the delegate's Invoke parameter slots. Rebind the
+            // target method's captured ref/out slots to those same slots so CALLA
+            // writes are visible regardless of which method the delegate holds.
+            var aliases = new Dictionary<byte, byte>();
+            var parameters = type.DelegateInvokeMethod!.Parameters;
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (!IsByRef(parameters[i].RefKind))
+                    continue;
+                byte source = _context.GetOrAddCapturedStaticField(convert.Symbol.Parameters[i]);
+                byte target = _context.GetOrAddCapturedStaticField(parameters[i]);
+                if (source != target)
+                    aliases[source] = target;
+            }
+            if (aliases.Count > 0)
+                convert = _context.AddByRefAliasMethod(convert, aliases);
+        }
+        Jump(OpCode.PUSHA, convert._startTarget);
+    }
 }
