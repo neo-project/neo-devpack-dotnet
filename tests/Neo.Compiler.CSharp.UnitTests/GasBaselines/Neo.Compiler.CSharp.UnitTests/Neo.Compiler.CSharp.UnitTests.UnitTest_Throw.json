@@ -1,0 +1,7 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Throw.Test_NotThrow#1": 1111290,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Throw.Test_StoredExceptionCanBeCaught#1": 1309770,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Throw.Test_StoredExceptionCanBeThrown#1": 1001670,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Throw.Test_StoredParameterlessExceptionCanBeCaught#1": 1309770,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Throw.Test_Throw#1": 1063530
+}

@@ -1,0 +1,19 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#1": 1048200,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#10": 1199880,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#2": 1048200,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#3": 1067160,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#4": 1086120,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#5": 1105080,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#6": 1124040,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#7": 1143000,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#8": 1161960,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_Factorial#9": 1180920,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_HanoiTower#1": 1356360,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_HanoiTower#2": 4560540,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_MutualRecursion#1": 1173870,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_MutualRecursion#2": 1210050,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_MutualRecursion#3": 1246890,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_MutualRecursion#4": 1228740,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Recursion.Test_MutualRecursion#5": 1210590
+}

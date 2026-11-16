@@ -1,0 +1,14 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakLabeledDoWhile#1": 1003950,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakLabeledSwitch#1": 1049580,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakLabeledSwitch#2": 1050300,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakLabeledSwitch#3": 1048800,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakLabeledWhile#1": 999900,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakOuterFromNestedForEach#1": 1082550,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakOuterThroughTryFinally#1": 1057200,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_BreakOutermostFromThreeLevels#1": 1064190,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_ContinueLabeledFor#1": 1019220,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_ContinueMiddleFromInnermost#1": 1098780,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_ContinueOuterFromNestedForEach#1": 1094040,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_LabeledBreakContinue.Test_ContinueOuterThroughTryFinally#1": 1062240
+}

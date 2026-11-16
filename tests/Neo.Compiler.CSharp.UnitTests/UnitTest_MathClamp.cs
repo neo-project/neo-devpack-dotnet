@@ -23,23 +23,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampConstantBoundsSkipsRangeValidation()
         {
             Contract.ClampConstantBounds(50);
-            AssertGasConsumed(1048200);
             Contract.ClampEqualBounds(50);
-            AssertGasConsumed(1048200);
             Contract.ClampNamedArguments(50);
-            AssertGasConsumed(1048200);
             Contract.ClampConstantExpressions(50);
-            AssertGasConsumed(1048200);
             Contract.ClampByteConstantBounds(50);
-            AssertGasConsumed(1048200);
             Contract.ClampLongConstantBounds(50);
-            AssertGasConsumed(1048200);
             Contract.ClampBigIntegerConstantBounds(5);
-            AssertGasConsumed(1048200);
 
             // Dynamic bounds keep the runtime min <= max validation.
             Contract.ClampDynamicBounds(50, 0, 100);
-            AssertGasConsumed(1048500);
         }
 
         [TestMethod]
