@@ -10,8 +10,6 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler;
-using Neo.Compiler.ControlFlow;
 using Neo.Optimizer;
 using NeoOptimizer = Neo.Optimizer.Optimizer;
 using Neo.SmartContract;
@@ -64,6 +62,52 @@ namespace Neo.Compiler.CSharp.UnitTests
             var (optimizedNef, _, _) = Strategies.ApplyPeephole(CreateNefFile(sb.ToArray()), CreateManifest(), null, PeepholeRule.RemoveDupDrop);
             CollectionAssert.AreEqual(new[] { OpCode.PUSH1, OpCode.STLOC0, OpCode.RET },
                 new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_RemovePushDrop_RemovesAllPushKinds()
+        {
+            (string Name, byte[] Script, OpCode[] Expected)[] cases =
+            [
+                ("PUSHM1", [(byte)OpCode.PUSHM1, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSH0", [(byte)OpCode.PUSH0, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSH16", [(byte)OpCode.PUSH16, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSHT", [(byte)OpCode.PUSHT, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSHF", [(byte)OpCode.PUSHF, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSHNULL", [(byte)OpCode.PUSHNULL, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSHINT16", [(byte)OpCode.PUSHINT16, 0x01, 0x00, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSHDATA1", [(byte)OpCode.PUSHDATA1, 0x02, 0xAA, 0xBB, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("PUSHA", [(byte)OpCode.PUSHA, 0x00, 0x00, 0x00, 0x00, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("NEWARRAY0", [(byte)OpCode.NEWARRAY0, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("NEWSTRUCT0", [(byte)OpCode.NEWSTRUCT0, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("NEWMAP", [(byte)OpCode.NEWMAP, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("DEPTH", [(byte)OpCode.DEPTH, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.RET]),
+                ("DUP", [(byte)OpCode.PUSH1, (byte)OpCode.DUP, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.PUSH1, OpCode.RET]),
+                ("OVER", [(byte)OpCode.PUSH1, (byte)OpCode.PUSH2, (byte)OpCode.OVER, (byte)OpCode.DROP, (byte)OpCode.RET], [OpCode.PUSH1, OpCode.PUSH2, OpCode.RET]),
+            ];
+
+            foreach (var (name, script, expected) in cases)
+            {
+                var (optimizedNef, _, _) = Strategies.ApplyPeephole(
+                    CreateNefFile(script), CreateManifest(), null, PeepholeRule.RemovePushDrop);
+                CollectionAssert.AreEqual(expected, GetOpCodes(optimizedNef), name);
+            }
+        }
+
+        [TestMethod]
+        public void Test_RemovePushDrop_DoesNotCrossBasicBlockBoundary()
+        {
+            byte[] script = [(byte)OpCode.PUSH1, (byte)OpCode.DROP, (byte)OpCode.RET];
+            NefFile rewritten = Peephole.Rewrite(CreateNefFile(script), CreateManifest(0, 1), PeepholeRule.RemovePushDrop);
+            CollectionAssert.AreEqual(new[] { OpCode.PUSH1, OpCode.DROP, OpCode.RET }, GetOpCodes(rewritten));
+        }
+
+        [TestMethod]
+        public void Test_RemovePushDrop_DoesNotRewriteWhenDropIsJumpTarget()
+        {
+            byte[] script = [(byte)OpCode.PUSH9, (byte)OpCode.JMP, 0x03 /* to DROP */, (byte)OpCode.PUSH1, (byte)OpCode.DROP, (byte)OpCode.RET];
+            NefFile rewritten = Peephole.Rewrite(CreateNefFile(script), CreateManifest(), PeepholeRule.RemovePushDrop);
+            CollectionAssert.AreEqual(script, rewritten.Script.ToArray());
         }
 
         /// <summary>
@@ -375,34 +419,35 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 Compiler = "test",
                 Source = "test.cs",
-                Tokens = Array.Empty<MethodToken>(),
+                Tokens = [],
                 Script = script
             };
         }
 
-        private static ContractManifest CreateManifest()
+        private static OpCode[] GetOpCodes(NefFile nef) => new Script(nef.Script.ToArray())
+            .EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray();
+
+        private static ContractManifest CreateManifest(params int[] methodOffsets)
         {
+            if (methodOffsets.Length == 0) methodOffsets = [0];
             return new ContractManifest
             {
                 Name = "TestContract",
-                Groups = Array.Empty<ContractGroup>(),
-                SupportedStandards = Array.Empty<string>(),
+                Groups = [],
+                SupportedStandards = [],
                 Abi = new ContractAbi
                 {
-                    Methods =
-                    [
-                        new ContractMethodDescriptor
-                        {
-                            Name = "main",
-                            Offset = 0,
-                            Parameters = Array.Empty<ContractParameterDefinition>(),
-                            ReturnType = ContractParameterType.Any,
-                            Safe = false
-                        }
-                    ],
-                    Events = Array.Empty<ContractEventDescriptor>()
+                    Methods = methodOffsets.Select((offset, index) => new ContractMethodDescriptor
+                    {
+                        Name = index == 0 ? "main" : $"method{index}",
+                        Offset = offset,
+                        Parameters = [],
+                        ReturnType = ContractParameterType.Any,
+                        Safe = false
+                    }).ToArray(),
+                    Events = []
                 },
-                Permissions = Array.Empty<ContractPermission>(),
+                Permissions = [],
                 Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
                 Extra = null
             };
