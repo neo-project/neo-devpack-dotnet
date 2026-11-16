@@ -9,6 +9,8 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -30,7 +32,17 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
         "Usage",
         DiagnosticSeverity.Info,
         isEnabledByDefault: true,
-        description: "Every concatenation copies the accumulated value. Bound the accumulated length and iteration count, or move the concatenation outside the loop.");
+        description: "Every concatenation or append extends the accumulated value. Bound the accumulated length and iteration count, or move the accumulation outside the loop.");
+
+    private static readonly HashSet<string> StringGrowthMethodNames = new(StringComparer.Ordinal)
+    {
+        "Concat", "Format", "Join",
+    };
+
+    private static readonly HashSet<string> StringBuilderGrowthMethodNames = new(StringComparer.Ordinal)
+    {
+        "Append", "AppendLine", "AppendFormat", "AppendJoin", "Insert",
+    };
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
@@ -40,6 +52,7 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterOperationAction(AnalyzeCompoundAssignment, OperationKind.CompoundAssignment);
         context.RegisterOperationAction(AnalyzeSimpleAssignment, OperationKind.SimpleAssignment);
+        context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
     }
 
     private static void AnalyzeCompoundAssignment(OperationAnalysisContext context)
@@ -56,7 +69,29 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeSimpleAssignment(OperationAnalysisContext context)
     {
-        if (context.Operation is not ISimpleAssignmentOperation { Value: IBinaryOperation binary } assignment)
+        if (context.Operation is not ISimpleAssignmentOperation assignment)
+            return;
+
+        // result = $"{result}{i}" — the interpolated string rebuilds the accumulated value.
+        if (assignment.Value is IInterpolatedStringOperation interpolatedString
+            && interpolatedString.Type?.SpecialType == SpecialType.System_String
+            && ContainsTarget(interpolatedString, assignment.Target))
+        {
+            ReportIfAccumulatesInLoop(context, assignment.Target);
+            return;
+        }
+
+        // result = string.Concat(result, "a") / string.Format(...) — growth helpers
+        // that rebuild the accumulated value from its own arguments.
+        if (assignment.Value is IInvocationOperation invocation
+            && IsStringGrowthInvocation(invocation)
+            && ContainsTarget(invocation, assignment.Target))
+        {
+            ReportIfAccumulatesInLoop(context, assignment.Target);
+            return;
+        }
+
+        if (assignment.Value is not IBinaryOperation binary)
             return;
         if (binary.OperatorKind != BinaryOperatorKind.Add || binary.Type?.SpecialType != SpecialType.System_String)
             return;
@@ -66,6 +101,26 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
 
         ReportIfAccumulatesInLoop(context, assignment.Target);
     }
+
+    private static void AnalyzeInvocation(OperationAnalysisContext context)
+    {
+        // builder.Append(i) — the builder retains its buffer across iterations, so the
+        // appended content grows without bound just like string concatenation.
+        if (context.Operation is not IInvocationOperation invocation)
+            return;
+        if (invocation.TargetMethod.ContainingType?.ToDisplayString() != "System.Text.StringBuilder")
+            return;
+        if (!StringBuilderGrowthMethodNames.Contains(invocation.TargetMethod.Name))
+            return;
+        if (invocation.Instance is null)
+            return;
+
+        ReportIfAccumulatesInLoop(context, invocation.Instance);
+    }
+
+    private static bool IsStringGrowthInvocation(IInvocationOperation invocation) =>
+        invocation.TargetMethod.ContainingType?.SpecialType == SpecialType.System_String
+        && StringGrowthMethodNames.Contains(invocation.TargetMethod.Name);
 
     private static void ReportIfAccumulatesInLoop(OperationAnalysisContext context, IOperation target)
     {
@@ -122,6 +177,14 @@ public sealed class StringConcatenationInLoopAnalyzer : DiagnosticAnalyzer
         operation = Unwrap(operation);
         if (ReferencesSameStorage(operation, target))
             return true;
+        if (operation is IInterpolatedStringOperation interpolatedString)
+            return interpolatedString.Parts.Any(part => ContainsTarget(part, target));
+        // Each interpolation hole is an IInterpolationOperation wrapper around its expression.
+        if (operation is IInterpolationOperation interpolation)
+            return ContainsTarget(interpolation.Expression, target);
+        if (operation is IInvocationOperation invocation && IsStringGrowthInvocation(invocation))
+            return (invocation.Instance is { } instance && ContainsTarget(instance, target))
+                || invocation.Arguments.Any(argument => ContainsTarget(argument.Value, target));
         return operation is IBinaryOperation { OperatorKind: BinaryOperatorKind.Add } binary
             && binary.Type?.SpecialType == SpecialType.System_String
             && (ContainsTarget(binary.LeftOperand, target) || ContainsTarget(binary.RightOperand, target));

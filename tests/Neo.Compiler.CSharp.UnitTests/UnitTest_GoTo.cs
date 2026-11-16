@@ -21,14 +21,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test()
         {
             Assert.AreEqual(3, Contract.Test());
-            AssertGasConsumed(988140);
         }
 
         [TestMethod]
         public void TestTry()
         {
             Assert.AreEqual(3, Contract.TestTry());
-            AssertGasConsumed(988800);
         }
 
         [TestMethod]

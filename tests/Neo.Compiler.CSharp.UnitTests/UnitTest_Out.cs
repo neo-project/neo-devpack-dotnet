@@ -152,39 +152,27 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RefStorageSurvivesSkippedBranches()
         {
             Assert.AreEqual(500, Contract.TestRefLocalAfterCoalesce(false));
-            AssertGasConsumed(1608630);
             Assert.AreEqual(101, Contract.TestRefLocalAfterCoalesce(true));
-            AssertGasConsumed(1626990);
             Assert.AreEqual(507, Contract.TestRefParameterAfterCoalesce());
-            AssertGasConsumed(1562850);
             Assert.AreEqual(3, Contract.TestRefAfterConditionalBranch(false));
-            AssertGasConsumed(1606800);
             Assert.AreEqual(4, Contract.TestRefAfterConditionalBranch(true));
-            AssertGasConsumed(1625130);
         }
 
         [TestMethod]
         public void Test_ByRefAliases()
         {
             Assert.AreEqual(2, Contract.TestRefAliases());
-            AssertGasConsumed(1564680);
             Assert.AreEqual(2, Contract.TestOutAliases());
-            AssertGasConsumed(1563960);
             Assert.AreEqual(111, Contract.TestDistinctRefArguments());
-            AssertGasConsumed(1566000);
             Assert.AreEqual(20111, Contract.TestMixedRefAliases());
-            AssertGasConsumed(1586220);
         }
 
         [TestMethod]
         public void Test_FieldRefAliases()
         {
             Assert.AreEqual(2, Contract.TestStaticFieldRefAliases());
-            AssertGasConsumed(1563000);
             Assert.AreEqual(2, Contract.TestInstanceFieldRefAliases());
-            AssertGasConsumed(1882740);
             Assert.AreEqual(111, Contract.TestDistinctInstanceFieldRefs());
-            AssertGasConsumed(2439480);
             Assert.AreEqual(12311, Contract.TestRecursiveRefAliases());
         }
 

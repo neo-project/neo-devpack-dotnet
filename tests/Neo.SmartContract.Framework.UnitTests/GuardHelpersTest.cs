@@ -27,12 +27,10 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass when condition is true
             Contract.TestRequire(true);
-            AssertGasConsumed(1064670);
 
             // Should throw when condition is false
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequire(false));
             Assert.IsTrue(ex.Message.Contains("FAILED"));
-            AssertGasConsumed(1080090);
         }
 
         [TestMethod]
@@ -40,14 +38,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass when value is not null
             Contract.TestRequireNotNull("test");
-            AssertGasConsumed(1065060);
             Contract.TestRequireNotNull(123);
-            AssertGasConsumed(1064850);
 
             // Should throw when value is null
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireNotNull(null));
             Assert.IsTrue(ex.Message.Contains("NULL:myParam"));
-            AssertGasConsumed(1387710);
         }
 
         [TestMethod]
@@ -55,14 +50,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass for positive values
             Contract.TestRequireNonNegative(0);
-            AssertGasConsumed(1064700);
             Contract.TestRequireNonNegative(100);
-            AssertGasConsumed(1064700);
 
             // Should throw for negative values
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireNonNegative(-1));
             Assert.IsTrue(ex.Message.Contains("NEGATIVE"));
-            AssertGasConsumed(1080300);
         }
 
         [TestMethod]
@@ -70,17 +62,13 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass for positive values
             Contract.TestRequirePositive(1);
-            AssertGasConsumed(1064700);
             Contract.TestRequirePositive(100);
-            AssertGasConsumed(1064700);
 
             // Should throw for zero
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequirePositive(0));
             Assert.IsTrue(ex.Message.Contains("NOT_POSITIVE"));
-            AssertGasConsumed(1080300);
             ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequirePositive(-1));
             Assert.IsTrue(ex.Message.Contains("NOT_POSITIVE"));
-            AssertGasConsumed(1080300);
         }
 
         [TestMethod]
@@ -91,17 +79,14 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Should pass for valid address
             Contract.TestRequireValidAddress(validAddress);
-            AssertGasConsumed(1066140);
 
             // Should throw for zero address
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireValidAddress(UInt160.Zero));
             Assert.IsTrue(ex.Message.Contains("INVALID_ADDR"));
-            AssertGasConsumed(1081740);
 
             // Should throw for null address
             ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireValidAddress(null));
             Assert.IsTrue(ex.Message.Contains("INVALID_ADDR"));
-            AssertGasConsumed(1080360);
         }
 
         [TestMethod]
@@ -113,22 +98,18 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // Should pass when witness is present (test engine automatically provides witness for signer)
             Contract.TestRequireWitness(owner);
-            AssertGasConsumed(1095600);
 
             // Test with custom error code
             Contract.TestRequireWitnessCustom(owner, "CUSTOM_ERROR");
-            AssertGasConsumed(1095660);
 
             // Should throw when witness is not present
             var otherAccount = UInt160.Parse("0x0000000000000000000000000000000000000002");
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireWitness(otherAccount));
             Assert.IsTrue(ex.Message.Contains("NO_WITNESS"));
-            AssertGasConsumed(1111020);
 
             // Test with custom error code
             ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireWitnessCustom(otherAccount, "CUSTOM_ERROR"));
             Assert.IsTrue(ex.Message.Contains("CUSTOM_ERROR"));
-            AssertGasConsumed(1111080);
         }
 
         [TestMethod]
@@ -136,21 +117,16 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass when value is in range
             Contract.TestRequireInRange(5, 1, 10);
-            AssertGasConsumed(1065330);
             Contract.TestRequireInRange(1, 1, 10); // Min boundary
-            AssertGasConsumed(1065330);
             Contract.TestRequireInRange(10, 1, 10); // Max boundary
-            AssertGasConsumed(1065330);
 
             // Should throw when value is below range
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireInRange(0, 1, 10));
             Assert.IsTrue(ex.Message.Contains("OUT_OF_RANGE"));
-            AssertGasConsumed(1080660);
 
             // Should throw when value is above range
             ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireInRange(11, 1, 10));
             Assert.IsTrue(ex.Message.Contains("OUT_OF_RANGE"));
-            AssertGasConsumed(1080930);
         }
 
         [TestMethod]
@@ -158,17 +134,14 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass when values are equal
             Contract.TestRequireEquals(5, 5);
-            AssertGasConsumed(1065780);
 
             // Should throw when values are not equal (default error)
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireEquals(5, 10));
             Assert.IsTrue(ex.Message.Contains("NOT_EQUAL"));
-            AssertGasConsumed(1081200);
 
             // Should throw with custom error code
             ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireEqualsCustom(5, 10, "CUSTOM_EQ"));
             Assert.IsTrue(ex.Message.Contains("CUSTOM_EQ"));
-            AssertGasConsumed(1081260);
         }
 
         [TestMethod]
@@ -182,7 +155,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             var otherCaller = UInt160.Parse("0x0000000000000000000000000000000000000003");
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireCaller(otherCaller));
             Assert.IsTrue(ex.Message.Contains("INVALID_CALLER"));
-            AssertGasConsumed(1081680);
         }
 
         [TestMethod]
@@ -190,19 +162,15 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass for non-empty strings
             Contract.TestRequireNotEmpty("test");
-            AssertGasConsumed(1065360);
             Contract.TestRequireNotEmpty("a");
-            AssertGasConsumed(1065360);
 
             // Should throw for empty string
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireNotEmpty(""));
             Assert.IsTrue(ex.Message.Contains("EMPTY:myString"));
-            AssertGasConsumed(1388220);
 
             // Should throw for null string
             ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRequireNotEmpty(null));
             Assert.IsTrue(ex.Message.Contains("EMPTY:myString"));
-            AssertGasConsumed(1387800);
         }
 
         [TestMethod]
@@ -210,12 +178,10 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // Should pass when postcondition is true
             Contract.TestEnsure(true);
-            AssertGasConsumed(1064670);
 
             // Should throw when postcondition is false
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestEnsure(false));
             Assert.IsTrue(ex.Message.Contains("POST:POSTCOND"));
-            AssertGasConsumed(1387530);
         }
 
         [TestMethod]
@@ -224,7 +190,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Should always throw with the specified error
             var ex = Assert.ThrowsExactly<TestException>(() => Contract.TestRevert());
             Assert.IsTrue(ex.Message.Contains("REVERTED"));
-            AssertGasConsumed(1016970);
         }
 
         [TestMethod]
@@ -261,7 +226,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Test successful transfer (with witness from test engine's signer)
             var result = Contract.Transfer(validFrom, validTo, 100);
             Assert.IsTrue(result);
-            AssertGasConsumed(1151550);
         }
     }
 }

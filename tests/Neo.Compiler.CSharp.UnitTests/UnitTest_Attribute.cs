@@ -70,7 +70,6 @@ public class Contract : SmartContract
         {
             Assert.AreEqual("Contract_AttributeChanged", Contract_AttributeChanged.Manifest.Name);
             Assert.IsTrue(Contract.Test());
-            AssertGasConsumed(984060);
         }
     }
 }

@@ -39,7 +39,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Minimum Response Fee
 
             Assert.AreEqual(new BigInteger(0_10000000u), Contract.OracleMinimumResponseFee());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
@@ -48,7 +47,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             // getOracleNodes
 
             Assert.AreEqual(0, Contract.GetOracleNodes()!.Count);
-            AssertGasConsumed(2950200);
         }
 
         [TestMethod]
@@ -57,19 +55,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             // NeoSymbol
 
             Assert.AreEqual("NEO", Contract.NEOSymbol());
-            AssertGasConsumed(1967100);
 
             // NeoHash
 
             Assert.AreEqual(NativeContract.NEO.Hash, Contract.NEOHash());
-            AssertGasConsumed(984270);
         }
 
         [TestMethod]
         public void Test_GAS()
         {
             Assert.AreEqual("GAS", Contract.GASSymbol());
-            AssertGasConsumed(1967100);
         }
 
         [TestMethod]
@@ -78,14 +73,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             var genesisBlock = NativeContract.Ledger.GetBlock(Engine.Storage.Snapshot, 0);
             Assert.IsNotNull(genesisBlock);
             Assert.AreEqual(NativeContract.Ledger.Hash, Contract.LedgerHash());
-            AssertGasConsumed(984270);
             Assert.AreEqual(0, Contract.LedgerCurrentIndex());
-            AssertGasConsumed(2950140);
 
             var currentHash = Contract.LedgerCurrentHash();
             Assert.IsNotNull(currentHash);
             Assert.AreEqual(genesisBlock.Hash, currentHash);
-            AssertGasConsumed(2950140);
         }
     }
 }

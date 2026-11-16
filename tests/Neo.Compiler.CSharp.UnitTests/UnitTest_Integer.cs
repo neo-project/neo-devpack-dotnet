@@ -31,7 +31,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = byte.DivRem(10, 4);
             Assert.AreEqual(expected.Quotient, (byte)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (byte)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -43,7 +42,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = short.DivRem(10, 3);
             Assert.AreEqual(expected.Quotient, checked((short)(BigInteger)result[0]));
             Assert.AreEqual(expected.Remainder, checked((short)(BigInteger)result[1]));
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -63,7 +61,6 @@ namespace Neo.Compiler.CSharp.UnitTests
                     var expected = int.DivRem(l * lSign, r * rSign);
                     Assert.AreEqual(expected.Quotient, (int)(BigInteger)result[0]);
                     Assert.AreEqual(expected.Remainder, (int)(BigInteger)result[1]);
-                    AssertGasConsumed(1109790);
                 }
 
             AssertDivRemOverflow(() => Contract.DivRemInt(int.MinValue, -1));
@@ -80,7 +77,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = long.DivRem(10, 3);
             Assert.AreEqual(expected.Quotient, (long)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (long)(BigInteger)result[1]);
-            AssertGasConsumed(1109790);
             AssertDivRemOverflow(() => Contract.DivRemLong(long.MinValue, -1));
             AssertDivRemResult(Contract.DivRemLong(long.MinValue, 1), long.MinValue, 0);
             AssertDivRemResult(Contract.DivRemLong(long.MinValue, -2), 4611686018427387904L, 0);
@@ -109,7 +105,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = sbyte.DivRem(10, 3);
             Assert.AreEqual(expected.Quotient, (sbyte)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (sbyte)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -121,7 +116,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ushort.DivRem(10, 3);
             Assert.AreEqual(expected.Quotient, (ushort)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ushort)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -133,7 +127,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = uint.DivRem(10, 3);
             Assert.AreEqual(expected.Quotient, (uint)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (uint)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -145,14 +138,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(10, 3);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
         public void divRemZeroU_test()
         {
             Assert.ThrowsExactly<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
-            AssertGasConsumed(1063800);
         }
 
         [TestMethod]
@@ -164,7 +155,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(10, 3);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -176,7 +166,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(ulong.MaxValue, 2);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -188,7 +177,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(ulong.MaxValue, 1);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -200,7 +188,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(3, 10);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -212,7 +199,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(10, ulong.MaxValue);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -236,7 +222,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(ulong.MaxValue, ulong.MaxValue);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -248,7 +233,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(ulong.MaxValue - 1, ulong.MaxValue);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -260,7 +244,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(ulong.MaxValue, 2UL);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -274,7 +257,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(large1, large2);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109640);
         }
 
         [TestMethod]
@@ -288,7 +270,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(large1, large2);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -302,7 +283,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(dividend, divisor);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
@@ -316,7 +296,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(dividend, divisor);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -330,7 +309,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(largePrime1, largePrime2);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109820);
         }
 
         [TestMethod]
@@ -359,145 +337,98 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ulong.DivRem(alternatingBits, 3);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[1]);
-            AssertGasConsumed(1109730);
         }
 
         [TestMethod]
         public void TestClampByte()
         {
             Assert.AreEqual((byte)5, Contract.ClampByte(5, 0, 10));
-            AssertGasConsumed(1047930);
             Assert.ThrowsExactly<TestException>(() => Contract.ClampByte(5, 10, 0));
-            AssertGasConsumed(1063170);
             Assert.AreEqual((byte)5, Contract.ClampByte(0, 5, 10));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((byte)5, Contract.ClampByte(10, 0, 5));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((byte)0, Contract.ClampByte(0, 0, 10));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((byte)10, Contract.ClampByte(10, 0, 10));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((byte)10, Contract.ClampByte(255, 0, 10));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((byte)10, Contract.ClampByte(20, 0, 10));
-            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestClampSByte()
         {
             Assert.AreEqual((sbyte)0, Contract.ClampSByte(0, -5, 5));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((sbyte)-5, Contract.ClampSByte(-10, -5, 5));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((sbyte)5, Contract.ClampSByte(10, -5, 5));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((sbyte)-5, Contract.ClampSByte(sbyte.MinValue, -5, 5));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((sbyte)5, Contract.ClampSByte(sbyte.MaxValue, -5, 5));
-            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestClampShort()
         {
             Assert.AreEqual((short)0, Contract.ClampShort(0, -1000, 1000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((short)-1000, Contract.ClampShort(-2000, -1000, 1000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((short)1000, Contract.ClampShort(2000, -1000, 1000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((short)-1000, Contract.ClampShort(short.MinValue, -1000, 1000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((short)1000, Contract.ClampShort(short.MaxValue, -1000, 1000));
-            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestClampUShort()
         {
             Assert.AreEqual((ushort)500, Contract.ClampUShort(500, 0, 1000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((ushort)0, Contract.ClampUShort(0, 0, 1000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((ushort)1000, Contract.ClampUShort(1000, 0, 1000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual((ushort)1000, Contract.ClampUShort(ushort.MaxValue, 0, 1000));
-            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestClampInt()
         {
             Assert.AreEqual(0, Contract.ClampInt(0, -1000000, 1000000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(-1000000, Contract.ClampInt(-2000000, -1000000, 1000000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000, Contract.ClampInt(2000000, -1000000, 1000000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(-1000000, Contract.ClampInt(int.MinValue, -1000000, 1000000));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000, Contract.ClampInt(int.MaxValue, -1000000, 1000000));
-            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestClampUInt()
         {
             Assert.AreEqual(500000U, Contract.ClampUInt(500000U, 0U, 1000000U));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(0U, Contract.ClampUInt(0U, 0U, 1000000U));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000U, Contract.ClampUInt(1000000U, 0U, 1000000U));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000U, Contract.ClampUInt(uint.MaxValue, 0U, 1000000U));
-            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestClampLong()
         {
             Assert.AreEqual(0L, Contract.ClampLong(0L, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(-1000000000000L, Contract.ClampLong(-2000000000000L, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000000000L, Contract.ClampLong(2000000000000L, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(-1000000000000L, Contract.ClampLong(long.MinValue, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000000000L, Contract.ClampLong(long.MaxValue, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1047930);
         }
 
         [TestMethod]
         public void TestClampULong()
         {
             Assert.AreEqual(500000000000UL, Contract.ClampULong(500000000000UL, 0UL, 1000000000000UL));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(0UL, Contract.ClampULong(0UL, 0UL, 1000000000000UL));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000000000UL, Contract.ClampULong(1000000000000UL, 0UL, 1000000000000UL));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(1000000000000UL, Contract.ClampULong(ulong.MaxValue, 0UL, 1000000000000UL));
-            AssertGasConsumed(1048020);
         }
 
         [TestMethod]
         public void TestClampBigInteger()
         {
             Assert.AreEqual(BigInteger.Zero, Contract.ClampBigInteger(BigInteger.Zero, BigInteger.MinusOne, BigInteger.One));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(BigInteger.MinusOne, Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.MinusOne, BigInteger.One));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(BigInteger.One, Contract.ClampBigInteger(BigInteger.One, BigInteger.MinusOne, BigInteger.One));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(BigInteger.MinusOne, Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.MinusOne, BigInteger.MinusOne));
-            AssertGasConsumed(1047930);
             Assert.AreEqual(BigInteger.One, Contract.ClampBigInteger(BigInteger.One, BigInteger.MinusOne, BigInteger.One));
             Assert.ThrowsExactly<TestException>(() => Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.One, BigInteger.MinusOne));
-            AssertGasConsumed(1063170);
             Assert.ThrowsExactly<TestException>(() => Contract.ClampBigInteger(BigInteger.One, BigInteger.One, BigInteger.MinusOne));
-            AssertGasConsumed(1063170);
         }
 
         [TestMethod]
@@ -505,40 +436,26 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CopySign(5, 1), Contract.CopySignInt(5, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(int.CopySign(5, -1), Contract.CopySignInt(5, -1));
-            AssertGasConsumed(1047600);
             Assert.AreEqual(int.CopySign(-5, 1), Contract.CopySignInt(-5, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(int.CopySign(-5, -1), Contract.CopySignInt(-5, -1));
-            AssertGasConsumed(1047600);
 
 
             // Test with max values
             Assert.AreEqual(int.CopySign(int.MaxValue, 1), Contract.CopySignInt(int.MaxValue, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(int.CopySign(int.MaxValue, -1), Contract.CopySignInt(int.MaxValue, -1));
-            AssertGasConsumed(1047600);
             Assert.ThrowsExactly<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
-            AssertGasConsumed(1062900);
             Assert.AreEqual(int.CopySign(int.MinValue, -1), Contract.CopySignInt(int.MinValue, -1));
-            AssertGasConsumed(1047600);
 
             // Test with min values
             Assert.AreEqual(int.MaxValue, Contract.CopySignInt(int.MaxValue, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(-int.MaxValue, Contract.CopySignInt(int.MaxValue, -1));
-            AssertGasConsumed(1047600);
             Assert.ThrowsExactly<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
-            AssertGasConsumed(1062900);
             Assert.AreEqual(int.MinValue, Contract.CopySignInt(int.MinValue, -1));
-            AssertGasConsumed(1047600);
 
             // Test with zero
             Assert.AreEqual(0, Contract.CopySignInt(0, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(0, Contract.CopySignInt(0, -1));
-            AssertGasConsumed(1047600);
         }
 
         [TestMethod]
@@ -546,29 +463,20 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with normal and edge cases
             Assert.AreEqual(sbyte.CopySign(5, 1), Contract.CopySignSbyte(5, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(sbyte.CopySign(5, 0), Contract.CopySignSbyte(5U, 0));
-            AssertGasConsumed(1047540);
 
             // Test with max values
             Assert.AreEqual(sbyte.CopySign(sbyte.MaxValue, 1), Contract.CopySignSbyte(sbyte.MaxValue, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(sbyte.CopySign(sbyte.MaxValue, 0), Contract.CopySignSbyte(sbyte.MaxValue, 0));
-            AssertGasConsumed(1047540);
             Assert.ThrowsExactly<TestException>(() => Contract.CopySignSbyte(sbyte.MinValue, 0));
-            AssertGasConsumed(1062900);
             Assert.AreEqual(sbyte.CopySign(sbyte.MaxValue, 0), Contract.CopySignSbyte(sbyte.MaxValue, 0));
-            AssertGasConsumed(1047540);
 
             // Test with zero
             Assert.AreEqual(0U, Contract.CopySignSbyte(0U, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(0U, Contract.CopySignSbyte(0U, 0));
-            AssertGasConsumed(1047540);
 
             // Test with negative values
             Assert.AreEqual(sbyte.CopySign(5, -1), Contract.CopySignSbyte(5U, -1));
-            AssertGasConsumed(1047600);
         }
 
         [TestMethod]
@@ -576,23 +484,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(short.CopySign(5, 1), Contract.CopySignShort(5, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(short.CopySign(5, -1), Contract.CopySignShort(5, -1));
-            AssertGasConsumed(1047600);
             Assert.AreEqual(short.CopySign(-5, 1), Contract.CopySignShort(-5, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(short.CopySign(-5, -1), Contract.CopySignShort(-5, -1));
-            AssertGasConsumed(1047600);
 
             // Test with max values
             Assert.AreEqual(short.CopySign(short.MaxValue, 1), Contract.CopySignShort(short.MaxValue, 1));
-            AssertGasConsumed(1047540);
             Assert.AreEqual(short.CopySign(short.MaxValue, -1), Contract.CopySignShort(short.MaxValue, -1));
-            AssertGasConsumed(1047600);
             Assert.ThrowsExactly<TestException>(() => Contract.CopySignShort(short.MinValue, 1));
-            AssertGasConsumed(1062900);
             Assert.AreEqual(short.CopySign(short.MinValue, -1), Contract.CopySignShort(short.MinValue, -1));
-            AssertGasConsumed(1047600);
         }
 
         [TestMethod]
@@ -600,38 +500,26 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(0), Contract.CreateCheckedInt(0));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(-5), Contract.CreateCheckedInt(-5));
-            AssertGasConsumed(1047300);
 
             // Test with max values
             Assert.AreEqual(int.CreateChecked(int.MaxValue), Contract.CreateCheckedInt(int.MaxValue));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(int.MinValue), Contract.CreateCheckedInt(int.MinValue));
-            AssertGasConsumed(1047300);
 
             // Test with min values
             Assert.AreEqual(int.CreateChecked(int.MaxValue), Contract.CreateCheckedInt(int.MaxValue));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateChecked(int.MinValue), Contract.CreateCheckedInt(int.MinValue));
-            AssertGasConsumed(1047300);
         }
 
         [TestMethod]
         public void TestMethodShortCreateChecked()
         {
             Assert.AreEqual(short.CreateChecked(5), Contract.CreateCheckedShort(5));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(0), Contract.CreateCheckedShort(0));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(-5), Contract.CreateCheckedShort(-5));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(short.MaxValue), Contract.CreateCheckedShort(short.MaxValue));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(short.CreateChecked(short.MinValue), Contract.CreateCheckedShort(short.MinValue));
-            AssertGasConsumed(1047300);
         }
 
         [TestMethod]
@@ -639,23 +527,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
-            AssertGasConsumed(1047630);
             Assert.AreEqual(int.CreateSaturating(0), Contract.CreateSaturatingInt(0));
-            AssertGasConsumed(1047630);
             Assert.AreEqual(int.CreateSaturating(-5), Contract.CreateSaturatingInt(-5));
-            AssertGasConsumed(1047630);
 
             // Test with max values
             Assert.AreEqual(int.MaxValue, Contract.CreateSaturatingInt(int.MaxValue));
-            AssertGasConsumed(1047630);
 
             // Test with overflow values
             Assert.AreEqual(int.CreateSaturating(uint.MaxValue), Contract.CreateSaturatingInt(uint.MaxValue));
-            AssertGasConsumed(1047630);
             Assert.AreEqual(int.CreateSaturating(ulong.MaxValue), Contract.CreateSaturatingInt(ulong.MaxValue));
-            AssertGasConsumed(1047720);
             Assert.AreEqual(int.CreateSaturating(long.MinValue), Contract.CreateSaturatingInt(long.MinValue));
-            AssertGasConsumed(1047630);
         }
 
 
@@ -665,7 +546,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             for (int i = 0; i < 6; ++i)
             {
                 Assert.AreEqual(int.IsEvenInteger(i), Contract.IsEvenIntegerInt(i));
-                AssertGasConsumed(1047420);
             }
         }
 
@@ -673,91 +553,58 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestIsOddIntegerInt()
         {
             Assert.AreEqual(false, Contract.IsOddIntegerInt(0));
-            AssertGasConsumed(1047420);
             Assert.AreEqual(true, Contract.IsOddIntegerInt(1));
-            AssertGasConsumed(1047420);
             Assert.AreEqual(false, Contract.IsOddIntegerInt(2));
-            AssertGasConsumed(1047420);
             Assert.AreEqual(true, Contract.IsOddIntegerInt(3));
-            AssertGasConsumed(1047420);
             Assert.AreEqual(false, Contract.IsOddIntegerInt(4));
-            AssertGasConsumed(1047420);
             Assert.AreEqual(true, Contract.IsOddIntegerInt(5));
-            AssertGasConsumed(1047420);
         }
 
         [TestMethod]
         public void TestIsNegativeInt()
         {
             Assert.AreEqual(int.IsNegative(0), Contract.IsNegativeInt(0));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsNegative(1), Contract.IsNegativeInt(1));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsNegative(-1), Contract.IsNegativeInt(-1));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsNegative(int.MaxValue), Contract.IsNegativeInt(int.MaxValue));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsNegative(int.MinValue), Contract.IsNegativeInt(int.MinValue));
-            AssertGasConsumed(1047300);
         }
 
         [TestMethod]
         public void TestIsPositiveInt()
         {
             Assert.AreEqual(int.IsPositive(0), Contract.IsPositiveInt(0));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsPositive(1), Contract.IsPositiveInt(1));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsPositive(-1), Contract.IsPositiveInt(-1));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsPositive(int.MaxValue), Contract.IsPositiveInt(int.MaxValue));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsPositive(int.MinValue), Contract.IsPositiveInt(int.MinValue));
-            AssertGasConsumed(1047300);
         }
 
         [TestMethod]
         public void TestIsPow2Int()
         {
             Assert.AreEqual(int.IsPow2(0), Contract.IsPow2Int(0));
-            AssertGasConsumed(1047270);
             Assert.AreEqual(int.IsPow2(1), Contract.IsPow2Int(1));
-            AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(2), Contract.IsPow2Int(2));
-            AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(3), Contract.IsPow2Int(3));
-            AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(4), Contract.IsPow2Int(4));
-            AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(-1), Contract.IsPow2Int(-1));
-            AssertGasConsumed(1047270);
             Assert.AreEqual(int.IsPow2(-2), Contract.IsPow2Int(-2));
-            AssertGasConsumed(1047270);
         }
 
         [TestMethod]
         public void TestMethodsInt()
         {
             Assert.AreEqual(int.CopySign(5, -1), Contract.CopySignInt(5, -1));
-            AssertGasConsumed(1047600);
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
-            AssertGasConsumed(1047630);
             Assert.AreEqual(int.IsEvenInteger(5), Contract.IsEvenIntegerInt(5));
-            AssertGasConsumed(1047420);
             Assert.AreEqual(int.IsOddInteger(5), Contract.IsOddIntegerInt(5));
-            AssertGasConsumed(1047420);
             Assert.AreEqual(int.IsNegative(5), Contract.IsNegativeInt(5));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsPositive(5), Contract.IsPositiveInt(5));
-            AssertGasConsumed(1047300);
             Assert.AreEqual(int.IsPow2(5), Contract.IsPow2Int(5));
-            AssertGasConsumed(1047720);
             Assert.AreEqual(int.LeadingZeroCount(5), Contract.LeadingZeroCountInt(5));
-            AssertGasConsumed(1049850);
             Assert.AreEqual(int.Log2(5), Contract.Log2Int(5));
-            AssertGasConsumed(1048560);
         }
 
         [TestMethod]

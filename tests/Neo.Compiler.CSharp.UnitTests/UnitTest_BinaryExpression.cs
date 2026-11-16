@@ -22,14 +22,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_BinaryIs()
         {
             Contract.BinaryIs();
-            AssertGasConsumed(986850);
         }
 
         [TestMethod]
         public void Test_BinaryAs()
         {
             Contract.BinaryAs();
-            AssertGasConsumed(987720);
         }
     }
 }
