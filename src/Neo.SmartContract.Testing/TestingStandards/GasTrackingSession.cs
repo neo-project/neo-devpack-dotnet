@@ -237,7 +237,11 @@ namespace Neo.SmartContract.Testing.TestingStandards
                 {
                     if (method.GetCustomAttribute<TestMethodAttribute>() is null) continue;
                     var key = type.FullName + "." + method.Name;
-                    if (method.GetCustomAttribute<IgnoreAttribute>() is not null || type.GetCustomAttribute<IgnoreAttribute>() is not null) continue;
+                    if (method.GetCustomAttribute<IgnoreAttribute>() is not null || type.GetCustomAttribute<IgnoreAttribute>() is not null)
+                    {
+                        ignored.Add(key);
+                        continue;
+                    }
 
                     var sources = method.GetCustomAttributes().OfType<ITestDataSource>().ToArray();
                     var conditional = method.GetCustomAttributes().Concat(type.GetCustomAttributes()).Any(a => a is ConditionBaseAttribute);
