@@ -511,9 +511,12 @@ internal partial class MethodConvert
         ITypeSymbol? resultType = null;
         if (value is not null)
         {
-            var convertedType = model.GetTypeInfo(value).ConvertedType;
-            if (model.GetConversion(value).IsUserDefined || IsNullableValueType(convertedType))
-                resultType = convertedType;
+            var typeInfo = model.GetTypeInfo(value);
+            var conversion = model.GetConversion(value);
+            if (conversion.IsUserDefined || IsNullableValueType(typeInfo.ConvertedType))
+                resultType = typeInfo.ConvertedType;
+            else if (conversion.IsBoxing && IsNullableValueType(typeInfo.Type))
+                resultType = typeInfo.Type;
         }
         EmitLiftedUnaryOperation(resultType, () => CopyStructValue(type));
     }

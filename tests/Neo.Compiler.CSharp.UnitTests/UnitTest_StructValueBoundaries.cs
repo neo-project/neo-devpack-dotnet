@@ -63,6 +63,12 @@ public class UnitTest_StructValueBoundaries
     [DataRow("Point? value = null; Point? copy = (Point?)value; return copy == null ? 0 : 1;", 0)]
     [DataRow("object boxed = new Point { X = 7 }; ((Point)boxed).SetX(99); return ((Point)boxed).X;", 7)]
     [DataRow("object boxed = new Point { X = 7 }; Point? copy = (Point?)boxed; ((Point)copy).SetX(99); return ((Point)boxed).X;", 7)]
+    [DataRow("Point? value = null; object boxed = value; return boxed == null ? 0 : 1;", 0)]
+    [DataRow("Point? value = null; object boxed = (object)value; return boxed == null ? 0 : 1;", 0)]
+    [DataRow("Point? value = null; object boxed = 1; boxed = value; return boxed == null ? 0 : 1;", 0)]
+    [DataRow("Point? value = null; return IsNull(value);", 0)]
+    [DataRow("return BoxNullable(null) == null ? 0 : 1;", 0)]
+    [DataRow("Point? value = new Point { X = 7 }; return ((Point)BoxNullable(value)).X;", 7)]
     public void StructCopiesRemainIndependentAcrossBoundaries(string body, int expected)
     {
         foreach (var optimization in new[] { CompilationOptions.OptimizationType.None, CompilationOptions.OptimizationType.Basic, CompilationOptions.OptimizationType.All })
@@ -87,6 +93,8 @@ public class UnitTest_StructValueBoundaries
                         public static implicit operator int(MutatingAmount value) { int result = value.Value; value.Value = 99; return result; }
                     }
                     public struct Pair { public int First; public int Second; }
+                    private static int IsNull(object value) => value == null ? 0 : 1;
+                    private static object BoxNullable(Point? value) => value;
                     private static int ReadInt(int value) => value;
                     private static int ReadPair(Pair value) => value.First * 100 + value.Second;
                     private static int ReturnInt() { Amount a = new Amount { Value = 7 }; return a; }
