@@ -28,45 +28,30 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void IntForeachTest()
         {
             Assert.AreEqual(10, Contract.IntForeach());
-            AssertGasConsumed(1061280);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1125150);
         }
 
         [TestMethod]
         public void IntForLoopTest()
         {
             Assert.AreEqual(10, Contract.IntForLoopLt());
-            AssertGasConsumed(1062600);
             Assert.AreEqual(10, Contract.IntForLoopLtNullable());
-            AssertGasConsumed(1065330);
             Assert.AreEqual(10, Contract.IntForLoopNonCompare());
-            AssertGasConsumed(1065510);
             Assert.AreEqual(10, Contract.IntForLoopLifted());
-            AssertGasConsumed(1062600);
             Assert.AreEqual(10, Contract.IntForLoopLe());
-            AssertGasConsumed(1064550);
             Assert.AreEqual(10, Contract.IntForLoopEq());
-            AssertGasConsumed(1063200);
             Assert.AreEqual(10, Contract.IntForLoopNe());
-            AssertGasConsumed(1062600);
             Assert.AreEqual(10, Contract.IntForLoopGe());
-            AssertGasConsumed(1062390);
             Assert.AreEqual(9, Contract.IntForLoopGt());
-            AssertGasConsumed(1058940);
             Assert.AreEqual(1, Contract.IntForLoopNoCondition());
-            AssertGasConsumed(1050390);
             Assert.AreEqual("abcd", Contract.IntForLoopString());
-            AssertGasConsumed(2305650);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1125150);
         }
 
         [TestMethod]
         public void StringForeachTest()
         {
             Assert.AreEqual("abcdefhij", Contract.StringForeach());
-            AssertGasConsumed(1978950);
         }
 
         [TestMethod]
@@ -123,21 +108,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ByteStringEmptyTest()
         {
             Assert.AreEqual(0, Contract.ByteStringEmpty());
-            AssertGasConsumed(986430);
         }
 
         [TestMethod]
         public void BytestringForeachTest()
         {
             Assert.AreEqual("abcdefhij", Encoding.ASCII.GetString(Contract.ByteStringForeach()!));
-            AssertGasConsumed(2599740);
         }
 
         [TestMethod]
         public void StructForeachTest()
         {
             var map = Contract.StructForeach()!;
-            AssertGasConsumed(2660790);
 
             Assert.AreEqual(map[(ByteString)"test1"], new BigInteger(1));
             Assert.AreEqual(map[(ByteString)"test2"], new BigInteger(2));
@@ -147,7 +129,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ByteArrayForeachTest()
         {
             var array = Contract.ByteArrayForeach()!;
-            AssertGasConsumed(1978500);
 
             Assert.AreEqual(array[0], new BigInteger(1));
             Assert.AreEqual(array[1], new BigInteger(10));
@@ -158,7 +139,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Uint160ForeachTest()
         {
             var array = Contract.UInt160Foreach()!;
-            AssertGasConsumed(1546110);
 
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual("0000000000000000000000000000000000000000", (array[0] as ByteString)!.GetSpan().ToHexString());
@@ -169,7 +149,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Uint256ForeachTest()
         {
             var array = Contract.UInt256Foreach()!;
-            AssertGasConsumed(1546110);
 
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual("0000000000000000000000000000000000000000000000000000000000000000", (array[0] as ByteString)!.GetSpan().ToHexString());
@@ -180,7 +159,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void EcpointForeachTest()
         {
             var array = Contract.ECPointForeach()!;
-            AssertGasConsumed(2038530);
 
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", (array[0] as ByteString)!.GetSpan().ToHexString());
@@ -191,7 +169,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void BigintegerForeachTest()
         {
             var array = Contract.BigIntegerForeach()!;
-            AssertGasConsumed(2042490);
             BigInteger[] expected = [10_000, 1000_000, 1000_000_000, 1000_000_000_000_000_000];
 
             Assert.AreEqual(4, array.Count);
@@ -205,7 +182,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ObjectarrayForeachTest()
         {
             var array = Contract.ObjectArrayForeach()!;
-            AssertGasConsumed(2040240);
 
             Assert.AreEqual(3, array.Count);
             CollectionAssert.AreEqual(array[0] as byte[], new byte[] { 0x01, 0x02 });

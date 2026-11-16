@@ -1,0 +1,13 @@
+{
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestBool#1": 2399520,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestByteArray#1": 2645490,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestByteArray2#1": 3936270,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestClear#1": 2646030,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestCount#1": 2035260,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestDeserialize#1": 3874440,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestInt#1": 2399520,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestUInt160KeyDeserialize#1": 3813300,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestUnicode#1": 2399730,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestUnicodeKeyValue#1": 2399790,
+  "Neo.SmartContract.Framework.UnitTests.MapTest.TestUnicodeValue#1": 2399730
+}

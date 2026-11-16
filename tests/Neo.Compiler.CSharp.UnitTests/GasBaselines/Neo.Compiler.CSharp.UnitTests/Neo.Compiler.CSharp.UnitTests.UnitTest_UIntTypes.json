@@ -1,0 +1,12 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_ValidateAddress#1": 1048050,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_ValidateAddress#2": 1047450,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_ValidateAddress#3": 1047450,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_ValidateAddress#4": 1047450,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_ValidateAddress#5": 1047900,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_byte_array_construct#1": 1293450,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_equals_test#1": 1048440,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_equals_test#2": 1048440,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_equals_zero_test#1": 1048440,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_UIntTypes.UInt160_equals_zero_test#2": 1048440
+}

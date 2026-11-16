@@ -1,0 +1,21 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestBigIntegerDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestBooleanDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestByteDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestCharDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestClassDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestEnumDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestInt16Default#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestInt32Default#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestInt64Default#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestIntDefaultExpression#1": 984060,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestObjectDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestSByteDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestStringDefault#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestStructDefault#1": 1047570,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestStructDefaultExpression#1": 1045530,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestStructDefaultFieldAccess#1": 1049520,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestUInt16Default#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestUInt32Default#1": 986100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Default.TestUInt64Default#1": 986100
+}

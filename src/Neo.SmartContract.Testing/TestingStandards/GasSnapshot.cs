@@ -134,7 +134,7 @@ public sealed class GasSnapshot
         return report.ToString();
     }
 
-    private static string EscapeMarkdown(string name)
+    internal static string EscapeMarkdown(string name)
     {
         var escaped = name.Replace("&", "&amp;", StringComparison.Ordinal)
             .Replace("<", "&lt;", StringComparison.Ordinal)

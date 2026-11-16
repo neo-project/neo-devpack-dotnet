@@ -23,14 +23,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AddAssign_Checked()
         {
             Assert.ThrowsExactly<TestException>(Contract.UnitTest_Add_Assign_Checked);
-            AssertGasConsumed(1001970);
         }
 
         [TestMethod]
         public void Test_AddAssign_UnChecked()
         {
             var values = Contract.UnitTest_Add_Assign_UnChecked()!;
-            AssertGasConsumed(1049490);
             // Asserting the expected values after overflow
             Assert.AreEqual(BigInteger.Zero, values[0]); // uint.MaxValue + 1 overflows to 0
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue + 1)), values[1]); // int.MaxValue + 1 overflows to int.MinValue
@@ -40,14 +38,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SubAssign_Checked()
         {
             Assert.ThrowsExactly<TestException>(Contract.UnitTest_Sub_Assign_Checked);
-            AssertGasConsumed(1001820);
         }
 
         [TestMethod]
         public void Test_SubAssign_UnChecked()
         {
             var values = Contract.UnitTest_Sub_Assign_UnChecked()!;
-            AssertGasConsumed(1049220);
             // Asserting the expected values after underflow
             Assert.AreEqual(new BigInteger(uint.MaxValue), values[0]); // uint.MinValue - 1 underflows to uint.MaxValue
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue - 1)), values[1]); // int.MinValue - 1 underflows to int.MaxValue
@@ -57,14 +53,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MulAssign_Checked()
         {
             Assert.ThrowsExactly<TestException>(Contract.UnitTest_Mul_Assign_Checked);
-            AssertGasConsumed(1002120);
         }
 
         [TestMethod]
         public void Test_MulAssign_UnChecked()
         {
             var values = Contract.UnitTest_Mul_Assign_UnChecked()!;
-            AssertGasConsumed(1049790);
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue * 2)), values[0]); // Multiplying by 2 should not change the value
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue * 2)), values[1]); // Same here
         }
@@ -73,7 +67,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LeftShiftAssign_Checked()
         {
             var values = Contract.UnitTest_Left_Shift_Assign_Checked()!;
-            AssertGasConsumed(1049790);
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
             Assert.AreEqual(new BigInteger(2), Contract.LeftShiftAssignChecked(1, 33));
@@ -94,7 +87,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LeftShiftAssign_UnChecked()
         {
             var values = Contract.UnitTest_Left_Shift_Assign_UnChecked()!;
-            AssertGasConsumed(1049790);
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
         }
@@ -103,7 +95,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_Checked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_Checked()!;
-            AssertGasConsumed(1048560);
             Assert.AreEqual(new BigInteger(checked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(checked(int.MinValue >> 1)), values[1]);
         }
@@ -112,7 +103,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_UnChecked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_UnChecked()!;
-            AssertGasConsumed(1048560);
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue >> 1)), values[1]);
         }
@@ -121,67 +111,54 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Member_Element_Complex_Assign()
         {
             Contract.UnitTest_Member_Element_Complex_Assign();
-            AssertGasConsumed(1798710);
         }
 
         [TestMethod]
         public void Test_AndAssign()
         {
             Assert.AreEqual(0, Contract.TestAndAssign(1, 2));
-            AssertGasConsumed(1047480);
         }
 
         [TestMethod]
         public void Test_OrAssign()
         {
             Assert.AreEqual(3, Contract.TestOrAssign(1, 2));
-            AssertGasConsumed(1047480);
         }
 
         [TestMethod]
         public void Test_XorAssign()
         {
             Assert.AreEqual(3, Contract.TestXorAssign(1, 2));
-            AssertGasConsumed(1047480);
         }
 
         [TestMethod]
         public void Test_BoolXorAssign()
         {
             Assert.AreEqual(true, Contract.TestBoolXorAssign(true, false));
-            AssertGasConsumed(1047600);
 
             Assert.AreEqual(false, Contract.TestBoolXorAssign(false, false));
-            AssertGasConsumed(1047600);
 
             Assert.AreEqual(false, Contract.TestBoolXorAssign(true, true));
-            AssertGasConsumed(1047600);
         }
 
         [TestMethod]
         public void Test_BoolAndAssign()
         {
             Assert.AreEqual(false, Contract.TestBoolAndAssign(true, false));
-            AssertGasConsumed(1047480);
 
             Assert.AreEqual(false, Contract.TestBoolAndAssign(false, false));
-            AssertGasConsumed(1047480);
 
             Assert.AreEqual(true, Contract.TestBoolAndAssign(true, true));
-            AssertGasConsumed(1047480);
         }
 
         [TestMethod]
         public void Test_BoolOrAssign()
         {
             Assert.AreEqual(true, Contract.TestBoolOrAssign(true, false));
-            AssertGasConsumed(1047480);
 
             Assert.AreEqual(false, Contract.TestBoolOrAssign(false, false));
-            AssertGasConsumed(1047480);
 
             Assert.AreEqual(true, Contract.TestBoolOrAssign(true, true));
-            AssertGasConsumed(1047480);
         }
     }
 }

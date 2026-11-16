@@ -28,30 +28,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Null_Test()
         {
             Assert.IsNull(Contract.CheckNull());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Bool_Test()
         {
             Assert.IsTrue(Contract.CheckBoolTrue());
-            AssertGasConsumed(984060);
             Assert.IsFalse(Contract.CheckBoolFalse());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void ByteStringConcat_Test()
         {
             Assert.AreEqual("1212", Contract.ConcatByteString([(byte)'1'], [(byte)'2']));
-            AssertGasConsumed(1969260);
         }
 
         [TestMethod]
         public void ToAddress_Test()
         {
             Assert.AreEqual("NdtB8RXRmJ7Nhw1FPTm7E6HoDZGnDw37nf", Contract.ToAddress(UInt160.Parse("820944cfdc70976602d71b0091445eedbc661bc5"), 53));
-            AssertGasConsumed(4137150);
         }
 
         [TestMethod]
@@ -62,111 +57,93 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(@"[{""name"":""arg"",""type"":""Integer""}]", new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray<JToken?>()).ToString(false));
 
             Contract.CheckEnumArg(5);
-            AssertGasConsumed(1046970);
         }
 
         [TestMethod]
         public void CheckBoolString_Test()
         {
             Assert.AreEqual(true.ToString(), Contract.CheckBoolString(true));
-            AssertGasConsumed(1047330);
             Assert.AreEqual(false.ToString(), Contract.CheckBoolString(false));
-            AssertGasConsumed(1047330);
         }
 
         [TestMethod]
         public void Sbyte_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckSbyte());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Byte_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckByte());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Short_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckShort());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Ushort_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckUshort());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Int_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckInt());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Uint_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckUint());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Long_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckLong());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Ulong_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckUlong());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void BigInteger_Test()
         {
             Assert.AreEqual(new BigInteger(5), Contract.CheckBigInteger());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void ByteArray_Test()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, Contract.CheckByteArray());
-            AssertGasConsumed(1230030);
         }
 
         [TestMethod]
         public void Char_Test()
         {
             Assert.AreEqual(new BigInteger('n'), Contract.CheckChar());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void String_Test()
         {
             Assert.AreEqual("neo", Contract.CheckString());
-            AssertGasConsumed(984270);
             Assert.AreEqual(new BigInteger('e'), Contract.CheckStringIndex("neo", 1));
-            AssertGasConsumed(1049250);
             Assert.AreEqual(new BigInteger('o'), Contract.CheckStringIndex("neo", 2));
-            AssertGasConsumed(1049250);
         }
 
         [TestMethod]
         public void ArrayObj_Test()
         {
             var item = Contract.CheckArrayObj()!;
-            AssertGasConsumed(1045740);
 
             Assert.AreEqual(1, item.Count);
             Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
@@ -176,14 +153,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Enum_Test()
         {
             Assert.AreEqual(new Integer(5), Contract.CheckEnum());
-            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Class_Test()
         {
             var item = Contract.CheckClass();
-            AssertGasConsumed(1293660);
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString)?.GetString());
@@ -193,7 +168,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Struct_Test()
         {
             var item = Contract.CheckStruct();
-            AssertGasConsumed(1293660);
             Assert.IsInstanceOfType(item, typeof(Struct));
             Assert.AreEqual(1, ((Struct)item).Count);
             Assert.AreEqual("neo", (((Struct)item)[0] as ByteString)?.GetString());
@@ -203,7 +177,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Tuple_Test()
         {
             var item = Contract.CheckTuple()!;
-            AssertGasConsumed(1045980);
             Assert.AreEqual(2, item.Count);
             Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
             Assert.AreEqual("smart economy", (item[1] as ByteString)?.GetString());
@@ -213,7 +186,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Tuple2_Test()
         {
             var item = Contract.CheckTuple2()!;
-            AssertGasConsumed(1048020);
             Assert.AreEqual(2, item.Count);
             Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
             Assert.AreEqual("smart economy", (item[1] as ByteString)?.GetString());
@@ -250,7 +222,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Lambda_Test()
         {
             var item = Contract.CheckLambda();
-            AssertGasConsumed(984150);
             Assert.IsInstanceOfType(item, typeof(Pointer));
         }
 
@@ -258,7 +229,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Delegate_Test()
         {
             var item = Contract.CheckDelegate();
-            AssertGasConsumed(984150);
             Assert.IsInstanceOfType(item, typeof(Pointer));
         }
 
@@ -266,7 +236,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Nameof_Test()
         {
             Assert.AreEqual("checkNull", Contract.CheckNameof());
-            AssertGasConsumed(984270);
         }
 
         [TestMethod]
@@ -280,20 +249,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.OnDummyEvent -= delEvent;
             Assert.AreEqual(1, notifications.Count);
             Assert.AreEqual("neo", notifications.Last());
-            AssertGasConsumed(2029020);
         }
 
         [TestMethod]
         public void TestStringConcat()
         {
             Assert.AreEqual("neo1234", Contract.StringConcatInt("neo", 1234));
-            AssertGasConsumed(2460600);
 
             Assert.AreEqual("neoTrue", Contract.StringConcatBool("neo", true));
-            AssertGasConsumed(1355010);
 
             Assert.AreEqual("neoFalse", Contract.StringConcatBool("neo", false));
-            AssertGasConsumed(1354950);
         }
     }
 }

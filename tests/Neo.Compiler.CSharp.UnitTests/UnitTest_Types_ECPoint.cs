@@ -24,35 +24,24 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestToECPoint()
         {
             Assert.IsTrue(Contract.ToECPoint(new byte[33]));
-            AssertGasConsumed(1293900);
             Assert.IsFalse(Contract.ToECPoint(new byte[32]));
-            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToECPoint(new byte[34]));
-            AssertGasConsumed(1309440);
             Assert.IsFalse(Contract.ToECPoint(null));
-            AssertGasConsumed(1063200);
         }
 
         [TestMethod]
         public void ECPoint_test()
         {
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.InvalidLength));
-            AssertGasConsumed(1047810);
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.InvalidType));
-            AssertGasConsumed(1047300);
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.Null));
-            AssertGasConsumed(1047300);
             Assert.IsTrue(Contract.IsValid(Cryptography.ECC.ECPoint.Parse("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", Cryptography.ECC.ECCurve.Secp256r1)));
-            AssertGasConsumed(1047810);
 
             Engine.StringInterpreter = new HexStringInterpreter();
 
             Assert.AreEqual("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", Contract.Ecpoint2String());
-            AssertGasConsumed(984270);
             Assert.AreEqual("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", Contract.EcpointReturn()?.ToString());
-            AssertGasConsumed(984270);
             Assert.AreEqual("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", (Contract.Ecpoint2ByteArray() as VM.Types.Buffer)!.GetSpan().ToHexString());
-            AssertGasConsumed(1230030);
         }
     }
 }

@@ -1,0 +1,10 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_Designation#1": 2950200,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_GAS#1": 1967100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_Ledger#1": 984270,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_Ledger#2": 2950140,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_Ledger#3": 2950140,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_NEO#1": 1967100,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_NEO#2": 984270,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_NativeContracts.Test_Oracle#1": 984060
+}

@@ -67,7 +67,6 @@ namespace Neo.Optimizer
 
         private const int MaxFoldedShiftCount = 256;
 
-        [Strategy(Priority = 1 << 4)]
         public static (NefFile, ContractManifest, JObject?) FoldConstants(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);

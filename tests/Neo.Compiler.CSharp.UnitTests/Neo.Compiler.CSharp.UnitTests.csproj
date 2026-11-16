@@ -19,4 +19,8 @@
     <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="GasBaselines\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>

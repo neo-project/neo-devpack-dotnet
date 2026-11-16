@@ -1,0 +1,7 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ByteArrayAssignment.Test_ByteArrayAssignment#1": 1723830,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ByteArrayAssignment.Test_ByteArrayAssignmentDynamic#1": 1546590,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ByteArrayAssignment.Test_ByteArrayAssignmentOutOfBounds#1": 1723770,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ByteArrayAssignment.Test_ByteArrayAssignmentOverflow#1": 1478340,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ByteArrayAssignment.Test_ByteArrayAssignmentWrongCasting#1": 1478220
+}
