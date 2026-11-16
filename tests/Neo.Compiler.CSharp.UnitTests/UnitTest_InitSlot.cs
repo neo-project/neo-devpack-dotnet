@@ -107,6 +107,33 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void StaticFieldDependenciesInitializeBeforeDependents()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+
+                public class Store { public static string Who = "hello"; }
+                public class Gate { public static string Greet = Store.Who; }
+                public class Contract : SmartContract
+                {
+                    [DisplayName("getGreet")]
+                    public static string GetGreet() => Gate.Greet;
+
+                    [DisplayName("getWho")]
+                    public static string GetWho() => Store.Who;
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<StaticDependencyContract>(context.CreateExecutable(), context.CreateManifest());
+
+            Assert.AreEqual("hello", contract.GetGreet());
+            Assert.AreEqual("hello", contract.GetWho());
+        }
+
+        [TestMethod]
         public void EmitInitSlot_ForStaticFieldInitializerTemps()
         {
             const string source = """
@@ -283,6 +310,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             [DisplayName("get")]
             public abstract BigInteger? Get();
+        }
+
+        public abstract class StaticDependencyContract(SmartContractInitialize initialize)
+            : SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("getGreet")]
+            public abstract string? GetGreet();
+
+            [DisplayName("getWho")]
+            public abstract string? GetWho();
         }
 
         public abstract class LateDiscoveredInitializerContract(SmartContractInitialize initialize)

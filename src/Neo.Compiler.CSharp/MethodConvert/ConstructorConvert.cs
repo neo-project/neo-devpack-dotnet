@@ -71,6 +71,7 @@ internal partial class MethodConvert
     private void ProcessStaticFields(SemanticModel model)
     {
         HashSet<INamedTypeSymbol> initializedClasses = new(SymbolEqualityComparer.Default);
+        HashSet<INamedTypeSymbol> initializingClasses = new(SymbolEqualityComparer.Default);
         Dictionary<ITypeSymbol, int> initializedVTables = new(SymbolEqualityComparer.Default);
         int staticFieldInitializationStart = _instructions.Count;
         bool initializedAny;
@@ -137,7 +138,35 @@ internal partial class MethodConvert
 
             foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
             {
-                if (!initializedClasses.Add(@class)) continue;
+                InitializeClass(@class);
+            }
+        }
+        while (initializedAny);
+
+        void InitializeClass(INamedTypeSymbol @class)
+        {
+            if (initializedClasses.Contains(@class) || !initializingClasses.Add(@class)) return;
+
+            // A field initializer can read a static field in another class whose slot was
+            // allocated later. Initialize that class before emitting the dependent read.
+            foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
+            {
+                if (field.IsConst || !field.IsStatic || field.DeclaringSyntaxReferences.IsEmpty) continue;
+                if (field.DeclaringSyntaxReferences[0].GetSyntax() is not VariableDeclaratorSyntax { Initializer: { } initializer }) continue;
+
+                var assembly = (ISourceAssemblySymbol)field.ContainingAssembly;
+                SemanticModel initializerModel = assembly.Compilation.GetSemanticModel(initializer.SyntaxTree);
+                foreach (SyntaxNode node in initializer.Value.DescendantNodesAndSelf())
+                {
+                    if (initializerModel.GetSymbolInfo(node).Symbol is not IFieldSymbol { IsStatic: true, IsConst: false } dependency) continue;
+                    if (SymbolEqualityComparer.Default.Equals(dependency.ContainingType, @class)) continue;
+                    InitializeClass(dependency.ContainingType);
+                }
+            }
+
+            initializingClasses.Remove(@class);
+            if (initializedClasses.Add(@class))
+            {
                 initializedAny = true;
                 foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
@@ -150,6 +179,5 @@ internal partial class MethodConvert
                 }
             }
         }
-        while (initializedAny);
     }
 }
