@@ -15,7 +15,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -190,7 +189,6 @@ namespace Neo.Optimizer
             {
                 return op.OpCode switch
                 {
-                    OpCode.CAT => PushBytes([.. lb, .. rb]),
                     OpCode.EQUAL => PushBoolean(lb.SequenceEqual(rb)),
                     OpCode.NOTEQUAL => PushBoolean(!lb.SequenceEqual(rb)),
                     _ => null,
@@ -329,32 +327,6 @@ namespace Neo.Optimizer
                 <= 16 => 16,
                 _ => 32,
             };
-        }
-
-        private static VmInstruction? PushBytes(byte[] data)
-        {
-            if (data.Length <= byte.MaxValue)
-            {
-                byte[] operand = new byte[sizeof(byte) + data.Length];
-                operand[0] = (byte)data.Length;
-                Buffer.BlockCopy(data, 0, operand, sizeof(byte), data.Length);
-                return CreateInstruction(OpCode.PUSHDATA1, operand);
-            }
-            if (data.Length <= ushort.MaxValue)
-            {
-                byte[] operand = new byte[sizeof(ushort) + data.Length];
-                BinaryPrimitives.WriteUInt16LittleEndian(operand, (ushort)data.Length);
-                Buffer.BlockCopy(data, 0, operand, sizeof(ushort), data.Length);
-                return CreateInstruction(OpCode.PUSHDATA2, operand);
-            }
-            if (data.Length <= int.MaxValue)
-            {
-                byte[] operand = new byte[sizeof(uint) + data.Length];
-                BinaryPrimitives.WriteUInt32LittleEndian(operand, (uint)data.Length);
-                Buffer.BlockCopy(data, 0, operand, sizeof(uint), data.Length);
-                return CreateInstruction(OpCode.PUSHDATA4, operand);
-            }
-            return null;
         }
 
         /// <summary>

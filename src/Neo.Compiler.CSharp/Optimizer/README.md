@@ -116,13 +116,14 @@ Arithmetic constant folding runs as a separate strategy pass (see `ConstantFold.
 - **Bitwise folding**: `AND`, `OR`, `XOR`, `SHL`, `SHR` on constant pairs
 - **Comparison folding**: `NUMEQUAL`, `NUMNOTEQUAL`, `LT`, `LE`, `GT`, `GE` on constant pairs produce `PUSHT`/`PUSHF`
 - **Boolean folding**: `NOT` on a constant, `BOOLAND`/`BOOLOR` on constant boolean pairs
-- **Byte-string folding**: `CAT` of two constant byte strings, `SIZE` of a constant byte string, `EQUAL`/`NOTEQUAL` of constant byte strings
+- **Byte-string folding**: `SIZE` of a constant byte string, `EQUAL`/`NOTEQUAL` of constant byte strings
 - **Unary numeric folding**: `ABS` on constant integers
 
 **Notes**:
 - Runs after `InitStaticToConst`, so combinations of statically initialized fields (for example `static readonly int A = 7, B = 5; A + B`) are folded.
 - Runs before `FoldConstantConditionalJump`, so comparisons folded to `PUSHT`/`PUSHF` then feed constant-conditional jump folding.
 - Division by a constant zero is left unfolded to preserve the runtime fault.
+- `CAT` is left unfolded because its mutable `Buffer` result cannot be replaced by an immutable `ByteString` push.
 - Patterns whose operands or operation are jump or exception-handler targets are left unfolded.
 
 ## Usage

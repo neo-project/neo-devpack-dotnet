@@ -12,6 +12,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.Optimizer;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.VM;
 using System.Collections.Generic;
@@ -121,15 +123,11 @@ public class UnitTest_FoldConstantArithmetic
     }
 
     [TestMethod]
-    public void StringPairsAreFolded()
+    public void StringSizesAreFolded()
     {
         List<Neo.VM.Instruction> ops = OptimizedOps(CompilationOptions.OptimizationType.All);
         for (int i = 0; i + 2 < ops.Count; i++)
         {
-            Assert.IsFalse(
-                DataPush.Contains(ops[i].OpCode) && DataPush.Contains(ops[i + 1].OpCode)
-                && ops[i + 2].OpCode == OpCode.CAT,
-                $"constant byte strings followed by CAT were not folded at index {i}");
             Assert.IsFalse(
                 DataPush.Contains(ops[i].OpCode) && ops[i + 1].OpCode == OpCode.SIZE,
                 $"constant byte string followed by SIZE was not folded at index {i}");
@@ -177,6 +175,50 @@ public class UnitTest_FoldConstantArithmetic
         Assert.AreEqual(BigInteger.Pow(2, 200) + 1, contract.HugeSum());
         Assert.AreEqual("abcd", contract.Cat());
         Assert.AreEqual(2, contract.Len());
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void ConcatenationPreservesBufferTypeAndMutability(bool mutate)
+    {
+        using var builder = new ScriptBuilder();
+        builder.EmitPush(new byte[] { 1 });
+        builder.EmitPush(new byte[] { 2 });
+        builder.Emit(OpCode.CAT);
+        if (mutate)
+        {
+            builder.Emit(OpCode.DUP);
+            builder.EmitPush(0);
+            builder.EmitPush(9);
+            builder.Emit(OpCode.SETITEM);
+        }
+        builder.Emit(OpCode.RET);
+        var script = builder.ToArray();
+        var nef = new NefFile { Compiler = "test", Source = "", Tokens = [], Script = script };
+        var manifest = new ContractManifest
+        {
+            Name = "TestContract",
+            Groups = [],
+            SupportedStandards = [],
+            Permissions = [],
+            Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
+            Abi = new ContractAbi
+            {
+                Methods = [new ContractMethodDescriptor { Name = "main", Offset = 0, Parameters = [], ReturnType = ContractParameterType.ByteArray }],
+                Events = []
+            }
+        };
+        var (folded, _, _) = ConstantFold.FoldConstants(nef, manifest);
+        foreach (var code in new[] { nef.Script, folded.Script })
+        {
+            using var engine = new ExecutionEngine();
+            engine.LoadScript(code);
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            var result = engine.ResultStack.Pop();
+            Assert.AreEqual(Neo.VM.Types.StackItemType.Buffer, result.Type);
+            CollectionAssert.AreEqual(new byte[] { mutate ? (byte)9 : (byte)1, 2 }, result.GetSpan().ToArray());
+        }
     }
 
     public abstract class ContractArtifact(SmartContractInitialize initialize)
