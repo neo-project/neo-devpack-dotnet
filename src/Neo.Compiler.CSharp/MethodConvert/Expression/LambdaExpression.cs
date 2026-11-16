@@ -36,7 +36,7 @@ internal partial class MethodConvert
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
         var mc = _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
-        InvokeMethod(mc);
+        InvokeMethod(mc, model.GetTypeInfo(expression).ConvertedType);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ internal partial class MethodConvert
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
         var mc = _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
-        InvokeMethod(mc);
+        InvokeMethod(mc, model.GetTypeInfo(expression).ConvertedType);
     }
 
     /// <summary>
