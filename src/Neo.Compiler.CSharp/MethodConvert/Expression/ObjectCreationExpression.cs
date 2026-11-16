@@ -362,17 +362,16 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.SETITEM);
                     break;
                 case IPropertySymbol property:
-                    // Special handling for Map and List initialization is required due to their unique initialization syntax and behavior.
-                    // Map and List properties are not defined explicitly like regular types
+                    // The framework Map indexer writes directly to the VM map.
 
                     // Examples:
                     // Map: new Map<string, int> { ["key"] = 42 };
                     //      This is equivalent to: map["key"] = 42;
                     // Regular: new MyClass { Property = value };
                     //      This uses the standard property setter.
-                    if (property.ContainingType.Name is "Map")
+                    if (property.ContainingType.IsFrameworkType("Map", 2))
                     {
-                        // Duplicate the object reference for Map and List
+                        // Duplicate the map for the initializer and its result.
                         AddInstruction(OpCode.DUP);
 
                         if (ae.Left is ImplicitElementAccessSyntax elementAccess)
@@ -383,7 +382,7 @@ internal partial class MethodConvert
                         {
                             ConvertExpression(model, ae.Left);
                         }
-                        // Convert the value to be assigned (for both Map and List)
+                        // Convert the value to be assigned.
                         ConvertExpression(model, ae.Right);
                         AddInstruction(OpCode.SETITEM);
                     }
