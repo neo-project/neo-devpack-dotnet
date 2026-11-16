@@ -70,6 +70,7 @@ nccs MyContract.csproj --optimize all          # All optimizations
 **Purpose**: Pattern-based local optimizations that replace inefficient instruction sequences with more efficient equivalents.
 
 **Key Optimizations**:
+- **Push/drop removal** (`RemovePushDrop`): removes a stack-producing instruction whose result is immediately discarded by `DROP`
 - **Redundant DUP/DROP removal** (`RemoveDupDrop`): eliminates a `DUP` whose value is immediately dropped or overwritten
 - **Increment/decrement folding** (`UseIncDec`): rewrites `PUSH1 ADD` / `PUSH1 SUB` to `INC` / `DEC`
 - **Non-zero simplification** (`UseNz`): collapses compare-against-zero sequences
