@@ -251,7 +251,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
         private static bool DerivesFromTestBase(Type type)
         {
             for (var current = type.BaseType; current is not null; current = current.BaseType)
-                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(TestBase<>)) return true;
+                if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(TestBaseWithGasTracking<>)) return true;
             return false;
         }
 

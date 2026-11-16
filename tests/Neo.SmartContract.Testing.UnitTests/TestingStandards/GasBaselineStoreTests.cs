@@ -173,7 +173,7 @@ namespace Neo.SmartContract.Testing.UnitTests.TestingStandards
         public void VerifyPassesWhenUpToDateAndFailsOnIncreaseReductionNewAndStale()
         {
             Run(GasBaselineMode.Update, Inventory("A.T.B", "A.T.C"), Pass("A.T.B", 100), Pass("A.T.C", 50));
-            var snapshot = Directory.GetFiles(Baselines).ToDictionary(Path.GetFileName, File.ReadAllBytes);
+            var snapshot = Directory.GetFiles(Baselines).ToDictionary(f => Path.GetFileName(f)!, File.ReadAllBytes);
 
             Assert.IsEmpty(Run(GasBaselineMode.Verify, Inventory("A.T.B", "A.T.C"), Pass("A.T.B", 100), Pass("A.T.C", 50)).Errors);
 
