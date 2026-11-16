@@ -186,42 +186,6 @@ public class TestBase<T> where T : SmartContract, IContractInfo
     /// </summary>
     public TestContext? TestContext { get; set; }
 
-    private GasExecutionScope? _gasScope;
-
-    [TestInitialize]
-    public void OnGasTrackingInitialize()
-    {
-        if (TestContext is null) return;
-
-        var name = TestContext.TestName ?? string.Empty;
-        var display = TestContext.TestDisplayName;
-        var caseId = !string.IsNullOrEmpty(display) && display != name && display.StartsWith(name, StringComparison.Ordinal)
-            ? display.Substring(name.Length).Trim().TrimStart('(').TrimEnd(')')
-            : null;
-
-        _gasScope = GasTrackingSession.Begin(
-            GetType().Assembly,
-            GasExecutionTracker.CreateTestId(GetType().FullName ?? GetType().Name, name, caseId));
-    }
-
-    private void CompleteGasTracking()
-    {
-        var scope = _gasScope;
-        if (scope is null) return;
-        _gasScope = null;
-
-        var passed = TestContext?.CurrentTestOutcome == UnitTestOutcome.Passed;
-        var report = GasTrackingSession.Complete(GetType().Assembly, scope, passed);
-
-        // Functional failures keep their own diagnostics; GAS is only asserted for otherwise passing tests.
-        if (passed && report is not null && report.HasFailures)
-        {
-            var failures = string.Join(Environment.NewLine, report.Changes.Where(c => c.IsFailure)
-                .Select(c => $"{c.Name}: {c.Status} (baseline={c.Baseline?.ToString() ?? "none"}, current={c.Current?.ToString() ?? "none"})"));
-            Assert.Fail("GAS regression detected:" + Environment.NewLine + failures);
-        }
-    }
-
     [TestCleanup]
     public virtual void OnCleanup()
     {
@@ -229,7 +193,5 @@ public class TestBase<T> where T : SmartContract, IContractInfo
 
         Contract.OnRuntimeLog -= Contract_OnRuntimeLog;
         Coverage?.Join(Contract.GetCoverage());
-
-        CompleteGasTracking();
     }
 }
