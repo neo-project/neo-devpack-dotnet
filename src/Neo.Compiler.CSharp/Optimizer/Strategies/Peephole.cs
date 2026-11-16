@@ -156,6 +156,19 @@ namespace Neo.Optimizer
                     continue;
                 }
 
+                // PUSH0, PACK      -> NEWARRAY0, NOP
+                // PUSH0, NEWARRAY  -> NEWARRAY0, NOP
+                // PUSH0, NEWSTRUCT -> NEWSTRUCT0, NOP
+                // The second instruction cannot be a jump target here: targets start a new basic block.
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.UseEmptyCollectionOpcodes)
+                    && current.OpCode == OpCode.PUSH0 && GetEmptyCollectionReplacement(opcodes[index + 1]) is OpCode replacement)
+                {
+                    SetOpcode(index, replacement);
+                    SetOpcode(index + 1, OpCode.NOP);
+                    index++;
+                    continue;
+                }
+
                 // PUSHNULL, EQUAL    -> ISNULL, NOP
                 // PUSHNULL, NOTEQUAL -> ISNULL, NOT
                 if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.UseIsNull)
@@ -233,6 +246,14 @@ namespace Neo.Optimizer
             for (int index = 1; index <= count; index++)
                 script[address + index] = (byte)OpCode.NOP;
         }
+
+        private static OpCode? GetEmptyCollectionReplacement(OpCode second) => second switch
+        {
+            OpCode.PACK => OpCode.NEWARRAY0,
+            OpCode.NEWARRAY => OpCode.NEWARRAY0,
+            OpCode.NEWSTRUCT => OpCode.NEWSTRUCT0,
+            _ => null
+        };
 
         private static bool IsIntegerPush(Instruction instruction, int value)
         {
