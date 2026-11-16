@@ -436,6 +436,6 @@ internal partial class MethodConvert
         IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
         if (!symbol.IsStatic)
             throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {symbol}");
-        InvokeMethod(model, symbol);
+        InvokeMethod(model, symbol, model.GetTypeInfo(expression).Type);
     }
 }
