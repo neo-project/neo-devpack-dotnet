@@ -47,6 +47,22 @@ internal partial class MethodConvert
             .ToArray();
     }
 
+    private static IFieldSymbol[] GetSortedEnumFields(INamedTypeSymbol enumTypeSymbol)
+    {
+        int bits = enumTypeSymbol.EnumUnderlyingType?.SpecialType switch
+        {
+            SpecialType.System_SByte or SpecialType.System_Byte => 8,
+            SpecialType.System_Int16 or SpecialType.System_UInt16 => 16,
+            SpecialType.System_Int32 or SpecialType.System_UInt32 => 32,
+            SpecialType.System_Int64 or SpecialType.System_UInt64 => 64,
+            _ => throw new ArgumentOutOfRangeException(nameof(enumTypeSymbol)),
+        };
+        BigInteger mask = (BigInteger.One << bits) - 1;
+        return GetEnumFields(enumTypeSymbol)
+            .OrderBy(field => ToBigIntegerConstant(field.ConstantValue) & mask)
+            .ToArray();
+    }
+
     /// <summary>
     /// Handles the Enum.Parse method by parsing a string representation into an enum value.
     /// </summary>
@@ -56,63 +72,12 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Iterates through enum members, compares string names, returns matching value or throws
+    /// Algorithm: Parses member names, decimal values, and comma-separated names; throws on invalid input.
     /// </remarks>
     private static void HandleEnumParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        // Get the enum type from the first argument (typeof(enum))
-        ITypeSymbol? enumTypeSymbol = null;
-        if (arguments is { Count: > 0 })
-        {
-            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
-            {
-                var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
-                enumTypeSymbol = typeInfo.Type;
-            }
-            else
-            {
-                throw new CompilationException(arguments[0], DiagnosticId.InvalidArgument, "First argument must be a typeof(enum)");
-            }
-        }
-        else
-        {
-            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.Parse"), DiagnosticId.InvalidArgument, "Enum.Parse requires at least two arguments");
-        }
-
-        if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
-        {
-            throw new CompilationException(arguments![0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
-        }
-
-        var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
-            .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
-
-        methodConvert.Nip();  // Drop the enum type
-        var endTarget = new JumpTarget();
-        foreach (var t in enumMembers)
-        {
-            methodConvert.Dup();                           // Stack: [type, inputString, inputString]
-            methodConvert.Push(t.Name);                    // Stack: [type, inputString,inputString, enumName]
-            methodConvert.Equal();                         // Stack: [type,inputString, isEqual]
-
-            var nextTarget = new JumpTarget();
-            methodConvert.JumpIfFalse(nextTarget);
-            methodConvert.Push(t.ConstantValue);         // Stack: [enumValue]
-            methodConvert.JumpAlwaysLong(endTarget);
-            nextTarget.Instruction = methodConvert.Nop();
-        }
-
-        // No match found, Remove inputString from the stack
-        methodConvert.Drop();
-        methodConvert.Push("No such enum value");
-        methodConvert.Throw();
-        endTarget.Instruction = methodConvert.Nip();
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, false, false, false);
     }
 
     /// <summary>
@@ -124,105 +89,12 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Similar to Parse but with optional case-insensitive string comparison using uppercase conversion
+    /// Algorithm: Parses member names, decimal values, and comma-separated names with optional case folding.
     /// </remarks>
     private static void HandleEnumParseIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        // Get the enum type from the first argument (typeof(enum))
-        ITypeSymbol? enumTypeSymbol = null;
-        if (arguments is { Count: > 0 })
-        {
-            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
-            {
-                var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
-                enumTypeSymbol = typeInfo.Type;
-            }
-            else
-            {
-                throw new CompilationException(arguments[0], DiagnosticId.InvalidArgument, "First argument must be a typeof(enum)");
-            }
-        }
-        else
-        {
-            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.Parse"), DiagnosticId.InvalidArgument, "Enum.Parse requires at least two arguments");
-        }
-
-        if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
-        {
-            throw new CompilationException(arguments![0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
-        }
-
-        var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
-            .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
-
-        byte ignoreCaseSlot = 0;
-        var ignoreCaseTarget = new JumpTarget();
-        bool knewIgnoreCase = TryGetConstantArgument<bool>(model, symbol, "ignoreCase", arguments, out var ignoreCase);
-        if (knewIgnoreCase)
-        {
-            methodConvert.PopInstruction(); // The constant bool value is not needed at runtime
-            methodConvert.Nip();            // Drop the enum type
-        }
-        else
-        {
-            ignoreCaseSlot = methodConvert.AddAnonymousVariable();
-            methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
-            methodConvert.Nip();                                         // Drop the enum type
-            methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
-            methodConvert.JumpIfNot(ignoreCaseTarget);
-        }
-        if (!knewIgnoreCase || ignoreCase) ConvertToUpper(methodConvert); // Convert inputString to upper case
-
-        ignoreCaseTarget.Instruction = methodConvert.Nop();
-        var endTarget = new JumpTarget();
-        foreach (var member in enumMembers)
-        {
-            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
-            var nextCheck = new JumpTarget();
-            if (knewIgnoreCase)
-            {
-                methodConvert.Push(ignoreCase ? member.Name.ToUpperInvariant() : member.Name);
-            }
-            else
-            {
-                methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
-
-                JumpTarget lowerCaseName = new();
-                methodConvert.JumpIfNot(lowerCaseName);
-
-                JumpTarget endCase = new JumpTarget();
-                methodConvert.Push(member.Name.ToUpperInvariant());   // Stack: [..., inputString, inputString, enumName]
-                methodConvert.Jump(endCase);
-
-                lowerCaseName.Instruction = methodConvert.Nop();
-                methodConvert.Push(member.Name);
-                endCase.Instruction = methodConvert.Nop();
-            }
-
-            methodConvert.Equal();                  // Stack: [..., inputString, isEqual]
-            methodConvert.JumpIfFalse(nextCheck);  // If not equal, discard duplicated inputString and proceed to next
-
-            methodConvert.Drop();
-            methodConvert.Push(member.ConstantValue);
-            methodConvert.JumpAlwaysLong(endTarget);
-
-            nextCheck.Instruction = methodConvert.Nop();
-        }
-
-        // No match found
-        // Remove the inputString from the stack
-        methodConvert.Drop();
-        methodConvert.Push("No such enum value");
-        methodConvert.Throw();
-        endTarget.Instruction = methodConvert.Nop();
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, false, true, false);
     }
 
     /// <summary>
@@ -234,104 +106,12 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Attempts to parse enum with case-insensitive option, stores result in out parameter
+    /// Algorithm: Parses an enum value with optional case folding and stores it in the out parameter.
     /// </remarks>
     private static void HandleEnumTryParseIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        // Get the enum type from the first argument (typeof(enum))
-        ITypeSymbol? enumTypeSymbol = null;
-        if (arguments is { Count: > 2 })
-        {
-            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
-            {
-                var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
-                enumTypeSymbol = typeInfo.Type;
-            }
-            else
-            {
-                throw new CompilationException(arguments[0], DiagnosticId.InvalidArgument, "First argument must be a typeof(enum)");
-            }
-        }
-        else
-        {
-            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.TryParse"), DiagnosticId.InvalidArgument, "Enum.TryParse requires at least three arguments");
-        }
-
-        if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
-        {
-            throw new CompilationException(arguments![0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
-        }
-
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[3], out var index))
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
-
-        var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
-            .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
-
-        byte ignoreCaseSlot = 0;
-        var endTarget = new JumpTarget();
-        bool knewIgnoreCase = TryGetConstantArgument<bool>(model, symbol, "ignoreCase", arguments, out var ignoreCase);
-        methodConvert.Drop();                                      // Drop the out parameter placeholder, Stack: [..., EnumType, string, ignoreCase]
-        if (knewIgnoreCase)
-        {
-            methodConvert.Drop();                                  // The constant bool value is not needed at runtime, Stack: [..., EnumType, string]
-            methodConvert.Nip();                                   // Drop the enum type, Stack: [..., string or string-upper]
-            if (ignoreCase) ConvertToUpper(methodConvert, preserveInput: false); // Convert inputString to upper case
-        }
-        else
-        {
-            var skipUpper = new JumpTarget();
-            ignoreCaseSlot = methodConvert.AddAnonymousVariable();
-            methodConvert.Dup();                                       // Stack: [..., EnumType, string, ignoreCase, ignoreCase]
-            methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);    // Stack: [..., EnumType, string, ignoreCase]
-            methodConvert.JumpIfNot(skipUpper);                        // Stack: [..., EnumType, string]
-            ConvertToUpper(methodConvert, preserveInput: false);       // Stack: [..., EnumType, string-upper]
-            skipUpper.Instruction = methodConvert.Nip();               // Stack: [..., string or string-upper]
-        }
-        foreach (var t in enumMembers)
-        {
-            methodConvert.Dup();                                   // Stack: [..., string, string]
-
-            if (knewIgnoreCase)
-            {
-                methodConvert.Push(ignoreCase ? t.Name.ToUpperInvariant() : t.Name); // Stack: [..., string, string, enumName]
-            }
-            else
-            {
-                JumpTarget lowerCaseName = new();
-                JumpTarget endCase = new();
-                methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot); // Stack: [..., string, string, ignoreCase]
-                methodConvert.JumpIfNot(lowerCaseName);                 // Stack: [..., string, string]
-                methodConvert.Push(t.Name.ToUpperInvariant());                   // Stack: [..., string, string, enumNameUpper]
-                methodConvert.Jump(endCase);
-
-                lowerCaseName.Instruction = methodConvert.Nop();
-                methodConvert.Push(t.Name);                         // Stack: [..., string, string, enumName]
-
-                endCase.Instruction = methodConvert.Nop();
-            }
-            methodConvert.Equal();                             // Stack: [..., string, isEqual]
-
-            var nextCheck = new JumpTarget();
-            methodConvert.JumpIfFalse(nextCheck);              // Stack: [..., string], If not equal, discard duplicated string and proceed to next
-            methodConvert.Push(true);                          // Stack: [..., true]
-            methodConvert.Push(t.ConstantValue);               // Stack: [..., enumValue]
-            methodConvert.JumpAlwaysLong(endTarget);
-            nextCheck.Instruction = methodConvert.Nop();
-        }
-
-        methodConvert.Push(false);                       // Push false to indicate failure
-        methodConvert.Push(0);                           // Push default value (0) for the out parameter
-        endTarget.Instruction = methodConvert.AccessSlot(OpCode.STSFLD, index);
-        methodConvert.Nip();                             // Remove the string from the stack
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, false, true, true);
     }
 
     /// <summary>
@@ -533,72 +313,12 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Attempts to parse enum name, stores result in out parameter, returns success flag
+    /// Algorithm: Parses an enum value, stores it in the out parameter, and returns a success flag.
     /// </remarks>
     private static void HandleEnumTryParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[2], out var index))
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
-
-        // Get the enum type from the first argument (typeof(enum))
-        ITypeSymbol? enumTypeSymbol = null;
-        if (arguments is { Count: > 0 })
-        {
-            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
-            {
-                var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
-                enumTypeSymbol = typeInfo.Type;
-            }
-            else
-            {
-                throw new CompilationException(arguments[0], DiagnosticId.InvalidArgument, "First argument must be a typeof(enum)");
-            }
-        }
-        else
-        {
-            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.TryParse"), DiagnosticId.InvalidArgument, "Enum.TryParse requires at least three arguments");
-        }
-
-        if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
-        {
-            throw new CompilationException(arguments[0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
-        }
-
-        var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
-            .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
-
-        JumpTarget endTarget = new();
-        methodConvert.Drop();
-        foreach (var t in enumMembers)
-        {
-            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
-            methodConvert.Push(t.Name);                            // Stack: [..., inputString, inputString, enumName]
-
-            // Equal comparison
-            methodConvert.Equal();                                 // Stack: [..., inputString, isEqual]
-
-            JumpTarget nextCheck = new();
-            methodConvert.JumpIfNot(nextCheck);
-
-            // If equal:
-            methodConvert.Push(true);                              // Stack: [..., true]
-            methodConvert.Push(t.ConstantValue);                   // Stack: [..., enumValue]
-            methodConvert.JumpAlwaysLong(endTarget);
-            nextCheck.Instruction = methodConvert.Nop();
-        }
-
-        // No match found
-        methodConvert.Push(false);                                               // Success flag set to false
-        methodConvert.Push(0);                                                   // Default enum value
-        endTarget.Instruction = methodConvert.AccessSlot(OpCode.STSFLD, index);  // Store enum value in out parameter
-        methodConvert.Nip();                                                     // Remove the EnumType and inputString
-        methodConvert.Nip();
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, false, false, true);
     }
 
     /// <summary>
@@ -644,8 +364,7 @@ internal partial class MethodConvert
             throw new CompilationException(arguments![0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
         }
 
-        var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
-            .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
+        var enumMembers = GetSortedEnumFields((INamedTypeSymbol)enumTypeSymbol);
 
         methodConvert.Drop(); // Consume the typeof(enum) argument before pushing the result.
 
@@ -698,8 +417,7 @@ internal partial class MethodConvert
             throw new CompilationException(arguments![0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
         }
 
-        var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
-            .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
+        var enumMembers = GetSortedEnumFields((INamedTypeSymbol)enumTypeSymbol);
 
         methodConvert.Drop(); // Consume the typeof(enum) argument before pushing the result.
 
@@ -867,196 +585,32 @@ internal partial class MethodConvert
     private static void HandleEnumParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
-        var members = GetEnumFields(enumType);
-
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        JumpTarget success = new();
-        foreach (var member in members)
-        {
-            methodConvert.Dup();
-            methodConvert.Push(member.Name);
-            methodConvert.Equal();
-
-            JumpTarget next = new();
-            methodConvert.JumpIfFalse(next);
-            methodConvert.Push(member.ConstantValue);
-            methodConvert.JumpAlwaysLong(success);
-            next.Instruction = methodConvert.Nop();
-        }
-
-        methodConvert.Drop();
-        methodConvert.Push("No such enum value");
-        methodConvert.Throw();
-        success.Instruction = methodConvert.Nip();
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, true, false, false);
     }
 
     private static void HandleEnumParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
-        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
-        var members = GetEnumFields(enumType);
-
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        byte resultSlot = methodConvert.AddAnonymousVariable();
-        JumpTarget success = new();
-        byte ignoreSlot = methodConvert.AddAnonymousVariable();
-        methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot); // store bool, keep input string
-
-        JumpTarget skipUpper = new();
-        methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-        methodConvert.JumpIfFalse(skipUpper);
-        ConvertToUpper(methodConvert);
-        skipUpper.Instruction = methodConvert.Nop();
-
-        foreach (var member in members)
-        {
-            methodConvert.Dup();
-
-            JumpTarget lowerCaseName = new();
-            JumpTarget endChoose = new();
-            methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-            methodConvert.JumpIfFalse(lowerCaseName);
-            methodConvert.Push(member.Name.ToUpperInvariant());
-            methodConvert.Jump(endChoose);
-
-            lowerCaseName.Instruction = methodConvert.Nop();
-            methodConvert.Push(member.Name);
-            endChoose.Instruction = methodConvert.Nop();
-
-            methodConvert.Equal();
-            var next = new JumpTarget();
-            methodConvert.JumpIfFalse(next);
-            methodConvert.Push(member.ConstantValue);
-            methodConvert.JumpAlwaysLong(success);
-            next.Instruction = methodConvert.Nop();
-        }
-
-        methodConvert.Drop();
-        methodConvert.Push("No such enum value");
-        methodConvert.Throw();
-
-        success.Instruction = methodConvert.Nip();  // Drop the enum string
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, true, true, false);
     }
 
     private static void HandleEnumTryParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
-        var members = GetEnumFields(enumType);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index))
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
-
-        methodConvert.Drop(); // drop out-parameter placeholder
-
-        var successTarget = new JumpTarget();
-        foreach (var member in members)
-        {
-            methodConvert.Dup();
-            methodConvert.Push(member.Name);
-            methodConvert.Equal();
-
-            var next = new JumpTarget();
-            methodConvert.JumpIfFalse(next);
-            methodConvert.Push(true);
-            methodConvert.Push(member.ConstantValue);
-            methodConvert.JumpAlwaysLong(successTarget);
-
-            next.Instruction = methodConvert.Nop();
-        }
-
-        methodConvert.Push(false);
-        methodConvert.Push(0);
-        successTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.STSFLD, index);
-        methodConvert.Nip();  // Drop the enum string
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, true, false, true);
     }
 
     private static void HandleEnumTryParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        using var tempScope = methodConvert.PreserveAnonymousVariables();
-
-        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
-        var members = GetEnumFields(enumType);
-
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[2], out var index))
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
-
-        methodConvert.Drop(); // drop out-parameter placeholder
-
-        byte ignoreSlot = 0;
-        var skipUpper = new JumpTarget();
-        var successTarget = new JumpTarget();
-        bool knewIgnoreCase = TryGetConstantArgument<bool>(model, symbol, "ignoreCase", arguments, out var ignoreCase);
-        if (knewIgnoreCase)
-        {
-            methodConvert.Drop(); // Drop the constant bool value, it is not needed at runtime
-            if (ignoreCase) ConvertToUpper(methodConvert);
-        }
-        else
-        {
-            ignoreSlot = methodConvert.AddAnonymousVariable();
-            methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot); // store bool, keep input string
-            methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-            methodConvert.JumpIfFalse(skipUpper);
-            ConvertToUpper(methodConvert);
-        }
-        skipUpper.Instruction = methodConvert.Nop();
-
-        foreach (var member in members)
-        {
-            methodConvert.Dup();
-            var next = new JumpTarget();
-            if (knewIgnoreCase)
-            {
-                methodConvert.Push(ignoreCase ? member.Name.ToUpperInvariant() : member.Name);
-            }
-            else
-            {
-                JumpTarget lowerCaseName = new();
-                JumpTarget endChoose = new();
-                methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-                methodConvert.JumpIfFalse(lowerCaseName);
-                methodConvert.Push(member.Name.ToUpperInvariant());
-                methodConvert.Jump(endChoose);
-
-                lowerCaseName.Instruction = methodConvert.Nop();
-                methodConvert.Push(member.Name);
-                endChoose.Instruction = methodConvert.Nop();
-            }
-            methodConvert.Equal();
-            methodConvert.JumpIfFalse(next);
-            methodConvert.Push(true);
-            methodConvert.Push(member.ConstantValue);
-            methodConvert.JumpAlwaysLong(successTarget);
-            next.Instruction = methodConvert.Nop();
-        }
-
-        methodConvert.Push(false);
-        methodConvert.Push(0);
-        successTarget.Instruction = methodConvert.Nop();
-        methodConvert.AccessSlot(OpCode.STSFLD, index);
-        methodConvert.Nip(); // Drop the enum string
+        HandleEnumParseCore(methodConvert, model, symbol, instanceExpression, arguments, true, true, true);
     }
 
     private static void HandleEnumGetValuesGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
-        var members = GetEnumFields(enumType);
+        var members = GetSortedEnumFields(enumType);
 
         foreach (var member in members.Reverse())
             methodConvert.Push(member.ConstantValue);
@@ -1068,12 +622,217 @@ internal partial class MethodConvert
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
-        var members = GetEnumFields(enumType);
+        var members = GetSortedEnumFields(enumType);
 
         foreach (var member in members.Reverse())
             methodConvert.Push(member.Name);
 
         methodConvert.Pack(members.Length);
+    }
+
+    private static void HandleEnumParseCore(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments,
+        bool generic, bool hasIgnoreCase, bool tryParse)
+    {
+        using var scope = methodConvert.PreserveAnonymousVariables();
+        var enumType = generic
+            ? EnsureEnumTypeArgument(symbol, 0, instanceExpression)
+            : GetEnumTypeArgument(model, symbol, arguments);
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        byte outIndex = 0;
+        if (tryParse)
+        {
+            int parameterIndex = generic ? (hasIgnoreCase ? 2 : 1) : (hasIgnoreCase ? 3 : 2);
+            if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[parameterIndex], out outIndex))
+                throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+            methodConvert.Drop();
+        }
+
+        if (hasIgnoreCase)
+        {
+            byte ignoreSlot = methodConvert.AddAnonymousVariable();
+            methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot);
+            if (!generic) methodConvert.Nip();
+            methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+        }
+        else
+        {
+            if (!generic) methodConvert.Nip();
+            methodConvert.Push(false);
+        }
+
+        EmitEnumParseValue(methodConvert, enumType);
+        if (tryParse)
+        {
+            methodConvert.Swap();
+            methodConvert.AccessSlot(OpCode.STSFLD, outIndex);
+        }
+        else
+        {
+            JumpTarget parsed = new();
+            methodConvert.JumpIfTrue(parsed);
+            methodConvert.Drop();
+            methodConvert.Push("No such enum value");
+            methodConvert.Throw();
+            parsed.Instruction = methodConvert.Nop();
+        }
+    }
+
+    private static INamedTypeSymbol GetEnumTypeArgument(SemanticModel model, IMethodSymbol symbol,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not { Count: > 0 } ||
+            (arguments[0] as ArgumentSyntax)?.Expression is not TypeOfExpressionSyntax typeOfExpression)
+            throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "First argument must be a typeof(enum)");
+        if (model.GetTypeInfo(typeOfExpression.Type).Type is not INamedTypeSymbol { TypeKind: TypeKind.Enum } enumType)
+            throw new CompilationException(arguments[0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
+        return enumType;
+    }
+
+    /// <summary>Consumes a string and ignoreCase flag, and leaves the parsed value and success flag.</summary>
+    private static void EmitEnumParseValue(MethodConvert methodConvert, INamedTypeSymbol enumType)
+    {
+        using var scope = methodConvert.PreserveAnonymousVariables();
+        byte ignoreSlot = methodConvert.AddAnonymousVariable();
+        byte inputSlot = methodConvert.AddAnonymousVariable();
+        byte partsSlot = methodConvert.AddAnonymousVariable();
+        byte indexSlot = methodConvert.AddAnonymousVariable();
+        byte valueSlot = methodConvert.AddAnonymousVariable();
+        byte tokenSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, inputSlot);
+        JumpTarget failure = new();
+        JumpTarget success = new();
+        JumpTarget end = new();
+        JumpTarget loop = new();
+        JumpTarget matched = new();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, inputSlot);
+        methodConvert.IsNull();
+        methodConvert.JumpIfTrueLong(failure);
+
+        // Preserve the inexpensive exact-name path for the common case.
+        methodConvert.AccessSlot(OpCode.LDLOC, inputSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, tokenSlot);
+        JumpTarget skipFastUpper = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+        methodConvert.JumpIfFalse(skipFastUpper);
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        ConvertToUpper(methodConvert);
+        methodConvert.AccessSlot(OpCode.STLOC, tokenSlot);
+        skipFastUpper.Instruction = methodConvert.Nop();
+        foreach (var member in GetEnumFields(enumType))
+        {
+            EmitEnumNameMatch(methodConvert, tokenSlot, ignoreSlot, member);
+            JumpTarget next = new();
+            methodConvert.JumpIfFalse(next);
+            methodConvert.Push(member.ConstantValue);
+            methodConvert.Push(true);
+            methodConvert.JumpAlwaysLong(end);
+            next.Instruction = methodConvert.Nop();
+        }
+
+        methodConvert.Push(",");
+        methodConvert.AccessSlot(OpCode.LDLOC, inputSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "stringSplit", 2, true);
+        methodConvert.AccessSlot(OpCode.STLOC, partsSlot);
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+
+        loop.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, partsSlot);
+        methodConvert.Size();
+        methodConvert.Lt();
+        methodConvert.JumpIfFalseLong(success);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, partsSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.PickItem();
+        HandleStringTrim(methodConvert, null!, null!, null!, null);
+        methodConvert.AccessSlot(OpCode.STLOC, tokenSlot);
+
+        JumpTarget skipUpper = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+        methodConvert.JumpIfFalse(skipUpper);
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        ConvertToUpper(methodConvert);
+        methodConvert.AccessSlot(OpCode.STLOC, tokenSlot);
+        skipUpper.Instruction = methodConvert.Nop();
+
+        foreach (var member in GetEnumFields(enumType))
+        {
+            EmitEnumNameMatch(methodConvert, tokenSlot, ignoreSlot, member);
+            JumpTarget next = new();
+            methodConvert.JumpIfFalse(next);
+            methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+            methodConvert.Push(member.ConstantValue);
+            methodConvert.Or();
+            methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+            methodConvert.JumpAlwaysLong(matched);
+            next.Instruction = methodConvert.Nop();
+        }
+
+        // A numeric representation is accepted only as a complete, single value.
+        methodConvert.AccessSlot(OpCode.LDLOC, partsSlot);
+        methodConvert.Size();
+        methodConvert.Push1();
+        methodConvert.Jump(OpCode.JMPNE_L, failure);
+        EmitIntegerStringValidation(methodConvert, tokenSlot, failure);
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
+        methodConvert.Dup();
+        var backingType = enumType.EnumUnderlyingType?.SpecialType;
+        (BigInteger min, BigInteger max) = backingType switch
+        {
+            SpecialType.System_SByte => (sbyte.MinValue, sbyte.MaxValue),
+            SpecialType.System_Byte => (byte.MinValue, byte.MaxValue),
+            SpecialType.System_Int16 => (short.MinValue, short.MaxValue),
+            SpecialType.System_UInt16 => (ushort.MinValue, ushort.MaxValue),
+            SpecialType.System_Int32 => (int.MinValue, int.MaxValue),
+            SpecialType.System_UInt32 => (uint.MinValue, uint.MaxValue),
+            SpecialType.System_Int64 => (long.MinValue, long.MaxValue),
+            SpecialType.System_UInt64 => (BigInteger.Zero, new BigInteger(ulong.MaxValue)),
+            _ => throw new ArgumentOutOfRangeException(nameof(enumType)),
+        };
+        methodConvert.Within(min, max);
+        JumpTarget numericInRange = new();
+        methodConvert.JumpIfTrue(numericInRange);
+        methodConvert.Drop();
+        methodConvert.JumpAlwaysLong(failure);
+        numericInRange.Instruction = methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+        methodConvert.JumpAlwaysLong(success);
+
+        matched.Instruction = methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.Inc();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+        methodConvert.JumpAlwaysLong(loop);
+
+        success.Instruction = methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.Push(true);
+        methodConvert.JumpAlwaysLong(end);
+        failure.Instruction = methodConvert.Push0();
+        methodConvert.Push(false);
+        end.Instruction = methodConvert.Nop();
+    }
+
+    private static void EmitEnumNameMatch(MethodConvert methodConvert, byte tokenSlot, byte ignoreSlot, IFieldSymbol member)
+    {
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+        JumpTarget caseSensitive = new();
+        JumpTarget compare = new();
+        methodConvert.JumpIfFalse(caseSensitive);
+        methodConvert.Push(member.Name.ToUpperInvariant());
+        methodConvert.Jump(compare);
+        caseSensitive.Instruction = methodConvert.Push(member.Name);
+        compare.Instruction = methodConvert.Equal();
     }
 
     private static bool TryGetConstantArgument<T>(SemanticModel model, IMethodSymbol symbol,
