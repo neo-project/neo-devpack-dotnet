@@ -193,7 +193,7 @@ jobs:
           else { "No $file was generated." | Add-Content $env:GITHUB_STEP_SUMMARY }
         }
     - name: GAS differences against the target branch
-      if: always() && steps.scope.outputs.full == 'true' && github.event_name == 'pull_request'
+      if: steps.scope.outputs.full == 'true' && github.event_name == 'pull_request'
       run: |
         mkdir -p gas-diff
         python3 scripts/gas/compare_baselines.py "${{ github.event.pull_request.base.sha }}" gas-diff/gas-baseline-diff.json >> "$GITHUB_STEP_SUMMARY"
