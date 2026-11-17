@@ -434,6 +434,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_SubstringOutOfRangeStartIsCatchable()
+        {
+            Assert.AreEqual("234567", Contract.SubstringCaught("01234567", 2));
+            Assert.AreEqual("", Contract.SubstringCaught("01234567", 8));
+            Assert.AreEqual("caught", Contract.SubstringCaught("01234567", -1));
+            Assert.AreEqual("caught", Contract.SubstringCaught("01234567", 9));
+        }
+
+        [TestMethod]
+        public void Test_SubstringOutOfRangeRangeIsCatchable()
+        {
+            Assert.AreEqual("2345", Contract.SubstringRangeCaught("01234567", 2, 4));
+            Assert.AreEqual("67", Contract.SubstringRangeCaught("01234567", 6, 2));
+            Assert.AreEqual("caught", Contract.SubstringRangeCaught("01234567", -1, 2));
+            Assert.AreEqual("caught", Contract.SubstringRangeCaught("01234567", 2, -1));
+            Assert.AreEqual("caught", Contract.SubstringRangeCaught("01234567", 6, 4));
+        }
+
+        [TestMethod]
         public void Test_TestConcat()
         {
             Assert.AreEqual("HelloWorld", Contract.TestConcat("Hello", "World"));

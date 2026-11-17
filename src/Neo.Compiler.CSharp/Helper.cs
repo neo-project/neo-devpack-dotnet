@@ -106,13 +106,22 @@ namespace Neo.Compiler
                 case "Neo.SmartContract.Framework.UInt256": return ContractParameterType.Hash256;
                 case "System.Numerics.BigInteger": return ContractParameterType.Integer;
             }
-            if (type.Name == "Map") return ContractParameterType.Map;
-            if (type.Name == "List") return ContractParameterType.Array;
+            if (type.IsFrameworkType("Map", 2)) return ContractParameterType.Map;
+            if (type.IsFrameworkType("List", 1)) return ContractParameterType.Array;
             if (type.TypeKind == TypeKind.Enum) return ContractParameterType.Integer;
             if (type.AllInterfaces.Any(p => p.Name == nameof(scfx::Neo.SmartContract.Framework.IApiInterface)))
                 return ContractParameterType.InteropInterface;
             if (type.IsValueType) return ContractParameterType.Array;
             return ContractParameterType.Any;
+        }
+
+        public static bool IsFrameworkType(this ITypeSymbol type, string name, int arity)
+        {
+            return type is INamedTypeSymbol namedType
+                && namedType.Name == name
+                && namedType.Arity == arity
+                && namedType.ContainingNamespace.ToDisplayString() == "Neo.SmartContract.Framework"
+                && namedType.ContainingAssembly.Name == typeof(scfx::Neo.SmartContract.Framework.Map<,>).Assembly.GetName().Name;
         }
 
         public static bool IsValidType(this ITypeSymbol type)
