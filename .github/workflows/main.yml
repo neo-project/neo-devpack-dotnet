@@ -199,7 +199,7 @@ jobs:
         python3 scripts/gas/compare_baselines.py "${{ github.event.pull_request.base.sha }}" gas-diff/gas-baseline-diff.json >> "$GITHUB_STEP_SUMMARY"
     - name: Upload GAS differences
       if: steps.scope.outputs.full == 'true' && github.event_name == 'pull_request'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.2
       with:
         name: gas-baseline-diff
         path: gas-diff/gas-baseline-diff.json
