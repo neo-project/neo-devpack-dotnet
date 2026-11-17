@@ -720,6 +720,9 @@ namespace Neo.Compiler
             }
         }
 
+        internal bool IsExportedMethod(IMethodSymbol symbol) =>
+            _methodsExported.Any(method => SymbolEqualityComparer.Default.Equals(method.Symbol, symbol));
+
         /// <summary>
         /// Determines whether non-static calls need an explicit instance constructor receiver.
         /// </summary>

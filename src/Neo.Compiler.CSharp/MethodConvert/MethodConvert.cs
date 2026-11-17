@@ -167,6 +167,7 @@ namespace Neo.Compiler
                     SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
                 RegisterMethodParameters();
+                ValidateExportedParameters();
                 RegisterByRefCapturedSymbols(model);
                 RegisterCapturedSymbols(model);
                 InitializeByRefCapturedParameters();
@@ -223,6 +224,30 @@ namespace Neo.Compiler
             // Step 11: Set the start target
             // Mark the first instruction as the entry point of the method
             _startTarget.Instruction = _instructions[0];
+        }
+
+        private void ValidateExportedParameters()
+        {
+            if (!_context.IsExportedMethod(Symbol)) return;
+
+            foreach (IParameterSymbol parameter in Symbol.Parameters)
+            {
+                if (parameter.RefKind != RefKind.None || !IsFixedWidthInteger(parameter.Type)) continue;
+                AccessSlot(OpCode.LDARG, _parameters[parameter]);
+                EnsureIntegerInRange(parameter.Type, forceChecked: true);
+                Drop();
+            }
+        }
+
+        private static bool IsFixedWidthInteger(ITypeSymbol type)
+        {
+            if (type is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } enumType)
+                type = enumType.EnumUnderlyingType;
+            return type.SpecialType is SpecialType.System_SByte or SpecialType.System_Byte
+                or SpecialType.System_Int16 or SpecialType.System_UInt16
+                or SpecialType.System_Int32 or SpecialType.System_UInt32
+                or SpecialType.System_Int64 or SpecialType.System_UInt64
+                or SpecialType.System_Char;
         }
 
         internal MethodConvert CloneWithCapturedStaticFields(IReadOnlyDictionary<byte, byte> aliases)

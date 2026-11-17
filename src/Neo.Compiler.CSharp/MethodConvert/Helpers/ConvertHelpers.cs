@@ -292,6 +292,17 @@ internal partial class MethodConvert
 
     private void FinalizeMethod()
     {
+        if (_context.IsExportedMethod(Symbol) && IsFixedWidthInteger(Symbol.ReturnType))
+        {
+            // All return paths converge here, including returns through modifier cleanup.
+            Instruction firstCheck = Nop();
+            if (_returnTarget.Instruction is null)
+                _returnTarget.Instruction = firstCheck;
+            EnsureIntegerInRange(Symbol.ReturnType, forceChecked: true);
+            AddInstruction(OpCode.RET);
+            return;
+        }
+
         if (_returnTarget.Instruction is null)
         {
             if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].Location?.Source is not null)

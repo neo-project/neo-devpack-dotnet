@@ -57,6 +57,11 @@ C# operand width when lowering fixed-width integer operations. In an
 `unchecked` context, operations that overflow their declared width wrap as
 they do in C#. In a `checked` context, the compiler emits an overflow fault.
 
+The ABI represents all integer widths as `Integer`. For exported methods, the
+compiler checks fixed-width integer arguments against their declared C# types
+at entry and checks fixed-width return values before returning. An out-of-range
+value faults, regardless of the method's checked or unchecked context.
+
 The signed edge case `int.MinValue / -1`, `long.MinValue / -1`, and their
 remainder equivalents fault in both checked and unchecked contexts, matching
 the .NET behavior for these operations. Compound assignments and `DivRem`
