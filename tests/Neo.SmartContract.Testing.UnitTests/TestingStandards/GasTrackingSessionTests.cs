@@ -92,6 +92,30 @@ namespace Neo.SmartContract.Testing.UnitTests.TestingStandards
         }
 
         [TestMethod]
+        public void VerifyDetectsStaleBaselinesWhenNoTrackedTestProducedResults()
+        {
+            var dir = Path.Combine(Path.GetTempPath(), "gas-verify-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(Path.Combine(dir, "Stale.Class.json"), "{\n  \"Stale.Class.Method#1\": 1\n}");
+            var previousMode = Environment.GetEnvironmentVariable(GasTrackingSession.ModeVariable);
+            var previousDir = Environment.GetEnvironmentVariable(GasTrackingSession.DirectoryVariable);
+            Environment.SetEnvironmentVariable(GasTrackingSession.ModeVariable, "verify");
+            Environment.SetEnvironmentVariable(GasTrackingSession.DirectoryVariable, dir);
+            GasTrackingSession.Reset();
+            try
+            {
+                Assert.ThrowsExactly<AssertFailedException>(() => GasTrackingSession.Finish(typeof(GasTrackingSessionTests).Assembly));
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(GasTrackingSession.ModeVariable, previousMode);
+                Environment.SetEnvironmentVariable(GasTrackingSession.DirectoryVariable, previousDir);
+                GasTrackingSession.Reset();
+                Directory.Delete(dir, true);
+            }
+        }
+
+        [TestMethod]
         public void ModeWithoutDirectoryIsRejected()
         {
             var previous = Environment.GetEnvironmentVariable(GasTrackingSession.ModeVariable);

@@ -184,7 +184,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
         /// <summary>
         /// Reconciles (update) or verifies (verify) the version-controlled baselines with the whole run.
         /// Call it from the test project's <c>[AssemblyCleanup]</c>. Does nothing when baselines are not managed
-        /// or no tracked test ran.
+        /// or, in Update mode, no tracked test ran. Verify mode fails when the run is incomplete, even if empty.
         /// </summary>
         public static void Finish(Assembly assembly)
         {
@@ -193,7 +193,7 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
             GasTestResult[] results;
             lock (state.Lock) results = state.Results.Values.ToArray();
-            if (results.Length == 0) return;
+            if (results.Length == 0 && state.Mode != GasBaselineMode.Verify) return;
 
             var name = assembly.GetName().Name!;
             var sync = GasBaselineStore.Synchronize(state.Directory!, name, results, BuildInventory(assembly), state.Mode,
