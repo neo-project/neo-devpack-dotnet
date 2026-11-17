@@ -13,12 +13,12 @@ public abstract class Contract_PropertyMethod(Neo.SmartContract.Testing.SmartCon
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_PropertyMethod"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testProperty"",""parameters"":[],""returntype"":""Array"",""offset"":0,""safe"":false},{""name"":""testProperty2"",""parameters"":[],""returntype"":""Void"",""offset"":44,""safe"":false},{""name"":""testProperty3"",""parameters"":[],""returntype"":""Any"",""offset"":65,""safe"":false},{""name"":""testProperty4"",""parameters"":[],""returntype"":""Map"",""offset"":81,""safe"":false},{""name"":""testProperty5"",""parameters"":[],""returntype"":""Array"",""offset"":97,""safe"":false},{""name"":""testPropertyInit"",""parameters"":[],""returntype"":""Array"",""offset"":107,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_PropertyMethod"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testProperty"",""parameters"":[],""returntype"":""Array"",""offset"":0,""safe"":false},{""name"":""testProperty2"",""parameters"":[],""returntype"":""Void"",""offset"":44,""safe"":false},{""name"":""testProperty3"",""parameters"":[],""returntype"":""Any"",""offset"":65,""safe"":false},{""name"":""testProperty4"",""parameters"":[],""returntype"":""Map"",""offset"":81,""safe"":false},{""name"":""testProperty5"",""parameters"":[],""returntype"":""Array"",""offset"":97,""safe"":false},{""name"":""testPropertyInit"",""parameters"":[],""returntype"":""Array"",""offset"":105,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKNXAQALEAsTwBoMBE5FTzMSTTQNcGgQzmgRzlASv0BXAAN5eBBR0Hp4EVHQQFcBAAsQCxPAGgwETkVPMxJNNOFwQAsQCxPADARORU8zSxBR0EDISgwETmFtZQwETkVPM9BAwkUVFBMSERXAQFcBAAsQCxPAGgwETkVPMxJNNKIMETEyMyBCbG9ja2NoYWluIFN0SxJR0HBoEM5oEc5oEs5TE79AIM2/eg==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKFXAQALEAsTwBoMBE5FTzMSTTQNcGgQzmgRzlASv0BXAAN5eBBR0Hp4EVHQQFcBAAsQCxPAGgwETkVPMxJNNOFwQAsQCxPADARORU8zSxBR0EDISgwETmFtZQwETkVPM9BAFRQTEhEVwEBXAQALEAsTwBoMBE5FTzMSTTSkDBExMjMgQmxvY2tjaGFpbiBTdEsSUdBwaBDOaBHOaBLOUxO/QCv5WBE=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -116,9 +116,7 @@ public abstract class Contract_PropertyMethod(Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: wkUVFBMSERXAQA==
-    /// NEWARRAY0 [16 datoshi]
-    /// DROP [2 datoshi]
+    /// Script: FRQTEhEVwEA=
     /// PUSH5 [1 datoshi]
     /// PUSH4 [1 datoshi]
     /// PUSH3 [1 datoshi]
@@ -135,7 +133,7 @@ public abstract class Contract_PropertyMethod(Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACxALE8AaDARORU8zEk00ogwRMTIzIEJsb2NrY2hhaW4gU3RLElHQcGgQzmgRzmgSzlMTv0A=
+    /// Script: VwEACxALE8AaDARORU8zEk00pAwRMTIzIEJsb2NrY2hhaW4gU3RLElHQcGgQzmgRzmgSzlMTv0A=
     /// INITSLOT 0100 [64 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -146,7 +144,7 @@ public abstract class Contract_PropertyMethod(Neo.SmartContract.Testing.SmartCon
     /// PUSHDATA1 4E454F33 'NEO3' [8 datoshi]
     /// PUSH2 [1 datoshi]
     /// PICK [2 datoshi]
-    /// CALL A2 [512 datoshi]
+    /// CALL A4 [512 datoshi]
     /// PUSHDATA1 31323320426C6F636B636861696E205374 [8 datoshi]
     /// OVER [2 datoshi]
     /// PUSH2 [1 datoshi]
