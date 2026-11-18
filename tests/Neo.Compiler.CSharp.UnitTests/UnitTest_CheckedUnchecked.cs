@@ -59,11 +59,11 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(0, Contract.CastUnchecked(ulong.MinValue));
 
-            Assert.AreEqual(4294967295, Contract.CastUnchecked(ulong.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastUnchecked(ulong.MaxValue));
 
-            Assert.AreEqual(0, Contract.CastUnchecked(long.MinValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastUnchecked(long.MinValue));
 
-            Assert.AreEqual(4294967295, Contract.CastUnchecked(long.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CastUnchecked(long.MaxValue));
         }
     }
 }

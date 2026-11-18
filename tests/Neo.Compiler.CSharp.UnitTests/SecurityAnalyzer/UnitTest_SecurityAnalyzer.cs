@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.IsTrue(output.Contains("[SECURITY]"));
             Assert.IsTrue(output.Contains("Potential unbounded operations"));
             Assert.IsTrue(output.Contains("Backward jumps at instruction addresses:"));
-            Assert.IsTrue(output.Contains("\t86"));
+            Assert.IsTrue(output.Contains("\t94"));
         }
 
         private static string CaptureAnalyzeWithPrintOutput(SmartContract.NefFile nef, SmartContract.Manifest.ContractManifest manifest)

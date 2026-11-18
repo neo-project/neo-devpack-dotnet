@@ -13,12 +13,12 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Assert"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testAssertFalse"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testAssertInFunction"",""parameters"":[],""returntype"":""Integer"",""offset"":16,""safe"":false},{""name"":""testAssertInTry"",""parameters"":[],""returntype"":""Integer"",""offset"":28,""safe"":false},{""name"":""testAssertInCatch"",""parameters"":[],""returntype"":""Integer"",""offset"":60,""safe"":false},{""name"":""testAssertInFinally"",""parameters"":[],""returntype"":""Integer"",""offset"":102,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Assert"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testAssertFalse"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testAssertInFunction"",""parameters"":[],""returntype"":""Integer"",""offset"":22,""safe"":false},{""name"":""testAssertInTry"",""parameters"":[],""returntype"":""Integer"",""offset"":40,""safe"":false},{""name"":""testAssertInCatch"",""parameters"":[],""returntype"":""Integer"",""offset"":78,""safe"":false},{""name"":""testAssertInFinally"",""parameters"":[],""returntype"":""Integer"",""offset"":126,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIZXAQAQcAg5EXAJOQBkcGhAVwEAEHA063ARcGhAVwMAQ3IQcDsIFDTacD0RcUNqMgVFIvsRcD0FEnA/aEBXAwBDchBwOxEeEXAMCWV4Y2VwdGlvbjpxQ2oyBUUi+zSkcD0FEnA/aEBXAwBDchBwOwcTEXA9EnFDajIFRSL7EnA9BjSAcD9oQFiowiQ=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKdXAQAQcAg5EXAJOQBkcGhKyhQyAzpAVwEAEHA05XARcGhKyhQyAzpAVwMAQ3IQcDsIFDTOcD0RcUNqMgVFIvsRcD0FEnA/aErKFDIDOkBXAwBDchBwOxEeEXAMCWV4Y2VwdGlvbjpxQ2oyBUUi+zSScD0FEnA/aErKFDIDOkBXAwBDchBwOwcTEXA9FXFDajIFRSL7EnA9CTVo////cD9oSsoUMgM6QEeNWZ8=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEHAIORFwCTkAZHBoQA==
+    /// Script: VwEAEHAIORFwCTkAZHBoSsoUMgM6QA==
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
@@ -41,6 +41,11 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// PUSHINT8 64 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertFalse")]
@@ -50,7 +55,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMAQ3IQcDsRHhFwDAlleGNlcHRpb246cUNqMgVFIvs0pHA9BRJwP2hA
+    /// Script: VwMAQ3IQcDsRHhFwDAlleGNlcHRpb246cUNqMgVFIvs0knA9BRJwP2hKyhQyAzpA
     /// INITSLOT 0300 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC2 [2 datoshi]
@@ -67,13 +72,18 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// JMPLE 05 [2 datoshi]
     /// DROP [2 datoshi]
     /// JMP FB [2 datoshi]
-    /// CALL A4 [512 datoshi]
+    /// CALL 92 [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// ENDTRY 05 [4 datoshi]
     /// PUSH2 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// ENDFINALLY [4 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertInCatch")]
@@ -83,7 +93,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMAQ3IQcDsHExFwPRJxQ2oyBUUi+xJwPQY0gHA/aEA=
+    /// Script: VwMAQ3IQcDsHExFwPRVxQ2oyBUUi+xJwPQk1aP///3A/aErKFDIDOkA=
     /// INITSLOT 0300 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC2 [2 datoshi]
@@ -92,7 +102,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// TRY 0713 [4 datoshi]
     /// PUSH1 [1 datoshi]
     /// STLOC0 [2 datoshi]
-    /// ENDTRY 12 [4 datoshi]
+    /// ENDTRY 15 [4 datoshi]
     /// STLOC1 [2 datoshi]
     /// DEPTH [2 datoshi]
     /// LDLOC2 [2 datoshi]
@@ -101,11 +111,16 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// JMP FB [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// STLOC0 [2 datoshi]
-    /// ENDTRY 06 [4 datoshi]
-    /// CALL 80 [512 datoshi]
+    /// ENDTRY 09 [4 datoshi]
+    /// CALL_L 68FFFFFF [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// ENDFINALLY [4 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertInFinally")]
@@ -115,15 +130,20 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEHA063ARcGhA
+    /// Script: VwEAEHA05XARcGhKyhQyAzpA
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
-    /// CALL EB [512 datoshi]
+    /// CALL E5 [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSH1 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertInFunction")]
@@ -133,14 +153,14 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMAQ3IQcDsIFDTacD0RcUNqMgVFIvsRcD0FEnA/aEA=
+    /// Script: VwMAQ3IQcDsIFDTOcD0RcUNqMgVFIvsRcD0FEnA/aErKFDIDOkA=
     /// INITSLOT 0300 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC2 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// TRY 0814 [4 datoshi]
-    /// CALL DA [512 datoshi]
+    /// CALL CE [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// ENDTRY 11 [4 datoshi]
     /// STLOC1 [2 datoshi]
@@ -156,6 +176,11 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// STLOC0 [2 datoshi]
     /// ENDFINALLY [4 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertInTry")]

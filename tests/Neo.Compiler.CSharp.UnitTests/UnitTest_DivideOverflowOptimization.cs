@@ -88,10 +88,10 @@ public class Contract : SmartContract
         var context = CompileContract();
 
         // The dividend is a safe constant, so no overflow guard is emitted; the divisor is
-        // a runtime value, so exactly one THROW remains - the zero-divisor guard, which a
-        // catch block must be able to observe.
-        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeInt(").Count(op => op == OpCode.THROW));
-        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeLong(").Count(op => op == OpCode.THROW));
+        // a runtime value, so the zero-divisor guard remains alongside the ABI entry and
+        // return range checks.
+        Assert.AreEqual(3, GetMethodOpCodes(context, "Contract.SafeInt(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(3, GetMethodOpCodes(context, "Contract.SafeLong(").Count(op => op == OpCode.THROW));
 
         var contract = Deploy(context);
         Assert.AreEqual(new BigInteger(-42), contract.SafeInt(-1));

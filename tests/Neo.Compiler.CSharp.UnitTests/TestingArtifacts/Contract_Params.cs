@@ -18,7 +18,7 @@ public abstract class Contract_Params(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL5XBQEQcHhKccpyEHMiLmlrznRobJ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wa5xza2ow0mhAwjS/ERHANLqeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfExISwDSSnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxUUEsA1av///55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AW2W+6A==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMRXBQEQcHhKccpyEHMiLmlrznRobJ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wa5xza2ow0mhAwjS/ERHANLqeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfExISwDSSnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxUUEsA1av///55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KyhQyAzpAxm7C5A==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class Contract_Params(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: wjS/ERHANLqeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfExISwDSSnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxUUEsA1av///55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9A
+    /// Script: wjS/ERHANLqeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfExISwDSSnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxUUEsA1av///55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KyhQyAzpA
     /// NEWARRAY0 [16 datoshi]
     /// CALL BF [512 datoshi]
     /// PUSH1 [1 datoshi]
@@ -81,6 +81,11 @@ public abstract class Contract_Params(Neo.SmartContract.Testing.SmartContractIni
     /// JMPLE 0C [2 datoshi]
     /// PUSHINT64 0000000001000000 [1 datoshi]
     /// SUB [8 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]

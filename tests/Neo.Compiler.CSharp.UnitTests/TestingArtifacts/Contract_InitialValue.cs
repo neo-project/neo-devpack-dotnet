@@ -13,12 +13,12 @@ public abstract class Contract_InitialValue(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_InitialValue"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getDefaultName"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""getDefaultAge"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":false},{""name"":""getInferredInteger"",""parameters"":[],""returntype"":""Integer"",""offset"":17,""safe"":false},{""name"":""getInferredBytes"",""parameters"":[],""returntype"":""ByteArray"",""offset"":20,""safe"":false},{""name"":""getDefaultOwner"",""parameters"":[],""returntype"":""Hash160"",""offset"":27,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_InitialValue"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getDefaultName"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""getDefaultAge"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":false},{""name"":""getInferredInteger"",""parameters"":[],""returntype"":""Integer"",""offset"":23,""safe"":false},{""name"":""getInferredBytes"",""parameters"":[],""returntype"":""ByteArray"",""offset"":32,""safe"":false},{""name"":""getDefaultOwner"",""parameters"":[],""returntype"":""Hash160"",""offset"":39,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIMC0RlZmF1bHROYW1lQAASQAAqQAwEABEiM0AMFH7uGqvrZ+0deR1E5PX8866RcahxQNFOImM=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4MC0RlZmF1bHROYW1lQAASSsoUMgM6QAAqSsoUMgM6QAwEABEiM0AMFH7uGqvrZ+0deR1E5PX8866RcahxQKiOkPw=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,8 +28,13 @@ public abstract class Contract_InitialValue(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: ABJA
+    /// Script: ABJKyhQyAzpA
     /// PUSHINT8 12 [1 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getDefaultAge")]
@@ -72,8 +77,13 @@ public abstract class Contract_InitialValue(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: ACpA
+    /// Script: ACpKyhQyAzpA
     /// PUSHINT8 2A [1 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getInferredInteger")]

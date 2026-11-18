@@ -3,7 +3,7 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_GetString#1": 984840,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_GetUInt160#1": 984840,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_InitialValue#1": 984840,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_StaticVar#1": 1016700,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_StaticVar#1": 1016970,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_testBigIntegerParse#1": 984900,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_testBigIntegerParse2#1": 2032800
 }

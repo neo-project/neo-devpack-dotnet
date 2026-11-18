@@ -399,7 +399,7 @@ internal partial class MethodConvert
     /// If the type is BigInteger, no range check is performed.
     /// </summary>
     /// <param name="type">The integer type to be checked.</param>
-    private void EnsureIntegerInRange(ITypeSymbol type)
+    private void EnsureIntegerInRange(ITypeSymbol type, bool forceChecked = false)
     {
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
@@ -431,7 +431,7 @@ internal partial class MethodConvert
             Size(); // Get the bytes length of the integer
             Push(maxValue.GetByteCount());
             JumpIfLessOrEqual(endTarget);
-            if (_checkedStack.Peek())
+            if (forceChecked || _checkedStack.Peek())
             {
                 Throw();
             }
@@ -448,7 +448,7 @@ internal partial class MethodConvert
         }
         else // Unsigned integer
         {
-            if (_checkedStack.Peek())
+            if (forceChecked || _checkedStack.Peek())
             {
                 var throwTarget = new JumpTarget();
                 Dup();

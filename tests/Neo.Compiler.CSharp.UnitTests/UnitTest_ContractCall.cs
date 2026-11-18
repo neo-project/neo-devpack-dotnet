@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Engine.SetTransactionSigners(TestEngine.CreateSigner(UInt160.Parse("0102030405060708090A0102030405060708090A")));
             var c1 = Engine.Deploy<Contract1>(Contract1.Nef, Contract1.Manifest);
-            Assert.AreEqual("0x499c4b9ad550f4a1a928bdb69ed63e5e1c2446c5", c1.Hash.ToString());
+            Assert.AreEqual("0x89a8533fb58f852307f98c8ec6c46fd128827ffe", c1.Hash.ToString());
         }
 
         [TestMethod]

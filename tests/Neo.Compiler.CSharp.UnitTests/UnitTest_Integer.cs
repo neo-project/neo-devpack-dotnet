@@ -22,6 +22,13 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Integer : DebugAndTestBase<Contract_Integer>
     {
+        protected override TestEngine CreateTestEngine()
+        {
+            var engine = base.CreateTestEngine();
+            engine.Fee *= 10; // This fixture's larger ABI guards increase deployment cost.
+            return engine;
+        }
+
         [TestMethod]
         public void divRemByte_test()
         {
@@ -533,10 +540,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Test with max values
             Assert.AreEqual(int.MaxValue, Contract.CreateSaturatingInt(int.MaxValue));
 
-            // Test with overflow values
-            Assert.AreEqual(int.CreateSaturating(uint.MaxValue), Contract.CreateSaturatingInt(uint.MaxValue));
-            Assert.AreEqual(int.CreateSaturating(ulong.MaxValue), Contract.CreateSaturatingInt(ulong.MaxValue));
-            Assert.AreEqual(int.CreateSaturating(long.MinValue), Contract.CreateSaturatingInt(long.MinValue));
+            // Values outside the ABI type are rejected before the method runs.
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingInt(uint.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingInt(ulong.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingInt(long.MinValue));
         }
 
 
@@ -675,8 +682,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(byte.CreateSaturating(5), Contract.CreateSaturatingByte(5));
             Assert.AreEqual(byte.CreateSaturating(0), Contract.CreateSaturatingByte(0));
             Assert.AreEqual(byte.CreateSaturating(byte.MaxValue), Contract.CreateSaturatingByte(byte.MaxValue));
-            Assert.AreEqual(byte.CreateSaturating(-1), Contract.CreateSaturatingByte(-1));
-            Assert.AreEqual(byte.CreateSaturating(256), Contract.CreateSaturatingByte(256));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingByte(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingByte(256));
         }
 
         [TestMethod]
@@ -695,7 +702,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(ulong.CreateSaturating(5UL), Contract.CreateSaturatingUlong(5UL));
             Assert.AreEqual(ulong.CreateSaturating(0UL), Contract.CreateSaturatingUlong(0UL));
             Assert.AreEqual(ulong.CreateSaturating(ulong.MaxValue), Contract.CreateSaturatingUlong(ulong.MaxValue));
-            Assert.AreEqual(0UL, Contract.CreateSaturatingUlong(-1L));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingUlong(-1L));
         }
 
         [TestMethod]
@@ -714,8 +721,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(sbyte.CreateSaturating(-5), Contract.CreateSaturatingSbyte(-5));
             Assert.AreEqual(sbyte.CreateSaturating(sbyte.MaxValue), Contract.CreateSaturatingSbyte(sbyte.MaxValue));
             Assert.AreEqual(sbyte.CreateSaturating(sbyte.MinValue), Contract.CreateSaturatingSbyte(sbyte.MinValue));
-            Assert.AreEqual(sbyte.CreateSaturating(128), Contract.CreateSaturatingSbyte(128));
-            Assert.AreEqual(sbyte.CreateSaturating(-129), Contract.CreateSaturatingSbyte(-129));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingSbyte(128));
+            Assert.ThrowsExactly<TestException>(() => Contract.CreateSaturatingSbyte(-129));
         }
 
         [TestMethod]

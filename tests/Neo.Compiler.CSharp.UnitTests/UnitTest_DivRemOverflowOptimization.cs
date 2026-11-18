@@ -131,12 +131,12 @@ public class Contract : SmartContract
         var context = CompileContract(optimization);
 
         // The dividend is a safe constant, so no overflow guard is emitted. The shapes with
-        // a runtime divisor keep exactly one THROW - the zero-divisor guard; the ones with
-        // a constant non-zero divisor cannot fault and stay guard-free.
-        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeInt(").Count(op => op == OpCode.THROW));
-        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeLong(").Count(op => op == OpCode.THROW));
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeMathInt("), OpCode.THROW);
-        CollectionAssert.DoesNotContain(GetMethodOpCodes(context, "Contract.SafeMathLong("), OpCode.THROW);
+        // a runtime divisor retains the zero-divisor guard alongside the ABI entry check.
+        // The constant divisor shapes retain only the ABI entry check.
+        Assert.AreEqual(2, GetMethodOpCodes(context, "Contract.SafeInt(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(2, GetMethodOpCodes(context, "Contract.SafeLong(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeMathInt(").Count(op => op == OpCode.THROW));
+        Assert.AreEqual(1, GetMethodOpCodes(context, "Contract.SafeMathLong(").Count(op => op == OpCode.THROW));
     }
 
     [TestMethod]

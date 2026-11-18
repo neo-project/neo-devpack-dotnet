@@ -18,7 +18,7 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1XAQAMAwACA9swcGgQEdBoEhTQaEBXAQAMAwACA9swcGgQEdBoExTQaEBXAgAC////f3AMAwACA9swcWkQaAH/AJHQaUBXAgAMBHRlc3RwDAMAAgPbMHFpEGjQaUBXAQESiEoQEdBKEXjQcGhAcWdhew==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHpXAQAMAwACA9swcGgQEdBoEhTQaEBXAQAMAwACA9swcGgQEdBoExTQaEBXAgAC////f3AMAwACA9swcWkQaAH/AJHQaUBXAgAMBHRlc3RwDAMAAgPbMHFpEGjQaUBXAQF4ShAwCEoB/wAyAzpFEohKEBHQShF40HBoQIm8zK0=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -51,8 +51,17 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBEohKEBHQShF40HBoQA==
+    /// Script: VwEBeEoQMAhKAf8AMgM6RRKIShAR0EoReNBwaEA=
     /// INITSLOT 0101 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// JMPLT 08 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT16 FF00 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// DROP [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// NEWBUFFER [256 datoshi]
     /// DUP [2 datoshi]

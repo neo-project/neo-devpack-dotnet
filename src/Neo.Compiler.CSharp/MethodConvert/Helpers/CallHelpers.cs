@@ -858,8 +858,37 @@ internal partial class MethodConvert
     // Helper method to emit inline instructions
     private void EmitInlineInstructions(MethodConvert target)
     {
-        for (int i = 0; i < target._instructions.Count - 1; i++)
-            AddInstruction(target._instructions[i].Clone());
+        var source = target._instructions;
+        var copies = new Dictionary<Instruction, Instruction>();
+        for (int i = 0; i < source.Count - 1; i++)
+        {
+            var instruction = source[i];
+            copies.Add(instruction, AddInstruction(new Instruction
+            {
+                OpCode = instruction.OpCode,
+                Operand = instruction.Operand,
+                Location = instruction.Location
+            }));
+        }
+
+        JumpTarget? exit = null;
+        JumpTarget Remap(JumpTarget target)
+        {
+            if (target.Instruction is null)
+                throw new InvalidOperationException("Inline jump target has no instruction.");
+            if (copies.TryGetValue(target.Instruction, out var mapped))
+                return new JumpTarget { Instruction = mapped };
+            if (ReferenceEquals(target.Instruction, source[^1]))
+                return exit ??= new JumpTarget();
+            return target;
+        }
+
+        foreach (var (original, copy) in copies)
+        {
+            if (original.Target is not null) copy.Target = Remap(original.Target);
+            if (original.Target2 is not null) copy.Target2 = Remap(original.Target2);
+        }
+        if (exit is not null) exit.Instruction = Nop();
     }
 
     private static bool HasByRefAliasVariants(IMethodSymbol symbol)

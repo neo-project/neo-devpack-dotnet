@@ -175,7 +175,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestCharIsAscii('A'));
             Assert.IsTrue(Contract.TestCharIsAscii(127));
             Assert.IsFalse(Contract.TestCharIsAscii(128));
-            Assert.IsFalse(Contract.TestCharIsAscii(-1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestCharIsAscii(-1));
         }
 
         [TestMethod]
@@ -207,10 +207,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse(Contract.TestCharIsAsciiLetter('\u0080'));
             Assert.IsFalse(Contract.TestCharIsAsciiLetter('\u00C0'));
 
-            // Values outside the char range (0..65535), passed directly as BigInteger
-            Assert.IsFalse(Contract.TestCharIsAsciiLetter(BigInteger.MinusOne));
-            Assert.IsFalse(Contract.TestCharIsAsciiLetter(new BigInteger(char.MaxValue) + 1));
-            Assert.IsFalse(Contract.TestCharIsAsciiLetter((BigInteger.One << 255) - BigInteger.One)); // Int256.MaxValue
+            // Values outside the char range are rejected at the ABI boundary.
+            Assert.ThrowsExactly<TestException>(() => Contract.TestCharIsAsciiLetter(BigInteger.MinusOne));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestCharIsAsciiLetter(new BigInteger(char.MaxValue) + 1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestCharIsAsciiLetter((BigInteger.One << 255) - BigInteger.One));
         }
 
         [TestMethod]
@@ -247,9 +247,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse(Contract.TestCharIsBetween(char.MaxValue, char.MaxValue, (char)('a' - 1)));
 
             BigInteger int256Max = (BigInteger.One << 255) - BigInteger.One;
-            Assert.IsTrue(Contract.TestCharIsBetween(int256Max, BigInteger.Zero, int256Max));
-            Assert.IsTrue(Contract.TestCharIsBetween(BigInteger.Zero, BigInteger.Zero, int256Max));
-            Assert.IsTrue(Contract.TestCharIsBetween(int256Max, int256Max, int256Max));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestCharIsBetween(int256Max, BigInteger.Zero, int256Max));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestCharIsBetween(BigInteger.Zero, BigInteger.Zero, int256Max));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestCharIsBetween(int256Max, int256Max, int256Max));
         }
 
         [TestMethod]

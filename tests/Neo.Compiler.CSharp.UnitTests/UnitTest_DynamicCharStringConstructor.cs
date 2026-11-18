@@ -97,15 +97,15 @@ public class UnitTest_DynamicCharStringConstructor
             // Regression guard for the UTF-8 encoder: multi-byte characters are encoded with
             // arithmetic and CONVERT only, and the replacement path skips its CONVERT.
             contract.ToString('A');
-            Assert.AreEqual(1_293_450, engine.FeeConsumed.Value, "ascii");
+            Assert.AreEqual(1_293_840, engine.FeeConsumed.Value, "ascii");
             contract.ToString('\u0080');
-            Assert.AreEqual(1_294_920, engine.FeeConsumed.Value, "2 bytes");
+            Assert.AreEqual(1_295_310, engine.FeeConsumed.Value, "2 bytes");
             contract.ToString('\u0800');
-            Assert.AreEqual(1_296_720, engine.FeeConsumed.Value, "3 bytes");
+            Assert.AreEqual(1_297_110, engine.FeeConsumed.Value, "3 bytes");
             contract.ToString('\0');
-            Assert.AreEqual(1_048_050, engine.FeeConsumed.Value, "NUL");
+            Assert.AreEqual(1_048_440, engine.FeeConsumed.Value, "NUL");
             contract.ToString('\ud800');
-            Assert.AreEqual(1_048_380, engine.FeeConsumed.Value, "surrogate");
+            Assert.AreEqual(1_048_770, engine.FeeConsumed.Value, "surrogate");
         }
     }
 
