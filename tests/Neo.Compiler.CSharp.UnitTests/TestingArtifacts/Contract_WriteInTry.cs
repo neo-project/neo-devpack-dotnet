@@ -13,12 +13,12 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_WriteInTry"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""baseTry"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""tryWrite"",""parameters"":[],""returntype"":""Void"",""offset"":111,""safe"":false},{""name"":""tryWriteWithVulnerability"",""parameters"":[],""returntype"":""Void"",""offset"":185,""safe"":false},{""name"":""recursiveTry"",""parameters"":[{""name"":""i"",""type"":""Integer""}],""returntype"":""Void"",""offset"":208,""safe"":false},{""name"":""mutualRecursiveTry"",""parameters"":[{""name"":""i"",""type"":""Integer""}],""returntype"":""Void"",""offset"":310,""safe"":false},{""name"":""safeTryWithCatchWithThrowInFinally"",""parameters"":[],""returntype"":""Void"",""offset"":375,""safe"":false},{""name"":""unsafeNestedTryWrite"",""parameters"":[{""name"":""recursive"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":458,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_WriteInTry"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""baseTry"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""tryWrite"",""parameters"":[],""returntype"":""Void"",""offset"":115,""safe"":false},{""name"":""tryWriteWithVulnerability"",""parameters"":[],""returntype"":""Void"",""offset"":189,""safe"":false},{""name"":""recursiveTry"",""parameters"":[{""name"":""i"",""type"":""Integer""}],""returntype"":""Void"",""offset"":212,""safe"":false},{""name"":""mutualRecursiveTry"",""parameters"":[{""name"":""i"",""type"":""Integer""}],""returntype"":""Void"",""offset"":314,""safe"":false},{""name"":""safeTryWithCatchWithThrowInFinally"",""parameters"":[],""returntype"":""Void"",""offset"":379,""safe"":false},{""name"":""unsafeNestedTryWrite"",""parameters"":[{""name"":""recursive"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":462,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP36AVcDAENxOwc/NFQ9UXBDaTIFRSL7OwAHNE89KTsdAAwXdGhyb3cgaW4gbmVzdGVkIGZpbmFsbHk6ckNpMgVFIvtqOj0ZOw0ADAEAQXVU9ZQ9C3BDaTIFRSL7OD9AEAwBAEE5DOMKQAwBAEF1VPWUQFcCAENxOx0ANOUMFXRocm93IGluIFRyeVdyaXRlIHRyeTpwQ2kyBUUi+zsAHzTKDBd0aHJvdyBpbiBUcnlXcml0ZSBjYXRjaDo/VwIAQ3E7BwA0pT0McENpMgVFIvs9AkBXAAF4SsoUMgM6RTsANDV+////eBC3Jid4nUrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnzTFPSh4nUrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnzQEP0BXAAE7ADx4ELcmKnidSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfNWz///81UP///zX4/v//PQM/QFcDAENxOyVNOwoUNdr+//89GHBDaTIFRSL7PQ4MCWV4Y2VwdGlvbjo9K3BDaTIFRSL7OwoUNbD+//89GHJDaTIFRSL7PQ4MCWV4Y2VwdGlvbjo4VwIBQ3E7IAA7AAo1h/7//z0JeCYFCTTqPwwJZXhjZXB0aW9uOnBDaTIFRSL7PQJAfL6HtQ==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3+AVcFAENxOwdBNFg9VXBDaTIFRSL7OwAHNFM9K0NyOx0ADBd0aHJvdyBpbiBuZXN0ZWQgZmluYWxseTpzQ2oyBUUi+2s6PRtDdDsNAAwBAEF1VPWUPQtzQ2wyBUUi+zg/QBAMAQBBOQzjCkAMAQBBdVT1lEBXAgBDcTsdADTlDBV0aHJvdyBpbiBUcnlXcml0ZSB0cnk6cENpMgVFIvs7AB80ygwXdGhyb3cgaW4gVHJ5V3JpdGUgY2F0Y2g6P1cCAENxOwcANKU9DHBDaTIFRSL7PQJAVwABeErKFDIDOkU7ADQ1fv///3gQtyYneJ1KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ80xT0oeJ1KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ80BD9AVwABOwA8eBC3Jip4nUrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnzVs////NVD///81+P7//z0DP0BXAwBDcTslTTsKFDXa/v//PRhwQ2kyBUUi+z0ODAlleGNlcHRpb246PStwQ2kyBUUi+zsKFDWw/v//PRhyQ2kyBUUi+z0ODAlleGNlcHRpb246OFcCAUNxOyAAOwAKNYf+//89CXgmBQk06j8MCWV4Y2VwdGlvbjpwQ2kyBUUi+z0CQMjxkJo=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,13 +28,13 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMAQ3E7Bz80VD1RcENpMgVFIvs7AAc0Tz0pOx0ADBd0aHJvdyBpbiBuZXN0ZWQgZmluYWxseTpyQ2kyBUUi+2o6PRk7DQAMAQBBdVT1lD0LcENpMgVFIvs4P0A=
-    /// INITSLOT 0300 [64 datoshi]
+    /// Script: VwUAQ3E7B0E0WD1VcENpMgVFIvs7AAc0Uz0rQ3I7HQAMF3Rocm93IGluIG5lc3RlZCBmaW5hbGx5OnNDajIFRSL7azo9G0N0Ow0ADAEAQXVU9ZQ9C3NDbDIFRSL7OD9A
+    /// INITSLOT 0500 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC1 [2 datoshi]
-    /// TRY 073F [4 datoshi]
-    /// CALL 54 [512 datoshi]
-    /// ENDTRY 51 [4 datoshi]
+    /// TRY 0741 [4 datoshi]
+    /// CALL 58 [512 datoshi]
+    /// ENDTRY 55 [4 datoshi]
     /// STLOC0 [2 datoshi]
     /// DEPTH [2 datoshi]
     /// LDLOC1 [2 datoshi]
@@ -42,27 +42,31 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
     /// DROP [2 datoshi]
     /// JMP FB [2 datoshi]
     /// TRY 0007 [4 datoshi]
-    /// CALL 4F [512 datoshi]
-    /// ENDTRY 29 [4 datoshi]
+    /// CALL 53 [512 datoshi]
+    /// ENDTRY 2B [4 datoshi]
+    /// DEPTH [2 datoshi]
+    /// STLOC2 [2 datoshi]
     /// TRY 1D00 [4 datoshi]
     /// PUSHDATA1 7468726F7720696E206E65737465642066696E616C6C79 [8 datoshi]
     /// THROW [512 datoshi]
-    /// STLOC2 [2 datoshi]
+    /// STLOC3 [2 datoshi]
     /// DEPTH [2 datoshi]
-    /// LDLOC1 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
     /// JMPLE 05 [2 datoshi]
     /// DROP [2 datoshi]
     /// JMP FB [2 datoshi]
-    /// LDLOC2 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
     /// THROW [512 datoshi]
-    /// ENDTRY 19 [4 datoshi]
+    /// ENDTRY 1B [4 datoshi]
+    /// DEPTH [2 datoshi]
+    /// STLOC4 [2 datoshi]
     /// TRY 0D00 [4 datoshi]
     /// PUSHDATA1 00 [8 datoshi]
     /// SYSCALL 7554F594 'System.Storage.Local.Delete' [32768 datoshi]
     /// ENDTRY 0B [4 datoshi]
-    /// STLOC0 [2 datoshi]
+    /// STLOC3 [2 datoshi]
     /// DEPTH [2 datoshi]
-    /// LDLOC1 [2 datoshi]
+    /// LDLOC4 [2 datoshi]
     /// JMPLE 05 [2 datoshi]
     /// DROP [2 datoshi]
     /// JMP FB [2 datoshi]
