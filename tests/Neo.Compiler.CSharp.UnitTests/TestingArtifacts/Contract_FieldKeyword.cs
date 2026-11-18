@@ -18,7 +18,7 @@ public abstract class Contract_FieldKeyword(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM05lby5Db21waWxlci5DU2hhcnAgMy4xMC4yK2UyY2FjZTgzZTQ1YTNkZDJlY2U5YjRmNjNkMTU1YjMyNjkuLi4AAAAAAOBYQFcAAXgQuCYFeCIDEGBAWUBXAAF4ELcmBXgiA1lhQFpAVwABeLEkBVoiA3hiQFcAAXg0zzTLQFcAAng01nk00zTPQFcAAng02nk01zTTQFcBAgkQEsBwaHhQNAtoeVA0Bmg0PUBXAAJ5ELgmKngQznmeSsoUMiMD/////wAAAACRSgL///9/MhEDAAAAAAEAAACfIgV4EM5KeBBR0EVAVwABeBDOQFcBAgkQEsBwaHhQNAtoeVA0Bmg0FkBXAAJ4Ec4mBQgiA3lKeBFR0EVAVwABeBHOQFYDEGAQYRBiQIWQyrs=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM05lby5Db21waWxlci5DU2hhcnAgMy4xMC4yK2QzZDdjNDNmNWJjMjNmNDJmNDIxMWZmNzQ1MTkwYzgyNDguLi4AAAAAAOBYQFcAAXgQuCYFeCIDEGBAWUBXAAF4ELcmBXgiA1lhQFpAVwABeLEkBVoiA3hiQFcAAXg0zzTLQFcAAng01nk00zTPQFcAAng02nk01zTTQFcBAgkQEsBwaHhQNAtoeVA0Bmg0PUBXAAJ5ELgmKngQznmeSsoUMiMD/////wAAAACRSgL///9/MhEDAAAAAAEAAACfIgV4EM5KeBBR0EVAVwABeBDOQFcBAgkQEsBwaHhQNAtoeVA0Bmg0FkBXAAJ4Ec4mBQgiA3lKeBFR0EVAVwABeBHOQFYDEGAQYRBiQJAks3M=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
