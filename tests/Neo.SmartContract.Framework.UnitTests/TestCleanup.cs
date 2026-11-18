@@ -81,6 +81,8 @@ namespace Neo.SmartContract.Framework.UnitTests
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
+            GasTrackingSession.Finish(Assembly.GetExecutingAssembly());
+
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
