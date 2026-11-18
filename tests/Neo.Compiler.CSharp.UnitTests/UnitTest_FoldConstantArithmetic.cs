@@ -221,6 +221,42 @@ public class UnitTest_FoldConstantArithmetic
         }
     }
 
+    [TestMethod]
+    public void EqualityBeyondMaxComparableSizeRemainsUnfolded()
+    {
+        using var builder = new ScriptBuilder();
+        builder.EmitPush(new byte[65537]);
+        builder.EmitPush(Enumerable.Range(1, 65537).Select(i => (byte)i).ToArray());
+        builder.Emit(OpCode.EQUAL);
+        builder.Emit(OpCode.RET);
+        var script = builder.ToArray();
+        var nef = new NefFile { Compiler = "test", Source = "", Tokens = [], Script = script };
+        var manifest = new ContractManifest
+        {
+            Name = "TestContract",
+            Groups = [],
+            SupportedStandards = [],
+            Permissions = [],
+            Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
+            Abi = new ContractAbi
+            {
+                Methods = [new ContractMethodDescriptor { Name = "main", Offset = 0, Parameters = [], ReturnType = ContractParameterType.Boolean }],
+                Events = []
+            }
+        };
+        var (folded, _, _) = ConstantFold.FoldConstants(nef, manifest);
+        Assert.IsTrue(new Script(folded.Script).EnumerateInstructions()
+            .Any(kv => kv.instruction.OpCode == OpCode.EQUAL),
+            "oversized comparison was folded to a constant boolean");
+        // EQUAL faults for operands larger than MaxComparableSize, both before and after folding
+        foreach (var code in new[] { script, folded.Script })
+        {
+            using var engine = new ExecutionEngine();
+            engine.LoadScript(code);
+            Assert.AreEqual(VMState.FAULT, engine.Execute());
+        }
+    }
+
     public abstract class ContractArtifact(SmartContractInitialize initialize)
         : SmartContract.Testing.SmartContract(initialize)
     {

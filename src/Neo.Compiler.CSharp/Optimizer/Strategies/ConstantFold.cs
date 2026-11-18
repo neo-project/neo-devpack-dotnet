@@ -71,9 +71,7 @@ namespace Neo.Optimizer
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
             InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
             Dictionary<int, VmInstruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
-            (Dictionary<VmInstruction, VmInstruction> jumpSourceToTargets,
-                Dictionary<VmInstruction, (VmInstruction, VmInstruction)> trySourceToTargets,
-                Dictionary<VmInstruction, HashSet<VmInstruction>> jumpTargetToSources) =
+            var (jumpSourceToTargets, trySourceToTargets, jumpTargetToSources) =
                 (oldContractCoverage.jumpInstructionSourceToTargets,
                 oldContractCoverage.tryInstructionSourceToTargets,
                 oldContractCoverage.jumpTargetToSources);
@@ -187,6 +185,14 @@ namespace Neo.Optimizer
 
             if (TryGetPushedBytes(left, out byte[] lb) && TryGetPushedBytes(right, out byte[] rb))
             {
+                // EQUAL/NOTEQUAL fault at runtime when either operand exceeds MaxComparableSize;
+                // folding would replace that fault with a constant boolean, so oversized
+                // comparisons must remain unfolded.
+                if (lb.Length > ExecutionEngineLimits.Default.MaxComparableSize
+                    || rb.Length > ExecutionEngineLimits.Default.MaxComparableSize)
+                {
+                    return null;
+                }
                 return op.OpCode switch
                 {
                     OpCode.EQUAL => PushBoolean(lb.SequenceEqual(rb)),
