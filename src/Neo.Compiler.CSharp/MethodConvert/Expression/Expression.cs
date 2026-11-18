@@ -500,6 +500,7 @@ internal partial class MethodConvert
                 ChangeType(StackItemType.ByteString);
                 break;
             case "string":
+            case "string?":
             case "Neo.SmartContract.Framework.ECPoint":
             case "Neo.SmartContract.Framework.ByteString":
             case "Neo.SmartContract.Framework.UInt160":
