@@ -125,6 +125,28 @@ internal partial class MethodConvert
         }
     }
 
+    private void SaveByRefCapturedLocals()
+    {
+        foreach (ILocalSymbol local in _byRefCapturedSymbols.OfType<ILocalSymbol>())
+        {
+            byte fieldIndex = _context.GetOrAddCapturedStaticField(local);
+            byte savedSlot = AddPermanentAnonymousVariable();
+            _savedByRefLocals.Add((fieldIndex, savedSlot));
+            AccessSlot(OpCode.LDSFLD, fieldIndex);
+            AccessSlot(OpCode.STLOC, savedSlot);
+        }
+    }
+
+    private void RestoreByRefCapturedLocals()
+    {
+        foreach ((byte fieldIndex, byte savedSlot) in _savedByRefLocals)
+        {
+            Instruction start = AccessSlot(OpCode.LDLOC, savedSlot);
+            _returnTarget.Instruction ??= start;
+            AccessSlot(OpCode.STSFLD, fieldIndex);
+        }
+    }
+
     private bool TryGetExtensionReceiverParameter(out IParameterSymbol? receiverParameter)
     {
         receiverParameter = null;

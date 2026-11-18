@@ -637,11 +637,15 @@ internal partial class MethodConvert
         if (scope.TryGetValue(location, out IParameterSymbol? alias))
         {
             byte index = _context.GetOrAddCapturedStaticField(alias);
+            bool aliasesField = _byRefAliasParameters.Peek().TryGetValue(alias, out var mappedAlias);
+            if (aliasesField)
+                index = mappedAlias.Alias;
             byte original = _context.GetOrAddCapturedStaticField(parameter);
             if (original != index)
             {
                 _byRefAliasParameters.Peek()[parameter] = (original, index);
-                _context.AssociateCapturedStaticField(parameter, index);
+                if (!aliasesField)
+                    _context.AssociateCapturedStaticField(parameter, index);
             }
             return true;
         }
@@ -710,6 +714,15 @@ internal partial class MethodConvert
 
         if (!parameterCaptured)
             parameterIndex = _context.GetOrAddCapturedStaticField(parameter);
+
+        if (field.IsStatic && parameterIndex != fieldIndex)
+        {
+            // A static field passed by ref must remain the same storage location
+            // throughout the call. Delayed writeback would erase direct writes to
+            // the field made by the callee (or one of its callees).
+            _byRefAliasParameters.Peek()[parameter] = (parameterIndex, fieldIndex);
+            return;
+        }
 
         bool requireSync = !field.IsStatic || parameterIndex != fieldIndex;
         if (requireSync)
