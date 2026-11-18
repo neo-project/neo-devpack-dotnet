@@ -96,6 +96,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
+            GasTrackingSession.Finish(Assembly.GetExecutingAssembly());
+
             if (Environment.GetEnvironmentVariable("NEO_SKIP_TEST_COVERAGE") == "1")
                 return;
 
