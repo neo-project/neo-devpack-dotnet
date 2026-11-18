@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Analyzer
             Category,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "Duplicate constant StorageMap/LocalStorageMap prefixes in the same contract, or a prefix that reuses a reserved prefix of an inherited framework base class, can cause storage namespace collisions.",
+            description: "Duplicate constant storage prefixes across maps and persistent collections, or a prefix that reuses a reserved prefix of an inherited framework base class, can cause storage namespace collisions.",
             customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
         // Reserved single-byte storage prefixes used internally by framework base classes. A
@@ -74,12 +74,31 @@ namespace Neo.SmartContract.Analyzer
                 startContext.RegisterSyntaxNodeAction(
                     syntaxContext => CollectClassDeclaration(syntaxContext, candidates),
                     SyntaxKind.ClassDeclaration);
+                startContext.RegisterSyntaxNodeAction(
+                    syntaxContext => CollectLocalDeclaration(syntaxContext, candidates),
+                    SyntaxKind.VariableDeclarator);
                 startContext.RegisterCompilationEndAction(
                     compilationContext => AnalyzeCollectedPrefixes(
                         compilationContext,
                         candidates,
                         semanticModels));
             });
+        }
+
+        private static void CollectLocalDeclaration(
+            SyntaxNodeAnalysisContext context,
+            ConcurrentBag<PrefixUsageCandidate> candidates)
+        {
+            var declarator = (VariableDeclaratorSyntax)context.Node;
+            if (declarator.Parent?.Parent is FieldDeclarationSyntax ||
+                declarator.Initializer?.Value is not ExpressionSyntax initializer ||
+                context.SemanticModel.GetDeclaredSymbol(declarator, context.CancellationToken) is not ILocalSymbol local ||
+                !IsStorageNamespaceType(local.Type) ||
+                context.ContainingSymbol?.ContainingType is not INamedTypeSymbol type)
+                return;
+
+            candidates.Add(new PrefixUsageCandidate(type, local, initializer,
+                context.SemanticModel, declarator.Identifier.GetLocation()));
         }
 
         private static void CollectClassDeclaration(
@@ -118,8 +137,7 @@ namespace Neo.SmartContract.Analyzer
             ConcurrentBag<PrefixUsageCandidate> candidates,
             IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels)
         {
-            Dictionary<INamedTypeSymbol, List<CollectedPrefixUsage>> usagesByType =
-                new(SymbolEqualityComparer.Default);
+            List<CollectedPrefixUsage> usages = new();
 
             foreach (PrefixUsageCandidate candidate in candidates)
             {
@@ -135,8 +153,19 @@ namespace Neo.SmartContract.Analyzer
                     continue;
                 }
 
+                ExpressionSyntax resolvedPrefix = prefixExpression;
+                if (candidate.InitializerValue is InvocationExpressionSyntax factoryCall &&
+                    GetSemanticModelForNode(prefixExpression, candidate.SemanticModel, semanticModels)?
+                        .GetSymbolInfo(prefixExpression, context.CancellationToken).Symbol is IParameterSymbol parameter &&
+                    candidate.SemanticModel.GetOperation(factoryCall, context.CancellationToken) is IInvocationOperation factoryOperation)
+                {
+                    resolvedPrefix = factoryOperation.Arguments
+                        .FirstOrDefault(argument => SymbolEqualityComparer.Default.Equals(argument.Parameter, parameter))?
+                        .Value.Syntax as ExpressionSyntax ?? prefixExpression;
+                }
+
                 if (!TryNormalizePrefix(
-                        prefixExpression,
+                        resolvedPrefix,
                         candidate.SemanticModel,
                         semanticModels,
                         context.CancellationToken,
@@ -148,49 +177,39 @@ namespace Neo.SmartContract.Analyzer
 
                 CollectedPrefixUsage usage = new(
                     candidate.Type,
-                    candidate.Field,
+                    candidate.Symbol,
                     normalizedPrefix,
                     candidate.Location);
 
-                if (!usagesByType.TryGetValue(usage.Type, out List<CollectedPrefixUsage>? typeUsages))
-                {
-                    typeUsages = new List<CollectedPrefixUsage>();
-                    usagesByType.Add(usage.Type, typeUsages);
-                }
-
-                typeUsages.Add(usage);
+                usages.Add(usage);
             }
 
-            foreach (KeyValuePair<INamedTypeSymbol, List<CollectedPrefixUsage>> pair in usagesByType)
+            Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
+            foreach (CollectedPrefixUsage usage in usages
+                .OrderBy(item => item.Location.SourceTree?.FilePath ?? string.Empty, StringComparer.Ordinal)
+                .ThenBy(item => item.Location.SourceSpan.Start))
             {
-                INamedTypeSymbol typeSymbol = pair.Key;
-                List<CollectedPrefixUsage> typeUsages = pair.Value;
-                Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
-                SeedInheritedReservedPrefixes(typeSymbol, seenPrefixes);
-
-                foreach (CollectedPrefixUsage usage in typeUsages
-                    .OrderBy(item => item.Location.SourceTree?.FilePath ?? string.Empty, StringComparer.Ordinal)
-                    .ThenBy(item => item.Location.SourceSpan.Start))
+                Dictionary<string, PrefixUsage> inheritedPrefixes = new(StringComparer.Ordinal);
+                SeedInheritedReservedPrefixes(usage.Type, inheritedPrefixes);
+                if (inheritedPrefixes.TryGetValue(usage.NormalizedPrefix, out PrefixUsage inherited))
                 {
-                    if (seenPrefixes.TryGetValue(usage.NormalizedPrefix, out PrefixUsage existing))
-                    {
-                        if (!SymbolEqualityComparer.Default.Equals(existing.Field, usage.Field))
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                Rule,
-                                usage.Location,
-                                usage.NormalizedPrefix,
-                                usage.Field.Name,
-                                existing.Description));
-                        }
-
-                        continue;
-                    }
-
-                    seenPrefixes[usage.NormalizedPrefix] = new PrefixUsage(usage.Field, usage.Field.Name);
+                    ReportCollision(context, usage, inherited);
                 }
+                else if (seenPrefixes.TryGetValue(usage.NormalizedPrefix, out PrefixUsage existing) &&
+                    !SymbolEqualityComparer.Default.Equals(existing.Symbol, usage.Symbol))
+                {
+                    ReportCollision(context, usage, existing);
+                }
+
+                if (!seenPrefixes.ContainsKey(usage.NormalizedPrefix))
+                    seenPrefixes.Add(usage.NormalizedPrefix,
+                        new PrefixUsage(usage.Symbol, usage.Symbol.Name));
             }
         }
+
+        private static void ReportCollision(CompilationAnalysisContext context, CollectedPrefixUsage usage, PrefixUsage existing) =>
+            context.ReportDiagnostic(Diagnostic.Create(Rule, usage.Location,
+                usage.NormalizedPrefix, usage.Symbol.Name, existing.Description));
 
         private static void SeedInheritedReservedPrefixes(INamedTypeSymbol typeSymbol, Dictionary<string, PrefixUsage> seenPrefixes)
         {
@@ -223,7 +242,10 @@ namespace Neo.SmartContract.Analyzer
         {
             string fullName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             return fullName is "global::Neo.SmartContract.Framework.Services.StorageMap"
-                or "global::Neo.SmartContract.Framework.Services.LocalStorageMap";
+                or "global::Neo.SmartContract.Framework.Services.LocalStorageMap"
+                or "global::Neo.SmartContract.Framework.Services.UInt160Set"
+                or "global::Neo.SmartContract.Framework.Services.UInt160List"
+                or "global::Neo.SmartContract.Framework.Services.UInt160IndexedSet";
         }
 
         private static SemanticModel? GetSemanticModelForNode(
@@ -278,9 +300,6 @@ namespace Neo.SmartContract.Analyzer
                 return false;
 
             if (!IsStorageNamespaceType(methodSymbol.ReturnType))
-                return false;
-
-            if (methodSymbol.Parameters.Length != 0)
                 return false;
 
             if (!visitedSymbols.Add(methodSymbol))
@@ -374,6 +393,24 @@ namespace Neo.SmartContract.Analyzer
                     return TryGetByteArray(implicitArray.Initializer.Expressions, semanticModel, semanticModels, cancellationToken, visitedSymbols, out bytes);
             }
 
+            if (expression is InvocationExpressionSyntax invocation &&
+                semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol is IMethodSymbol method &&
+                method.Parameters.Length == 0 && visitedSymbols.Add(method))
+            {
+                foreach (SyntaxReference reference in method.DeclaringSyntaxReferences)
+                {
+                    if (reference.GetSyntax(cancellationToken) is not MethodDeclarationSyntax declaration)
+                        continue;
+                    ExpressionSyntax? returned = declaration.ExpressionBody?.Expression;
+                    if (returned is null && declaration.Body?.Statements.Count == 1 &&
+                        declaration.Body.Statements[0] is ReturnStatementSyntax statement)
+                        returned = statement.Expression;
+                    if (returned is not null && TryGetByteSequence(returned, semanticModel,
+                        semanticModels, cancellationToken, visitedSymbols, out bytes))
+                        return true;
+                }
+            }
+
             SymbolInfo symbolInfo = semanticModel.GetSymbolInfo(expression, cancellationToken);
             if (symbolInfo.Symbol is null && semanticModel.GetConstantValue(expression, cancellationToken) is { HasValue: true } constantValue)
             {
@@ -402,6 +439,27 @@ namespace Neo.SmartContract.Analyzer
                     {
                         return true;
                     }
+                }
+            }
+
+            if (symbolInfo.Symbol is IPropertySymbol propertySymbol && visitedSymbols.Add(propertySymbol))
+            {
+                foreach (SyntaxReference reference in propertySymbol.DeclaringSyntaxReferences)
+                {
+                    if (reference.GetSyntax(cancellationToken) is not PropertyDeclarationSyntax property)
+                        continue;
+                    ExpressionSyntax? value = property.ExpressionBody?.Expression ?? property.Initializer?.Value;
+                    if (value is null && property.AccessorList?.Accessors.Count == 1)
+                    {
+                        AccessorDeclarationSyntax accessor = property.AccessorList.Accessors[0];
+                        value = accessor.ExpressionBody?.Expression;
+                        if (value is null && accessor.Body?.Statements.Count == 1 &&
+                            accessor.Body.Statements[0] is ReturnStatementSyntax statement)
+                            value = statement.Expression;
+                    }
+                    if (value is not null && TryGetByteSequence(value, semanticModel,
+                        semanticModels, cancellationToken, visitedSymbols, out bytes))
+                        return true;
                 }
             }
 
@@ -488,13 +546,13 @@ namespace Neo.SmartContract.Analyzer
         {
             public PrefixUsageCandidate(
                 INamedTypeSymbol type,
-                IFieldSymbol field,
+                ISymbol symbol,
                 ExpressionSyntax initializerValue,
                 SemanticModel semanticModel,
                 Location location)
             {
                 Type = type;
-                Field = field;
+                Symbol = symbol;
                 InitializerValue = initializerValue;
                 SemanticModel = semanticModel;
                 Location = location;
@@ -502,7 +560,7 @@ namespace Neo.SmartContract.Analyzer
 
             public INamedTypeSymbol Type { get; }
 
-            public IFieldSymbol Field { get; }
+            public ISymbol Symbol { get; }
 
             public ExpressionSyntax InitializerValue { get; }
 
@@ -515,19 +573,19 @@ namespace Neo.SmartContract.Analyzer
         {
             public CollectedPrefixUsage(
                 INamedTypeSymbol type,
-                IFieldSymbol field,
+                ISymbol symbol,
                 string normalizedPrefix,
                 Location location)
             {
                 Type = type;
-                Field = field;
+                Symbol = symbol;
                 NormalizedPrefix = normalizedPrefix;
                 Location = location;
             }
 
             public INamedTypeSymbol Type { get; }
 
-            public IFieldSymbol Field { get; }
+            public ISymbol Symbol { get; }
 
             public string NormalizedPrefix { get; }
 
@@ -536,13 +594,13 @@ namespace Neo.SmartContract.Analyzer
 
         private sealed class PrefixUsage
         {
-            public PrefixUsage(IFieldSymbol? field, string description)
+            public PrefixUsage(ISymbol? symbol, string description)
             {
-                Field = field;
+                Symbol = symbol;
                 Description = description;
             }
 
-            public IFieldSymbol? Field { get; }
+            public ISymbol? Symbol { get; }
 
             public string Description { get; }
         }
