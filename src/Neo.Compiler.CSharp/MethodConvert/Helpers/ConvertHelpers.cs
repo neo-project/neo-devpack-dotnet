@@ -237,13 +237,17 @@ internal partial class MethodConvert
         _instructions.InsertRange(insertionIndex, [new Instruction { OpCode = OpCode.DEPTH }, store]);
     }
 
-    private void RestoreMethodStackDepth()
+    private void RestoreMethodStackDepth(byte? entryDepthIndex = null)
     {
         // NeoVM THROW preserves existing evaluation-stack items. Dropping only the two division operands
         // would leave receiver, index, and outer-expression temporaries behind, so restore the nearest
-        // inline or method boundary before pushing the exception value.
+        // try-entry, inline, or method boundary before pushing the exception value.
         byte stackDepthIndex;
-        if (_inlineStackDepthScopes.TryPeek(out StackDepthScope? scope))
+        if (entryDepthIndex.HasValue)
+        {
+            stackDepthIndex = entryDepthIndex.Value;
+        }
+        else if (_inlineStackDepthScopes.TryPeek(out StackDepthScope? scope))
         {
             if (!scope.SlotIndex.HasValue)
             {
