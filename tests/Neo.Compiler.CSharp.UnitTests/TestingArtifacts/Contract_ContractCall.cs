@@ -13,12 +13,12 @@ public abstract class Contract_ContractCall(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ContractCall"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testContractCall"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""testContractCallVoid"",""parameters"":[],""returntype"":""Void"",""offset"":5,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0x499c4b9ad550f4a1a928bdb69ed63e5e1c2446c5"",""methods"":[""testArgs1"",""testVoid""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ContractCall"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testContractCall"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""testContractCallVoid"",""parameters"":[],""returntype"":""Void"",""offset"":5,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0x89a8533fb58f852307f98c8ec6c46fd128827ffe"",""methods"":[""testArgs1"",""testVoid""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALFRiQcXj7Wnra9KKmh9FDVmkucSQl0ZXN0QXJnczEBAAEPxUYkHF4+1p62vSipofRQ1ZpLnEkIdGVzdFZvaWQAAAAPAAAJFDcAAEA3AQBA0cDaYg==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL+f4Io0W/Exo6M+QcjhY+1P1OoiQl0ZXN0QXJnczEBAAEP/n+CKNFvxMaOjPkHI4WPtT9TqIkIdGVzdFZvaWQAAAAPAAAJFDcAAEA3AQBAjht2Og==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 

@@ -13,12 +13,12 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Initializer"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""sum1"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":49,""safe"":false},{""name"":""sum2"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":99,""safe"":false},{""name"":""anonymousObjectCreation"",""parameters"":[],""returntype"":""Void"",""offset"":156,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Initializer"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""sum1"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":55,""safe"":false},{""name"":""sum2"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":127,""safe"":false},{""name"":""anonymousObjectCreation"",""parameters"":[],""returntype"":""Void"",""offset"":206,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAONXAQASERLAcGgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwECeHlQEsBwaBDOaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAQISERLAcGgQeNBoEXnQaBDOaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAgAMBUhlbGxvAGwSwHBoNClBz+dHlhEMBWdyYXBlEsAUDAVhcHBsZRLAEsBxaRDONA9Bz+dHlkBXAAF4Ec5AVwABeBDOQDp8CG0=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0VAVcBABIREsBwaBDOaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0rKFDIDOkBXAQJ4SsoUMgM6RXlKyhQyAzpFeHlQEsBwaBDOaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0rKFDIDOkBXAQJ4SsoUMgM6RXlKyhQyAzpFEhESwHBoEHjQaBF50GgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KyhQyAzpAVwIADAVIZWxsbwBsEsBwaDQpQc/nR5YRDAVncmFwZRLAFAwFYXBwbGUSwBLAcWkQzjQPQc/nR5ZAVwABeBHOQFcAAXgQzkDyDkHe").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -63,7 +63,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEhESwHBoEM5oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQA==
+    /// Script: VwEAEhESwHBoEM5oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSsoUMgM6QA==
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH2 [1 datoshi]
     /// PUSH1 [1 datoshi]
@@ -88,6 +88,11 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// JMPLE 0C [2 datoshi]
     /// PUSHINT64 0000000001000000 [1 datoshi]
     /// SUB [8 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum")]
@@ -97,8 +102,22 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECeHlQEsBwaBDOaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// Script: VwECeErKFDIDOkV5SsoUMgM6RXh5UBLAcGgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KyhQyAzpA
     /// INITSLOT 0102 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// DROP [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// DROP [2 datoshi]
     /// LDARG0 [2 datoshi]
     /// LDARG1 [2 datoshi]
     /// SWAP [2 datoshi]
@@ -123,6 +142,11 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// JMPLE 0C [2 datoshi]
     /// PUSHINT64 0000000001000000 [1 datoshi]
     /// SUB [8 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum1")]
@@ -132,8 +156,22 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECEhESwHBoEHjQaBF50GgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9A
+    /// Script: VwECeErKFDIDOkV5SsoUMgM6RRIREsBwaBB40GgRedBoEM5oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSsoUMgM6QA==
     /// INITSLOT 0102 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// DROP [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// DROP [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// PUSH1 [1 datoshi]
     /// PUSH2 [1 datoshi]
@@ -165,6 +203,11 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// JMPLE 0C [2 datoshi]
     /// PUSHINT64 0000000001000000 [1 datoshi]
     /// SUB [8 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum2")]

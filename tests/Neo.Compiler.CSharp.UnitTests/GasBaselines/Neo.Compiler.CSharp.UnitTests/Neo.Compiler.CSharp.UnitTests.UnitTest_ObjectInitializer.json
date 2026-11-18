@@ -1,7 +1,7 @@
 {
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_FieldInitializer#1": 1111230,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_FromEndIndexInitializer#1": 1539030,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_IndexInitializer#1": 1736460,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_FieldInitializer#1": 1111890,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_FromEndIndexInitializer#1": 1539690,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_IndexInitializer#1": 1737120,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PartialObjectInitializer_PreservesDeclaredInitializers[All]#1": 1001075800,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PartialObjectInitializer_PreservesDeclaredInitializers[All]#10": 1357500,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PartialObjectInitializer_PreservesDeclaredInitializers[All]#2": 1072920,
@@ -32,5 +32,5 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PartialObjectInitializer_PreservesDeclaredInitializers[None]#7": 1359390,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PartialObjectInitializer_PreservesDeclaredInitializers[None]#8": 1113570,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PartialObjectInitializer_PreservesDeclaredInitializers[None]#9": 1048350,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PropertyInitializer#1": 1357110
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_ObjectInitializer.Test_PropertyInitializer#1": 1357770
 }

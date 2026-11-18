@@ -42,9 +42,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_AddUInt()
         {
-            Assert.AreEqual(unchecked(uint.MinValue - 1), Contract.AddUInt(uint.MinValue, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.AddUInt(uint.MinValue, -1));
             Assert.AreEqual(unchecked(uint.MaxValue + 1), Contract.AddUInt(uint.MaxValue, 1));
-            Assert.AreEqual(unchecked(uint.MinValue - uint.MaxValue), Contract.AddUInt(uint.MinValue, -uint.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.AddUInt(uint.MinValue, -uint.MaxValue));
             Assert.AreEqual(unchecked(uint.MaxValue - uint.MinValue), Contract.AddUInt(uint.MaxValue, unchecked(-uint.MinValue)));
         }
 
@@ -52,12 +52,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MulUInt()
         {
             Assert.AreEqual(unchecked(uint.MinValue * 2), Contract.MulUInt(uint.MinValue, 2));
-            Assert.AreEqual(unchecked(uint.MinValue * (-2)), Contract.MulUInt(uint.MinValue, -2));
+            Assert.ThrowsExactly<TestException>(() => Contract.MulUInt(uint.MinValue, -2));
             Assert.AreEqual(unchecked(uint.MaxValue * 2), Contract.MulUInt(uint.MaxValue, 2));
-            Assert.AreEqual(unchecked(uint.MaxValue * (uint)(-2)), Contract.MulUInt(uint.MaxValue, -2));
+            Assert.ThrowsExactly<TestException>(() => Contract.MulUInt(uint.MaxValue, -2));
             Assert.AreEqual(unchecked(uint.MinValue * uint.MaxValue), Contract.MulUInt(uint.MinValue, uint.MaxValue));
             Assert.AreEqual(unchecked(uint.MaxValue * uint.MaxValue), Contract.MulUInt(uint.MaxValue, uint.MaxValue));
-            Assert.AreEqual(unchecked(uint.MinValue * (-uint.MaxValue)), Contract.MulUInt(uint.MinValue, -uint.MaxValue));
+            Assert.ThrowsExactly<TestException>(() => Contract.MulUInt(uint.MinValue, -uint.MaxValue));
             Assert.AreEqual(unchecked((-uint.MinValue) * uint.MaxValue), Contract.MulUInt(unchecked(-uint.MinValue), uint.MaxValue));
         }
 

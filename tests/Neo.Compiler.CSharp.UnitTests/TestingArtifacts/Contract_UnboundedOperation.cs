@@ -18,7 +18,7 @@ public abstract class Contract_UnboundedOperation(Neo.SmartContract.Testing.Smar
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFpXAgEQcBBxIk1oaZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcUVpeDCzaEAmDDn9").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhXAgF4SsoUMgM6RRBwEHEiTWhpnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BpSpxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWl4MLNoSsoUMgM6QO+djcA=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,8 +28,15 @@ public abstract class Contract_UnboundedOperation(Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBEHAQcSJNaGmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGlKnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXgws2hA
+    /// Script: VwIBeErKFDIDOkUQcBBxIk1oaZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcUVpeDCzaErKFDIDOkA=
     /// INITSLOT 0201 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// DROP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
@@ -70,6 +77,11 @@ public abstract class Contract_UnboundedOperation(Neo.SmartContract.Testing.Smar
     /// LDARG0 [2 datoshi]
     /// JMPLT B3 [2 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum")]

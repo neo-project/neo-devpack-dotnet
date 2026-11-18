@@ -13,12 +13,12 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StaticClass"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testStaticClass"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":52,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_StaticClass"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testStaticClass"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":58,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD1ZNAZaNCtAVwABWJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9gQFcAAVhAVgMRYMJhwmJA9jSSxA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAENZNAxaNDFKyhQyAzpAVwABWJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9gQFcAAVhAVgMRYMJhwmJA5z2CrQ==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,11 +28,16 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: WTQGWjQrQA==
+    /// Script: WTQMWjQxSsoUMgM6QA==
     /// LDSFLD1 [2 datoshi]
-    /// CALL 06 [512 datoshi]
+    /// CALL 0C [512 datoshi]
     /// LDSFLD2 [2 datoshi]
-    /// CALL 2B [512 datoshi]
+    /// CALL 31 [512 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStaticClass")]

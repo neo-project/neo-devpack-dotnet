@@ -13,12 +13,12 @@ public abstract class Contract_Partial(Neo.SmartContract.Testing.SmartContractIn
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Partial"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test1"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""test2"",""parameters"":[],""returntype"":""Integer"",""offset"":2,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Partial"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test1"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""test2"",""parameters"":[],""returntype"":""Integer"",""offset"":8,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQRQBJAbXCJZw==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABARSsoUMgM6QBJKyhQyAzpAfaZRKg==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,8 +28,13 @@ public abstract class Contract_Partial(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EUA=
+    /// Script: EUrKFDIDOkA=
     /// PUSH1 [1 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test1")]
@@ -39,8 +44,13 @@ public abstract class Contract_Partial(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EkA=
+    /// Script: EkrKFDIDOkA=
     /// PUSH2 [1 datoshi]
+    /// DUP [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test2")]

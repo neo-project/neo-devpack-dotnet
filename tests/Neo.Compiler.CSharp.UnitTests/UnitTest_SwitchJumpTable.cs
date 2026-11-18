@@ -67,9 +67,11 @@ public class Contract : SmartContract
     [TestMethod]
     public void IntegerSwitch_BelowOptimizationThreshold_UsesLinearEqualityChain()
     {
-        var source = BuildSwitchContract("int", ["0", "1", "2", "3", "4", "5", "6"]);
+        var source = BuildSwitchContract("int", ["0", "1", "2", "3", "4", "5", "6"])
+            .Replace("public static int Main(int x)",
+                "public static int Main(int x) => Dispatch(x); private static int Dispatch(int x)");
 
-        AssertUsesLinearEqualityDispatch(source, "Contract.Main(int)");
+        AssertUsesLinearEqualityDispatch(source, "Contract.Dispatch(int)");
     }
 
     [TestMethod]

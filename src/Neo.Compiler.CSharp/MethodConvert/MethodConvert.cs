@@ -229,11 +229,20 @@ namespace Neo.Compiler
         private void ValidateExportedParameters()
         {
             if (!_context.IsExportedMethod(Symbol)) return;
+            if (Symbol.MethodKind == MethodKind.PropertySet && !Symbol.IsStatic) return;
 
             foreach (IParameterSymbol parameter in Symbol.Parameters)
             {
                 if (parameter.RefKind != RefKind.None || !IsFixedWidthInteger(parameter.Type)) continue;
-                AccessSlot(OpCode.LDARG, _parameters[parameter]);
+                if (Symbol.MethodKind == MethodKind.PropertySet &&
+                    Symbol.AssociatedSymbol is IPropertySymbol property &&
+                    !property.GetAttributes().Any(a => a.AttributeClass?.Name == "StoredAttribute") &&
+                    property.DeclaringSyntaxReferences.Any(r => r.GetSyntax() is PropertyDeclarationSyntax syntax &&
+                        syntax.AccessorList?.Accessors.Any(a => a.Keyword.ValueText == "set" &&
+                            a.Body is null && a.ExpressionBody is null) == true))
+                    Dup(); // Static auto-property setters consume the value from the stack.
+                else
+                    AccessSlot(OpCode.LDARG, _parameters[parameter]);
                 EnsureIntegerInRange(parameter.Type, forceChecked: true);
                 Drop();
             }
@@ -344,6 +353,13 @@ namespace Neo.Compiler
 
         public void ConvertForward(SemanticModel model, MethodConvert target)
         {
+            if (Symbol.MethodKind == MethodKind.PropertySet &&
+                Symbol.Parameters.Length == 1 && IsFixedWidthInteger(Symbol.Parameters[0].Type))
+            {
+                AccessSlot(OpCode.LDARG, 0);
+                EnsureIntegerInRange(Symbol.Parameters[0].Type, forceChecked: true);
+                Drop();
+            }
             INamedTypeSymbol type = Symbol.ContainingType.TypeKind == TypeKind.Interface
                 ? _context.TargetContract
                 : Symbol.ContainingType;

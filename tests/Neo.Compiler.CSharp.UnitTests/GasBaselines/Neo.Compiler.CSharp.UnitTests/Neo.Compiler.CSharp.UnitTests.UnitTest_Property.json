@@ -27,10 +27,10 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestStaticPropertyValueInc#1": 986220,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestToggleProtectedProperty#1": 1299660,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestToggleProtectedProperty#2": 1299660,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedPropertyDec#1": 2542560,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedPropertyInc#1": 2542560,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedPropertyMul#1": 1797540,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedStaticPropertyDec#1": 1053090,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedStaticPropertyInc#1": 1053090,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedStaticPropertyMul#1": 1051650
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedPropertyDec#1": 2544450,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedPropertyInc#1": 2544450,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedPropertyMul#1": 1798620,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedStaticPropertyDec#1": 1057680,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedStaticPropertyInc#1": 1057680,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Property.TestUninitializedStaticPropertyMul#1": 1054260
 }

@@ -35,8 +35,8 @@ jobs:
         with:
           languages: csharp
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
+      - name: Build compiler
+        run: dotnet build src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj --configuration Release
 
       - name: Analyze
         uses: github/codeql-action/analyze@v4

@@ -102,7 +102,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.UnitTest_Param_Dec_UnChecked(uint.MinValue);
 
-            Contract.UnitTest_Param_Dec_UnChecked(-1);
+            Assert.ThrowsExactly<TestException>(() => Contract.UnitTest_Param_Dec_UnChecked(-1));
 
             Contract.UnitTest_Param_Dec_UnChecked(1);
         }
