@@ -133,6 +133,91 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void StaticPropertyDependenciesInitializeBeforeDependents()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+
+                public class Store { public static string Who { get; } = "hello"; }
+                public class Gate { public static string Greet = Store.Who; }
+                public class Contract : SmartContract
+                {
+                    [DisplayName("getGreet")]
+                    public static string GetGreet() => Gate.Greet;
+
+                    [DisplayName("getWho")]
+                    public static string GetWho() => Store.Who;
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<StaticDependencyContract>(context.CreateExecutable(), context.CreateManifest());
+
+            Assert.AreEqual("hello", contract.GetGreet());
+            Assert.AreEqual("hello", contract.GetWho());
+        }
+
+        [TestMethod]
+        public void StaticPropertyGetterDependenciesInitializeBeforeDependents()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+
+                public class Values { public static string Text = "hello"; }
+                public class Store { public static string Who => Values.Text; }
+                public class Gate { public static string Greet = Store.Who; }
+                public class Contract : SmartContract
+                {
+                    [DisplayName("getGreet")]
+                    public static string GetGreet() => Gate.Greet;
+
+                    [DisplayName("getWho")]
+                    public static string GetWho() => Store.Who;
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<StaticDependencyContract>(context.CreateExecutable(), context.CreateManifest());
+
+            Assert.AreEqual("hello", contract.GetGreet());
+            Assert.AreEqual("hello", contract.GetWho());
+        }
+
+        [TestMethod]
+        public void StaticMethodDependenciesInitializeBeforeDependents()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+                using System.Numerics;
+
+                public class Rates { public static BigInteger Base = 100; }
+                public static class Fees { public static BigInteger DefaultFee() => ReadBase(); private static BigInteger ReadBase() => Rates.Base; }
+                public class Contract : SmartContract
+                {
+                    public static BigInteger Fee = Fees.DefaultFee();
+
+                    [DisplayName("getFee")]
+                    public static BigInteger GetFee() => Fee;
+
+                    [DisplayName("getBase")]
+                    public static BigInteger GetBase() => Rates.Base;
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<StaticMethodDependencyContract>(context.CreateExecutable(), context.CreateManifest());
+
+            Assert.AreEqual(new BigInteger(100), contract.GetFee());
+            Assert.AreEqual(new BigInteger(100), contract.GetBase());
+        }
+
+        [TestMethod]
         public void EmitInitSlot_ForStaticFieldInitializerTemps()
         {
             const string source = """
@@ -319,6 +404,16 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             [DisplayName("getWho")]
             public abstract string? GetWho();
+        }
+
+        public abstract class StaticMethodDependencyContract(SmartContractInitialize initialize)
+            : SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("getFee")]
+            public abstract BigInteger? GetFee();
+
+            [DisplayName("getBase")]
+            public abstract BigInteger? GetBase();
         }
 
         public abstract class LateDiscoveredInitializerContract(SmartContractInitialize initialize)
