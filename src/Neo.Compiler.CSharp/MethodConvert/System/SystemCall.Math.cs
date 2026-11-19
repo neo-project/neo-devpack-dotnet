@@ -144,11 +144,11 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleMathSByteDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
+        HandleMathSignedDivRem(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue);
     }
 
     /// <summary>
-    /// Handles Math.DivRem for short by delegating to BigInteger implementation.
+    /// Handles Math.DivRem for short with the required signed overflow check.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="model">The semantic model</param>
@@ -156,11 +156,11 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Delegates to BigInteger DivRem for consistent implementation across integer types
+    /// Algorithm: Checks short.MinValue / -1 before emitting the shared DivRem implementation
     /// </remarks>
     private static void HandleMathShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
+        HandleMathSignedDivRem(methodConvert, model, symbol, instanceExpression, arguments, short.MinValue);
     }
 
     /// <summary>
