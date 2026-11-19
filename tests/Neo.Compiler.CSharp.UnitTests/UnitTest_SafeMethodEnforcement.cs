@@ -571,6 +571,101 @@ public static class SameFullyQualifiedNameSafeExternalContract
         }
 
         [TestMethod]
+        public void SafeMethod_ConditionalContractCallFlags_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    [Safe]
+    public static object Get(UInt160 h, bool write) => Neo.SmartContract.Framework.Services.Contract.Call(h, ""m"", write ? CallFlags.All : CallFlags.ReadOnly, new object[] { 1 });"));
+
+            Assert.IsFalse(context.Success, "A [Safe] method whose conditional CallFlags may carry WriteStates must fail compilation.");
+            Assert.IsTrue(
+                context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId),
+                "Expected NC3012 diagnostic when a branch before System.Contract.Call supplies CallFlags.All.");
+        }
+
+        [TestMethod]
+        public void SafeMethod_ConditionalDynamicContractCallFlags_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    [Safe]
+    public static object Get(UInt160 h, bool dynamic, CallFlags flags) => Neo.SmartContract.Framework.Services.Contract.Call(h, ""m"", dynamic ? flags : CallFlags.ReadOnly, new object[] { 1 });"));
+
+            Assert.IsFalse(context.Success);
+            Assert.IsTrue(context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId),
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+        }
+
+        [TestMethod]
+        public void SafeMethod_InstanceConstructorStorageWrite_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    public Contract()
+    {
+        Storage.Put(Storage.CurrentContext, ""k"", 1);
+    }
+
+    [Safe]
+    public int Get() => 1;"));
+
+            Assert.IsFalse(context.Success, "A non-static [Safe] method whose forwarded constructor writes storage must fail compilation.");
+            Assert.IsTrue(
+                context.Diagnostics.Any(d => d.Id == DiagnosticId.SafeMethodStateMutation),
+                "Expected NC3011 diagnostic when an instance constructor executed by a [Safe] method mutates storage.");
+        }
+
+        [TestMethod]
+        public void SafeMethod_StaticConstructorStorageWrite_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    static Contract()
+    {
+        Storage.Put(Storage.CurrentContext, ""k"", 1);
+    }
+
+    [Safe]
+    public static int Get() => 1;"));
+
+            Assert.IsFalse(context.Success, "A [Safe] method on a contract whose _initialize hook writes storage must fail compilation.");
+            Assert.IsTrue(
+                context.Diagnostics.Any(d => d.Id == DiagnosticId.SafeMethodStateMutation),
+                "Expected NC3011 diagnostic when _initialize mutates storage on every invocation.");
+        }
+
+        [TestMethod]
+        public void SafeMethod_InstanceConstructorWriteCapableCall_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    public Contract()
+    {
+        Neo.SmartContract.Framework.Services.Contract.Call(UInt160.Zero, ""m"", CallFlags.All, new object[] { 1 });
+    }
+
+    [Safe]
+    public int Get() => 1;"));
+
+            Assert.IsFalse(context.Success);
+            Assert.IsTrue(context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId),
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+        }
+
+        [TestMethod]
+        public void SafeMethod_StaticConstructorWriteCapableCall_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    static Contract()
+    {
+        Neo.SmartContract.Framework.Services.Contract.Call(UInt160.Zero, ""m"", CallFlags.All, new object[] { 1 });
+    }
+
+    [Safe]
+    public static int Get() => 1;"));
+
+            Assert.IsFalse(context.Success);
+            Assert.IsTrue(context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId),
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+        }
+
+        [TestMethod]
         public void NonSafeMethod_WriteCapableContractCall_Compiles()
         {
             // Write-capable external calls are perfectly legal for non-Safe methods.
