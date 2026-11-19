@@ -47,26 +47,49 @@ namespace Neo.Compiler
         /// </remarks>
         private IEnumerable<CompilationException> GetSafeMethodViolations()
         {
+            AbiMethod? initializeAbi = null;
+            foreach (AbiMethod exported in _methodsExported)
+            {
+                if (exported.Name == "_initialize")
+                {
+                    initializeAbi = exported;
+                    break;
+                }
+            }
+            MethodConvert? initializeEntry = initializeAbi is not null &&
+                _methodsConverted.TryGetValue(initializeAbi.Symbol, out MethodConvert? initConvert)
+                ? initConvert
+                : null;
+
             foreach (AbiMethod method in _methodsExported)
             {
                 if (!method.Safe) continue;
                 if (!_methodsConverted.TryGetValue(method.Symbol, out MethodConvert? entry)) continue;
+                _methodsForward.TryGetValue(method.Symbol, out MethodConvert? forwardEntry);
 
-                if (TryFindReachableStorageWrite(entry!, out MethodConvert? writer))
+                if (TryFindReachableStorageWrite(entry!, out MethodConvert? writer) ||
+                    (forwardEntry is not null && TryFindReachableStorageWrite(forwardEntry, out writer)) ||
+                    (initializeEntry is not null && TryFindReachableStorageWrite(initializeEntry, out writer)))
                 {
                     string detail = ReferenceEquals(writer, entry)
                         ? "writes to contract storage"
-                        : $"reaches a contract-storage write through '{writer!.Symbol.Name}'";
+                        : ReferenceEquals(writer, forwardEntry)
+                            ? "reaches a contract-storage write through instance initialization"
+                            : $"reaches a contract-storage write through '{writer!.Symbol.Name}'";
                     yield return new CompilationException(method.Symbol, DiagnosticId.SafeMethodStateMutation,
                         $"Method '{method.Symbol.Name}' is marked [Safe] but {detail}. " +
                         "A Safe method must not modify contract state; remove the [Safe] attribute or the state mutation.");
                 }
 
-                if (TryFindReachableWriteCapableCall(entry!, out MethodConvert? caller))
+                if (TryFindReachableWriteCapableCall(entry!, out MethodConvert? caller) ||
+                    (forwardEntry is not null && TryFindReachableWriteCapableCall(forwardEntry, out caller)) ||
+                    (initializeEntry is not null && TryFindReachableWriteCapableCall(initializeEntry, out caller)))
                 {
                     string detail = ReferenceEquals(caller, entry)
                         ? "calls another contract without provably read-only call flags"
-                        : $"reaches an external contract call without provably read-only flags through '{caller!.Symbol.Name}'";
+                        : ReferenceEquals(caller, forwardEntry)
+                            ? "reaches an external contract call without provably read-only flags through instance initialization"
+                            : $"reaches an external contract call without provably read-only flags through '{caller!.Symbol.Name}'";
                     yield return new CompilationException(method.Symbol, DiagnosticId.SafeMethodWriteCapableCall,
                         $"Method '{method.Symbol.Name}' is marked [Safe] but {detail}. " +
                         "The [Safe] flag tells wallets the method is read-only and can be invoked without a " +
@@ -159,6 +182,7 @@ namespace Neo.Compiler
         private bool MakesWriteCapableExternalCall(MethodConvert method)
         {
             IReadOnlyList<Instruction> instructions = method.Instructions;
+            HashSet<Instruction>? branchTargets = null;
             for (int i = 0; i < instructions.Count; i++)
             {
                 Instruction instruction = instructions[i];
@@ -181,8 +205,16 @@ namespace Neo.Compiler
 
                 // The standalone extern Contract.Call stub has only the syscall. Its arguments are
                 // checked at the inline syscall or CALL/CALL_L emitted in each caller.
-                if (i < 3)
+                if (i == 0 && method.Symbol.IsExtern)
                     continue;
+                if (i < 3)
+                    return true;
+
+                branchTargets ??= CollectBranchTargets(instructions);
+                if (branchTargets.Contains(instruction) ||
+                    branchTargets.Contains(instructions[i - 1]) ||
+                    branchTargets.Contains(instructions[i - 2]))
+                    return true;
 
                 if (!IsSingleValuePush(instructions[i - 1].OpCode) || // scriptHash
                     !IsSingleValuePush(instructions[i - 2].OpCode) || // method
@@ -193,6 +225,19 @@ namespace Neo.Compiler
                     return true;
             }
             return false;
+        }
+
+        private static HashSet<Instruction> CollectBranchTargets(IReadOnlyList<Instruction> instructions)
+        {
+            HashSet<Instruction> targets = new();
+            foreach (Instruction instruction in instructions)
+            {
+                if (instruction.Target?.Instruction is Instruction target)
+                    targets.Add(target);
+                if (instruction.Target2?.Instruction is Instruction target2)
+                    targets.Add(target2);
+            }
+            return targets;
         }
 
         private static bool IsSystemContractCall(Instruction instruction)
