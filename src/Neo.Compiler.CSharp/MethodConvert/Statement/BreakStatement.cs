@@ -54,10 +54,7 @@ namespace Neo.Compiler
                 List<StatementContext> visitedTry = [];  // from shallow to deep
                 if (syntax.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault() is { } label)
                 {// C# 15 labeled break: exit the loop (or switch) the label is attached to
-                    breakTarget = FindLabeledJumpTarget(label.Identifier.ValueText, isContinue: false, visitedTry);
-                    if (breakTarget == null)
-                        // labeled break is not handled
-                        throw CompilationException.UnsupportedSyntax(syntax, $"Cannot find the labeled loop or switch statement '{label.Identifier.ValueText}' for the break statement. Ensure the label is attached to an enclosing loop or switch statement.");
+                    breakTarget = FindLabeledJumpTarget(label, isContinue: false, visitedTry);
                 }
                 else
                 {
@@ -73,10 +70,10 @@ namespace Neo.Compiler
                         if (sc.StatementSyntax is TryStatementSyntax)
                             visitedTry.Add(sc);
                     }
-                    if (breakTarget == null)
-                        // break is not handled
-                        throw CompilationException.UnsupportedSyntax(syntax, "Break statement must be inside a loop (for, while, do-while, foreach) or switch statement. If this appears to be valid code, it may indicate a compiler bug.");
                 }
+                if (breakTarget == null)
+                    // break is not handled
+                    throw CompilationException.UnsupportedSyntax(syntax, "Break statement must be inside a loop (for, while, do-while, foreach) or switch statement. If this appears to be valid code, it may indicate a compiler bug.");
 
                 foreach (StatementContext sc in visitedTry)
                     // start from the most external try

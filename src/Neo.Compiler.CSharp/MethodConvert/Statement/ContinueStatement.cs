@@ -52,10 +52,7 @@ namespace Neo.Compiler
                 List<StatementContext> visitedTry = [];  // from shallow to deep
                 if (syntax.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault() is { } label)
                 {// C# 15 labeled continue: continue the loop the label is attached to
-                    continueTarget = FindLabeledJumpTarget(label.Identifier.ValueText, isContinue: true, visitedTry);
-                    if (continueTarget == null)
-                        // labeled continue is not handled
-                        throw CompilationException.UnsupportedSyntax(syntax, $"Cannot find the labeled loop '{label.Identifier.ValueText}' for the continue statement. Ensure the label is attached to an enclosing loop.");
+                    continueTarget = FindLabeledJumpTarget(label, isContinue: true, visitedTry);
                 }
                 else
                 {
@@ -71,10 +68,10 @@ namespace Neo.Compiler
                         if (sc.StatementSyntax is TryStatementSyntax)
                             visitedTry.Add(sc);
                     }
-                    if (continueTarget == null)
-                        // continue is not handled
-                        throw CompilationException.UnsupportedSyntax(syntax, "Continue statement must be inside a loop (for, while, do-while, foreach). If this appears to be valid code, it may indicate a compiler bug.");
                 }
+                if (continueTarget == null)
+                    // continue is not handled
+                    throw CompilationException.UnsupportedSyntax(syntax, "Continue statement must be inside a loop (for, while, do-while, foreach). If this appears to be valid code, it may indicate a compiler bug.");
 
                 foreach (StatementContext sc in visitedTry)
                     // start from the most external try

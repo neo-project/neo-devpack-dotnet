@@ -11,6 +11,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using System.ComponentModel;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -77,6 +79,61 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_BreakLabeledDoWhile()
         {
             Assert.AreEqual(118, Contract.BreakLabeledDoWhile());
+        }
+
+        [TestMethod]
+        public void Test_LabeledAndUnlabeledJumpsUnwindOnlyExitedTryBlocks()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+
+                public class JumpCases : SmartContract
+                {
+                    public static int Run(bool useLabel)
+                    {
+                        int result = 0;
+                        try
+                        {
+                        outer:
+                            for (int i = 0; i < 3; i++)
+                            {
+                            inner:
+                                for (int j = 0; j < 2; j++)
+                                {
+                                    try
+                                    {
+                                        if (i == 0)
+                                        {
+                                            if (useLabel) continue outer;
+                                            continue;
+                                        }
+
+                                        if (useLabel) break outer;
+                                        break;
+                                    }
+                                    finally { result++; }
+                                }
+                                result += 10;
+                            }
+                            result += 100;
+                        }
+                        finally { result += 1000; }
+                        return result;
+                    }
+                }
+                """;
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(System.Environment.NewLine, context.Diagnostics));
+            var contract = new TestEngine(true).Deploy<JumpCasesContract>(context.CreateExecutable(), context.CreateManifest());
+
+            Assert.AreEqual(new BigInteger(1102), contract.Run(true));
+            Assert.AreEqual(new BigInteger(1134), contract.Run(false));
+        }
+
+        public abstract class JumpCasesContract(SmartContractInitialize initialize) : SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("run")]
+            public abstract BigInteger? Run(bool useLabel);
         }
     }
 }
