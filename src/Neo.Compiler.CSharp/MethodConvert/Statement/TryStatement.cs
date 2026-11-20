@@ -68,7 +68,22 @@ namespace Neo.Compiler
             }
             AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget });
             _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
-            ConvertStatement(model, syntax.Block);
+            if (tryEntryDepthIndex.HasValue)
+            {
+                _inlineStackDepthScopes.Push(new StackDepthScope(_instructions.Count, _inlineStackDepthScopes.Count)
+                {
+                    SlotIndex = tryEntryDepthIndex
+                });
+            }
+            try
+            {
+                ConvertStatement(model, syntax.Block);
+            }
+            finally
+            {
+                if (tryEntryDepthIndex.HasValue)
+                    _inlineStackDepthScopes.Pop();
+            }
             Jump(OpCode.ENDTRY_L, endTarget);
             if (syntax.Catches.Count == 0 && sc.AdditionalEndTryTargetToInstruction != null)
                 // handles `break`, `continue` and `goto` in multi-layered nested try with finally
