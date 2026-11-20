@@ -88,6 +88,7 @@ internal partial class MethodConvert
         JumpTarget inlineReturnTarget = new();
         if (parameterSlots is not null)
             _inlineParameterScopes.Push(parameterSlots);
+        _inlineMethodSymbols.Push(inlineSymbol);
         _inlineReturnTargets.Push(inlineReturnTarget);
         _inlineStatementDepths.Push(_generalStatementStack.Count);
 
@@ -123,6 +124,7 @@ internal partial class MethodConvert
             _inlineStackDepthScopes.Pop();
             _inlineReturnTargets.Pop();
             _inlineStatementDepths.Pop();
+            _inlineMethodSymbols.Pop();
             if (parameterSlots is not null)
                 _inlineParameterScopes.Pop();
 

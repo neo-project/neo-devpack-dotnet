@@ -336,7 +336,21 @@ internal partial class MethodConvert
         if (typeInfo.Type == null)
             throw new CompilationException(expression, DiagnosticId.InvalidType, $"Invalid type in typeof expression: {expression.Type}");
 
-        Push(typeInfo.Type.Name);
+        ITypeSymbol type = typeInfo.Type;
+        if (type is ITypeParameterSymbol parameter)
+        {
+            IMethodSymbol method = _inlineMethodSymbols.Count > 0 ? _inlineMethodSymbols.Peek() : Symbol;
+            for (int i = 0; i < method.TypeParameters.Length; i++)
+            {
+                if (SymbolEqualityComparer.Default.Equals(parameter, method.TypeParameters[i]))
+                {
+                    type = method.TypeArguments[i];
+                    break;
+                }
+            }
+        }
+
+        Push(type.Name);
     }
 
     private static ITypeSymbol? GetTypeSymbol(SyntaxNode? syntaxNode, SemanticModel model)
