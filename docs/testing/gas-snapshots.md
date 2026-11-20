@@ -139,7 +139,20 @@ are not implemented, so Issue #8 is not fully complete.
 ## Automatic tracking in unit tests
 
 `TestEngine.Execute` records the GAS of every execution (`ApplicationEngine.FeeConsumed`,
-HALT and FAULT) into a per-test `AsyncLocal` scope (`GasExecutionTracker`). `TestBase<T>`
+HALT and FAULT) into a per-test `AsyncLocal` scope (`GasExecutionTracker`). Automatic tracking is
+**opt-in**: `TestBase<T>` does not track GAS and never fails because of a baseline. Inherit
+`TestBaseWithGasTracking<T>` to enable it:
+
+```csharp
+public class MyTests : TestBase<MyContract> { }                   // no automatic GAS tracking
+public class MyGasTests : TestBaseWithGasTracking<MyContract> { } // automatic GAS tracking
+```
+
+The internal compiler and framework suites keep tracking because their `DebugAndTestBase<T>`
+inherits `TestBaseWithGasTracking<T>`. Automatic tracking is unrelated to explicit
+`AssertGasConsumed` checks (and the `TestGasConsume` flag), which assert a value in the test itself.
+
+`TestBaseWithGasTracking<T>`
 starts the scope in `[TestInitialize]`, after the constructor has deployed the contract, so
 deployment is never measured. In `[TestCleanup]` the measurements are compared with
 `GasBaselines/<test assembly>/*.json` (one file per test class; large classes are split into `<Class>.partNN.json`, and all files are merged on load):
@@ -154,17 +167,27 @@ Execution identifiers are `<Class>.<Method>[<case>]#<n>`, or `:<label>` when
 `GasExecutionTracker.Label(...)` is used. Use `GasExecutionTracker.Exclude()` around
 nondeterministic executions.
 
-### Generating baselines (maintainers only)
+### Baselines of this repository (like `dotnet format`)
 
-```powershell
-$env:NEO_GAS_BASELINE_GENERATE_DIR = "$PWD\gen-tmp"
-dotnet test tests/<Project>
--Output tests/<Project>/GasBaselines/<Assembly>
-```
+The Compiler and Framework unit test projects own their baselines under `tests/<Project>/GasBaselines`.
 
-Generation writes one file per test (parallel-safe) and is refused when `CI` or
-`GITHUB_ACTIONS` is set. Committed baselines are never rewritten automatically; review every
-changed value. Run generation twice and compare the merged files to confirm stability.
+- **Locally**, a normal `dotnet test` rewrites the committed JSON files in the source tree when the
+  assembly finishes (`NEO_GAS_BASELINE_MODE=Update`, set through assembly metadata). Review and commit the
+  diff. Nothing is ever pushed automatically.
+- Only tests that **passed** update their entries. Failed, invalid, unstable, ignored or unexecuted tests
+  keep their committed values, and obsolete entries are pruned only when the run executed every test.
+  Filtered or partial runs therefore only touch what they ran. Files are written atomically under a
+  per-directory lock, with deterministic UTF-8/LF/no-BOM output.
+- **In CI** (`CI`/`GITHUB_ACTIONS` set, or `NEO_GAS_BASELINE_MODE=Verify`) the files are regenerated into a
+  temporary directory (`NEO_GAS_BASELINE_OUTPUT_DIR`) and the run fails if they differ from the committed
+  ones. CI has read-only permissions and never writes or pushes.
+- The PR run also publishes, in the job summary and as the `gas-baseline-diff` artifact, every GAS difference
+  against the PR target branch (`scripts/gas/compare_baselines.py <base-sha>`).
+- `NEO_GAS_BASELINE_MODE=Off` disables the mechanism. External consumers of `Neo.SmartContract.Testing`
+  are unaffected: it is off unless a test project opts in.
+
+A GAS increase is accepted by committing the regenerated baseline; reviewers see it in the diff and in the
+PR summary.
 
 ### Reports
 

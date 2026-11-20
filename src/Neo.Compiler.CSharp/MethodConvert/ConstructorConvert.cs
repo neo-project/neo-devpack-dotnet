@@ -71,6 +71,7 @@ internal partial class MethodConvert
     private void ProcessStaticFields(SemanticModel model)
     {
         HashSet<INamedTypeSymbol> initializedClasses = new(SymbolEqualityComparer.Default);
+        HashSet<INamedTypeSymbol> initializingClasses = new(SymbolEqualityComparer.Default);
         Dictionary<ITypeSymbol, int> initializedVTables = new(SymbolEqualityComparer.Default);
         int staticFieldInitializationStart = _instructions.Count;
         bool initializedAny;
@@ -137,7 +138,29 @@ internal partial class MethodConvert
 
             foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
             {
-                if (!initializedClasses.Add(@class)) continue;
+                InitializeClass(@class);
+            }
+        }
+        while (initializedAny);
+
+        void InitializeClass(INamedTypeSymbol @class)
+        {
+            if (initializedClasses.Contains(@class) || !initializingClasses.Add(@class)) return;
+
+            // Follow calls and property getters as well as direct field reads. A helper can
+            // read a field in a class that has not been initialized yet.
+            foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
+            {
+                if (field.IsConst || !field.IsStatic || field.DeclaringSyntaxReferences.IsEmpty) continue;
+                if (field.DeclaringSyntaxReferences[0].GetSyntax() is not VariableDeclaratorSyntax { Initializer: { } initializer }) continue;
+
+                HashSet<ISymbol> visitedMembers = new(SymbolEqualityComparer.Default);
+                ScanDependencies(initializer.Value, field.ContainingAssembly, visitedMembers);
+            }
+
+            initializingClasses.Remove(@class);
+            if (initializedClasses.Add(@class))
+            {
                 initializedAny = true;
                 foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
@@ -150,6 +173,35 @@ internal partial class MethodConvert
                 }
             }
         }
-        while (initializedAny);
+
+        void ScanDependencies(SyntaxNode syntax, IAssemblySymbol assembly, HashSet<ISymbol> visitedMembers)
+        {
+            if (assembly is not ISourceAssemblySymbol sourceAssembly) return;
+            SemanticModel semanticModel = sourceAssembly.Compilation.GetSemanticModel(syntax.SyntaxTree);
+            foreach (SyntaxNode node in syntax.DescendantNodesAndSelf())
+            {
+                switch (semanticModel.GetSymbolInfo(node).Symbol)
+                {
+                    case IFieldSymbol { IsStatic: true, IsConst: false } field:
+                        InitializeClass(field.ContainingType);
+                        break;
+                    case IPropertySymbol { IsStatic: true } property:
+                        InitializeClass(property.ContainingType);
+                        ScanMember(property.GetMethod, visitedMembers);
+                        break;
+                    case IMethodSymbol { IsStatic: true } method:
+                        InitializeClass(method.ContainingType);
+                        ScanMember(method, visitedMembers);
+                        break;
+                }
+            }
+        }
+
+        void ScanMember(IMethodSymbol? method, HashSet<ISymbol> visitedMembers)
+        {
+            if (method is null || !visitedMembers.Add(method)) return;
+            foreach (SyntaxReference reference in method.DeclaringSyntaxReferences)
+                ScanDependencies(reference.GetSyntax(), method.ContainingAssembly, visitedMembers);
+        }
     }
 }

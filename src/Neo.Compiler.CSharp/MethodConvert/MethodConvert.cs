@@ -62,6 +62,7 @@ namespace Neo.Compiler
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
         private readonly Stack<Dictionary<IParameterSymbol, byte>> _inlineParameterScopes = new();
+        private readonly Stack<IMethodSymbol> _inlineMethodSymbols = new();
         private readonly Stack<JumpTarget> _inlineReturnTargets = new();
         private readonly Stack<ExceptionHandling> _tryStack = new();
         private readonly Stack<byte> _exceptionStack = new();
