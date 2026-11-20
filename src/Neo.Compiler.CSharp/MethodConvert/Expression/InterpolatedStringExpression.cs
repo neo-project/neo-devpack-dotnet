@@ -73,6 +73,15 @@ internal partial class MethodConvert
                 if (syntax.FormatClause is not null)
                     throw new CompilationException(syntax.FormatClause, DiagnosticId.FormatClause, $"Format clause is not supported: {syntax.FormatClause}");
                 ConvertObjectToString(model, syntax.Expression);
+                // Interpolation formats a null value as an empty string in C#.
+                // Keep the evaluated value on the stack when it is not null.
+                JumpTarget nonNullTarget = new();
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIFNOT_L, nonNullTarget);
+                AddInstruction(OpCode.DROP);
+                Push(string.Empty);
+                nonNullTarget.Instruction = AddInstruction(OpCode.NOP);
                 break;
         }
     }
