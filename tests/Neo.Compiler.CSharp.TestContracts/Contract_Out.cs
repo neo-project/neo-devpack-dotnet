@@ -239,6 +239,84 @@ public class Contract_Out : SmartContract.Framework.SmartContract
         return holder.Value;
     }
 
+    private static void DeductFromCachedResult(int amount) => _cachedResult -= amount;
+
+    private static void ApplyCachedPayout(ref int balance, int payout, int fee)
+    {
+        balance -= payout;
+        DeductFromCachedResult(fee);
+    }
+
+    public static int TestRefStaticFieldIntermediateWrite()
+    {
+        _cachedResult = 1000;
+        ApplyCachedPayout(ref _cachedResult, 200, 50);
+        return _cachedResult;
+    }
+
+    private static void DeductFromHolder(Holder holder, int amount) => holder.Value -= amount;
+
+    private static void ApplyHolderPayout(Holder holder, ref int balance, int payout, int fee)
+    {
+        balance -= payout;
+        DeductFromHolder(holder, fee);
+    }
+
+    public static int TestRefInstanceFieldIntermediateWrite()
+    {
+        var holder = new Holder { Value = 1000 };
+        ApplyHolderPayout(holder, ref holder.Value, 200, 50);
+        return holder.Value;
+    }
+
+    private static void SetDepth(out int result, int depth) => result = depth;
+
+    private static int RecurseWithOutLocal(int depth)
+    {
+        SetDepth(out int value, depth);
+        if (depth > 0)
+            RecurseWithOutLocal(depth - 1);
+        return value;
+    }
+
+    public static int TestRecursiveOutLocalFrame() => RecurseWithOutLocal(2);
+
+    private static int RecurseWithOutLocalAndThrow(int depth)
+    {
+        SetDepth(out int value, depth);
+        if (depth == 0)
+            throw new Exception("inner");
+        try
+        {
+            RecurseWithOutLocalAndThrow(depth - 1);
+        }
+        catch (Exception)
+        {
+        }
+        return value;
+    }
+
+    public static int TestRecursiveOutLocalAfterCatch() => RecurseWithOutLocalAndThrow(1);
+
+    private static int RecurseWithDistinctRefTarget(ref int outer, int depth)
+    {
+        if (depth == 0)
+        {
+            outer = 99;
+            return 0;
+        }
+        int inner = depth;
+        RecurseWithDistinctRefTarget(ref inner, depth - 1);
+        return outer * 100 + inner;
+    }
+
+    public static int TestRecursiveRefParameterFrame()
+    {
+        int outer = 7;
+        int result = RecurseWithDistinctRefTarget(ref outer, 1);
+        return result * 100 + outer;
+    }
+
     public static int TestDistinctInstanceFieldRefs()
     {
         var first = new Holder();

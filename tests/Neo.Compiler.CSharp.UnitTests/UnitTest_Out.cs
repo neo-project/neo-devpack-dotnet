@@ -177,6 +177,31 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_ByRefFieldIntermediateWrites()
+        {
+            Assert.AreEqual(750, Contract.TestRefStaticFieldIntermediateWrite());
+            Assert.AreEqual(750, Contract.TestRefInstanceFieldIntermediateWrite());
+        }
+
+        [TestMethod]
+        public void Test_RecursiveOutLocalKeepsCallerFrame()
+        {
+            Assert.AreEqual(2, Contract.TestRecursiveOutLocalFrame());
+        }
+
+        [TestMethod]
+        public void Test_RecursiveOutLocalAfterCatch()
+        {
+            Assert.AreEqual(1, Contract.TestRecursiveOutLocalAfterCatch());
+        }
+
+        [TestMethod]
+        public void Test_RecursiveRefParameterKeepsCallerFrame()
+        {
+            Assert.AreEqual(79907, Contract.TestRecursiveRefParameterFrame());
+        }
+
+        [TestMethod]
         public void Test_VirtualByRefArguments()
         {
             Assert.AreEqual(14313, Contract.TestVirtualRefAliases());

@@ -139,6 +139,9 @@ internal partial class MethodConvert
         if (TryGetInlineParameterSlot(parameter, out byte inlineSlot))
             return AccessSlot(OpCode.LDLOC, inlineSlot);
 
+        if (_byRefInstanceBindingSlots.TryGetValue(parameter, out byte bindingSlot))
+            return LoadByRefParameter(parameter, bindingSlot);
+
         if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
         {
             //using created static fields
@@ -173,6 +176,9 @@ internal partial class MethodConvert
     {
         if (TryGetInlineParameterSlot(parameter, out byte inlineSlot))
             return AccessSlot(OpCode.STLOC, inlineSlot);
+
+        if (_byRefInstanceBindingSlots.TryGetValue(parameter, out byte bindingSlot))
+            return StoreByRefParameter(parameter, bindingSlot);
 
         if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
         {
@@ -210,6 +216,49 @@ internal partial class MethodConvert
         return false;
     }
 
+    private Instruction LoadByRefParameter(IParameterSymbol parameter, byte bindingSlot)
+    {
+        byte valueSlot = _context.GetOrAddCapturedStaticField(parameter);
+        JumpTarget ordinary = new();
+        JumpTarget end = new();
+        Instruction start = AccessSlot(OpCode.LDLOC, bindingSlot);
+        AddInstruction(OpCode.ISNULL);
+        JumpIfTrue(ordinary);
+        AccessSlot(OpCode.LDLOC, bindingSlot);
+        Push(1);
+        AddInstruction(OpCode.PICKITEM);
+        AccessSlot(OpCode.LDLOC, bindingSlot);
+        Push(0);
+        AddInstruction(OpCode.PICKITEM);
+        AddInstruction(OpCode.PICKITEM);
+        Jump(OpCode.JMP_L, end);
+        ordinary.Instruction = AccessSlot(OpCode.LDSFLD, valueSlot);
+        end.Instruction = AddInstruction(OpCode.NOP);
+        return start;
+    }
+
+    private Instruction StoreByRefParameter(IParameterSymbol parameter, byte bindingSlot)
+    {
+        byte valueSlot = _context.GetOrAddCapturedStaticField(parameter);
+        JumpTarget ordinary = new();
+        JumpTarget end = new();
+        Instruction start = AccessSlot(OpCode.LDLOC, bindingSlot);
+        AddInstruction(OpCode.ISNULL);
+        JumpIfTrue(ordinary);
+        AccessSlot(OpCode.LDLOC, bindingSlot);
+        Push(1);
+        AddInstruction(OpCode.PICKITEM);
+        AccessSlot(OpCode.LDLOC, bindingSlot);
+        Push(0);
+        AddInstruction(OpCode.PICKITEM);
+        AddInstruction(OpCode.ROT);
+        AddInstruction(OpCode.SETITEM);
+        Jump(OpCode.JMP_L, end);
+        ordinary.Instruction = AccessSlot(OpCode.STSFLD, valueSlot);
+        end.Instruction = AddInstruction(OpCode.NOP);
+        return start;
+    }
+
     /// <summary>
     /// Loads the value of a local variable onto the evaluation stack.
     /// </summary>
@@ -220,6 +269,10 @@ internal partial class MethodConvert
     {
         if (TryGetRefBinding(local, out RefBinding binding))
             return LoadRefBinding(binding);
+
+        if (_byRefCapturedSymbols.Contains(local) && !_lambdaCapturedSymbols.Contains(local) &&
+            _localVariables.TryGetValue(local, out byte frameSlot))
+            return AccessSlot(OpCode.LDLOC, frameSlot);
 
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
@@ -250,6 +303,10 @@ internal partial class MethodConvert
     {
         if (TryGetRefBinding(local, out RefBinding binding))
             return StoreRefBinding(binding);
+
+        if (_byRefCapturedSymbols.Contains(local) && !_lambdaCapturedSymbols.Contains(local) &&
+            _localVariables.TryGetValue(local, out byte frameSlot))
+            return AccessSlot(OpCode.STLOC, frameSlot);
 
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
@@ -332,6 +389,15 @@ internal partial class MethodConvert
     /// </remarks>
     private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
+        foreach (IParameterSymbol parameter in symbol.Parameters)
+        {
+            if (IsByRef(parameter.RefKind))
+            {
+                AddInstruction(OpCode.PUSHNULL);
+                AccessSlot(OpCode.STSFLD, _context.GetOrAddByRefInstanceBinding(parameter));
+            }
+        }
+
         // 1. Process named arguments
         var namedArguments = ProcessNamedArguments(model, arguments);
         var argumentMap = MapArgumentsToParameters(model, symbol, arguments);

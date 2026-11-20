@@ -125,6 +125,19 @@ internal partial class MethodConvert
         }
     }
 
+    private void InitializeByRefInstanceBindings()
+    {
+        foreach (IParameterSymbol parameter in Symbol.Parameters)
+        {
+            if (!IsByRef(parameter.RefKind))
+                continue;
+            byte slot = AddPermanentAnonymousVariable();
+            _byRefInstanceBindingSlots.Add(parameter, slot);
+            AccessSlot(OpCode.LDSFLD, _context.GetOrAddByRefInstanceBinding(parameter));
+            AccessSlot(OpCode.STLOC, slot);
+        }
+    }
+
     private bool TryGetExtensionReceiverParameter(out IParameterSymbol? receiverParameter)
     {
         receiverParameter = null;

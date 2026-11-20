@@ -50,6 +50,8 @@ namespace Neo.Compiler
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
         private readonly HashSet<ISymbol> _byRefCapturedSymbols = new(SymbolEqualityComparer.Default);
+        private readonly HashSet<ISymbol> _lambdaCapturedSymbols = new(SymbolEqualityComparer.Default);
+        private readonly Dictionary<IParameterSymbol, byte> _byRefInstanceBindingSlots = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
         private readonly HashSet<byte> _permanentAnonymousVariables = new();
         private int _localsCount;
@@ -168,6 +170,7 @@ namespace Neo.Compiler
                     SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
                 RegisterMethodParameters();
+                InitializeByRefInstanceBindings();
                 RegisterByRefCapturedSymbols(model);
                 RegisterCapturedSymbols(model);
                 InitializeByRefCapturedParameters();
