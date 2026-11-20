@@ -53,9 +53,15 @@ namespace Neo.Compiler
                 JumpTarget? returnTarget = _inlineReturnTargets.Count > 0
                     ? _inlineReturnTargets.Peek()
                     : _returnTarget;
+                int statementsToInspect = _inlineStatementDepths.TryPeek(out int outerStatementCount)
+                    ? _generalStatementStack.Count - outerStatementCount
+                    : _generalStatementStack.Count;
                 List<StatementContext> visitedTry = [];  // from shallow to deep
+                int inspected = 0;
                 foreach (StatementContext sc in _generalStatementStack)
                 {
+                    if (inspected++ >= statementsToInspect)
+                        break;
                     // start from the deepest context
                     // stage the try stacks on the way
                     if (sc.StatementSyntax is TryStatementSyntax)
