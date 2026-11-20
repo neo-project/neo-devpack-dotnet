@@ -17,3 +17,4 @@ using System.Runtime.CompilerServices;
 //
 // The name must match the fuzz project's AssemblyName, which is "neofuzz".
 [assembly: InternalsVisibleTo("neofuzz")]
+[assembly: InternalsVisibleTo("Neo.SmartContract.Testing.UnitTests")]

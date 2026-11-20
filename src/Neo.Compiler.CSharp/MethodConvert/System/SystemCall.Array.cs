@@ -60,24 +60,20 @@ internal partial class MethodConvert
             model.GetTypeInfo(instanceExpression).Type is IArrayTypeSymbol { Rank: > 1 } arrayType)
         {
             JumpTarget endTarget = new();
-
             methodConvert.ConvertExpression(model, instanceExpression);
             methodConvert.Dup();                               // [array, array]
             methodConvert.Size();                              // [array, outer length]
-
             for (int dimension = 1; dimension < arrayType.Rank; dimension++)
             {
                 methodConvert.Dup();
                 methodConvert.JumpIfFalse(endTarget);          // [array, length]
                 methodConvert.Swap();                          // [length, array]
-                methodConvert.Push(0);
-                methodConvert.PickItem();                      // [length, next array]
-                methodConvert.Swap();                          // [next array, length]
-                methodConvert.Over();                          // [next array, length, next array]
-                methodConvert.Size();                          // [next array, length, next size]
-                methodConvert.Mul();                           // [next array, length * next size]
+                methodConvert.Push(0);                         // [length, array, 0]
+                methodConvert.PickItem();                      // [length, next-array]
+                methodConvert.Tuck();                          // [next-array, length, next-array]
+                methodConvert.Size();                          // [next-array, length, next-size]
+                methodConvert.Mul();                           // [next-array, length * next size]
             }
-
             endTarget.Instruction = methodConvert.Nip();       // [length]
             return;
         }
@@ -86,6 +82,6 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Size();                                      // Get size using helper method
+        methodConvert.Size();                                   // Get size using helper method
     }
 }
