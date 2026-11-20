@@ -39,7 +39,10 @@ namespace Neo.Compiler
                 {
                     if (symbol is ILocalSymbol or IParameterSymbol &&
                         SymbolEqualityComparer.Default.Equals(symbol.ContainingSymbol, Symbol))
+                    {
                         _context.GetOrAddCapturedStaticField(symbol);
+                        _lambdaCapturedSymbols.Add(symbol);
+                    }
                 }
             }
 
@@ -55,7 +58,10 @@ namespace Neo.Compiler
                 foreach (ISymbol symbol in model.AnalyzeDataFlow(node).Captured)
                 {
                     if (symbol is ILocalSymbol or IParameterSymbol)
+                    {
                         _context.GetOrAddCapturedStaticField(symbol);
+                        _lambdaCapturedSymbols.Add(symbol);
+                    }
                 }
             }
         }

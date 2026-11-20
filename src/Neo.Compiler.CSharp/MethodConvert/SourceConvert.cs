@@ -125,25 +125,16 @@ internal partial class MethodConvert
         }
     }
 
-    private void SaveByRefCapturedLocals()
+    private void InitializeByRefInstanceBindings()
     {
-        foreach (ILocalSymbol local in _byRefCapturedSymbols.OfType<ILocalSymbol>())
+        foreach (IParameterSymbol parameter in Symbol.Parameters)
         {
-            byte fieldIndex = _context.GetOrAddCapturedStaticField(local);
-            byte savedSlot = AddPermanentAnonymousVariable();
-            _savedByRefLocals.Add((fieldIndex, savedSlot));
-            AccessSlot(OpCode.LDSFLD, fieldIndex);
-            AccessSlot(OpCode.STLOC, savedSlot);
-        }
-    }
-
-    private void RestoreByRefCapturedLocals()
-    {
-        foreach ((byte fieldIndex, byte savedSlot) in _savedByRefLocals)
-        {
-            Instruction start = AccessSlot(OpCode.LDLOC, savedSlot);
-            _returnTarget.Instruction ??= start;
-            AccessSlot(OpCode.STSFLD, fieldIndex);
+            if (!IsByRef(parameter.RefKind))
+                continue;
+            byte slot = AddPermanentAnonymousVariable();
+            _byRefInstanceBindingSlots.Add(parameter, slot);
+            AccessSlot(OpCode.LDSFLD, _context.GetOrAddByRefInstanceBinding(parameter));
+            AccessSlot(OpCode.STLOC, slot);
         }
     }
 

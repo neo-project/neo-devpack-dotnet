@@ -135,11 +135,13 @@ internal partial class MethodConvert
 
             HandleConstructorDuplication(instanceOnStack, methodCallingConvention, symbol);
 
+            var savedRecursiveParameters = SaveRecursiveByRefParameters(model, symbol, arguments);
             PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
 
             HandleInstanceOnStack(symbol, instanceOnStack, methodCallingConvention);
 
             EmitMethodCall(convert, symbol);
+            RestoreRecursiveByRefParameters(savedRecursiveParameters);
         }
         finally
         {
@@ -224,6 +226,7 @@ internal partial class MethodConvert
                 HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: true);
             }
 
+            var savedRecursiveParameters = SaveRecursiveByRefParameters(model, symbol, arguments);
             PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
 
             if (preserveInstanceEvaluationOrder)
@@ -232,6 +235,7 @@ internal partial class MethodConvert
                 HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: false);
 
             EmitMethodCall(convert, symbol);
+            RestoreRecursiveByRefParameters(savedRecursiveParameters);
         }
         finally
         {
@@ -252,6 +256,43 @@ internal partial class MethodConvert
         }) || node.DescendantNodesAndSelf().OfType<ExpressionSyntax>().Any(syntax =>
             (syntax is SimpleNameSyntax or MemberAccessExpressionSyntax or ElementAccessExpressionSyntax)
             && model.GetSymbolInfo(syntax).Symbol is IPropertySymbol);
+    }
+
+    private List<(byte FieldIndex, byte SavedSlot)> SaveRecursiveByRefParameters(
+        SemanticModel model, IMethodSymbol callee, IReadOnlyList<SyntaxNode> arguments)
+    {
+        var saved = new List<(byte, byte)>();
+        if (!SymbolEqualityComparer.Default.Equals(Symbol.OriginalDefinition, callee.OriginalDefinition))
+            return saved;
+        // Passing any caller ref parameter may pass an alias shared with the other
+        // parameters. Preserving those slots would discard writes through that alias.
+        if (arguments.OfType<ArgumentSyntax>().Any(argument =>
+            Symbol.Parameters.Any(parameter => IsByRef(parameter.RefKind) &&
+                SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(argument.Expression).Symbol, parameter))))
+            return saved;
+
+        foreach (IParameterSymbol parameter in Symbol.Parameters)
+        {
+            if (!IsByRef(parameter.RefKind))
+                continue;
+
+            byte fieldIndex = _context.GetOrAddCapturedStaticField(parameter);
+            byte savedSlot = AddPermanentAnonymousVariable();
+            AccessSlot(OpCode.LDSFLD, fieldIndex);
+            AccessSlot(OpCode.STLOC, savedSlot);
+            saved.Add((fieldIndex, savedSlot));
+        }
+
+        return saved;
+    }
+
+    private void RestoreRecursiveByRefParameters(List<(byte FieldIndex, byte SavedSlot)> saved)
+    {
+        foreach ((byte fieldIndex, byte savedSlot) in saved)
+        {
+            AccessSlot(OpCode.LDLOC, savedSlot);
+            AccessSlot(OpCode.STSFLD, fieldIndex);
+        }
     }
 
     private static bool IsSpecialMethodWithInstance(IMethodSymbol symbol)
@@ -459,6 +500,8 @@ internal partial class MethodConvert
     private void ProcessByRefDeclaration(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, SingleVariableDesignationSyntax designation, bool captureOnly)
     {
         var local = (ILocalSymbol)model.GetDeclaredSymbol(designation)!;
+        if (_blockSymbols.Count > 0 && !_localVariables.ContainsKey(local))
+            AddLocalVariable(local);
         ProcessOutSymbol(parameter, local);
         if (captureOnly)
             return;
@@ -499,6 +542,11 @@ internal partial class MethodConvert
                 else
                     PushDefault(param.Type);
                 ProcessOutSymbol(parameter, param);
+                if (_byRefInstanceBindingSlots.TryGetValue(param, out byte bindingSlot))
+                {
+                    AccessSlot(OpCode.LDLOC, bindingSlot);
+                    AccessSlot(OpCode.STSFLD, _context.GetOrAddByRefInstanceBinding(parameter));
+                }
                 AddInstruction(OpCode.DUP);
                 StArgSlot(parameter);
                 break;
@@ -658,7 +706,11 @@ internal partial class MethodConvert
         bool instanceSlotIsLocal = false, ISymbol? receiverSymbol = null, bool isThisReceiver = false)
     {
         if (TryShareByRefAlias(parameter, symbol, receiverSymbol, isThisReceiver))
+        {
+            if (symbol is IFieldSymbol { IsStatic: false } aliasedField && instanceSlot is not null)
+                BindByRefInstanceField(parameter, aliasedField, instanceSlot.Value, instanceSlotIsLocal);
             return;
+        }
 
         if (symbol is IFieldSymbol fieldSymbol)
         {
@@ -715,6 +767,14 @@ internal partial class MethodConvert
         if (!parameterCaptured)
             parameterIndex = _context.GetOrAddCapturedStaticField(parameter);
 
+        if (!field.IsStatic)
+        {
+            if (instanceSlot is null)
+                throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Missing instance context for field '{field.Name}' in by-ref binding.");
+            BindByRefInstanceField(parameter, field, instanceSlot.Value, instanceSlotIsLocal);
+            return;
+        }
+
         if (field.IsStatic && parameterIndex != fieldIndex)
         {
             // A static field passed by ref must remain the same storage location
@@ -732,6 +792,15 @@ internal partial class MethodConvert
 
             AddOutStaticFieldSyncTarget(parameter, new CompilationContext.OutSyncTarget(field, instanceSlot, instanceSlotIsLocal));
         }
+    }
+
+    private void BindByRefInstanceField(IParameterSymbol parameter, IFieldSymbol field, byte instanceSlot, bool instanceSlotIsLocal)
+    {
+        AccessSlot(instanceSlotIsLocal ? OpCode.LDLOC : OpCode.LDSFLD, instanceSlot);
+        Push(GetInstanceFieldIndex(field));
+        Push(2);
+        AddInstruction(OpCode.PACK);
+        AccessSlot(OpCode.STSFLD, _context.GetOrAddByRefInstanceBinding(parameter));
     }
 
     private void StoreOutFieldValue(IFieldSymbol field, byte? instanceSlot, bool instanceSlotIsLocal = false)
