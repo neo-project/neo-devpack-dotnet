@@ -36,7 +36,7 @@ public class UnitTest_ReferencedFieldInitializers
             string libraryProject = Path.Combine(libraryDirectory, "Library.csproj");
             File.WriteAllText(libraryProject, """
                 <Project Sdk="Microsoft.NET.Sdk">
-                  <PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup>
+                  <PropertyGroup><TargetFramework>net11.0</TargetFramework></PropertyGroup>
                 </Project>
                 """);
             File.WriteAllText(Path.Combine(libraryDirectory, "BaseData.cs"), """
@@ -60,7 +60,7 @@ public class UnitTest_ReferencedFieldInitializers
             string contractProject = Path.Combine(contractDirectory, "Contract.csproj");
             File.WriteAllText(contractProject, $$"""
                 <Project Sdk="Microsoft.NET.Sdk">
-                  <PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup>
+                  <PropertyGroup><TargetFramework>net11.0</TargetFramework></PropertyGroup>
                   <ItemGroup>
                     <ProjectReference Include="{{SecurityElement.Escape(frameworkProject)}}" />
                     <ProjectReference Include="{{SecurityElement.Escape(libraryProject)}}" />

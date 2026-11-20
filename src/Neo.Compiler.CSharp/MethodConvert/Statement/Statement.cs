@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler
 {
@@ -76,6 +77,21 @@ namespace Neo.Compiler
         }
 
         private readonly Stack<StatementContext> _generalStatementStack = new();
+
+        // Resolve the labeled statement in the syntax before walking the active try scopes.
+        private JumpTarget? FindLabeledJumpTarget(IdentifierNameSyntax label, bool isContinue, List<StatementContext> visitedTry)
+        {
+            var target = label.Ancestors().OfType<LabeledStatementSyntax>()
+                .FirstOrDefault(candidate => candidate.Identifier.ValueText == label.Identifier.ValueText)?.Statement;
+            foreach (StatementContext context in _generalStatementStack)
+            {
+                if (context.StatementSyntax == target)
+                    return isContinue ? context.ContinueTarget : context.BreakTarget;
+                if (context.StatementSyntax is TryStatementSyntax)
+                    visitedTry.Add(context);
+            }
+            return null;
+        }
 
         private void ConvertStatement(SemanticModel model, StatementSyntax statement)
         {
