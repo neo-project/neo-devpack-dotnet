@@ -13,12 +13,12 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Delegate"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sumFunc"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testDelegate"",""parameters"":[],""returntype"":""Void"",""offset"":94,""safe"":false},{""name"":""testConditionalInvoke"",""parameters"":[{""name"":""isNull"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":130,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Delegate"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sumFunc"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testDelegate"",""parameters"":[],""returntype"":""Void"",""offset"":94,""safe"":false},{""name"":""testConditionalInvoke"",""parameters"":[{""name"":""isNull"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":137,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBQAA/XUBVwECCgsAAABweXhoNkBXAAJ4eZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACeHmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcDAArV////cGhyFhVqNnEMBVN1bTogaTcAAIvbKEHP50eWQFcEARARwHB4JgULIgcKbQAAAHFpStgkEnNoNasAAABoNaUAAABQazZK2CYERRByagBkoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2gQzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACeBqgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfeZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwABeEoQzpxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9OEFDQQCBKc0U=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABBQAA/XwBVwECCgsAAABweXhoNkBXAAJ4eZ5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACeHmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcDAArV////cGhyFhVqNnEMBVN1bTogaTcAAErYJgVFDACL2yhBz+dHlkBXBAEQEcBweCYFCyIHCm0AAABxaUrYJBJzaDWrAAAAaDWlAAAAUGs2StgmBEUQcmoAZKBKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9oEM6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAAngaoErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3meSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAAXhKEM6cSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfThBQ0EAYo8pu").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -113,7 +113,7 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMACtX///9waHIWFWo2cQwFU3VtOiBpNwAAi9soQc/nR5ZA
+    /// Script: VwMACtX///9waHIWFWo2cQwFU3VtOiBpNwAAStgmBUUMAIvbKEHP50eWQA==
     /// INITSLOT 0300 [64 datoshi]
     /// PUSHA D5FFFFFF [4 datoshi]
     /// STLOC0 [2 datoshi]
@@ -127,6 +127,11 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// PUSHDATA1 53756D3A20 [8 datoshi]
     /// LDLOC1 [2 datoshi]
     /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
     /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
