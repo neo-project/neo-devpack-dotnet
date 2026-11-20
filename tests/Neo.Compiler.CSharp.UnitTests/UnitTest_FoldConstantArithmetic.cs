@@ -135,6 +135,46 @@ public class UnitTest_FoldConstantArithmetic
     }
 
     [TestMethod]
+    [DataRow(0, VMState.HALT)]
+    [DataRow(1, VMState.FAULT)]
+    public void SizeFoldingPreservesItemSizeLimit(int bytesAboveLimit, VMState expectedState)
+    {
+        int length = checked((int)ExecutionEngineLimits.Default.MaxItemSize + bytesAboveLimit);
+        using var builder = new ScriptBuilder();
+        builder.EmitPush(new byte[length]);
+        builder.Emit(OpCode.SIZE);
+        builder.Emit(OpCode.RET);
+        var script = builder.ToArray();
+        var nef = new NefFile { Compiler = "test", Source = "", Tokens = [], Script = script };
+        var manifest = new ContractManifest
+        {
+            Name = "TestContract",
+            Groups = [],
+            SupportedStandards = [],
+            Permissions = [],
+            Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
+            Abi = new ContractAbi
+            {
+                Methods = [new ContractMethodDescriptor { Name = "main", Offset = 0, Parameters = [], ReturnType = ContractParameterType.Integer }],
+                Events = []
+            }
+        };
+        var (folded, _, _) = ConstantFold.FoldConstants(nef, manifest);
+
+        foreach (var code in new[] { script, folded.Script })
+        {
+            using var engine = new ExecutionEngine();
+            engine.LoadScript(code);
+            Assert.AreEqual(expectedState, engine.Execute());
+            if (expectedState == VMState.HALT)
+                Assert.AreEqual(new BigInteger(length), engine.ResultStack.Peek().GetInteger());
+        }
+
+        Assert.AreEqual(expectedState == VMState.FAULT, new Script(folded.Script).EnumerateInstructions()
+            .Any(kv => kv.instruction.OpCode == OpCode.SIZE));
+    }
+
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]

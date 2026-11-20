@@ -232,9 +232,11 @@ namespace Neo.Optimizer
                 return op.OpCode == OpCode.NOT ? PushBoolean(!b) : null;
             }
 
-            if (TryGetPushedBytes(first, out byte[] data))
+            // Preserve the VM's item-size check when folding SIZE.
+            if (op.OpCode == OpCode.SIZE && DataPushOpCodes.Contains(first.OpCode)
+                && first.Operand.Length <= ExecutionEngineLimits.Default.MaxItemSize)
             {
-                return op.OpCode == OpCode.SIZE ? PushInteger(data.Length) : null;
+                return PushInteger(first.Operand.Length);
             }
 
             return null;
