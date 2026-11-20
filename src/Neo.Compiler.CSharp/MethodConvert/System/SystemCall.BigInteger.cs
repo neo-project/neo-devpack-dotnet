@@ -337,9 +337,8 @@ internal partial class MethodConvert
         methodConvert.JumpIfNot(endTarget);                 // a, b, // if b is 0 (falsy), result is abs(a)
         JumpTarget gcdTarget = new()                        // a, b
         {
-            Instruction = methodConvert.Swap()              // b, a
+            Instruction = methodConvert.Tuck()              // b, a, b
         };
-        methodConvert.Over();                               // b, a, b
         methodConvert.Mod();                                // b, a % b
         methodConvert.Dup();                                // b, a % b, a % b
         methodConvert.JumpIfTrue(gcdTarget);                // b, a % b, // if a % b != 0 (truthy), jump to the start
