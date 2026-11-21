@@ -20,7 +20,7 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.IntForeachTest#2": 1125150,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.ObjectarrayForeachTest#1": 2040240,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.StringForeachTest#1": 1978950,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.StructForeachTest#1": 2660790,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.StructForeachTest#1": 2923230,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.TestForConditionFallbacks[\"(i \u003c limit ? \"keep\" : \"stop\") != \"stop\"\",3,0,0]#1": 1001075800,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.TestForConditionFallbacks[\"(i \u003c limit ? \"keep\" : \"stop\") != \"stop\"\",3,0,0]#2": 1062960,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Foreach.TestForConditionFallbacks[\"(i \u003c limit ? \"keep\" : \"stop\") != \"stop\"\",3,0,0]#3": 1051530,

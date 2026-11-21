@@ -1,5 +1,5 @@
 {
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_External#1": 1045590,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_External#1": 1113240,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push#1": 1047030,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push#10": 1047030,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push#11": 1047120,
@@ -49,5 +49,5 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push#7": 1047030,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push#8": 1047030,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push#9": 1047030,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push_Internal#1": 1045980
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Stack.Test_Push_Internal#1": 1134030
 }

@@ -56,7 +56,9 @@ internal partial class MethodConvert
             if (type.ElementType.SpecialType == SpecialType.System_Byte)
                 ValidateConstantByteBufferSize(model, specifier.Sizes[0]);
             ConvertExpression(model, specifier.Sizes[0]);
-            if (type.ElementType.SpecialType == SpecialType.System_Byte)
+            if (type.ElementType.IsStructArray())
+                EmitCreateStructArray(type.ElementType);
+            else if (type.ElementType.SpecialType == SpecialType.System_Byte)
                 AddInstruction(OpCode.NEWBUFFER);
             else if (type.ElementType.SpecialType == SpecialType.System_String)
                 AddInstruction(OpCode.NEWARRAY);
@@ -67,6 +69,38 @@ internal partial class MethodConvert
         {
             ConvertInitializerExpression(model, type, expression.Initializer);
         }
+    }
+
+    private void EmitCreateStructArray(ITypeSymbol elementType)
+    {
+        using var tempScope = PreserveAnonymousVariables();
+        byte lengthSlot = AddAnonymousVariable();
+        byte arraySlot = AddAnonymousVariable();
+        byte indexSlot = AddAnonymousVariable();
+        JumpTarget conditionTarget = new();
+        JumpTarget bodyTarget = new();
+
+        AccessSlot(OpCode.STLOC, lengthSlot);
+        AccessSlot(OpCode.LDLOC, lengthSlot);
+        AddInstruction(OpCode.NEWARRAY);
+        AccessSlot(OpCode.STLOC, arraySlot);
+        Push(0);
+        AccessSlot(OpCode.STLOC, indexSlot);
+        Jump(OpCode.JMP_L, conditionTarget);
+
+        bodyTarget.Instruction = AccessSlot(OpCode.LDLOC, arraySlot);
+        AccessSlot(OpCode.LDLOC, indexSlot);
+        PushDefault(elementType);
+        AddInstruction(OpCode.SETITEM);
+        AccessSlot(OpCode.LDLOC, indexSlot);
+        AddInstruction(OpCode.INC);
+        AccessSlot(OpCode.STLOC, indexSlot);
+
+        conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, indexSlot);
+        AccessSlot(OpCode.LDLOC, lengthSlot);
+        Jump(OpCode.JMPLT_L, bodyTarget);
+        AddInstruction(OpCode.NOP);
+        AccessSlot(OpCode.LDLOC, arraySlot);
     }
 
     private static void ValidateConstantByteBufferSize(SemanticModel model, ExpressionSyntax sizeSyntax)
@@ -207,7 +241,9 @@ internal partial class MethodConvert
         if (dimension == lengthSlots.Length - 1)
         {
             AccessSlot(OpCode.LDLOC, lenSlot);
-            if (elementType.SpecialType == SpecialType.System_Byte)
+            if (elementType.IsStructArray())
+                EmitCreateStructArray(elementType);
+            else if (elementType.SpecialType == SpecialType.System_Byte)
                 AddInstruction(OpCode.NEWBUFFER);
             else if (elementType.SpecialType == SpecialType.System_String)
                 AddInstruction(OpCode.NEWARRAY);

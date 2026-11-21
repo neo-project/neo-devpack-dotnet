@@ -629,7 +629,7 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.TestRotateRightUShort#5": 1049670,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.TestRotateRightUShort#6": 1049670,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.divRemByte_test#1": 1109640,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.divRemDeconstruction_test#1": 1172580,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.divRemDeconstruction_test#1": 1238190,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.divRemInt_test#1": 1109790,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.divRemInt_test#2": 1109790,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Integer.divRemInt_test#3": 1109790,
