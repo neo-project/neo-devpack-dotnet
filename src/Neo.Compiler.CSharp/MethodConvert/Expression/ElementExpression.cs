@@ -182,6 +182,7 @@ internal partial class MethodConvert
                     ConvertRangeEndpointValue(model, range.RightOperand);
                     ResolveRangeEndpointOffset(receiverDepth: 1);
                 }
+                ValidateRangeSliceEnd();
                 Left(null);
             }
             else if (range.RightOperand is null &&
@@ -190,6 +191,7 @@ internal partial class MethodConvert
             {
                 ConvertExpression(model, prefix.Operand);
                 ValidateRangeEndpointValue();
+                ValidateRangeSliceEnd();
                 Right(null);
             }
             else
@@ -213,6 +215,7 @@ internal partial class MethodConvert
                 Swap();                                        // [right, left]
                 ResolveRangeEndpointOffset(receiverDepth: 2);  // [right, left']
                 Swap();                                        // [left', right]
+                ValidateRangeSliceBounds();
                 Over();                                        // [left, right, left]
                 Sub();                                         // [left, count]
                 SubStr();
@@ -366,6 +369,58 @@ internal partial class MethodConvert
         JumpIfGreaterOrEqual(nonNegativeTarget);
         Throw();
         nonNegativeTarget.Instruction = Nop();
+    }
+
+    // [receiver, end]: keep both operands for LEFT/RIGHT after the checks.
+    private void ValidateRangeSliceEnd()
+    {
+        JumpTarget nonNegativeTarget = new();
+        Dup();
+        Push(0);
+        JumpIfGreaterOrEqual(nonNegativeTarget);
+        ThrowInvalidRangeSlice();
+        nonNegativeTarget.Instruction = Nop();
+
+        JumpTarget inBoundsTarget = new();
+        Dup();
+        Pick(2);
+        Size();
+        JumpIfLessOrEqual(inBoundsTarget);
+        ThrowInvalidRangeSlice();
+        inBoundsTarget.Instruction = Nop();
+    }
+
+    // [receiver, start, end]: 0 <= start <= end <= receiver length.
+    private void ValidateRangeSliceBounds()
+    {
+        JumpTarget nonNegativeTarget = new();
+        Over();
+        Push(0);
+        JumpIfGreaterOrEqual(nonNegativeTarget);
+        ThrowInvalidRangeSlice();
+        nonNegativeTarget.Instruction = Nop();
+
+        JumpTarget orderedTarget = new();
+        Over();
+        Over();
+        JumpIfLessOrEqual(orderedTarget);
+        ThrowInvalidRangeSlice();
+        orderedTarget.Instruction = Nop();
+
+        JumpTarget inBoundsTarget = new();
+        Dup();
+        Pick(3);
+        Size();
+        JumpIfLessOrEqual(inBoundsTarget);
+        ThrowInvalidRangeSlice();
+        inBoundsTarget.Instruction = Nop();
+    }
+
+    private void ThrowInvalidRangeSlice()
+    {
+        RestoreMethodStackDepth();
+        Push("Range index is out of bounds.");
+        Throw();
     }
 
     private void ResolveRangeEndpointOffset(int receiverDepth)
