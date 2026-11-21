@@ -49,7 +49,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(1, optimizedNef.Tokens.Length);
             Assert.AreEqual("used", optimizedNef.Tokens[0].Method);
-            var instruction = new Script(((ReadOnlyMemory<byte>)optimizedNef.Script).ToArray()).GetInstruction(0);
+            var instruction = new Script(optimizedNef.Script.AsMemory().ToArray()).GetInstruction(0);
             Assert.AreEqual(OpCode.CALLT, instruction.OpCode);
             Assert.AreEqual(0, instruction.TokenU16);
         }
@@ -90,7 +90,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 CreateEmptyManifest(),
                 null);
 
-            var instructions = new Script(((ReadOnlyMemory<byte>)optimizedNef.Script).ToArray()).EnumerateInstructions().ToArray();
+            var instructions = new Script(optimizedNef.Script.AsMemory().ToArray()).EnumerateInstructions().ToArray();
             Assert.AreEqual(OpCode.RET, instructions[0].instruction.OpCode);
         }
 
@@ -104,7 +104,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 CreateEmptyManifest(),
                 null);
 
-            var instructions = new Script(((ReadOnlyMemory<byte>)optimizedNef.Script).ToArray()).EnumerateInstructions().ToArray();
+            var instructions = new Script(optimizedNef.Script.AsMemory().ToArray()).EnumerateInstructions().ToArray();
             Assert.AreEqual(OpCode.ENDTRY, instructions[0].instruction.OpCode);
             Assert.AreEqual(2, instructions[0].instruction.TokenI8);
         }
@@ -114,7 +114,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var nef = CreateNefFile([(byte)OpCode.NOP, (byte)OpCode.RET], Array.Empty<MethodToken>());
             var manifest = CreateManifestWithMethodOffset(0);
-            var instructions = new Script(((ReadOnlyMemory<byte>)nef.Script).ToArray()).EnumerateInstructions().ToArray();
+            var instructions = new Script(nef.Script.AsMemory().ToArray()).EnumerateInstructions().ToArray();
             Neo.VM.Instruction nop = instructions[0].instruction;
             Neo.VM.Instruction ret = instructions[1].instruction;
             OrderedDictionary simplifiedInstructionsToAddress = new()

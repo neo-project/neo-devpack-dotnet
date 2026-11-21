@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
         public void Test_PrivateMethod()
         {
             // Optimizer will remove this method
-            Assert.IsFalse(Encoding.ASCII.GetString(((ReadOnlyMemory<byte>)Contract1.Nef.Script).Span).Contains("NEO3"));
+            Assert.IsFalse(Encoding.ASCII.GetString(Contract1.Nef.Script.AsMemory().Span).Contains("NEO3"));
 
             // Compile without optimizations
 
@@ -43,7 +43,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
             Assert.IsTrue(results[0].Success);
 
             var nef = results[0].CreateExecutable();
-            Assert.IsTrue(Encoding.ASCII.GetString(((ReadOnlyMemory<byte>)nef.Script).Span).Contains("NEO3"));
+            Assert.IsTrue(Encoding.ASCII.GetString(nef.Script.AsMemory().Span).Contains("NEO3"));
         }
     }
 }

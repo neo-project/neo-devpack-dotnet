@@ -372,7 +372,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     {
                         Script script = nefFile.Script;
                         var actualEnd = end + script.GetInstruction(end).Size;
-                        var scripts = ((ReadOnlyMemory<byte>)script).Span[start..actualEnd].ToArray();
+                        var scripts = script.AsMemory().Span[start..actualEnd].ToArray();
 
                         var maxAddressLength = instructions.Max(instruction => instruction.address.ToString("X").Length);
                         var addressFormat = $"X{(maxAddressLength + 1) / 2 * 2}";

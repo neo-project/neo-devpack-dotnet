@@ -69,7 +69,7 @@ namespace Neo.Optimizer
             if (current.Count > 0)
                 blocks.Add(current);
 
-            byte[] output = ((ReadOnlyMemory<byte>)nef.Script).ToArray();
+            byte[] output = nef.Script.AsMemory().ToArray();
             foreach (List<Instruction> block in blocks)
             {
                 int blockAddress = instructions.First(item => item.instruction == block[0]).address;

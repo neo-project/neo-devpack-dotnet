@@ -843,7 +843,7 @@ namespace Neo.Optimizer
             JObject? optimizedDebugInfo = DebugInfoBuilder.ModifyDebugInfo(DebugInfo, instructionsToAddress,
                 originalAddressToInstruction, originalSequencePoints);
             if (optimizedDebugInfo is not null)
-                optimizedDebugInfo["hash"] = ((ReadOnlyMemory<byte>)Nef.Script).Span.ToScriptHash().ToString();
+                optimizedDebugInfo["hash"] = Nef.Script.AsMemory().Span.ToScriptHash().ToString();
             return (Nef, Manifest, optimizedDebugInfo);
         }
 

@@ -61,7 +61,7 @@ namespace Neo.Optimizer
                 debugInfo, simplifiedInstructionsToAddress, oldAddressToInstruction,
                 oldSequencePointAddressToNew: oldSequencePointAddressToNew);
             if (debugInfo is not null)
-                debugInfo["hash"] = ((ReadOnlyMemory<byte>)nef.Script).Span.ToScriptHash().ToString();
+                debugInfo["hash"] = nef.Script.AsMemory().Span.ToScriptHash().ToString();
             return (nef, manifest, debugInfo);
         }
 

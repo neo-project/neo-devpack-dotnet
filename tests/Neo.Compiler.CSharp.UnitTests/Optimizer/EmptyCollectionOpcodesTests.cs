@@ -67,7 +67,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         {
             var (nef, _, _) = Strategies.ApplyPeephole(
                 CreateNefFile(script), CreateManifest(), null, PeepholeRule.UseEmptyCollectionOpcodes);
-            return ((ReadOnlyMemory<byte>)nef.Script).ToArray();
+            return nef.Script.AsMemory().ToArray();
         }
 
         private static OpCode[] OpCodesOf(byte[] script) =>
@@ -253,7 +253,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             ContractManifest manifest = CreateManifest();
             var (nef, optimizedManifest, _) = Neo.Optimizer.Optimizer.Optimize(
                 CreateNefFile(original), manifest, null, CompilationOptions.OptimizationType.All);
-            byte[] optimized = ((ReadOnlyMemory<byte>)nef.Script).ToArray();
+            byte[] optimized = nef.Script.AsMemory().ToArray();
 
             Script strict = new(optimized, true);
             var instructions = strict.EnumerateInstructions().ToArray();

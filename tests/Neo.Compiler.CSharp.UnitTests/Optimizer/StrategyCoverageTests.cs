@@ -139,7 +139,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         {
             byte[] script = [(byte)OpCode.RET, (byte)OpCode.RET, (byte)OpCode.PUSHA, 0xff, 0xff, 0xff, 0xff, (byte)OpCode.RET];
             var (optimizedNef, _, _) = Strategies.CollapseAdjacentReturns(CreateNefFile(script), CreateManifest(), null);
-            CollectionAssert.AreEqual(script, ((ReadOnlyMemory<byte>)optimizedNef.Script).ToArray());
+            CollectionAssert.AreEqual(script, optimizedNef.Script.AsMemory().ToArray());
         }
 
         [TestMethod]
@@ -217,14 +217,14 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         private static byte[] OptimizeJumps(byte[] script)
         {
             var (nef, _, _) = Strategies.RemoveUnnecessaryJumps(CreateNefFile(script), CreateManifest(), null);
-            return ((ReadOnlyMemory<byte>)nef.Script).ToArray();
+            return nef.Script.AsMemory().ToArray();
         }
 
         private static byte[] OptimizeAll(byte[] script)
         {
             var (nef, _, _) = Neo.Optimizer.Optimizer.Optimize(CreateNefFile(script), CreateManifest(), null,
                 CompilationOptions.OptimizationType.All);
-            return ((ReadOnlyMemory<byte>)nef.Script).ToArray();
+            return nef.Script.AsMemory().ToArray();
         }
 
         private static void AssertSameBehavior(byte[] script, params Func<byte[], byte[]>[] optimizers)
@@ -359,13 +359,13 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             ];
             var expected = Run(script);
             var (normalizedNef, _, _) = Strategies.NormalizeJumps(CreateNefFile(script), CreateManifest(0, 14), null);
-            var normalized = Run(((ReadOnlyMemory<byte>)normalizedNef.Script).ToArray());
+            var normalized = Run(normalizedNef.Script.AsMemory().ToArray());
             Assert.AreEqual(expected.State, normalized.State);
             Assert.AreSequenceEqual(expected.Stack, normalized.Stack);
 
             var (optimizedNef, _, _) = Neo.Optimizer.Optimizer.Optimize(
                 CreateNefFile(script), CreateManifest(0, 14), null, CompilationOptions.OptimizationType.All);
-            var optimized = Run(((ReadOnlyMemory<byte>)optimizedNef.Script).ToArray());
+            var optimized = Run(optimizedNef.Script.AsMemory().ToArray());
             Assert.AreEqual(expected.State, optimized.State);
             Assert.AreSequenceEqual(expected.Stack, optimized.Stack);
         }
@@ -390,18 +390,18 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             Assert.AreSequenceEqual(new[] { "Integer:03" }, expected.Stack);
 
             var (normalizedNef, _, _) = Strategies.NormalizeJumps(CreateNefFile(script), CreateManifest(), null);
-            var normalizedScript = new Script(((ReadOnlyMemory<byte>)normalizedNef.Script).ToArray());
+            var normalizedScript = new Script(normalizedNef.Script.AsMemory().ToArray());
             var (endTryAddress, endTry) = normalizedScript.EnumerateInstructions()
                 .Single(static item => item.instruction.OpCode is OpCode.ENDTRY or OpCode.ENDTRY_L);
             int continuation = endTryAddress + (endTry.OpCode == OpCode.ENDTRY ? endTry.TokenI8 : endTry.TokenI32);
             Assert.AreEqual(OpCode.ADD, normalizedScript.GetInstruction(continuation).OpCode);
-            var normalized = Run(((ReadOnlyMemory<byte>)normalizedNef.Script).ToArray());
+            var normalized = Run(normalizedNef.Script.AsMemory().ToArray());
             Assert.AreEqual(expected.State, normalized.State);
             Assert.AreSequenceEqual(expected.Stack, normalized.Stack);
 
             var (optimizedNef, _, _) = Neo.Optimizer.Optimizer.Optimize(
                 CreateNefFile(script), CreateManifest(), null, CompilationOptions.OptimizationType.All);
-            var optimized = Run(((ReadOnlyMemory<byte>)optimizedNef.Script).ToArray());
+            var optimized = Run(optimizedNef.Script.AsMemory().ToArray());
             Assert.AreEqual(expected.State, optimized.State);
             Assert.AreSequenceEqual(expected.Stack, optimized.Stack);
         }
@@ -418,7 +418,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         }
 
         private static OpCode[] GetOpCodes(NefFile nef)
-            => new Script(((ReadOnlyMemory<byte>)nef.Script).ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray();
+            => new Script(nef.Script.AsMemory().ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray();
 
         private static NefFile CreateNefFile(byte[] script)
         {
