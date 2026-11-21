@@ -394,7 +394,7 @@ internal partial class MethodConvert
     private void ValidateRangeSliceBounds()
     {
         JumpTarget nonNegativeTarget = new();
-        Pick(1);
+        Over();
         Push(0);
         JumpIfGreaterOrEqual(nonNegativeTarget);
         ThrowInvalidRangeSlice();
@@ -402,7 +402,7 @@ internal partial class MethodConvert
 
         JumpTarget orderedTarget = new();
         Over();
-        Pick(1);
+        Over();
         JumpIfLessOrEqual(orderedTarget);
         ThrowInvalidRangeSlice();
         orderedTarget.Instruction = Nop();
