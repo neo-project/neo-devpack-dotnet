@@ -64,6 +64,27 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         [TestMethod]
+        public void NativeProxyManifestsExposeExpectedMethods()
+        {
+            var cases = new[]
+            {
+                (CryptoLib.Manifest, "CryptoLib", "sha256", 1),
+                (Native.Ledger.Manifest, "LedgerContract", "getBlock", 1),
+                (Notary.Manifest, "Notary", "balanceOf", 1),
+                (Policy.Manifest, "PolicyContract", "getFeePerByte", 0),
+                (RoleManagement.Manifest, "RoleManagement", "getDesignatedByRole", 2),
+                (StdLib.Manifest, "StdLib", "atoi", 1),
+                (Treasury.Manifest, "Treasury", "verify", 0)
+            };
+
+            foreach (var (manifest, name, method, parameters) in cases)
+            {
+                Assert.AreEqual(name, manifest.Name);
+                Assert.IsNotNull(manifest.Abi.GetMethod(method, parameters), method);
+            }
+        }
+
+        [TestMethod]
         public void TestSkip()
         {
             TestEngine engine = new(true);
