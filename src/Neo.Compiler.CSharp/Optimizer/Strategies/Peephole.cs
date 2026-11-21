@@ -12,6 +12,7 @@
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -32,7 +33,7 @@ namespace Neo.Optimizer
         {
             if (rules == PeepholeRule.None) return nef;
 
-            Script parsedScript = new(nef.Script.ToArray());
+            Script parsedScript = nef.Script;
             var instructions = parsedScript.EnumerateInstructions().ToList();
             var addressByInstruction = instructions.ToDictionary(static item => item.instruction, static item => item.address);
             var (jumpTargets, tryTargets, incomingTargets) = FindAllJumpAndTrySourceToTargets(instructions);
@@ -68,7 +69,7 @@ namespace Neo.Optimizer
             if (current.Count > 0)
                 blocks.Add(current);
 
-            byte[] output = nef.Script.ToArray();
+            byte[] output = ((ReadOnlyMemory<byte>)nef.Script).ToArray();
             foreach (List<Instruction> block in blocks)
             {
                 int blockAddress = instructions.First(item => item.instruction == block[0]).address;

@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -39,7 +40,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
             var debugInfo = results[0].CreateDebugInformation();
             var nef = results[0].CreateExecutable();
 
-            Assert.AreEqual(nef.Script.Span.ToScriptHash().ToString(), debugInfo["hash"]!.GetString());
+            Assert.AreEqual(((ReadOnlyMemory<byte>)nef.Script).Span.ToScriptHash().ToString(), debugInfo["hash"]!.GetString());
             Assert.IsTrue(debugInfo.ContainsProperty("documents"));
             Assert.IsInstanceOfType(debugInfo["documents"], typeof(JArray));
             Assert.IsTrue((debugInfo["documents"] as JArray)!.Count > 0);
@@ -74,9 +75,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
                 """, options);
             Assert.IsTrue(context.Success, string.Join(System.Environment.NewLine, context.Diagnostics));
 
-            var unoptimizedHash = context.CreateExecutable().Script.Span.ToScriptHash().ToString();
+            var unoptimizedHash = ((ReadOnlyMemory<byte>)context.CreateExecutable().Script).Span.ToScriptHash().ToString();
             var (nef, _, debugInfo) = context.CreateResults();
-            var optimizedHash = nef.Script.Span.ToScriptHash().ToString();
+            var optimizedHash = ((ReadOnlyMemory<byte>)nef.Script).Span.ToScriptHash().ToString();
 
             Assert.AreNotEqual(unoptimizedHash, optimizedHash, "The test contract must exercise an optimizer rewrite.");
             Assert.AreEqual(optimizedHash, debugInfo["hash"]!.GetString());

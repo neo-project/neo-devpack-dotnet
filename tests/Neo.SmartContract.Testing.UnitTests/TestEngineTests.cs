@@ -13,6 +13,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
+using Neo.Persistence;
+using Neo.Persistence.Providers;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Native;
@@ -48,9 +50,12 @@ namespace Neo.SmartContract.Testing.UnitTests
         //[TestMethod]
         public void GenerateNativeArtifacts()
         {
+            // The hardforks are taken from the configuration because there is no Policy state.
+            using var snapshot = new StoreCache(new MemoryStore(), readOnly: true);
+
             foreach (var n in Neo.SmartContract.Native.NativeContract.Contracts)
             {
-                var manifest = n.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+                var manifest = n.GetContractState(static (settings, _, hardfork, index) => settings.IsHardforkEnabled(hardfork, index), ProtocolSettings.Default, snapshot, uint.MaxValue).Manifest;
                 var source = manifest.GetArtifactsSource(manifest.Name, generateProperties: true);
                 var fullPath = Path.GetFullPath($"../../../../../src/Neo.SmartContract.Testing/Native/{manifest.Name}.cs");
 
