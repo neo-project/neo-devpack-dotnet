@@ -74,8 +74,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
 
         // Drop the captured static field placeholder, keep the input string on stack
-        methodConvert.Swap();
-        methodConvert.Drop();
+        methodConvert.Nip();
 
         // null -> false
         methodConvert.Dup();
