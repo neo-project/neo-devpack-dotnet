@@ -21,7 +21,7 @@ public abstract class RoleManagement(SmartContractInitialize initialize) : Smart
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.RoleManagement.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.RoleManagement);
 
     #endregion
 

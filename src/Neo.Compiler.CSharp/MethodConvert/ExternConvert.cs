@@ -15,6 +15,8 @@ using Microsoft.CodeAnalysis;
 using Neo.Compiler.ABI;
 using Neo.Cryptography;
 using Neo.Extensions;
+using Neo.Persistence;
+using Neo.Persistence.Providers;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
@@ -30,11 +32,19 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     private static readonly Lazy<HashSet<(UInt160 Hash, string Method, int ParameterCount)>> s_safeNativeMethods = new(() =>
-        NativeContract.Contracts
-            .SelectMany(contract => contract.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest.Abi.Methods
+    {
+        // The compiler has no chain state, so native ABIs are resolved against the hardforks
+        // declared in the configuration (Policy-managed activation heights are not available).
+        using var snapshot = new StoreCache(new MemoryStore(), readOnly: true);
+
+        return NativeContract.Contracts
+            .SelectMany(contract => contract.GetContractState(
+                static (settings, _, hardfork, index) => settings.IsHardforkEnabled(hardfork, index),
+                ProtocolSettings.Default, snapshot, uint.MaxValue).Manifest.Abi.Methods
                 .Where(method => method.Safe)
                 .Select(method => (contract.Hash, method.Name, method.Parameters.Length)))
-            .ToHashSet());
+            .ToHashSet();
+    });
 
     private void ConvertExtern()
     {

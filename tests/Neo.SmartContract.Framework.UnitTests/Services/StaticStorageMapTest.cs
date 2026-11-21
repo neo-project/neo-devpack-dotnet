@@ -44,8 +44,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Contract.Teststoragemap_Putbyteprefix(255);
             Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(255));
 
-            var negativePrefixException = Assert.ThrowsExactly<TestException>(() => Contract.Teststoragemap_Putbyteprefix(-128));
-            Assert.IsInstanceOfType<OverflowException>(negativePrefixException.InnerException);
+            // Since HF_Huyao negative values are truncated to the low byte instead of faulting,
+            // so -128 and 128 share the same prefix.
+            Contract.Teststoragemap_Putbyteprefix(-128);
+            Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(128));
 
             Contract.Teststoragemap_Putbyteprefix(127);
             Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(127));

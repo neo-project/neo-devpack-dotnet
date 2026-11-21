@@ -196,8 +196,8 @@ public class UnitTest_LinqContains
         {
             var legacy = before.CreateExecutable();
             var direct = after.CreateExecutable();
-            var legacyInstructions = new Script(legacy.Script.ToArray()).EnumerateInstructions().ToArray();
-            var directInstructions = new Script(direct.Script.ToArray()).EnumerateInstructions().ToArray();
+            var legacyInstructions = new Script(((ReadOnlyMemory<byte>)legacy.Script).ToArray()).EnumerateInstructions().ToArray();
+            var directInstructions = new Script(((ReadOnlyMemory<byte>)direct.Script).ToArray()).EnumerateInstructions().ToArray();
             Assert.IsTrue(directInstructions.Length < legacyInstructions.Length);
             Assert.IsTrue(direct.Script.Length < legacy.Script.Length);
             Assert.IsTrue(direct.ToArray().Length < legacy.ToArray().Length);

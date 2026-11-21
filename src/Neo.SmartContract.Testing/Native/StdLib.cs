@@ -20,7 +20,7 @@ public abstract class StdLib(SmartContractInitialize initialize) : SmartContract
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.StdLib.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.StdLib);
 
     #endregion
 
