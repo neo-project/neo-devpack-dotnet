@@ -184,21 +184,45 @@ namespace Neo.SmartContract.Analyzer
                 usages.Add(usage);
             }
 
-            Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
-            foreach (CollectedPrefixUsage usage in usages
+            List<CollectedPrefixUsage> orderedUsages = usages
                 .OrderBy(item => item.Location.SourceTree?.FilePath ?? string.Empty, StringComparer.Ordinal)
-                .ThenBy(item => item.Location.SourceSpan.Start))
+                .ThenBy(item => item.Location.SourceSpan.Start).ToList();
+            HashSet<ISymbol> reportedSymbols = new(SymbolEqualityComparer.Default);
+            List<INamedTypeSymbol> contractRoots = semanticModels.Values
+                .SelectMany(model => model.SyntaxTree.GetRoot(context.CancellationToken)
+                    .DescendantNodes().OfType<ClassDeclarationSyntax>()
+                    .Select(declaration => model.GetDeclaredSymbol(declaration, context.CancellationToken)))
+                .OfType<INamedTypeSymbol>().Where(IsSmartContract)
+                .Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToList();
+            if (contractRoots.Count == 0)
+            {
+                AnalyzeScope(context, orderedUsages, reportedSymbols);
+                return;
+            }
+
+            foreach (INamedTypeSymbol root in contractRoots)
+            {
+                HashSet<INamedTypeSymbol> dependencies = GetDependencies(root, semanticModels, context.CancellationToken);
+                AnalyzeScope(context, orderedUsages.Where(usage => dependencies.Contains(usage.Type)), reportedSymbols);
+            }
+        }
+
+        private static void AnalyzeScope(CompilationAnalysisContext context,
+            IEnumerable<CollectedPrefixUsage> usages, HashSet<ISymbol> reportedSymbols)
+        {
+            Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
+            foreach (CollectedPrefixUsage usage in usages)
             {
                 Dictionary<string, PrefixUsage> inheritedPrefixes = new(StringComparer.Ordinal);
                 SeedInheritedReservedPrefixes(usage.Type, inheritedPrefixes);
                 if (inheritedPrefixes.TryGetValue(usage.NormalizedPrefix, out PrefixUsage inherited))
                 {
-                    ReportCollision(context, usage, inherited);
+                    ReportCollision(context, usage, inherited, reportedSymbols);
                 }
                 else if (seenPrefixes.TryGetValue(usage.NormalizedPrefix, out PrefixUsage existing) &&
                     !SymbolEqualityComparer.Default.Equals(existing.Symbol, usage.Symbol))
                 {
-                    ReportCollision(context, usage, existing);
+                    ReportCollision(context, usage, existing, reportedSymbols);
                 }
 
                 if (!seenPrefixes.ContainsKey(usage.NormalizedPrefix))
@@ -207,9 +231,58 @@ namespace Neo.SmartContract.Analyzer
             }
         }
 
-        private static void ReportCollision(CompilationAnalysisContext context, CollectedPrefixUsage usage, PrefixUsage existing) =>
-            context.ReportDiagnostic(Diagnostic.Create(Rule, usage.Location,
-                usage.NormalizedPrefix, usage.Symbol.Name, existing.Description));
+        private static void ReportCollision(CompilationAnalysisContext context, CollectedPrefixUsage usage,
+            PrefixUsage existing, HashSet<ISymbol> reportedSymbols)
+        {
+            if (reportedSymbols.Add(usage.Symbol))
+                context.ReportDiagnostic(Diagnostic.Create(Rule, usage.Location,
+                    usage.NormalizedPrefix, usage.Symbol.Name, existing.Description));
+        }
+
+        private static bool IsSmartContract(INamedTypeSymbol type)
+        {
+            for (INamedTypeSymbol? current = type.BaseType; current is not null; current = current.BaseType)
+            {
+                if (current.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
+                    "global::Neo.SmartContract.Framework.SmartContract")
+                    return true;
+            }
+            return false;
+        }
+
+        private static HashSet<INamedTypeSymbol> GetDependencies(INamedTypeSymbol root,
+            IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels, CancellationToken cancellationToken)
+        {
+            HashSet<INamedTypeSymbol> dependencies = new(SymbolEqualityComparer.Default);
+            Stack<INamedTypeSymbol> pending = new();
+            pending.Push(root);
+            while (pending.Count > 0)
+            {
+                INamedTypeSymbol type = pending.Pop();
+                if (!dependencies.Add(type))
+                    continue;
+
+                if (type.BaseType is { } baseType)
+                    pending.Push(baseType);
+
+                foreach (SyntaxReference reference in type.DeclaringSyntaxReferences)
+                {
+                    if (reference.GetSyntax(cancellationToken) is not ClassDeclarationSyntax declaration ||
+                        !semanticModels.TryGetValue(declaration.SyntaxTree, out SemanticModel? model))
+                        continue;
+
+                    foreach (SyntaxNode node in declaration.DescendantNodes())
+                    {
+                        ISymbol? symbol = model.GetSymbolInfo(node, cancellationToken).Symbol;
+                        INamedTypeSymbol? referencedType = symbol as INamedTypeSymbol ?? symbol?.ContainingType;
+                        if (referencedType?.DeclaringSyntaxReferences.Length > 0 &&
+                            (!IsSmartContract(referencedType) || SymbolEqualityComparer.Default.Equals(referencedType, root)))
+                            pending.Push(referencedType);
+                    }
+                }
+            }
+            return dependencies;
+        }
 
         private static void SeedInheritedReservedPrefixes(INamedTypeSymbol typeSymbol, Dictionary<string, PrefixUsage> seenPrefixes)
         {
