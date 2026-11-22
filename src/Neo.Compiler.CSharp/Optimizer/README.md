@@ -71,6 +71,7 @@ nccs MyContract.csproj --optimize all          # All optimizations
 
 **Key Optimizations**:
 - **Push/drop removal** (`RemovePushDrop`): removes a stack-producing instruction whose result is immediately discarded by `DROP`
+- **Stack-operation fusion** (`StackOpFusion`): combines equivalent adjacent stack permutations such as `SWAP DROP -> NIP`
 - **Redundant DUP/DROP removal** (`RemoveDupDrop`): eliminates a `DUP` whose value is immediately dropped or overwritten
 - **Increment/decrement folding** (`UseIncDec`): rewrites `PUSH1 ADD` / `PUSH1 SUB` to `INC` / `DEC`
 - **Non-zero simplification** (`UseNz`): collapses compare-against-zero sequences

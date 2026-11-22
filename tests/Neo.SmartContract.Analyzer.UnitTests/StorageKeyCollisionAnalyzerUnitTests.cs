@@ -46,6 +46,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
+        private const string CollectionStubs = """
+            namespace Neo.SmartContract.Framework.Services
+            {
+                public class UInt160Set { public UInt160Set(byte prefix) { } }
+                public class UInt160List { public UInt160List(byte prefix) { } }
+                public class UInt160IndexedSet { public UInt160IndexedSet(byte prefix) { } }
+            }
+            """;
+
         private const string BaseStubs = """
             namespace Neo.SmartContract.Framework
             {
@@ -439,7 +448,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        public async Task MethodLocalReuse_DoesNotReportDiagnostic()
+        public async Task MethodLocalReuse_ReportsDiagnostic()
         {
             var test = StorageStubs + """
                 public class ContractD
@@ -448,13 +457,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                     {
                         var balances = new Neo.SmartContract.Framework.Services.StorageMap(
                             Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x01);
-                        var balancesAgain = new Neo.SmartContract.Framework.Services.StorageMap(
+                        var {|#0:balancesAgain|} = new Neo.SmartContract.Framework.Services.StorageMap(
                             Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x01);
                     }
                 }
                 """;
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0).WithArguments("01", "balancesAgain", "balances"));
         }
 
         [TestMethod]
@@ -552,7 +563,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        public async Task ParameterizedFactoryCreatedPrefixes_DoNotReportDiagnostic()
+        public async Task ParameterizedFactoryCreatedPrefixes_ReportDiagnostic()
         {
             var test = StorageStubs + """
                 public class ContractH
@@ -560,7 +571,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                     private const byte PrefixShared = 0x4D;
 
                     private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners = CreateOwners(PrefixShared);
-                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins = CreateAdmins(PrefixShared);
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Admins|} = CreateAdmins(PrefixShared);
 
                     private static Neo.SmartContract.Framework.Services.StorageMap CreateOwners(byte prefix) =>
                         new Neo.SmartContract.Framework.Services.StorageMap(
@@ -572,7 +583,9 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                 }
                 """;
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0).WithArguments("4D", "Admins", "Owners"));
         }
 
         [TestMethod]
@@ -600,7 +613,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        public async Task DuplicatePrefixesAcrossDifferentTypes_DoNotReportDiagnostic()
+        public async Task DuplicatePrefixesAcrossDifferentTypes_ReportDiagnostic()
         {
             var test = StorageStubs + """
                 public class ContractJ
@@ -611,12 +624,14 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
                 public class ContractK
                 {
-                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins =
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Admins|} =
                         new((byte)0x2A);
                 }
                 """;
 
-            await VerifyCS.VerifyAnalyzerAsync(test);
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0).WithArguments("2A", "Admins", "Owners"));
         }
 
         [TestMethod]
@@ -761,6 +776,130 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                 """));
 
             await test.RunAsync();
+        }
+
+        [TestMethod]
+        public async Task PersistentCollections_ShareMapPrefix_ReportsDiagnostics()
+        {
+            var test = StorageStubs + CollectionStubs + """
+                public class Contract
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Map =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x31);
+                    private static readonly Neo.SmartContract.Framework.Services.UInt160Set {|#0:Set|} = new(0x31);
+                    private static readonly Neo.SmartContract.Framework.Services.UInt160List {|#1:List|} = new(0x31);
+                    private static readonly Neo.SmartContract.Framework.Services.UInt160IndexedSet {|#2:Indexed|} = new(0x31);
+                }
+                """;
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId).WithLocation(0).WithArguments("31", "Set", "Map"),
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId).WithLocation(1).WithArguments("31", "List", "Map"),
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId).WithLocation(2).WithArguments("31", "Indexed", "Map"));
+        }
+
+        [TestMethod]
+        public async Task PrefixHelpersAndProperties_ReportDiagnostics()
+        {
+            var test = StorageStubs + """
+                public class Contract
+                {
+                    private static byte Prefix() => 0x39;
+                    private static byte PrefixProperty => 0x39;
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Map =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x39);
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:FromMethod|} = new(Prefix());
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#1:FromProperty|} = new(PrefixProperty);
+                }
+                """;
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId).WithLocation(0).WithArguments("39", "FromMethod", "Map"),
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId).WithLocation(1).WithArguments("39", "FromProperty", "Map"));
+        }
+
+        [TestMethod]
+        public async Task UserDefinedBasePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + """
+                public abstract class Base
+                {
+                    protected readonly Neo.SmartContract.Framework.Services.StorageMap BaseMap =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x55);
+                }
+                public class Contract : Base
+                {
+                    private readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:DerivedMap|} = new(0x55);
+                }
+                """;
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId).WithLocation(0).WithArguments("55", "DerivedMap", "BaseMap"));
+        }
+
+        [TestMethod]
+        public async Task IndependentSmartContractsWithSamePrefix_DoNotReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class SmartContract { }
+                }
+                public class ContractA : Neo.SmartContract.Framework.SmartContract
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Data = new(0x2A);
+                }
+                public class ContractB : Neo.SmartContract.Framework.SmartContract
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Data = new(0x2A);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task ContractAndReferencedHelperWithSamePrefix_ReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class SmartContract { }
+                }
+                public static class StorageHelper
+                {
+                    public static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Data = new(0x2A);
+                }
+                public class ContractA : Neo.SmartContract.Framework.SmartContract
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Data|} = new(0x2A);
+                    public static void UseHelper() => _ = StorageHelper.Data;
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0).WithArguments("2A", "Data", "Data"));
+        }
+
+        [TestMethod]
+        public async Task SmartContractAndUserDefinedBaseWithSamePrefix_ReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class SmartContract { }
+                }
+                public abstract class Base : Neo.SmartContract.Framework.SmartContract
+                {
+                    protected readonly Neo.SmartContract.Framework.Services.LocalStorageMap BaseData = new(0x2A);
+                }
+                public class Contract : Base
+                {
+                    private readonly Neo.SmartContract.Framework.Services.LocalStorageMap {|#0:Data|} = new(0x2A);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test,
+                VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                    .WithLocation(0).WithArguments("2A", "Data", "BaseData"));
         }
     }
 }
