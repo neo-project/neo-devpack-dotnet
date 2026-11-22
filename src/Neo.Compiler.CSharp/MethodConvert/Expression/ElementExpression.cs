@@ -212,8 +212,7 @@ internal partial class MethodConvert
                 }
                 Swap();                                        // [right, left]
                 ResolveRangeEndpointOffset(receiverDepth: 2);  // [right, left']
-                Swap();                                        // [left', right]
-                Over();                                        // [left, right, left]
+                Tuck();                                        // [left, right, left]
                 Sub();                                         // [left, count]
                 SubStr();
             }

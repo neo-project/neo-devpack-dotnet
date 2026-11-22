@@ -70,7 +70,7 @@ internal partial class MethodConvert
         ConvertExpression(model, expression.Expression);
 
         var castConversion = model.ClassifyConversion(expression.Expression, tType);
-        if (sType.IsStructArray() && castConversion.IsBoxing)
+        if (sType is not null && sType.IsStructArray() && castConversion.IsBoxing)
             CopyStructValue(sType);
         else if (castConversion.IsUnboxing)
         {
