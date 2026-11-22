@@ -40,6 +40,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return (BigInteger)ReadonlyData.Get(msg);
         }
 
+        // These methods intentionally access the same storage namespace as Data.
+#pragma warning disable NC4056
         public static void Put2(string message)
         {
             var Data2 = new StorageMap(Storage.CurrentContext, "data");
@@ -51,6 +53,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var Data2 = new StorageMap(Storage.CurrentContext, "data");
             return (BigInteger)Data2.Get(msg);
         }
+#pragma warning restore NC4056
 
         public static void teststoragemap_Putbyteprefix(byte x)
         {
