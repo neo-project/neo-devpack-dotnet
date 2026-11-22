@@ -103,11 +103,12 @@ internal partial class MethodConvert
     /// <example><see href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/examples/Example.SmartContract.Event/Event.cs"/></example>
     private void ConvertEventInvocationExpression(SemanticModel model, IEventSymbol symbol, ArgumentSyntax[] arguments)
     {
-        EmitPackedItemsLeftToRight(
-            arguments,
-            argument => ConvertExpression(model, argument.Expression),
-            OpCode.PACK,
-            argument => CanDeferExpressionEmission(model, argument.Expression));
+        // The manifest declares event arguments in delegate parameter order.
+        // PrepareArgumentsForMethod also handles named arguments, params, and optional defaults.
+        IMethodSymbol invoke = ((INamedTypeSymbol)symbol.Type).DelegateInvokeMethod!;
+        PrepareArgumentsForMethod(model, invoke, arguments);
+        Push(invoke.Parameters.Length);
+        AddInstruction(OpCode.PACK);
         Push(symbol.GetDisplayName());
         CallInteropMethod(ApplicationEngine.System_Runtime_Notify);
     }
