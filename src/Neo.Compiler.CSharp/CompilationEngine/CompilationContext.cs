@@ -39,6 +39,7 @@ namespace Neo.Compiler
         private readonly CompilationEngine _engine;
         private readonly INamedTypeSymbol _targetContract;
         private readonly INamedTypeSymbol? _frameworkSafeAttribute;
+        private readonly INamedTypeSymbol? _frameworkInitialValueAttribute;
         private readonly System.Collections.Generic.List<INamedTypeSymbol>? _nonDependencies;
         internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
@@ -100,23 +101,28 @@ namespace Neo.Compiler
         private readonly bool _allowBaseName;
         internal INamedTypeSymbol TargetContract => _targetContract;
         internal INamedTypeSymbol? FrameworkSafeAttribute => _frameworkSafeAttribute;
+        internal INamedTypeSymbol? FrameworkInitialValueAttribute => _frameworkInitialValueAttribute;
 
         internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null, bool allowBaseName = true)
         {
             _engine = engine;
             _targetContract = targetContract;
             _frameworkSafeAttribute = ResolveFrameworkSafeAttribute(engine);
+            _frameworkInitialValueAttribute = ResolveFrameworkType(engine, typeof(InitialValueAttribute).FullName!);
             _nonDependencies = nonDependencies;
             _allowBaseName = allowBaseName;
         }
 
         private static INamedTypeSymbol? ResolveFrameworkSafeAttribute(CompilationEngine engine)
+            => ResolveFrameworkType(engine, typeof(SafeAttribute).FullName!);
+
+        private static INamedTypeSymbol? ResolveFrameworkType(CompilationEngine engine, string metadataName)
         {
             if (engine.Compilation is null || engine.FrameworkReference is null)
                 return null;
 
             return (engine.Compilation.GetAssemblyOrModuleSymbol(engine.FrameworkReference) as IAssemblySymbol)?
-                .GetTypeByMetadataName(typeof(SafeAttribute).FullName!);
+                .GetTypeByMetadataName(metadataName);
         }
 
         private void RemoveEmptyInitialize()

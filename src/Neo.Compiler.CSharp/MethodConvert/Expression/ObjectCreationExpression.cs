@@ -240,11 +240,9 @@ internal partial class MethodConvert
         return true;
     }
 
-    private static bool RequiresDeclaredInstanceInitializer(IFieldSymbol field, bool isOverwritten)
+    private bool RequiresDeclaredInstanceInitializer(IFieldSymbol field, bool isOverwritten)
     {
-        if (field.GetAttributes().Any(attribute =>
-            attribute.AttributeClass?.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)
-            || attribute.AttributeClass?.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)) == true))
+        if (field.GetAttributes().Any(attribute => attribute.AttributeClass.IsFrameworkInitialValueAttribute(_context.FrameworkInitialValueAttribute)))
             return !isOverwritten;
 
         EqualsValueClauseSyntax? initializer;

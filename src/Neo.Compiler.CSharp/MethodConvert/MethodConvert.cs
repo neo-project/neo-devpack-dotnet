@@ -334,7 +334,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute) || p.AttributeClass!.IsSubclassOf(nameof(InitialValueAttribute)));
+            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass.IsFrameworkInitialValueAttribute(_context.FrameworkInitialValueAttribute));
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer = null;
