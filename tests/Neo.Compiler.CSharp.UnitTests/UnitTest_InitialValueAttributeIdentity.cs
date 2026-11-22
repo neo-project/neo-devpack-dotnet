@@ -1,6 +1,8 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.ComponentModel;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests;
@@ -33,7 +35,22 @@ public class UnitTest_InitialValueAttributeIdentity
         }
         """;
 
-    private static InitialValueContract Deploy(string members, string getBody, CompilationOptions.OptimizationType optimization, string extraDeclarations = "")
+    private const string UnsupportedAttributes = """
+        namespace Custom
+        {
+            using Neo.SmartContract.Framework.Attributes;
+
+            public class IntegerAttribute : InitialValueAttribute
+            {
+                public IntegerAttribute(string value) : base("99", ContractParameterType.Integer) { }
+                public IntegerAttribute(int value) : base("99", ContractParameterType.Integer) { }
+            }
+
+            public class OtherAttribute() : InitialValueAttribute("99", ContractParameterType.Integer);
+        }
+        """;
+
+    private static CompilationContext Compile(string members, string getBody, CompilationOptions.OptimizationType optimization, string extraDeclarations = "")
     {
         var source = $$"""
             using Neo.SmartContract.Framework;
@@ -54,9 +71,14 @@ public class UnitTest_InitialValueAttributeIdentity
 
         var options = TestHelper.CreateDefaultOptions();
         options.Optimize = optimization;
-        var context = TestHelper.CompileSingleContract(source, options);
-        return new TestEngine(true).Deploy<InitialValueContract>(context.CreateExecutable(), context.CreateManifest());
+        return TestHelper.CompileSingleContract(source, options);
     }
+
+    private static InitialValueContract Deploy(string members, string getBody, CompilationOptions.OptimizationType optimization, string extraDeclarations = "")
+        => Deploy(Compile(members, getBody, optimization, extraDeclarations), new TestEngine(true));
+
+    private static InitialValueContract Deploy(CompilationContext context, TestEngine engine)
+        => engine.Deploy<InitialValueContract>(context.CreateExecutable(), context.CreateManifest());
 
     private static InitialValueContract DeployStatic(string field, CompilationOptions.OptimizationType optimization)
         => Deploy(field, "Value", optimization);
@@ -101,6 +123,44 @@ public class UnitTest_InitialValueAttributeIdentity
     }
 
     [TestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None, "Integer(\"42\")", "IntegerAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.Basic, "Integer(\"42\")", "IntegerAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.All, "Integer(\"42\")", "IntegerAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.None, "Integer(42)", "IntegerAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.Basic, "Integer(42)", "IntegerAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.All, "Integer(42)", "IntegerAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.None, "Other", "OtherAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.Basic, "Other", "OtherAttribute")]
+    [DataRow(CompilationOptions.OptimizationType.All, "Other", "OtherAttribute")]
+    public void UnsupportedDerivedAttribute_IsRejected(CompilationOptions.OptimizationType optimization, string attribute, string attributeName)
+    {
+        AssertUnsupported(Compile($"[Custom.{attribute}] private static int Value = 7;", "Value", optimization, UnsupportedAttributes), attributeName);
+        AssertUnsupported(Compile($"public class Position {{ [Custom.{attribute}] public int Value = 7; public int Deposit; }}",
+            "new Position { Deposit = 1 }.Value", optimization, UnsupportedAttributes), attributeName);
+    }
+
+    [TestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.Basic)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
+    public void UnsupportedDerivedAttribute_OnOverwrittenInstanceField_IsRejected(CompilationOptions.OptimizationType optimization)
+    {
+        AssertUnsupported(Compile("""public class Position { [Custom.Integer("42")] public int Value; }""",
+            "new Position { Value = 7 }.Value", optimization, UnsupportedAttributes), "IntegerAttribute");
+    }
+
+    private static void AssertUnsupported(CompilationContext context, string attributeName)
+    {
+        if (context.Success)
+            Assert.Fail($"Expected NC3001, but compilation succeeded and get returned {Deploy(context, new TestEngine(true)).Get()}.");
+
+        var errors = context.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        Assert.HasCount(1, errors, string.Join("\n", errors.Select(d => d.ToString())));
+        Assert.AreEqual("NC3001", errors[0].Id);
+        Assert.AreEqual($"Unsupported initial value type: {attributeName}", errors[0].GetMessage());
+    }
+
+    [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.Basic)]
     [DataRow(CompilationOptions.OptimizationType.All)]
@@ -126,8 +186,11 @@ public class UnitTest_InitialValueAttributeIdentity
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void OfficialDerivedAttribute_IsApplied(CompilationOptions.OptimizationType optimization)
     {
-        var contract = DeployStatic("""[Neo.SmartContract.Framework.Attributes.Integer("43")] private static int Value;""", optimization);
+        var engine = new TestEngine(true);
+        var context = Compile("""[Neo.SmartContract.Framework.Attributes.Integer("43")] private static int Value;""", "Value", optimization);
+        var contract = Deploy(context, engine);
         Assert.AreEqual(new BigInteger(43), contract.Get());
+        Assert.AreEqual(984_660L, engine.FeeConsumed.Value);
     }
 
     [TestMethod]
@@ -156,8 +219,17 @@ public class UnitTest_InitialValueAttributeIdentity
     [DataRow(CompilationOptions.OptimizationType.All)]
     public void InstanceField_OfficialInitialValueAttribute_IsApplied(CompilationOptions.OptimizationType optimization)
     {
-        var contract = DeployInstance("""[Neo.SmartContract.Framework.Attributes.InitialValue("500", Neo.SmartContract.Framework.ContractParameterType.Integer)] public int Value;""", optimization);
+        var engine = new TestEngine(true);
+        var context = Compile("""
+            public class Position
+            {
+                [Neo.SmartContract.Framework.Attributes.InitialValue("500", ContractParameterType.Integer)] public int Value;
+                public int Deposit;
+            }
+            """, "new Position { Deposit = 1 }.Value", optimization);
+        var contract = Deploy(context, engine);
         Assert.AreEqual(new BigInteger(500), contract.Get());
+        Assert.AreEqual(1_293_390L, engine.FeeConsumed.Value);
     }
 
     public abstract class InitialValueContract(SmartContractInitialize initialize)

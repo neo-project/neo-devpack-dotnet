@@ -242,7 +242,7 @@ internal partial class MethodConvert
 
     private bool RequiresDeclaredInstanceInitializer(IFieldSymbol field, bool isOverwritten)
     {
-        if (field.GetAttributes().Any(attribute => attribute.AttributeClass.IsFrameworkInitialValueAttribute(_context.FrameworkInitialValueAttribute)))
+        if (_context.GetInitialValueAttribute(field, out _) is not null)
             return !isOverwritten;
 
         EqualsValueClauseSyntax? initializer;
