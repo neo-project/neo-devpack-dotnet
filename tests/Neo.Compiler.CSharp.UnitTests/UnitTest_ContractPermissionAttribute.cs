@@ -34,6 +34,23 @@ namespace External
         return context.CreateManifest().Permissions;
     }
 
+    private static ContractPermission[] CompileInheritedPermissions(string baseAttribute, string derivedAttribute = "") =>
+        CompilePermissions($$"""
+            using Neo.SmartContract.Framework;
+            using Neo.SmartContract.Framework.Attributes;
+
+            {{ExternalAttribute}}
+
+            {{baseAttribute}}
+            public abstract class BaseContract : SmartContract { }
+
+            {{derivedAttribute}}
+            public class Contract : BaseContract
+            {
+                public static int Get() => 7;
+            }
+            """);
+
     private static void AssertHashPermission(ContractPermission permission, string hash, params string[] methods)
     {
         Assert.IsTrue(permission.Contract.IsHash);
@@ -70,6 +87,56 @@ public class Contract : SmartContract
 
         Assert.AreEqual(1, permissions.Length);
         AssertHashPermission(permissions[0], Hash1, "expected");
+    }
+
+    [TestMethod]
+    public void OfficialAttribute_OnAbstractBase_IsInherited()
+    {
+        var permissions = CompileInheritedPermissions($"""[ContractPermission("{Hash1}", "inherited")]""");
+
+        Assert.AreEqual(1, permissions.Length);
+        AssertHashPermission(permissions[0], Hash1, "inherited");
+    }
+
+    [TestMethod]
+    public void ExternalAttribute_OnAbstractBase_IsIgnored()
+    {
+        var permissions = CompileInheritedPermissions($"""[External.ContractPermission("{Hash1}", "unexpected")]""");
+
+        Assert.AreEqual(0, permissions.Length);
+    }
+
+    [TestMethod]
+    public void OfficialAttributes_OnBaseAndDerived_AreBothRegistered()
+    {
+        var permissions = CompileInheritedPermissions(
+            $"""[ContractPermission("{Hash1}", "inherited")]""",
+            $"""[ContractPermission("{Hash2}", "declared")]""");
+
+        Assert.AreEqual(2, permissions.Length);
+        AssertHashPermission(permissions.Single(p => p.Contract.Hash == UInt160.Parse(Hash1)), Hash1, "inherited");
+        AssertHashPermission(permissions.Single(p => p.Contract.Hash == UInt160.Parse(Hash2)), Hash2, "declared");
+    }
+
+    [TestMethod]
+    public void OfficialMetadataNameDeclaredInSource_IsIgnored()
+    {
+        var permissions = CompilePermissions($$"""
+            using Neo.SmartContract.Framework;
+
+            namespace Neo.SmartContract.Framework.Attributes
+            {
+                public sealed class ContractPermissionAttribute(string contract, params string[] methods) : System.Attribute { }
+            }
+
+            [Neo.SmartContract.Framework.Attributes.ContractPermissionAttribute("{{Hash1}}", "unexpected")]
+            public class Contract : SmartContract
+            {
+                public static int Get() => 7;
+            }
+            """);
+
+        Assert.AreEqual(0, permissions.Length);
     }
 
     [TestMethod]

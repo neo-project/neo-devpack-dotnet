@@ -106,28 +106,19 @@ namespace Neo.Compiler
         {
             _engine = engine;
             _targetContract = targetContract;
-            _frameworkSafeAttribute = ResolveFrameworkSafeAttribute(engine);
-            _frameworkContractPermissionAttribute = ResolveFrameworkType(engine, typeof(ContractPermissionAttribute));
+            _frameworkSafeAttribute = ResolveFrameworkType(engine, typeof(SafeAttribute).FullName!);
+            _frameworkContractPermissionAttribute = ResolveFrameworkType(engine, typeof(ContractPermissionAttribute).FullName!);
             _nonDependencies = nonDependencies;
             _allowBaseName = allowBaseName;
         }
 
-        private static INamedTypeSymbol? ResolveFrameworkSafeAttribute(CompilationEngine engine)
+        private static INamedTypeSymbol? ResolveFrameworkType(CompilationEngine engine, string metadataName)
         {
             if (engine.Compilation is null || engine.FrameworkReference is null)
                 return null;
 
             return (engine.Compilation.GetAssemblyOrModuleSymbol(engine.FrameworkReference) as IAssemblySymbol)?
-                .GetTypeByMetadataName(typeof(SafeAttribute).FullName!);
-        }
-
-        private static INamedTypeSymbol? ResolveFrameworkType(CompilationEngine engine, Type type)
-        {
-            if (engine.Compilation is null || engine.FrameworkReference is null)
-                return null;
-
-            return (engine.Compilation.GetAssemblyOrModuleSymbol(engine.FrameworkReference) as IAssemblySymbol)?
-                .GetTypeByMetadataName(type.FullName!);
+                .GetTypeByMetadataName(metadataName);
         }
 
         private void RemoveEmptyInitialize()
