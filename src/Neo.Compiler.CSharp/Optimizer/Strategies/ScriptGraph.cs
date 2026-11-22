@@ -1139,7 +1139,7 @@ namespace Neo.Optimizer
     }
 
     [Flags]
-    internal enum PeepholeRule
+    internal enum PeepholeRule : ulong
     {
         None = 0,
         FoldNotInEqual = 1 << 0,
@@ -1150,6 +1150,7 @@ namespace Neo.Optimizer
         FoldNotInJmp = 1 << 5,
         UseEmptyCollectionOpcodes = 1 << 6,
         RemovePushDrop = 1 << 7,
-        All = FoldNotInEqual | RemoveDupDrop | UseIncDec | UseIsNull | UseNz | FoldNotInJmp | UseEmptyCollectionOpcodes | RemovePushDrop,
+        StackOpFusion = 1 << 8,
+        All = FoldNotInEqual | RemoveDupDrop | UseIncDec | UseIsNull | UseNz | FoldNotInJmp | UseEmptyCollectionOpcodes | RemovePushDrop | StackOpFusion,
     }
 }
