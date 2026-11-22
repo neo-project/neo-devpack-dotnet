@@ -69,9 +69,8 @@ namespace Neo.Compiler
         {
             ThrowIfUnsupportedContractType(type);
 
-            // use the underlying type for nullable types, depend on the script to deal with null for value types
+            // Unwrap Nullable<T> and ignore nullable reference annotations for ABI classification.
             type = NormalizeAbiType(type);
-            ThrowIfUnsupportedContractType(type);
 
             if (type is IArrayTypeSymbol arrayType)
                 return arrayType.Rank == 1 && arrayType.ElementType.SpecialType == SpecialType.System_Byte

@@ -21,6 +21,7 @@ public class UnitTest_NullableAbiTypes
 {
     private const string Source = @"#nullable enable
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
 
 public class Contract : SmartContract
 {
@@ -37,6 +38,8 @@ public class Contract : SmartContract
     public static Map<string, int> EchoMap(Map<string, int> value) => value;
     public static Map<string, int>? EchoMapN(Map<string, int>? value) => value;
     public static Map<int, string>? EchoMapN2(Map<int, string>? value) => value;
+    public static Iterator<int> EchoIterator(Iterator<int> value) => value;
+    public static Iterator<int>? EchoIteratorN(Iterator<int>? value) => value;
     public static int EchoInt(int value) => value;
     public static int? EchoIntN(int? value) => value;
     public static bool EchoBool(bool value) => value;
@@ -73,6 +76,8 @@ public class Contract : SmartContract
             Assert.AreEqual(expected, method.Parameters.Single().Type, $"{name} parameter type");
         }
 
+        Check("echoIterator", ContractParameterType.InteropInterface);
+        Check("echoIteratorN", ContractParameterType.InteropInterface);
         Check("echoList", ContractParameterType.Array);
         Check("echoListN", ContractParameterType.Array);
         Check("echoStringList", ContractParameterType.Array);
