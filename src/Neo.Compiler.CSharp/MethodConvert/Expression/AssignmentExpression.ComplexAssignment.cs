@@ -368,7 +368,9 @@ internal partial class MethodConvert
         var itemType = type.GetStackItemType();
         if (itemType == VM.Types.StackItemType.ByteString)
         {
+            CoalesceNullStringToEmpty(model, null);
             ConvertObjectToString(model, right);
+            CoalesceNullStringToEmpty(model, right);
             Cat();
             ChangeType(VM.Types.StackItemType.ByteString);
             return;

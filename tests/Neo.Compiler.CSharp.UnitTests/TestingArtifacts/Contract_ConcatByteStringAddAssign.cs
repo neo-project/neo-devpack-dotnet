@@ -18,7 +18,7 @@ public abstract class Contract_ConcatByteStringAddAssign(Neo.SmartContract.Testi
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABpXAQMMAHBoeIvbKHBoeYvbKHBoeovbKHBoQN/RbZ0=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERXAQMMAHBoStgmBUUMAHhK2CYFRQwAi9socGhK2CYFRQwAeUrYJgVFDACL2yhwaErYJgVFDAB6StgmBUUMAIvbKHBoQHVq5nc=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,22 +28,52 @@ public abstract class Contract_ConcatByteStringAddAssign(Neo.SmartContract.Testi
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEDDABwaHiL2yhwaHmL2yhwaHqL2yhwaEA=
+    /// Script: VwEDDABwaErYJgVFDAB4StgmBUUMAIvbKHBoStgmBUUMAHlK2CYFRQwAi9socGhK2CYFRQwAekrYJgVFDACL2yhwaEA=
     /// INITSLOT 0103 [64 datoshi]
     /// PUSHDATA1 [8 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// LDARG1 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// LDARG2 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
     /// STLOC0 [2 datoshi]
