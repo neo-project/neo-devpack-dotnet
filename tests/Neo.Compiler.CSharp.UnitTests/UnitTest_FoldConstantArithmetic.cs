@@ -135,6 +135,54 @@ public class UnitTest_FoldConstantArithmetic
     }
 
     [TestMethod]
+    [DataRow(2, VMState.HALT)]
+    [DataRow(1, VMState.FAULT)]
+    public void BinaryFoldingReducesPeakStackUsage(int remainingSlots, VMState originalState)
+    {
+        int stackLimit = checked((int)ExecutionEngineLimits.Default.MaxStackSize);
+        using var builder = new ScriptBuilder();
+        for (int i = 0; i < stackLimit - remainingSlots; i++)
+            builder.Emit(OpCode.PUSH0);
+        builder.Emit(OpCode.PUSH7);
+        builder.Emit(OpCode.PUSH5);
+        builder.Emit(OpCode.ADD);
+        builder.Emit(OpCode.RET);
+
+        byte[] script = builder.ToArray();
+        var nef = new NefFile { Compiler = "test", Source = "", Tokens = [], Script = script };
+        var manifest = new ContractManifest
+        {
+            Name = "TestContract",
+            Groups = [],
+            SupportedStandards = [],
+            Permissions = [],
+            Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
+            Abi = new ContractAbi
+            {
+                Methods = [new ContractMethodDescriptor { Name = "main", Offset = 0, Parameters = [], ReturnType = ContractParameterType.Integer }],
+                Events = []
+            }
+        };
+        var (optimized, _, _) = Neo.Optimizer.Optimizer.Optimize(
+            nef, manifest, null, CompilationOptions.OptimizationType.All);
+
+        using var originalEngine = new ExecutionEngine();
+        originalEngine.LoadScript(script);
+        Assert.AreEqual(originalState, originalEngine.Execute());
+
+        using var optimizedEngine = new ExecutionEngine();
+        optimizedEngine.LoadScript(optimized.Script);
+        Assert.AreEqual(VMState.HALT, optimizedEngine.Execute());
+        CollectionAssert.AreEqual(
+            Enumerable.Repeat(BigInteger.Zero, stackLimit - remainingSlots).Prepend(new BigInteger(12)).ToArray(),
+            optimizedEngine.ResultStack.Reverse().Select(item => item.GetInteger()).ToArray());
+        if (originalState == VMState.HALT)
+            CollectionAssert.AreEqual(
+                originalEngine.ResultStack.Select(item => item.GetInteger()).ToArray(),
+                optimizedEngine.ResultStack.Select(item => item.GetInteger()).ToArray());
+    }
+
+    [TestMethod]
     [DataRow(0, VMState.HALT)]
     [DataRow(1, VMState.FAULT)]
     public void SizeFoldingPreservesItemSizeLimit(int bytesAboveLimit, VMState expectedState)
