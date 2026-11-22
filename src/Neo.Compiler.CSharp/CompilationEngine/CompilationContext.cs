@@ -39,6 +39,7 @@ namespace Neo.Compiler
         private readonly CompilationEngine _engine;
         private readonly INamedTypeSymbol _targetContract;
         private readonly INamedTypeSymbol? _frameworkSafeAttribute;
+        private readonly INamedTypeSymbol? _frameworkContractPermissionAttribute;
         private readonly System.Collections.Generic.List<INamedTypeSymbol>? _nonDependencies;
         internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
@@ -106,6 +107,7 @@ namespace Neo.Compiler
             _engine = engine;
             _targetContract = targetContract;
             _frameworkSafeAttribute = ResolveFrameworkSafeAttribute(engine);
+            _frameworkContractPermissionAttribute = ResolveFrameworkType(engine, typeof(ContractPermissionAttribute));
             _nonDependencies = nonDependencies;
             _allowBaseName = allowBaseName;
         }
@@ -117,6 +119,15 @@ namespace Neo.Compiler
 
             return (engine.Compilation.GetAssemblyOrModuleSymbol(engine.FrameworkReference) as IAssemblySymbol)?
                 .GetTypeByMetadataName(typeof(SafeAttribute).FullName!);
+        }
+
+        private static INamedTypeSymbol? ResolveFrameworkType(CompilationEngine engine, Type type)
+        {
+            if (engine.Compilation is null || engine.FrameworkReference is null)
+                return null;
+
+            return (engine.Compilation.GetAssemblyOrModuleSymbol(engine.FrameworkReference) as IAssemblySymbol)?
+                .GetTypeByMetadataName(type.FullName!);
         }
 
         private void RemoveEmptyInitialize()
@@ -558,6 +569,20 @@ namespace Neo.Compiler
                             _manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
                         case nameof(ContractPermissionAttribute):
+                            if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, _frameworkContractPermissionAttribute))
+                            {
+                                var assembly = attribute.AttributeClass.ContainingAssembly;
+                                if (_frameworkContractPermissionAttribute is null &&
+                                    !SymbolEqualityComparer.Default.Equals(assembly, model.Compilation.Assembly) &&
+                                    string.Equals(assembly.Name, CompilationEngine.FrameworkAssemblyName, StringComparison.OrdinalIgnoreCase) &&
+                                    SymbolEqualityComparer.Default.Equals(attribute.AttributeClass,
+                                        assembly.GetTypeByMetadataName(typeof(ContractPermissionAttribute).FullName!)))
+                                {
+                                    throw new CompilationException(symbol, DiagnosticId.InvalidArgument,
+                                        "Cannot resolve ContractPermissionAttribute from a trusted framework reference. Pass the trusted Neo framework reference explicitly to CompilationEngine.Compile or use CompileProject with the Neo framework dependency.");
+                                }
+                                break;
+                            }
                             string contract = (string)attribute.ConstructorArguments[0].Value!;
                             string[] methods = attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
                             ValidateContractPermission(symbol, contract, methods);
