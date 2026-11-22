@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -34,7 +35,10 @@ internal partial class MethodConvert
     private void ConvertSimpleLambdaExpression(SemanticModel model, SimpleLambdaExpressionSyntax expression)
     {
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
+        var mc = (Symbol.IsGenericMethod || Symbol.ContainingType.IsGenericType) &&
+                 expression.DescendantNodes().OfType<TypeOfExpressionSyntax>().Any()
+            ? _context.ConvertContextualLambda(model, symbol, Symbol)
+            : _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc, model.GetTypeInfo(expression).ConvertedType);
     }
@@ -57,7 +61,10 @@ internal partial class MethodConvert
     private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
     {
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
+        var mc = (Symbol.IsGenericMethod || Symbol.ContainingType.IsGenericType) &&
+                 expression.DescendantNodes().OfType<TypeOfExpressionSyntax>().Any()
+            ? _context.ConvertContextualLambda(model, symbol, Symbol)
+            : _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc, model.GetTypeInfo(expression).ConvertedType);
     }
