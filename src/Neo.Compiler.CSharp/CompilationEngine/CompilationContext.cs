@@ -488,6 +488,18 @@ namespace Neo.Compiler
 
         private void ProcessCompilationUnit(HashSet<INamedTypeSymbol> processed, SemanticModel model, CompilationUnitSyntax syntax)
         {
+            // Only the target contract's static constructor is emitted. Reject other
+            // explicit constructors instead of silently compiling their fields with
+            // default values and dropping their assignments.
+            foreach (ConstructorDeclarationSyntax constructor in syntax.DescendantNodes().OfType<ConstructorDeclarationSyntax>())
+            {
+                if (!constructor.Modifiers.Any(SyntaxKind.StaticKeyword)) continue;
+                IMethodSymbol? method = model.GetDeclaredSymbol(constructor);
+                if (method is null || SymbolEqualityComparer.Default.Equals(method.ContainingType, _targetContract)) continue;
+                throw new CompilationException(method, DiagnosticId.SyntaxNotSupported,
+                    $"Static constructor on '{method.ContainingType}' is not supported outside the target contract.");
+            }
+
             foreach (MemberDeclarationSyntax member in syntax.Members)
                 ProcessMemberDeclaration(processed, model, member);
         }
