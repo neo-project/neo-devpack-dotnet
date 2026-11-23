@@ -76,6 +76,8 @@ internal partial class MethodConvert
 
     private static bool UsesContainingInstance(IOperation operation)
     {
+        if (operation is INameOfOperation) return false;
+
         if (operation is IInstanceReferenceOperation { ReferenceKind: InstanceReferenceKind.ContainingTypeInstance })
             return true;
 

@@ -78,4 +78,31 @@ public class Contract : SmartContract
 
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
     }
+
+    [TestMethod]
+    public void NameOfInstanceMemberDoesNotCaptureInstance()
+    {
+        var context = TestHelper.CompileSingleContract("""
+using System;
+using Neo.SmartContract.Framework;
+
+public class Box
+{
+    public int Value;
+
+    public string GetName()
+    {
+        Func<string> name = () => nameof(this.Value);
+        return name();
+    }
+}
+
+public class Contract : SmartContract
+{
+    public static string Test() => new Box().GetName();
+}
+""");
+
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+    }
 }
