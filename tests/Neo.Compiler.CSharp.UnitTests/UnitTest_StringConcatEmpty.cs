@@ -109,11 +109,11 @@ public class Contract : SmartContract
         };
 
         foreach (var level in Levels)
-        foreach (var (body, expected) in cases)
-        {
-            var (contract, _, _, _) = Deploy(body, level);
-            Assert.AreEqual(expected, contract.Run(null), $"{body} / {level}");
-        }
+            foreach (var (body, expected) in cases)
+            {
+                var (contract, _, _, _) = Deploy(body, level);
+                Assert.AreEqual(expected, contract.Run(null), $"{body} / {level}");
+            }
     }
 
     [TestMethod]
