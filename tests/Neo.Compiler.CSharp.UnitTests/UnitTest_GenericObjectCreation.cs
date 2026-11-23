@@ -28,7 +28,7 @@ public class UnitTest_GenericObjectCreation
 
             public class Contract : SmartContract
             {
-                public static int Test() => Create<int>();
+                public static int Test() => Contract.Create<int>();
 
                 private static T Create<T>() where T : {{constraint}} => new T();
             }
