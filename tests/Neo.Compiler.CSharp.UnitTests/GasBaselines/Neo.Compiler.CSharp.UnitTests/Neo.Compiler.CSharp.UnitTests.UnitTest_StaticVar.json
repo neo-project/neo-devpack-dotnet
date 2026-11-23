@@ -4,6 +4,6 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_GetUInt160#1": 270647,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_InitialValue#1": 270647,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_StaticVar#1": 271798,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_testBigIntegerParse#1": 270840,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_testBigIntegerParse#1": 270680,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StaticVar.Test_testBigIntegerParse2#1": 372901
 }
