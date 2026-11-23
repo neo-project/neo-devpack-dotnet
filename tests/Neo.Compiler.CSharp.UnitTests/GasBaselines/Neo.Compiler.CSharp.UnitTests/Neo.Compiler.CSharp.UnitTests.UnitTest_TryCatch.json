@@ -1,8 +1,8 @@
 {
   "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_CatchAndFinallyAfterHelperThrow_AllPaths#1": 1082580,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_CatchAndFinallyAfterHelperThrow_AllPaths#2": 1066410,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_CatchException#1": 1309770,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_CatchExceptionType#1": 1309890,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_CatchException#1": 1310130,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_CatchExceptionType#1": 1310250,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_ThrowCall#1": 999630,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_ThrowInCatch_AllPaths#1": 1048170,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_TryCatch.Test_ThrowInCatch_AllPaths#2": 1064220,
