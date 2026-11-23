@@ -42,4 +42,3 @@ public class UnitTest_GenericObjectCreation
         Assert.IsFalse(context.Diagnostics.Any(diagnostic => diagnostic.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
     }
 }
-
