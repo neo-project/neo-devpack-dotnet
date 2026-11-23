@@ -40,7 +40,7 @@ public class UnitTest_HelperStaticConstructors
                 """,
             "base" => """
                 using Neo.SmartContract.Framework;
-                public class Base : SmartContract
+                public abstract class Base : SmartContract
                 {
                     public static readonly int Value;
                     static Base() => Value = 1;
@@ -72,4 +72,3 @@ public class UnitTest_HelperStaticConstructors
         Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
     }
 }
-
