@@ -132,8 +132,14 @@ namespace Neo.Compiler
             foreach (var attribute in field.GetAttributes())
             {
                 var type = attribute.AttributeClass;
-                if (type is null || !type.IsFrameworkInitialValueAttribute(_frameworkInitialValueAttribute))
+                if (type is null) continue;
+                if (!type.IsFrameworkInitialValueAttribute(_frameworkInitialValueAttribute))
+                {
+                    if (_frameworkInitialValueAttribute is null && IsUnresolvedFrameworkInitialValueAttribute(type))
+                        throw new CompilationException(field, DiagnosticId.InvalidInitialValueType,
+                            "Cannot resolve InitialValueAttribute from a trusted framework reference. Pass the trusted Neo framework reference explicitly to CompilationEngine.Compile or use CompileProject with the Neo framework dependency.");
                     continue;
+                }
 
                 ContractParameterType? attributeParameterType = null;
                 if (!SymbolEqualityComparer.Default.Equals(type, _frameworkInitialValueAttribute))
@@ -148,6 +154,20 @@ namespace Neo.Compiler
                 parameterType = attributeParameterType;
             }
             return initialValue;
+        }
+
+        private bool IsUnresolvedFrameworkInitialValueAttribute(INamedTypeSymbol type)
+        {
+            for (INamedTypeSymbol? candidate = type; candidate is not null; candidate = candidate.BaseType)
+            {
+                var assembly = candidate.ContainingAssembly;
+                if (string.Equals(assembly.Name, CompilationEngine.FrameworkAssemblyName, StringComparison.OrdinalIgnoreCase)
+                    && !SymbolEqualityComparer.Default.Equals(assembly, _engine.Compilation?.Assembly)
+                    && SymbolEqualityComparer.Default.Equals(candidate, assembly.GetTypeByMetadataName(typeof(InitialValueAttribute).FullName!)))
+                    return true;
+            }
+
+            return false;
         }
 
         private static INamedTypeSymbol? ResolveFrameworkSafeAttribute(CompilationEngine engine)

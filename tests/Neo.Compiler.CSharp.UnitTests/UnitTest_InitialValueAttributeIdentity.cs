@@ -1,7 +1,10 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 
@@ -230,6 +233,77 @@ public class UnitTest_InitialValueAttributeIdentity
         var contract = Deploy(context, engine);
         Assert.AreEqual(new BigInteger(500), contract.Get());
         Assert.AreEqual(1_293_390L, engine.FeeConsumed.Value);
+    }
+
+    [TestMethod]
+    public void InitialValueFromAlternateFrameworkRequiresExplicitReference()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using Neo.SmartContract.Framework.Attributes;
+
+            public class Contract : SmartContract
+            {
+                [InitialValue("42", ContractParameterType.Integer)]
+                private static int Value;
+                public static int Get() => Value;
+            }
+            """;
+
+        var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Where(path => !string.Equals(Path.GetFileNameWithoutExtension(path),
+                CompilationEngine.FrameworkAssemblyName, StringComparison.OrdinalIgnoreCase))
+            .Distinct()
+            .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
+            .ToArray();
+        var frameworkCompilation = CSharpCompilation.Create(
+            CompilationEngine.FrameworkAssemblyName,
+            [CSharpSyntaxTree.ParseText("""
+                namespace Neo.SmartContract.Framework
+                {
+                    public abstract class SmartContract
+                    {
+                        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.InternalCall)]
+                        public extern static void _initialize();
+                    }
+                    public enum ContractParameterType : byte { Integer = 0x11 }
+                }
+
+                namespace Neo.SmartContract.Framework.Attributes
+                {
+                    public sealed class InitialValueAttribute(string value, ContractParameterType type) : System.Attribute;
+                }
+                """)],
+            references,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        using var image = new MemoryStream();
+        var emit = frameworkCompilation.Emit(image);
+        Assert.IsTrue(emit.Success, string.Join(Environment.NewLine, emit.Diagnostics));
+        var framework = MetadataReference.CreateFromImage(image.ToArray());
+
+        string path = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(path, source);
+            MetadataReference[] allReferences = [.. references, framework];
+            var engine = new CompilationEngine(TestHelper.CreateDefaultOptions());
+
+            var unresolved = engine.Compile([path], allReferences).Single();
+            Assert.IsFalse(unresolved.Success);
+            Assert.IsTrue(unresolved.Diagnostics.Any(diagnostic =>
+                diagnostic.Id == DiagnosticId.InvalidInitialValueType &&
+                diagnostic.GetMessage().Contains("trusted framework reference", StringComparison.Ordinal)));
+
+            var resolved = engine.Compile([path], allReferences, framework).Single();
+            Assert.IsTrue(resolved.Success, string.Join(Environment.NewLine, resolved.Diagnostics));
+            var contract = Deploy(resolved, new TestEngine(true));
+            Assert.AreEqual(new BigInteger(42), contract.Get());
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     public abstract class InitialValueContract(SmartContractInitialize initialize)
