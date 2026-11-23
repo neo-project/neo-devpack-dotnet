@@ -47,21 +47,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void UnsupportedInferredInitialValueTypeReportsDiagnostic()
+        [DataRow("bool", "true", "Boolean")]
+        [DataRow("List<int>?", "42", "Array")]
+        [DataRow("Map<string, int>?", "name", "Map")]
+        public void UnsupportedInferredInitialValueTypeReportsDiagnostic(string type, string value, string abiType)
         {
-            var context = TestHelper.CompileSingleContract("""
+            var context = TestHelper.CompileSingleContract($$"""
+#nullable enable
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 public class Contract : SmartContract
 {
-    [InitialValue("true")] private static readonly bool Value;
-    public static bool Get() => Value;
+    [InitialValue("{{value}}")] private static readonly {{type}} Value;
+    public static {{type}} Get() => Value;
 }
 """);
             var diagnostics = string.Join(Environment.NewLine, context.Diagnostics);
             Assert.IsFalse(context.Success, diagnostics);
             Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.InvalidInitialValueType
-                && d.GetMessage().Contains("Boolean")), diagnostics);
+                && d.GetMessage().Contains(abiType, StringComparison.Ordinal)), diagnostics);
             Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
         }
 
