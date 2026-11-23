@@ -934,10 +934,10 @@ namespace Neo.Compiler
         {
             if (StaticFieldCount >= byte.MaxValue)
             {
-                string message = $"Contracts with more than {byte.MaxValue} static slots are not supported.";
+                const string message = "A contract cannot use more than 255 static slots (including compiler-generated slots).";
                 throw symbol is null
-                    ? new CompilationException(DiagnosticId.SyntaxNotSupported, message)
-                    : new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, message);
+                    ? new CompilationException(DiagnosticId.StaticSlotLimit, message)
+                    : new CompilationException(symbol, DiagnosticId.StaticSlotLimit, message);
             }
             return (byte)StaticFieldCount;
         }
