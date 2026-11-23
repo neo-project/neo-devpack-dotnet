@@ -18,7 +18,7 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACJaHR0cHM6Ly9naXRodWIuY29tL25lby1wcm9qZWN0L25lby1kZXZwYWNrLWRvdG5ldC90cmVlL21hc3Rlci9zcmMvTmVvLlNtYXJ0Q29udHJhY3QuVGVtcGxhdGUvdGVtcGxhdGVzL25lb2NvbnRyYWN0b3JhY2xlL09yYWNsZVJlcXVlc3QuY3MAA1iHFxF+CqgQcq+rcdLdif58S5L+B3JlcXVlc3QFAAAPwO85zuDk6SXGwqBqeeFEDdhvzqwEaXRvYQEAAQXA7znO4OTpJcbCoGp54UQN2G/OrA9qc29uRGVzZXJpYWxpemUBAAEFAAD9CQFB9rRr4gwIUmVzcG9uc2VQQZJd6DFAVwEADDVodHRwczovL2FwaS5qc29uYmluLmlvL3YzL3FzLzY1MjBhZDNjMTJhNWQzNzY1OTg4NTQyYXACgJaYAAsMEG9uT3JhY2xlUmVzcG9uc2UMFSQucmVjb3JkLnByb3BlcnR5TmFtZWg3AABAVwIEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYWDBFObyBBdXRob3JpemF0aW9uITp6Ji4MIk9yYWNsZSByZXNwb25zZSBmYWlsdXJlIHdpdGggY29kZSB6NwEAi9soOns3AgBwaBDOcUGb9mfODAhSZXNwb25zZWlTQeY/GIRAq9Hd4w==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACJaHR0cHM6Ly9naXRodWIuY29tL25lby1wcm9qZWN0L25lby1kZXZwYWNrLWRvdG5ldC90cmVlL21hc3Rlci9zcmMvTmVvLlNtYXJ0Q29udHJhY3QuVGVtcGxhdGUvdGVtcGxhdGVzL25lb2NvbnRyYWN0b3JhY2xlL09yYWNsZVJlcXVlc3QuY3MAA1iHFxF+CqgQcq+rcdLdif58S5L+B3JlcXVlc3QFAAAPwO85zuDk6SXGwqBqeeFEDdhvzqwEaXRvYQEAAQXA7znO4OTpJcbCoGp54UQN2G/OrA9qc29uRGVzZXJpYWxpemUBAAEFAAD9EAFB9rRr4gwIUmVzcG9uc2VQQZJd6DFAVwEADDVodHRwczovL2FwaS5qc29uYmluLmlvL3YzL3FzLzY1MjBhZDNjMTJhNWQzNzY1OTg4NTQyYXACgJaYAAsMEG9uT3JhY2xlUmVzcG9uc2UMFSQucmVjb3JkLnByb3BlcnR5TmFtZWg3AABAVwIEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYWDBFObyBBdXRob3JpemF0aW9uITp6JjUMIk9yYWNsZSByZXNwb25zZSBmYWlsdXJlIHdpdGggY29kZSB6NwEAStgmBUUMAIvbKDp7NwIAcGgQznFBm/ZnzgwIUmVzcG9uc2VpU0HmPxiEQLeEXFo=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -56,7 +56,7 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYWDBFObyBBdXRob3JpemF0aW9uITp6Ji4MIk9yYWNsZSByZXNwb25zZSBmYWlsdXJlIHdpdGggY29kZSB6NwEAi9soOns3AgBwaBDOcUGb9mfODAhSZXNwb25zZWlTQeY/GIRA
+    /// Script: VwIEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYWDBFObyBBdXRob3JpemF0aW9uITp6JjUMIk9yYWNsZSByZXNwb25zZSBmYWlsdXJlIHdpdGggY29kZSB6NwEAStgmBUUMAIvbKDp7NwIAcGgQznFBm/ZnzgwIUmVzcG9uc2VpU0HmPxiEQA==
     /// INITSLOT 0204 [64 datoshi]
     /// SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
     /// PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE [8 datoshi]
@@ -65,10 +65,15 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// PUSHDATA1 4E6F20417574686F72697A6174696F6E21 [8 datoshi]
     /// THROW [512 datoshi]
     /// LDARG2 [2 datoshi]
-    /// JMPIFNOT 2E [2 datoshi]
+    /// JMPIFNOT 35 [2 datoshi]
     /// PUSHDATA1 4F7261636C6520726573706F6E7365206661696C757265207769746820636F646520 [8 datoshi]
     /// LDARG2 [2 datoshi]
     /// CALLT 0100 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
     /// THROW [512 datoshi]
