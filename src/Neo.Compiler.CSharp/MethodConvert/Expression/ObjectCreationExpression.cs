@@ -68,7 +68,9 @@ internal partial class MethodConvert
         // when the framework comes from a compiled assembly rather than a project reference.
         // IsExtern is not enough to decide this: it reflects the source modifier, and a
         // constructor read from metadata does not report it.
-        if (HasDeclarativeLowering(constructor) || !constructor.DeclaringSyntaxReferences.IsEmpty)
+        // Source types also need their synthesized constructor to invoke the base chain.
+        if (HasDeclarativeLowering(constructor) || !constructor.DeclaringSyntaxReferences.IsEmpty ||
+            (constructor.IsImplicitlyDeclared && !constructor.ContainingType.DeclaringSyntaxReferences.IsEmpty))
             CallInstanceMethod(model, constructor, needCreateObject, arguments);
         if (expression.Initializer is not null)
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
