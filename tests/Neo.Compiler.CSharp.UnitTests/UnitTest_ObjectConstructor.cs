@@ -65,4 +65,3 @@ public class UnitTest_ObjectConstructor
         public abstract BigInteger? Argument();
     }
 }
-
