@@ -441,4 +441,3 @@ internal partial class MethodConvert
         InvokeMethod(model, symbol, model.GetTypeInfo(expression).Type);
     }
 }
-
