@@ -23,6 +23,9 @@ namespace Neo.Optimizer
             ScriptGraph graph = ScriptGraph.Parse(nef, manifest, debugInfo);
             graph.ApplyStaticFieldConstants(graph.BuildCoverage());
             graph.RemoveUnusedInitialize();
+            (nef, manifest, debugInfo) = graph.Emit();
+            (nef, manifest, debugInfo) = ConstantFold.FoldConstants(nef, manifest, debugInfo);
+            graph = ScriptGraph.Parse(nef, manifest, debugInfo);
             graph.ApplyConstantConditionalJumps();
             graph.NormalizeJumps();
             graph.CollapseAdjacentReturns();
