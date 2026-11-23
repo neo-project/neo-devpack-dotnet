@@ -113,9 +113,17 @@ internal partial class MethodConvert
 
         // A local collection can retain the delegate. Reject it when the
         // collection itself is returned, while preserving local loop uses.
-        if (value.Parent is ArgumentSyntax { Parent: ArgumentListSyntax
-            { Parent: InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax
-                { Expression: IdentifierNameSyntax receiver } } } } &&
+        if (value.Parent is ArgumentSyntax
+            {
+                Parent: ArgumentListSyntax
+                {
+                    Parent: InvocationExpressionSyntax
+                    {
+                        Expression: MemberAccessExpressionSyntax
+                        { Expression: IdentifierNameSyntax receiver }
+                    }
+                }
+            } &&
             model.GetSymbolInfo(receiver).Symbol is ILocalSymbol collection && SyntaxNode is not null &&
             SyntaxNode.DescendantNodes().OfType<ReturnStatementSyntax>().Any(ret =>
                 ret.Expression is IdentifierNameSyntax returned &&
