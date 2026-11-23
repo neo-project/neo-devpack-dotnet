@@ -78,12 +78,8 @@ namespace Neo.Compiler
         {
             ThrowIfUnsupportedContractType(type);
 
-            if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
-            {
-                // use the original type for nullable types, depend on the script to deal with null for value types
-                type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
-                ThrowIfUnsupportedContractType(type);
-            }
+            // Unwrap Nullable<T> and ignore nullable reference annotations for ABI classification.
+            type = NormalizeAbiType(type);
 
             if (type is IArrayTypeSymbol arrayType)
                 return arrayType.Rank == 1 && arrayType.ElementType.SpecialType == SpecialType.System_Byte
@@ -138,14 +134,13 @@ namespace Neo.Compiler
             if (!IsSupportedContractType(type))
                 return false;
 
-            if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
-            {
-                type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
-                return IsSupportedContractType(type);
-            }
-
-            return true;
+            return IsSupportedContractType(NormalizeAbiType(type));
         }
+
+        private static ITypeSymbol NormalizeAbiType(ITypeSymbol type) =>
+            type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } namedType
+                ? namedType.TypeArguments[0]
+                : type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
 
         private static void ThrowIfUnsupportedContractType(ITypeSymbol type)
         {
