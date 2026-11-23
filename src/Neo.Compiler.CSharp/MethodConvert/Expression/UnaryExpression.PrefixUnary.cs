@@ -69,12 +69,23 @@ internal partial class MethodConvert
             case "~":
                 ConvertExpression(model, expression.Operand);
                 var complementType = model.GetTypeInfo(expression).Type;
+                var complementValueType = GetNonNullableValueType(complementType!);
+                if (complementValueType is INamedTypeSymbol { TypeKind: TypeKind.Enum, EnumUnderlyingType: not null } enumType)
+                    complementValueType = enumType.EnumUnderlyingType;
                 EmitLiftedUnaryOperation(model.GetTypeInfo(expression.Operand).Type, () =>
                 {
                     AddInstruction(OpCode.INVERT);
                     // INVERT produces a signed result; unsigned complements retain their width even in checked code.
-                    switch (GetNonNullableValueType(complementType!).SpecialType)
+                    switch (complementValueType.SpecialType)
                     {
+                        case SpecialType.System_Byte:
+                            Push(byte.MaxValue);
+                            AddInstruction(OpCode.AND);
+                            break;
+                        case SpecialType.System_UInt16:
+                            Push(ushort.MaxValue);
+                            AddInstruction(OpCode.AND);
+                            break;
                         case SpecialType.System_UInt32:
                             Push(uint.MaxValue);
                             AddInstruction(OpCode.AND);

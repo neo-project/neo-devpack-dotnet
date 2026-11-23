@@ -24,6 +24,12 @@ public class UnitTest_BitwiseComplement
         using Neo.SmartContract.Framework;
         using System.Numerics;
 
+        public enum ByteFlags : byte { None = 0 }
+        public enum UShortFlags : ushort { None = 0 }
+        public enum UIntFlags : uint { None = 0 }
+        public enum ULongFlags : ulong { None = 0 }
+        public enum SignedFlags : int { None = 0 }
+
         public class Contract : SmartContract
         {
             public static uint UInt(uint value, bool check) => check ? checked(~value) : unchecked(~value);
@@ -38,6 +44,13 @@ public class UnitTest_BitwiseComplement
             public static BigInteger Big(BigInteger value, bool check) => check ? checked(~value) : unchecked(~value);
             public static uint? NullableUInt(uint? value) => ~value;
             public static ulong? NullableULong(ulong? value) => ~value;
+            public static int EnumByte(byte value, bool check) => (int)(check ? checked(~(ByteFlags)value) : unchecked(~(ByteFlags)value));
+            public static int EnumUShort(ushort value, bool check) => (int)(check ? checked(~(UShortFlags)value) : unchecked(~(UShortFlags)value));
+            public static long EnumUInt(uint value, bool check) => (long)(check ? checked(~(UIntFlags)value) : unchecked(~(UIntFlags)value));
+            public static BigInteger EnumULong(ulong value, bool check) => (BigInteger)(ulong)(check ? checked(~(ULongFlags)value) : unchecked(~(ULongFlags)value));
+            public static bool EnumULongPositive(ulong value) => (~(ULongFlags)value) > (ULongFlags)0;
+            public static int EnumSigned(int value) => (int)(~(SignedFlags)value);
+            public static int? NullableEnumByte(ByteFlags? value) => (int?)(~value);
 
             private static int _evaluations;
             private static uint Evaluate(uint value) { _evaluations++; return value; }
@@ -135,6 +148,31 @@ public class UnitTest_BitwiseComplement
     [TestMethod]
     [DataRow(CompilationOptions.OptimizationType.None)]
     [DataRow(CompilationOptions.OptimizationType.All)]
+    public void UnsignedEnumComplementMatchesClr(CompilationOptions.OptimizationType optimization)
+    {
+        var contract = Deploy(optimization);
+        foreach (bool check in new[] { false, true })
+        {
+            foreach (byte value in new byte[] { 0, 1, 200, byte.MaxValue })
+                Assert.AreEqual(new BigInteger((byte)~value), contract.EnumByte(value, check));
+            foreach (ushort value in new ushort[] { 0, 1, 50000, ushort.MaxValue })
+                Assert.AreEqual(new BigInteger((ushort)~value), contract.EnumUShort(value, check));
+            foreach (uint value in new uint[] { 0, 1, 5, uint.MaxValue })
+                Assert.AreEqual(new BigInteger(~value), contract.EnumUInt(value, check));
+            foreach (ulong value in new ulong[] { 0, 1, 5, ulong.MaxValue })
+                Assert.AreEqual(new BigInteger(~value), contract.EnumULong(value, check));
+        }
+
+        Assert.IsTrue(contract.EnumULongPositive(5));
+        Assert.IsFalse(contract.EnumULongPositive(ulong.MaxValue));
+        Assert.AreEqual(new BigInteger(~5), contract.EnumSigned(5));
+        Assert.AreEqual(new BigInteger(byte.MaxValue), contract.NullableEnumByte(0));
+        Assert.IsNull(contract.NullableEnumByte(null));
+    }
+
+    [TestMethod]
+    [DataRow(CompilationOptions.OptimizationType.None)]
+    [DataRow(CompilationOptions.OptimizationType.All)]
     public void ComplementEvaluatesOperandOnce(CompilationOptions.OptimizationType optimization)
     {
         var contract = Deploy(optimization);
@@ -167,6 +205,13 @@ public class UnitTest_BitwiseComplement
         [DisplayName("big")] public abstract BigInteger? Big(BigInteger value, bool check);
         [DisplayName("nullableUInt")] public abstract BigInteger? NullableUInt(BigInteger? value);
         [DisplayName("nullableULong")] public abstract BigInteger? NullableULong(BigInteger? value);
+        [DisplayName("enumByte")] public abstract BigInteger? EnumByte(BigInteger value, bool check);
+        [DisplayName("enumUShort")] public abstract BigInteger? EnumUShort(BigInteger value, bool check);
+        [DisplayName("enumUInt")] public abstract BigInteger? EnumUInt(BigInteger value, bool check);
+        [DisplayName("enumULong")] public abstract BigInteger? EnumULong(BigInteger value, bool check);
+        [DisplayName("enumULongPositive")] public abstract bool? EnumULongPositive(BigInteger value);
+        [DisplayName("enumSigned")] public abstract BigInteger? EnumSigned(BigInteger value);
+        [DisplayName("nullableEnumByte")] public abstract BigInteger? NullableEnumByte(BigInteger? value);
         [DisplayName("once")] public abstract BigInteger? Once(BigInteger value);
     }
 }
