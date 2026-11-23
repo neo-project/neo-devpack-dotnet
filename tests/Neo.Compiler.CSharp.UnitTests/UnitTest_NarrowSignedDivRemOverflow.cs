@@ -3,8 +3,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.Exceptions;
-using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,24 +59,34 @@ public class UnitTest_NarrowSignedDivRemOverflow
     }
 
     [TestMethod]
-    public void NarrowSignedDivRem_MinValueByMinusOne_ThrowsCatchableOverflow()
+    public void NarrowSignedDivRem_MinValueByMinusOne_MatchesDotNet()
     {
         var context = TestHelper.CompileSingleContract(Source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
         var (nef, manifest, _) = context.CreateResults();
         var contract = new TestEngine(true).Deploy<CasesContract>(nef, manifest);
 
-        Assert.AreEqual(new BigInteger(-999), contract.CaughtMathSByte(sbyte.MinValue, -1));
-        AssertOverflow(() => contract.MathSByte(sbyte.MinValue, -1));
-        AssertOverflow(() => contract.NumericSByte(sbyte.MinValue, -1));
-        AssertOverflow(() => contract.MathShort(short.MinValue, -1));
-        AssertOverflow(() => contract.NumericShort(short.MinValue, -1));
+        var sbyteExpected = Math.DivRem(sbyte.MinValue, (sbyte)-1);
+        var shortExpected = Math.DivRem(short.MinValue, (short)-1);
+        Assert.AreEqual((sbyte.MinValue, (sbyte)0), sbyteExpected);
+        Assert.AreEqual((short.MinValue, (short)0), shortExpected);
+        Assert.AreEqual(sbyteExpected, sbyte.DivRem(sbyte.MinValue, -1));
+        Assert.AreEqual(shortExpected, short.DivRem(short.MinValue, -1));
+
+        Assert.AreEqual(new BigInteger(sbyteExpected.Quotient), contract.CaughtMathSByte(sbyte.MinValue, -1));
+        AssertDivRem(contract.MathSByte(sbyte.MinValue, -1), sbyteExpected.Quotient, sbyteExpected.Remainder);
+        AssertDivRem(contract.NumericSByte(sbyte.MinValue, -1), sbyteExpected.Quotient, sbyteExpected.Remainder);
+        AssertDivRem(contract.MathShort(short.MinValue, -1), shortExpected.Quotient, shortExpected.Remainder);
+        AssertDivRem(contract.NumericShort(short.MinValue, -1), shortExpected.Quotient, shortExpected.Remainder);
+
+        AssertDivRem(contract.MathSByte(sbyte.MinValue, 2), -64, 0);
+        AssertDivRem(contract.MathShort(-5, -1), 5, 0);
     }
 
-    private static void AssertOverflow(Action action)
+    private static void AssertDivRem(IList<object>? actual, BigInteger expectedQuotient, BigInteger expectedRemainder)
     {
-        var exception = Assert.ThrowsExactly<TestException>(action);
-        Assert.IsInstanceOfType<VMUnhandledException>(exception.InnerException);
-        Assert.AreEqual("Overflow", ((VMUnhandledException)exception.InnerException).ExceptionObject.GetString());
+        Assert.IsNotNull(actual);
+        Assert.AreEqual(expectedQuotient, (BigInteger)actual[0]);
+        Assert.AreEqual(expectedRemainder, (BigInteger)actual[1]);
     }
 }
