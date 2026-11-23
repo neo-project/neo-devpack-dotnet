@@ -498,6 +498,11 @@ namespace Neo.Compiler
                 if (!constructor.Modifiers.Any(SyntaxKind.StaticKeyword)) continue;
                 IMethodSymbol? method = model.GetDeclaredSymbol(constructor);
                 if (method is null || SymbolEqualityComparer.Default.Equals(method.ContainingType, _targetContract)) continue;
+                // A project can contain several contracts. An independent contract's
+                // static constructor is compiled in its own context, not this one.
+                if (method.ContainingType is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } otherContract &&
+                    CompilationEngine.IsDerivedFromSmartContract(otherContract) &&
+                    !Helper.InheritsFrom(_targetContract, otherContract)) continue;
                 throw new CompilationException(method, DiagnosticId.SyntaxNotSupported,
                     $"Static constructor on '{method.ContainingType}' is not supported outside the target contract.");
             }
