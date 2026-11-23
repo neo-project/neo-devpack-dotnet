@@ -41,6 +41,8 @@ internal partial class MethodConvert
         }
         IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
         IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
+        if (type.TypeKind == TypeKind.TypeParameter)
+            throw CompilationException.UnsupportedSyntax(expression, "Construction of a generic type parameter is not supported.");
         if (TryProcessSystemConstructors(model, constructor, arguments))
             return;
         var bigIntegerType = model.Compilation.GetTypeByMetadataName("System.Numerics.BigInteger");
@@ -439,3 +441,4 @@ internal partial class MethodConvert
         InvokeMethod(model, symbol, model.GetTypeInfo(expression).Type);
     }
 }
+
