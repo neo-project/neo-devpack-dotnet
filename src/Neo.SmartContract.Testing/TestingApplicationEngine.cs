@@ -48,7 +48,7 @@ namespace Neo.SmartContract.Testing
                 Name = TestingSyscall.Name,
                 Handler = typeof(TestingApplicationEngine).GetMethod(nameof(InvokeTestingSyscall),
                     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!,
-                FixedPrice = 0,
+                Prices = [new(null, 0)],
                 RequiredCallFlags = CallFlags.None,
             };
 
@@ -111,12 +111,12 @@ namespace Neo.SmartContract.Testing
                 table[opcode] = protocolTable[opcode];
 
             var callToken = protocolTable[OpCode.CALLT];
-            table[OpCode.CALLT] = (engine, instruction) =>
+            table[OpCode.CALLT] = (ExecutionEngine engine, Instruction instruction, ref RunStats runStats) =>
             {
                 if (engine is TestingApplicationEngine testingEngine && testingEngine.TryInvokeTokenMock(instruction))
                     return;
 
-                callToken(engine, instruction);
+                callToken(engine, instruction, ref runStats);
             };
             return table;
         }
@@ -253,10 +253,12 @@ namespace Neo.SmartContract.Testing
             }
         }
 
-        protected override void PostExecuteInstruction(Instruction instruction)
+        protected override void PostExecuteInstruction(Instruction? instruction, RunStats priceArgs)
         {
-            base.PostExecuteInstruction(instruction);
-            RecoverCoverage(instruction);
+            base.PostExecuteInstruction(instruction, priceArgs);
+
+            if (instruction is not null)
+                RecoverCoverage(instruction);
         }
 
         private void RecoverCoverage(Instruction instruction)
@@ -360,7 +362,8 @@ namespace Neo.SmartContract.Testing
                     // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
-                    AddFee(descriptor.FixedPrice * ExecFeePicoFactor, false);
+                    // Same fee as ApplicationEngine.OnSysCall: the price in femtoGAS times the exec fee factor.
+                    AddFemtoGas(descriptor.GetPrice(IsHardforkEnabled) * ExecFeePicoFactor, false);
 
                     if (method.StartsWith('_')) throw new ArgumentException($"Invalid Method Name: {method}");
                     if ((callFlags & ~CallFlags.All) != 0)
