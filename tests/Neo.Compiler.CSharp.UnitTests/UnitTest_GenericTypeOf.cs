@@ -29,7 +29,14 @@ public class UnitTest_GenericTypeOf
         options.Optimize = optimization;
         var context = TestHelper.CompileSingleContract("""
             using Neo.SmartContract.Framework;
+            using System;
+            using System.Collections.Generic;
             using System.Runtime.CompilerServices;
+
+            public class Helper<T>
+            {
+                public static bool IsInt() => typeof(T) == typeof(int);
+            }
 
             public class Contract : SmartContract
             {
@@ -38,9 +45,20 @@ public class UnitTest_GenericTypeOf
                 public static bool StringMatchesString() => MatchesString("five");
                 public static bool InlineIntMatches() => InlineMatchesInt(5);
                 public static bool ConcreteMatches() => typeof(int) == typeof(int);
+                public static bool ClassIntMatches() => Helper<int>.IsInt();
+                public static bool ClassStringMatches() => Helper<string>.IsInt();
+                public static bool GenericTypesDiffer() => typeof(System.Collections.Generic.List<int>) != typeof(System.Collections.Generic.List<string>);
+                public static bool ArraysDiffer() => typeof(int[]) != typeof(string[]);
+                public static bool LambdaIntMatches() => LambdaMatches(5);
+                public static bool LambdaStringMatches() => LambdaMatches("five");
 
                 private static bool MatchesInt<T>(T value) => typeof(T) == typeof(int);
                 private static bool MatchesString<T>(T value) => typeof(T) == typeof(string);
+                private static bool LambdaMatches<T>(T value)
+                {
+                    Func<bool> check = () => typeof(T) == typeof(int);
+                    return check();
+                }
 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 private static bool InlineMatchesInt<T>(T value) => typeof(T) == typeof(int);
@@ -54,6 +72,12 @@ public class UnitTest_GenericTypeOf
         Assert.AreEqual(true, contract.StringMatchesString());
         Assert.AreEqual(true, contract.InlineIntMatches());
         Assert.AreEqual(true, contract.ConcreteMatches());
+        Assert.AreEqual(true, contract.ClassIntMatches());
+        Assert.AreEqual(false, contract.ClassStringMatches());
+        Assert.AreEqual(true, contract.GenericTypesDiffer());
+        Assert.AreEqual(true, contract.ArraysDiffer());
+        Assert.AreEqual(true, contract.LambdaIntMatches());
+        Assert.AreEqual(false, contract.LambdaStringMatches());
     }
 
     public abstract class GenericTypeOfContract(SmartContractInitialize initialize)
@@ -64,5 +88,11 @@ public class UnitTest_GenericTypeOf
         [DisplayName("stringMatchesString")] public abstract bool? StringMatchesString();
         [DisplayName("inlineIntMatches")] public abstract bool? InlineIntMatches();
         [DisplayName("concreteMatches")] public abstract bool? ConcreteMatches();
+        [DisplayName("classIntMatches")] public abstract bool? ClassIntMatches();
+        [DisplayName("classStringMatches")] public abstract bool? ClassStringMatches();
+        [DisplayName("genericTypesDiffer")] public abstract bool? GenericTypesDiffer();
+        [DisplayName("arraysDiffer")] public abstract bool? ArraysDiffer();
+        [DisplayName("lambdaIntMatches")] public abstract bool? LambdaIntMatches();
+        [DisplayName("lambdaStringMatches")] public abstract bool? LambdaStringMatches();
     }
 }

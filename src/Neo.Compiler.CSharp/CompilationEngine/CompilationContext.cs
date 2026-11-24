@@ -57,6 +57,7 @@ namespace Neo.Compiler
         private readonly MethodConvertCollection _methodsConverted = new();
         private readonly MethodConvertCollection _methodsForward = new();
         private readonly System.Collections.Generic.List<MethodConvert> _methodsByRefAliases = new();
+        private readonly System.Collections.Generic.List<MethodConvert> _contextualLambdas = new();
         private readonly Dictionary<(MethodConvert Method, int Signature), MethodConvert> _byRefAliasMethods = new();
         private readonly System.Collections.Generic.List<IReadOnlyDictionary<byte, byte>> _byRefAliasSignatures = new();
         private readonly System.Collections.Generic.List<MethodToken> _methodTokens = new();
@@ -196,6 +197,7 @@ namespace Neo.Compiler
         private IEnumerable<Instruction> GetInstructions()
         {
             return _methodsConverted.SelectMany(p => p.Instructions)
+                .Concat(_contextualLambdas.SelectMany(p => p.Instructions))
                 .Concat(_methodsByRefAliases.SelectMany(p => p.Instructions))
                 .Concat(_methodsForward.SelectMany(p => p.Instructions));
         }
@@ -389,6 +391,13 @@ namespace Neo.Compiler
                 builder.AppendLine();
                 WriteMethod(builder, method);
             }
+            foreach (MethodConvert method in _contextualLambdas)
+            {
+                builder.Append("// ");
+                builder.AppendLine($"{method.Symbol} in {method.TypeOfContext}");
+                builder.AppendLine();
+                WriteMethod(builder, method);
+            }
             foreach (MethodConvert method in _methodsForward)
             {
                 builder.Append("// ");
@@ -453,7 +462,7 @@ namespace Neo.Compiler
         {
             System.Collections.Generic.List<string> documents = [];
             System.Collections.Generic.List<JObject> methods = [];
-            foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
+            foreach (var m in _methodsConverted.Concat(_contextualLambdas).Where(p => p.SyntaxNode is not null))
             {
                 System.Collections.Generic.List<JString> sequencePoints = [];
                 JObject sequencePointsV2 = new();
@@ -494,7 +503,7 @@ namespace Neo.Compiler
 
                 var jsonMethod = new JObject
                 {
-                    ["id"] = m.Symbol.ToString(),
+                    ["id"] = m.TypeOfContext is null ? m.Symbol.ToString() : $"{m.Symbol} in {m.TypeOfContext}",
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
                     ["params"] = (m.Symbol.IsStatic ? Array.Empty<string>() : ["this,Any"])
@@ -872,6 +881,16 @@ namespace Neo.Compiler
                 }
                 method.Convert(model);
             }
+            return method;
+        }
+
+        internal MethodConvert ConvertContextualLambda(SemanticModel model, IMethodSymbol symbol, IMethodSymbol caller)
+        {
+            // An anonymous function symbol belongs to the generic definition. Each constructed
+            // caller needs its own body so typeof(T) can use that caller's type arguments.
+            MethodConvert method = new(this, symbol, caller);
+            _contextualLambdas.Add(method);
+            method.Convert(model);
             return method;
         }
 
