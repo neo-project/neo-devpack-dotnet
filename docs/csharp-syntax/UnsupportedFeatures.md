@@ -72,7 +72,7 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
   - Modifiers on simple lambda parameters (`lambda_parameter_modifiers`)
   - Partial events and constructors (`partial_events_constructors`)
 
-- **C# 15 Syntax Checklist**
+- **C# 15 Syntax Checklist**  
   - Collection expression arguments (`collection_expression_arguments`)
   - Union types (`union_types`)
 
