@@ -137,9 +137,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var exception = Assert.ThrowsExactly<TestException>(() => Contract.CreateStandardAccount(null));
             Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
             exception = Assert.ThrowsExactly<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
-            Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
+            Assert.IsInstanceOfType<FormatException>(exception.InnerException);
             exception = Assert.ThrowsExactly<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
-            Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
+            Assert.IsInstanceOfType<FormatException>(exception.InnerException);
 
             // Good pubKey (compressed)
 
