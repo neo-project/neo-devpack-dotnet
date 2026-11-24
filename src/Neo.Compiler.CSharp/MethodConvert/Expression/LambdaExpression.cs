@@ -11,7 +11,9 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -33,8 +35,12 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertSimpleLambdaExpression(SemanticModel model, SimpleLambdaExpressionSyntax expression)
     {
+        RejectCapturedInstance(model, expression);
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
+        var mc = (Symbol.IsGenericMethod || Symbol.ContainingType.IsGenericType) &&
+                 expression.DescendantNodes().OfType<TypeOfExpressionSyntax>().Any()
+            ? _context.ConvertContextualLambda(model, symbol, Symbol)
+            : _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc, model.GetTypeInfo(expression).ConvertedType);
     }
@@ -56,10 +62,36 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
     {
+        RejectCapturedInstance(model, expression);
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
+        var mc = (Symbol.IsGenericMethod || Symbol.ContainingType.IsGenericType) &&
+                 expression.DescendantNodes().OfType<TypeOfExpressionSyntax>().Any()
+            ? _context.ConvertContextualLambda(model, symbol, Symbol)
+            : _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc, model.GetTypeInfo(expression).ConvertedType);
+    }
+
+    private static void RejectCapturedInstance(SemanticModel model, LambdaExpressionSyntax expression)
+    {
+        if (model.GetOperation(expression) is not { } operation) return;
+
+        if (UsesContainingInstance(operation))
+            throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported,
+                "Capturing 'this' or 'base' in a lambda is not supported.");
+    }
+
+    private static bool UsesContainingInstance(IOperation operation)
+    {
+        if (operation is INameOfOperation) return false;
+
+        if (operation is IInstanceReferenceOperation { ReferenceKind: InstanceReferenceKind.ContainingTypeInstance })
+            return true;
+
+        foreach (var child in operation.ChildOperations)
+            if (UsesContainingInstance(child)) return true;
+
+        return false;
     }
 
     /// <summary>

@@ -211,7 +211,7 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.REVERSE3);
                 }
             }
-            CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl, left.Expression);
         }
         else
         {
@@ -358,7 +358,7 @@ internal partial class MethodConvert
                         AddInstruction(OpCode.SWAP);
                     }
                 }
-                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl, left.Expression);
                 break;
             default:
                 throw CompilationException.UnsupportedSyntax(left, $"Cannot assign to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, properties, and discard symbols are supported.");
@@ -450,7 +450,7 @@ internal partial class MethodConvert
             case IPropertySymbol property:
                 if (NeedInstanceConstructor(property.SetMethod!))
                     AccessSlot(OpCode.LDLOC, _tupleAssignmentReceiverSlots[left]);
-                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl, left.Expression);
                 break;
             default:
                 throw CompilationException.UnsupportedSyntax(left, $"Cannot assign to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, properties, and discard symbols are supported.");

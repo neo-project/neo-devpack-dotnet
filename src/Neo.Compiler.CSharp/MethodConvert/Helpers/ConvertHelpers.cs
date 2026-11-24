@@ -367,40 +367,46 @@ internal partial class MethodConvert
 
     private void CreateObject(SemanticModel model, ITypeSymbol type)
     {
-        var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
-        var fields = GetStructFields(type);
-
-        int needVirtualMethodTable = 0;
-        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        if (!type.IsRecord && virtualMethods.Length > 0)
+        if (!_typesBeingCreated.Add(type))
+            throw new CompilationException(type, DiagnosticId.SyntaxNotSupported,
+                $"Recursive instance field initializers for '{type}' are not supported.");
+        try
         {
-            needVirtualMethodTable += 1;
-            byte vTableIndex = _context.AddVTable(type);
-            AccessSlot(OpCode.LDSFLD, vTableIndex);
-        }
+            var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+            var fields = GetStructFields(type);
 
-        if (fields.Length == 0 && needVirtualMethodTable == 0)
-        {
-            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
-            return;
-        }
-
-        foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
-        {
-            if (field.DeclaringSyntaxReferences.IsEmpty && field.AssociatedSymbol is not IPropertySymbol)
+            int needVirtualMethodTable = 0;
+            var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+            if (!type.IsRecord && virtualMethods.Length > 0)
             {
-                // A field that comes from metadata, such as a tuple element, has no initializer
-                // to run; the field initializer processing has nothing to emit for it, which
-                // would leave the packed struct one item short. A backing field of an
-                // auto-property has no syntax of its own but does have an initializer, so it
-                // still goes through the field initializer processing.
-                PushDefault(field.Type);
-                continue;
+                needVirtualMethodTable += 1;
+                byte vTableIndex = _context.AddVTable(type);
+                AccessSlot(OpCode.LDSFLD, vTableIndex);
             }
-            ProcessFieldInitializer(model, field, null, null);
+
+            if (fields.Length == 0 && needVirtualMethodTable == 0)
+            {
+                AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+                return;
+            }
+
+            foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
+            {
+                if (field.DeclaringSyntaxReferences.IsEmpty && field.AssociatedSymbol is not IPropertySymbol)
+                {
+                    // Metadata fields have no initializer syntax but still occupy a slot.
+                    PushDefault(field.Type);
+                    continue;
+                }
+                ProcessFieldInitializer(model, field, null, null);
+            }
+            Push(fields.Length + needVirtualMethodTable);
+            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
         }
-        Push(fields.Length + needVirtualMethodTable);
-        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+        finally
+        {
+            _typesBeingCreated.Remove(type);
+        }
     }
 
     /// <summary>

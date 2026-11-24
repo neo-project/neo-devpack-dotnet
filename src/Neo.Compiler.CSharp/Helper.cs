@@ -48,6 +48,15 @@ namespace Neo.Compiler
             return false;
         }
 
+        public static bool IsFrameworkInitialValueAttribute(this ITypeSymbol? type, INamedTypeSymbol? frameworkAttribute)
+        {
+            if (frameworkAttribute is null) return false;
+            for (; type is not null; type = type.BaseType)
+                if (SymbolEqualityComparer.Default.Equals(type, frameworkAttribute))
+                    return true;
+            return false;
+        }
+
         public static bool IsVirtualMethod(this IMethodSymbol method)
         {
             // Records and value types keep their existing direct override calls and field layout.
