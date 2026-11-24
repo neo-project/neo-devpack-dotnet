@@ -13,12 +13,12 @@ public abstract class NeoContractSolutionTemplate(Neo.SmartContract.Testing.Smar
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getOwner"",""parameters"":[],""returntype"":""Hash160"",""offset"":0,""safe"":true},{""name"":""setOwner"",""parameters"":[{""name"":""newOwner"",""type"":""Hash160""}],""returntype"":""Void"",""offset"":30,""safe"":false},{""name"":""verify"",""parameters"":[],""returntype"":""Boolean"",""offset"":141,""safe"":true},{""name"":""myMethod"",""parameters"":[],""returntype"":""String"",""offset"":144,""safe"":false},{""name"":""_deploy"",""parameters"":[{""name"":""data"",""type"":""Any""},{""name"":""update"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":157,""safe"":false},{""name"":""update"",""parameters"":[{""name"":""nefFile"",""type"":""ByteArray""},{""name"":""manifest"",""type"":""String""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":277,""safe"":false}],""events"":[{""name"":""SetOwner"",""parameters"":[{""name"":""previousOwner"",""type"":""Hash160""},{""name"":""newOwner"",""type"":""Hash160""}]}]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":{""Author"":""\u003CYour Name Or Company Here\u003E"",""Description"":""\u003CDescription Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""Sourcecode"":""https://github.com/neo-project/neo-devpack-dotnet"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getOwner"",""parameters"":[],""returntype"":""Hash160"",""offset"":0,""safe"":true},{""name"":""setOwner"",""parameters"":[{""name"":""newOwner"",""type"":""Hash160""}],""returntype"":""Void"",""offset"":30,""safe"":false},{""name"":""verify"",""parameters"":[],""returntype"":""Boolean"",""offset"":140,""safe"":true},{""name"":""myMethod"",""parameters"":[],""returntype"":""String"",""offset"":143,""safe"":false},{""name"":""_deploy"",""parameters"":[{""name"":""data"",""type"":""Any""},{""name"":""update"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":156,""safe"":false},{""name"":""update"",""parameters"":[{""name"":""nefFile"",""type"":""ByteArray""},{""name"":""manifest"",""type"":""String""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":275,""safe"":false}],""events"":[{""name"":""SetOwner"",""parameters"":[{""name"":""previousOwner"",""type"":""Hash160""},{""name"":""newOwner"",""type"":""Hash160""}]}]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":{""Author"":""\u003CYour Name Or Company Here\u003E"",""Description"":""\u003CDescription Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""Sourcecode"":""https://github.com/neo-project/neo-devpack-dotnet"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAxaHR0cHM6Ly9naXRodWIuY29tL25lby1wcm9qZWN0L25lby1kZXZwYWNrLWRvdG5ldAAB/aP6Q0bqUyolj8SX3a3bZDfJ/f8GdXBkYXRlAwAADwAA/ToBDAH/2zBB1Y1e6ErYJAlKygAUKAM6QDTqQfgn7IxAVwIBNPUkFgwRTm8gQXV0aG9yaXphdGlvbiE6eErZKCQGRQkiBsoAFLMkBQkiBHixcAwTb3duZXIgbXVzdCBiZSB2YWxpZHFoJARp4DSWcHgMAf/bMEE5DOMKaHhQEsAMCFNldE93bmVyQZUBb2FANIlADAVIZWxsb0HVjV7oQFcDAnkmA0B4cGjYJgpBLVEIMBPOgHhwaErZKCQGRQkiBsoAFLMkBQkiBGixcQwQb3duZXIgbXVzdCBleGlzdHJpJARq4GgMAf/bMEE5DOMKC2hQEsAMCFNldE93bmVyQZUBb2EMBVdvcmxkDAVIZWxsb0E5DOMKQFcAAzX+/v//JBYMEU5vIGF1dGhvcml6YXRpb24uOnp5eDcAAEDRoAtd").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAxaHR0cHM6Ly9naXRodWIuY29tL25lby1wcm9qZWN0L25lby1kZXZwYWNrLWRvdG5ldAAB/aP6Q0bqUyolj8SX3a3bZDfJ/f8GdXBkYXRlAwAADwAA/TgBDAH/2zBB1Y1e6ErYJAlKygAUKAM6QDTqQfgn7IxAVwIBNPUkFgwRTm8gQXV0aG9yaXphdGlvbiE6eErZKCQGRQkiBsoAFLMkBQkiBHixcAwTb3duZXIgbXVzdCBiZSB2YWxpZHFoJARp4DSWcHgMAf/bMEE5DOMKeGgSwAwIU2V0T3duZXJBlQFvYUA0ikAMBUhlbGxvQdWNXuhAVwMCeSYDQHhwaNgmCkEtUQgwE86AeHBoStkoJAZFCSIGygAUsyQFCSIEaLFxDBBvd25lciBtdXN0IGV4aXN0cmkkBGrgaAwB/9swQTkM4wpoCxLADAhTZXRPd25lckGVAW9hDAVXb3JsZAwFSGVsbG9BOQzjCkBXAAM1AP///yQWDBFObyBhdXRob3JpemF0aW9uLjp6eXg3AABARlBxAA==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -61,9 +61,9 @@ public abstract class NeoContractSolutionTemplate(Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwADNf7+//8kFgwRTm8gYXV0aG9yaXphdGlvbi46enl4NwAAQA==
+    /// Script: VwADNQD///8kFgwRTm8gYXV0aG9yaXphdGlvbi46enl4NwAAQA==
     /// INITSLOT 0003 [64 datoshi]
-    /// CALL_L FEFEFFFF [512 datoshi]
+    /// CALL_L 00FFFFFF [512 datoshi]
     /// JMPIF 16 [2 datoshi]
     /// PUSHDATA1 4E6F20617574686F72697A6174696F6E2E [8 datoshi]
     /// THROW [512 datoshi]

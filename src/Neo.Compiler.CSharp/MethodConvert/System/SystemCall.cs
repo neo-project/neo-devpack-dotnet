@@ -258,8 +258,11 @@ internal partial class MethodConvert
     /// <returns>True if system constructors are successfully processed; otherwise, false.</returns>
     private bool TryProcessSystemConstructors(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
     {
-        if (symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty &&
-            symbol.ContainingType.IsSubclassOf(nameof(Exception), includeThisClass: true))
+        if (symbol.ContainingType is not { } containingType)
+            return false;
+
+        if (containingType.DeclaringSyntaxReferences.IsEmpty &&
+            containingType.IsSubclassOf(nameof(Exception), includeThisClass: true))
         {
             switch (arguments.Count)
             {
@@ -278,7 +281,7 @@ internal partial class MethodConvert
         if (TryProcessStringConstructor(model, symbol, arguments))
             return true;
 
-        if (symbol.ContainingType.ToString() == "System.Text.StringBuilder")
+        if (containingType.ToString() == "System.Text.StringBuilder")
         {
             HandleStringBuilderConstructor(this, model, symbol, null, arguments);
             return true;
@@ -402,8 +405,31 @@ internal partial class MethodConvert
         if (key == "string.ToString()") key = "object.ToString()";
         if (key.StartsWith("System.Enum.GetName<")) key = "System.Enum.GetName<>()";
         if (key.StartsWith("System.Enum.GetName(")) key = "System.Enum.GetName()";
-        if (!SystemCallHandlers.TryGetValue(key, out var handler)) return false;
-        handler(this, model, symbol, instanceExpression, arguments);
-        return true;
+        if (SystemCallHandlers.TryGetValue(key, out var handler))
+        {
+            handler(this, model, symbol, instanceExpression, arguments);
+            return true;
+        }
+
+        // A member declared by an exception type that comes from metadata: inside a
+        // contract an exception is represented by its message (a ByteString), both when
+        // the contract throws it and when the VM hands it to a catch handler. Message and
+        // ToString() are that ByteString itself; any other member has no value to read,
+        // and the virtual call would only fault at runtime. Without an instance
+        // expression the receiver is already on the stack (conditional access).
+        if (!symbol.IsStatic && symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty
+            && symbol.ContainingType.IsSubclassOf(nameof(Exception), includeThisClass: true))
+        {
+            // Message is reached through its accessor (get_Message).
+            if (symbol.Parameters.Length == 0
+                && (symbol.Name == "ToString" || symbol.AssociatedSymbol is IPropertySymbol { Name: "Message" }))
+            {
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                return true;
+            }
+            throw new CompilationException(instanceExpression, DiagnosticId.ExternMethod, $"Unknown method: {symbol}");
+        }
+        return false;
     }
 }
