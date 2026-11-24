@@ -34,6 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_testBigIntegerParse()
         {
+            // a2 + a3 folds to a constant push under Experimental/All optimization.
             Assert.AreEqual(new BigInteger(123), Contract.TestBigIntegerParse());
         }
 

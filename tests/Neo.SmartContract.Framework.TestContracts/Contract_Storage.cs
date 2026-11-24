@@ -22,6 +22,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         #region Byte
 
+        // These operations intentionally share one storage namespace.
+#pragma warning disable NC4056
         public static bool TestPutByte(byte[] key, byte[] value)
         {
             var storage = new StorageMap(Storage.CurrentContext, 0x11);
@@ -42,6 +44,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var value = storage.Get((ByteString)key);
             return (byte[])value;
         }
+#pragma warning restore NC4056
 
         public static byte[] TestOver16Bytes()
         {

@@ -48,6 +48,15 @@ namespace Neo.Compiler
             return false;
         }
 
+        public static bool IsFrameworkInitialValueAttribute(this ITypeSymbol? type, INamedTypeSymbol? frameworkAttribute)
+        {
+            if (frameworkAttribute is null) return false;
+            for (; type is not null; type = type.BaseType)
+                if (SymbolEqualityComparer.Default.Equals(type, frameworkAttribute))
+                    return true;
+            return false;
+        }
+
         public static bool IsVirtualMethod(this IMethodSymbol method)
         {
             // Records and value types keep their existing direct override calls and field layout.
@@ -69,12 +78,8 @@ namespace Neo.Compiler
         {
             ThrowIfUnsupportedContractType(type);
 
-            if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
-            {
-                // use the original type for nullable types, depend on the script to deal with null for value types
-                type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
-                ThrowIfUnsupportedContractType(type);
-            }
+            // Unwrap Nullable<T> and ignore nullable reference annotations for ABI classification.
+            type = NormalizeAbiType(type);
 
             if (type is IArrayTypeSymbol arrayType)
                 return arrayType.Rank == 1 && arrayType.ElementType.SpecialType == SpecialType.System_Byte
@@ -129,14 +134,13 @@ namespace Neo.Compiler
             if (!IsSupportedContractType(type))
                 return false;
 
-            if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
-            {
-                type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
-                return IsSupportedContractType(type);
-            }
-
-            return true;
+            return IsSupportedContractType(NormalizeAbiType(type));
         }
+
+        private static ITypeSymbol NormalizeAbiType(ITypeSymbol type) =>
+            type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } namedType
+                ? namedType.TypeArguments[0]
+                : type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
 
         private static void ThrowIfUnsupportedContractType(ITypeSymbol type)
         {

@@ -9,8 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Compiler.Optimizer;
@@ -19,7 +17,6 @@ using Neo.Extensions;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.Wallets;
-using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -35,6 +32,7 @@ namespace Neo.Compiler
         #region Fields
 
         private readonly CompilationContext _context;
+        private readonly ISymbol? _typeOfContext;
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         // _initSlot is a boolean flag that determines whether an INITSLOT instruction
@@ -58,6 +56,7 @@ namespace Neo.Compiler
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly HashSet<MethodConvert> _callees = new();
+        private readonly HashSet<ITypeSymbol> _typesBeingCreated = new(SymbolEqualityComparer.Default);
         private readonly JumpTarget _startTarget = new();
         private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
@@ -66,6 +65,7 @@ namespace Neo.Compiler
         private readonly Stack<Dictionary<IParameterSymbol, byte>> _inlineParameterScopes = new();
         private readonly Stack<IMethodSymbol> _inlineMethodSymbols = new();
         private readonly Stack<JumpTarget> _inlineReturnTargets = new();
+        private readonly Stack<int> _inlineStatementDepths = new();
         private readonly Stack<ExceptionHandling> _tryStack = new();
         private readonly Stack<byte> _exceptionStack = new();
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
@@ -79,6 +79,7 @@ namespace Neo.Compiler
         #region Properties
 
         public IMethodSymbol Symbol { get; }
+        public ISymbol? TypeOfContext => _typeOfContext;
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
 
@@ -104,10 +105,11 @@ namespace Neo.Compiler
 
         #region Constructors
 
-        public MethodConvert(CompilationContext context, IMethodSymbol symbol)
+        public MethodConvert(CompilationContext context, IMethodSymbol symbol, ISymbol? typeOfContext = null)
         {
             this.Symbol = symbol;
             this._context = context;
+            this._typeOfContext = typeOfContext;
             this._checkedStack.Push(context.Options.Checked);
         }
         #endregion
@@ -336,7 +338,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute) || p.AttributeClass!.IsSubclassOf(nameof(InitialValueAttribute)));
+            AttributeData? initialValue = _context.GetInitialValueAttribute(field, out var derivedParameterType);
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer = null;
@@ -385,19 +387,9 @@ namespace Neo.Compiler
             {
                 preInitialize?.Invoke();
                 string value = (string)initialValue.ConstructorArguments[0].Value!;
-                var attributeName = initialValue.AttributeClass!.Name;
-                ContractParameterType parameterType = attributeName switch
-                {
-                    nameof(InitialValueAttribute) => initialValue.ConstructorArguments.Length > 1
-                        ? (ContractParameterType)initialValue.ConstructorArguments[1].Value!
-                        : field.Type.GetContractParameterType(),
-                    nameof(IntegerAttribute) => ContractParameterType.Integer,
-                    nameof(Hash160Attribute) => ContractParameterType.Hash160,
-                    nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
-                    nameof(ByteArrayAttribute) => ContractParameterType.ByteArray,
-                    nameof(StringAttribute) => ContractParameterType.String,
-                    _ => throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {attributeName}"),
-                };
+                ContractParameterType parameterType = derivedParameterType ?? (initialValue.ConstructorArguments.Length > 1
+                    ? (ContractParameterType)initialValue.ConstructorArguments[1].Value!
+                    : field.Type.GetContractParameterType());
 
                 try
                 {

@@ -321,7 +321,7 @@ internal partial class MethodConvert
             case TypeOfExpressionSyntax expression:
                 // Example: typeof(int)
                 // Note: Neo currently does not support the Type type of C#. The typeof operator here
-                // will only return the string name of the class/type. This support is added
+                // will return a string identifying the class/type. This support is added
                 // to ensure we can process enum parse methods.
                 ConvertTypeOfExpression(model, expression);
                 break;
@@ -336,21 +336,45 @@ internal partial class MethodConvert
         if (typeInfo.Type == null)
             throw new CompilationException(expression, DiagnosticId.InvalidType, $"Invalid type in typeof expression: {expression.Type}");
 
-        ITypeSymbol type = typeInfo.Type;
-        if (type is ITypeParameterSymbol parameter)
+        ITypeSymbol Resolve(ITypeSymbol type)
         {
-            IMethodSymbol method = _inlineMethodSymbols.Count > 0 ? _inlineMethodSymbols.Peek() : Symbol;
-            for (int i = 0; i < method.TypeParameters.Length; i++)
+            if (type is ITypeParameterSymbol parameter)
             {
-                if (SymbolEqualityComparer.Default.Equals(parameter, method.TypeParameters[i]))
+                for (ISymbol? scope = _inlineMethodSymbols.Count > 0 ? _inlineMethodSymbols.Peek() : _typeOfContext ?? Symbol;
+                     scope is not null; scope = scope.ContainingSymbol)
                 {
-                    type = method.TypeArguments[i];
-                    break;
+                    if (scope is IMethodSymbol method)
+                        for (int i = 0; i < method.TypeParameters.Length; i++)
+                            if (SymbolEqualityComparer.Default.Equals(parameter.OriginalDefinition, method.TypeParameters[i].OriginalDefinition) &&
+                                !SymbolEqualityComparer.Default.Equals(parameter, method.TypeArguments[i]))
+                                return Resolve(method.TypeArguments[i]);
+
+                    if (scope is INamedTypeSymbol containingType)
+                        for (int i = 0; i < containingType.TypeParameters.Length; i++)
+                            if (SymbolEqualityComparer.Default.Equals(parameter.OriginalDefinition, containingType.TypeParameters[i].OriginalDefinition) &&
+                                !SymbolEqualityComparer.Default.Equals(parameter, containingType.TypeArguments[i]))
+                                return Resolve(containingType.TypeArguments[i]);
                 }
+
+                return parameter;
             }
+
+            if (type is IArrayTypeSymbol array)
+                return model.Compilation.CreateArrayTypeSymbol(Resolve(array.ElementType), array.Rank);
+
+            if (type is INamedTypeSymbol named && named.IsGenericType)
+            {
+                ITypeSymbol[] arguments = named.TypeArguments.Select(Resolve).ToArray();
+                return named.OriginalDefinition.Construct(arguments);
+            }
+
+            return type;
         }
 
-        Push(type.Name);
+        ITypeSymbol resolved = Resolve(typeInfo.Type);
+        Push(resolved is IArrayTypeSymbol or INamedTypeSymbol { IsGenericType: true }
+            ? resolved.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            : resolved.Name);
     }
 
     private static ITypeSymbol? GetTypeSymbol(SyntaxNode? syntaxNode, SemanticModel model)
@@ -511,9 +535,10 @@ internal partial class MethodConvert
                 break;
             case "char":
                 ConvertExpression(model, expression);
-                ChangeType(StackItemType.ByteString);
+                ConvertCharToUtf8(toByteString: true);
                 break;
             case "string":
+            case "string?":
             case "Neo.SmartContract.Framework.ECPoint":
             case "Neo.SmartContract.Framework.ByteString":
             case "Neo.SmartContract.Framework.UInt160":

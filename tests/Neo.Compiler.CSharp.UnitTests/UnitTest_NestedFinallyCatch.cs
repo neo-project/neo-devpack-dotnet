@@ -14,10 +14,14 @@ public class UnitTest_NestedFinallyCatch
 {
     private const string Source = """
         using System;
+        using System.Runtime.CompilerServices;
         using Neo.SmartContract.Framework;
 
         public class Cases : SmartContract
         {
+            private static int s_recorded;
+            private static int s_finallyRuns;
+
             public static int ReturnFromTry()
             {
                 try { return 1; }
@@ -31,6 +35,77 @@ public class UnitTest_NestedFinallyCatch
                 finally { try { throw new Exception("inner"); } catch { } }
             }
 
+            public static int ReturnWithCaughtDivInFinally(int divisor)
+            {
+                try { return 42; }
+                finally { try { _ = 1 / divisor; } catch { } }
+            }
+
+            public static int ReturnWithCaughtDivRemInFinally(int divisor)
+            {
+                try { return 42; }
+                finally { try { _ = Math.DivRem(1, divisor); } catch { } }
+            }
+
+            public static int ReturnWithCaughtSubstringInFinally(int index)
+            {
+                try { return 42; }
+                finally { try { _ = "abc".Substring(index); } catch { } }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static int ClampPositive(int x)
+            {
+                if (x < 0) return 0;
+                return x;
+            }
+
+            public static int InlineInsideTryNormalPath(int x)
+            {
+                s_finallyRuns = 0;
+                try
+                {
+                    int value = ClampPositive(x);
+                    if (s_finallyRuns != 0) return -999;
+                    return value + 10;
+                }
+                finally { s_finallyRuns++; }
+            }
+
+            public static int InlineInsideTryPreservesCatch(int x)
+            {
+                try
+                {
+                    _ = ClampPositive(x);
+                    throw new Exception("after inline return");
+                }
+                catch { return 77; }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static int InlineDefaultWithFinallyDiv(int divisor)
+            {
+                try { return 5; }
+                finally { try { _ = 1 / divisor; } catch { } }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static int CaptureDefaultAndAbortIfZero(int divisor)
+            {
+                int value = InlineDefaultWithFinallyDiv(divisor);
+                s_recorded = value;
+                if (divisor == 0) throw new Exception("stop");
+                return value;
+            }
+
+            public static int OuterExpressionIsolation(int divisor)
+            {
+                s_recorded = 0;
+                try { _ = 999999 + CaptureDefaultAndAbortIfZero(divisor); }
+                catch { }
+                return s_recorded;
+            }
+
         }
         """;
 
@@ -42,6 +117,14 @@ public class UnitTest_NestedFinallyCatch
         var contract = Deploy(optimization);
         Assert.AreEqual(new BigInteger(1), contract.ReturnFromTry());
         Assert.AreEqual("recovered", contract.ReturnFromCatch());
+        Assert.AreEqual(new BigInteger(42), contract.ReturnWithCaughtDivInFinally(0));
+        Assert.AreEqual(new BigInteger(42), contract.ReturnWithCaughtDivRemInFinally(0));
+        Assert.AreEqual(new BigInteger(42), contract.ReturnWithCaughtSubstringInFinally(5));
+        Assert.AreEqual(new BigInteger(15), contract.InlineInsideTryNormalPath(5));
+        Assert.AreEqual(new BigInteger(10), contract.InlineInsideTryNormalPath(-3));
+        Assert.AreEqual(new BigInteger(77), contract.InlineInsideTryPreservesCatch(5));
+        Assert.AreEqual(new BigInteger(5), contract.OuterExpressionIsolation(1));
+        Assert.AreEqual(new BigInteger(5), contract.OuterExpressionIsolation(0));
     }
 
     private static CasesContract Deploy(CompilationOptions.OptimizationType optimization)
@@ -58,5 +141,11 @@ public class UnitTest_NestedFinallyCatch
     {
         [DisplayName("returnFromTry")] public abstract BigInteger? ReturnFromTry();
         [DisplayName("returnFromCatch")] public abstract string? ReturnFromCatch();
+        [DisplayName("returnWithCaughtDivInFinally")] public abstract BigInteger? ReturnWithCaughtDivInFinally(BigInteger divisor);
+        [DisplayName("returnWithCaughtDivRemInFinally")] public abstract BigInteger? ReturnWithCaughtDivRemInFinally(BigInteger divisor);
+        [DisplayName("returnWithCaughtSubstringInFinally")] public abstract BigInteger? ReturnWithCaughtSubstringInFinally(BigInteger index);
+        [DisplayName("inlineInsideTryNormalPath")] public abstract BigInteger? InlineInsideTryNormalPath(BigInteger x);
+        [DisplayName("inlineInsideTryPreservesCatch")] public abstract BigInteger? InlineInsideTryPreservesCatch(BigInteger x);
+        [DisplayName("outerExpressionIsolation")] public abstract BigInteger? OuterExpressionIsolation(BigInteger divisor);
     }
 }

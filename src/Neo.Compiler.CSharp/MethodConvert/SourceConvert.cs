@@ -164,6 +164,10 @@ internal partial class MethodConvert
     {
         if (SyntaxNode is null)
         {
+            // An implicit instance constructor still has a receiver argument when it
+            // calls the base constructor, even though it has no source body.
+            if (Symbol.MethodKind == MethodKind.Constructor)
+                _initSlot = !_inline;
             if (Symbol.MethodKind is MethodKind.PropertyGet or MethodKind.PropertySet &&
                 Symbol.AssociatedSymbol is IPropertySymbol property)
             {

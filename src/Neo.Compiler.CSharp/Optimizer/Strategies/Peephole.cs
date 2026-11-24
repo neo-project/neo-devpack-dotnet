@@ -111,6 +111,20 @@ namespace Neo.Optimizer
                     continue;
                 }
 
+                // SWAP, DROP     -> NIP, NOP
+                // TUCK, DROP     -> SWAP, NOP
+                // SWAP, OVER     -> TUCK, NOP
+                // SWAP, ROT      -> REVERSE3, NOP
+                // ROT, REVERSE3  -> SWAP, NOP  // If the compiler has a special bug, these two sequences aren't strictly equal.
+                if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.StackOpFusion)
+                    && GetStackOpFusionReplacement(opcodes[index], opcodes[index + 1]) is OpCode fusedOpcode)
+                {
+                    SetOpcode(index, fusedOpcode);
+                    SetOpcode(index + 1, OpCode.NOP);
+                    index++;
+                    continue;
+                }
+
                 // PUSH0|PUSHINT(0), NUMEQUAL, NOT -> NZ, NOP, NOP
                 if (index + 2 < block.Count && rules.HasFlag(PeepholeRule.FoldNotInEqual)
                     && IsIntegerPush(current, 0) && opcodes[index + 1] == OpCode.NUMEQUAL && opcodes[index + 2] == OpCode.NOT)
@@ -156,14 +170,17 @@ namespace Neo.Optimizer
                     continue;
                 }
 
-                // PUSH0, PACK      -> NEWARRAY0, NOP
-                // PUSH0, NEWARRAY  -> NEWARRAY0, NOP
-                // PUSH0, NEWSTRUCT -> NEWSTRUCT0, NOP
+                // PUSH0|PUSHINT(0), PACK       -> NEWARRAY0, NOP
+                // PUSH0|PUSHINT(0), NEWARRAY   -> NEWARRAY0, NOP
+                // PUSH0|PUSHINT(0), PACKSTRUCT -> NEWSTRUCT0, NOP
+                // PUSH0|PUSHINT(0), NEWSTRUCT  -> NEWSTRUCT0, NOP
+                // PUSH0|PUSHINT(0), PACKMAP    -> NEWMAP, NOP
                 // The second instruction cannot be a jump target here: targets start a new basic block.
                 if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.UseEmptyCollectionOpcodes)
-                    && current.OpCode == OpCode.PUSH0 && GetEmptyCollectionReplacement(opcodes[index + 1]) is OpCode replacement)
+                    && IsIntegerPush(current, 0) && GetEmptyCollectionReplacement(opcodes[index + 1]) is OpCode replacement)
                 {
                     SetOpcode(index, replacement);
+                    NopRemainder(output, addresses[index], current.Size - 1);
                     SetOpcode(index + 1, OpCode.NOP);
                     index++;
                     continue;
@@ -251,7 +268,19 @@ namespace Neo.Optimizer
         {
             OpCode.PACK => OpCode.NEWARRAY0,
             OpCode.NEWARRAY => OpCode.NEWARRAY0,
+            OpCode.PACKSTRUCT => OpCode.NEWSTRUCT0,
             OpCode.NEWSTRUCT => OpCode.NEWSTRUCT0,
+            OpCode.PACKMAP => OpCode.NEWMAP,
+            _ => null
+        };
+
+        private static OpCode? GetStackOpFusionReplacement(OpCode first, OpCode second) => (first, second) switch
+        {
+            (OpCode.SWAP, OpCode.DROP) => OpCode.NIP,
+            (OpCode.TUCK, OpCode.DROP) => OpCode.SWAP,
+            (OpCode.SWAP, OpCode.OVER) => OpCode.TUCK,
+            (OpCode.SWAP, OpCode.ROT) => OpCode.REVERSE3,
+            // (OpCode.ROT, OpCode.REVERSE3) => OpCode.SWAP, // If the compiler has a special bug, these two sequences aren't strictly equal.
             _ => null
         };
 
