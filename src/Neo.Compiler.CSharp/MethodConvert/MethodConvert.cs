@@ -9,8 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Compiler.Optimizer;
@@ -19,7 +17,6 @@ using Neo.Extensions;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.Wallets;
-using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -57,6 +54,7 @@ namespace Neo.Compiler
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly HashSet<MethodConvert> _callees = new();
+        private readonly HashSet<ITypeSymbol> _typesBeingCreated = new(SymbolEqualityComparer.Default);
         private readonly JumpTarget _startTarget = new();
         private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
@@ -337,7 +335,7 @@ namespace Neo.Compiler
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
         {
-            AttributeData? initialValue = field.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(InitialValueAttribute) || p.AttributeClass!.IsSubclassOf(nameof(InitialValueAttribute)));
+            AttributeData? initialValue = _context.GetInitialValueAttribute(field, out var derivedParameterType);
             if (initialValue is null)
             {
                 EqualsValueClauseSyntax? initializer = null;
@@ -386,19 +384,9 @@ namespace Neo.Compiler
             {
                 preInitialize?.Invoke();
                 string value = (string)initialValue.ConstructorArguments[0].Value!;
-                var attributeName = initialValue.AttributeClass!.Name;
-                ContractParameterType parameterType = attributeName switch
-                {
-                    nameof(InitialValueAttribute) => initialValue.ConstructorArguments.Length > 1
-                        ? (ContractParameterType)initialValue.ConstructorArguments[1].Value!
-                        : field.Type.GetContractParameterType(),
-                    nameof(IntegerAttribute) => ContractParameterType.Integer,
-                    nameof(Hash160Attribute) => ContractParameterType.Hash160,
-                    nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
-                    nameof(ByteArrayAttribute) => ContractParameterType.ByteArray,
-                    nameof(StringAttribute) => ContractParameterType.String,
-                    _ => throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {attributeName}"),
-                };
+                ContractParameterType parameterType = derivedParameterType ?? (initialValue.ConstructorArguments.Length > 1
+                    ? (ContractParameterType)initialValue.ConstructorArguments[1].Value!
+                    : field.Type.GetContractParameterType());
 
                 try
                 {

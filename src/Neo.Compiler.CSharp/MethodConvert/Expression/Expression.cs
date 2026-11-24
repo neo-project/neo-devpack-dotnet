@@ -535,7 +535,7 @@ internal partial class MethodConvert
                 break;
             case "char":
                 ConvertExpression(model, expression);
-                ChangeType(StackItemType.ByteString);
+                ConvertCharToUtf8(toByteString: true);
                 break;
             case "string":
             case "string?":
