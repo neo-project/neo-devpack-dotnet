@@ -96,9 +96,9 @@ The analyzer reports `NC4063` when a lambda references its enclosing `foreach` v
 
 An exception carries no object inside a contract: it is represented by its message, a UTF-8 `ByteString`.
 
-- `throw new Exception("message")` throws the message. Only a constructor with zero or one argument is supported (`NC2005` otherwise), and exception types declared inside the contract cannot be instantiated (`NC1002`).
+- `throw new Exception("message")` throws the message. Only a constructor with zero or one argument is supported (`NC2005` otherwise), and instantiating an exception type declared inside the contract is rejected with `NC1002` (`throw new MyError()` compiles but throws the generic message `"exception"`).
 - The variable of a `catch` clause holds the message. `ex.Message` and `ex.ToString()` evaluate to it; every other instance member of an exception (`Source`, `StackTrace`, `InnerException`, `GetType()`, ...) is rejected with `NC1002`. See [#2358](https://github.com/neo-project/neo-devpack-dotnet/pull/2358).
-- The type written in a `catch` clause is not checked at runtime. `catch (InvalidOperationException e)` catches every catchable exception, exactly like `catch (Exception e)`, so code that relies on different `catch` clauses for different exception types must branch on the message instead. Only one `catch` clause is allowed (`NC2006`) and exception filters are not supported (`NC2007`).
+- The type written in a `catch` clause is not checked at runtime. `catch (InvalidOperationException e)` catches every catchable exception, exactly like `catch (Exception e)`, so code that relies on different `catch` clauses for different exception types must branch on the message instead; the Neo analyzer reports such a clause with `NC4027`. Only one `catch` clause is allowed (`NC2006`) and exception filters are not supported (`NC2007`).
 - Not every fault can be caught. A `throw`, a division by zero and an out-of-range index reach the `catch` block. `ExecutionEngine.Assert`, `ExecutionEngine.Abort`, `checked` overflow faults, failed `int.Parse`/`BigInteger.Parse` calls, invoking a `null` delegate and VM type faults such as reading `.Length` of `null` abort the execution without running any `catch` or `finally` block. Validate inputs before performing the operation instead of relying on `try`/`catch` for these cases.
 
 ```csharp
