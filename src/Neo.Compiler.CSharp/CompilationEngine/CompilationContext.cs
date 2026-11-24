@@ -954,6 +954,11 @@ namespace Neo.Compiler
 
         internal byte AddStaticField(IFieldSymbol symbol)
         {
+            // A static field declared by a type that comes from metadata (e.g. Guid.Empty,
+            // TimeSpan.Zero) has no storage inside a contract: reading it would yield an
+            // uninitialized slot and writing it would be lost.
+            if (symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
+                throw new CompilationException(symbol, DiagnosticId.ExternMethod, $"Unknown field: {symbol}");
             if (!_staticFields.TryGetValue(symbol, out byte index))
             {
                 index = GetNextStaticSlot(symbol);

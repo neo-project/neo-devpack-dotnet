@@ -72,6 +72,12 @@ internal partial class MethodConvert
         if (HasDeclarativeLowering(constructor) || !constructor.DeclaringSyntaxReferences.IsEmpty ||
             (constructor.IsImplicitlyDeclared && !constructor.ContainingType.DeclaringSyntaxReferences.IsEmpty))
             CallInstanceMethod(model, constructor, needCreateObject, arguments);
+        else if (!needCreateObject)
+            // Neither an instance nor a constructor call was emitted: a type that comes from
+            // metadata without a lowered constructor (e.g. new Guid(), new string(char[]))
+            // would otherwise vanish silently and shift the evaluation stack of the
+            // enclosing expression.
+            throw new CompilationException(expression, DiagnosticId.ExternMethod, $"Unknown constructor: {constructor}");
         if (expression.Initializer is not null)
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
     }
