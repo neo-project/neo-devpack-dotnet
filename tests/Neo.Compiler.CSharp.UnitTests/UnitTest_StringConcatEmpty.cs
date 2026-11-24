@@ -95,6 +95,28 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
+    public void NonAsciiCharConversions()
+    {
+        var cases = new (string Body, string Expected)[]
+        {
+            ("return \"x\" + '\u00e9';", "x\u00e9"),
+            ("return '\u6f22' + \"x\";", "\u6f22x"),
+            ("char c = '\u20ac'; return \"x\" + c;", "x\u20ac"),
+            ("string s = \"x\"; s += '\u00e9'; return s;", "x\u00e9"),
+            ("return $\"{'\u6f22'}\";", "\u6f22"),
+            ("return \"x\" + '\\0';", "x\0"),
+            ("return \"x\" + '\\ud800';", "x\ufffd")
+        };
+
+        foreach (var level in Levels)
+            foreach (var (body, expected) in cases)
+            {
+                var (contract, _, _, _) = Deploy(body, level);
+                Assert.AreEqual(expected, contract.Run(null), $"{body} / {level}");
+            }
+    }
+
+    [TestMethod]
     public void EmptyRight() => AssertScenario("return string.Concat(v, \"\");", v => v ?? "", true, expectConvert: true);
 
     [TestMethod]

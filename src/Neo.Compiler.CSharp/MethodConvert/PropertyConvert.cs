@@ -203,6 +203,7 @@ internal partial class MethodConvert
                 case "Int64":
                 case "UInt64":
                 case "BigInteger":
+                    ChangeType(VM.Types.StackItemType.Integer);
                     break;
                 case "String":
                 case "ByteString":
