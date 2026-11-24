@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Engine.SetTransactionSigners(Alice);
 
             Contract.Burn(Alice.Account, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(7958670);
+            AssertGasConsumedCore(8204430);
             Contract.Burn(Bob.Account, Contract.BalanceOf(Bob.Account));
             AssertGasConsumedCore(2356350);
 
@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test burn
             Contract.Burn(Alice.Account, 10);
-            AssertGasConsumedCore(7958670);
+            AssertGasConsumedCore(8204430);
 
             Assert.AreEqual(0, Contract.BalanceOf(Alice.Account));
             Assert.AreEqual(0, Contract.TotalSupply);
