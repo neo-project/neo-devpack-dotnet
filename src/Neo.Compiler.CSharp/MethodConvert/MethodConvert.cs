@@ -53,6 +53,7 @@ namespace Neo.Compiler
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly HashSet<MethodConvert> _callees = new();
+        private readonly HashSet<ITypeSymbol> _typesBeingCreated = new(SymbolEqualityComparer.Default);
         private readonly JumpTarget _startTarget = new();
         private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
