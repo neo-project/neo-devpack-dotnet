@@ -12,6 +12,7 @@
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
+using System;
 using System.Reflection;
 
 namespace Neo.Compiler.Fuzzing;
@@ -774,7 +775,7 @@ public static class OracleSelfTest
         // budget. NOP is a complete instruction, so the padded script still passes the
         // deployment-time script check, and the methods keep their offsets.
         byte[] padded = new byte[24_000];
-        nef.Script.Span.CopyTo(padded);
+        ((ReadOnlyMemory<byte>)nef.Script).Span.CopyTo(padded);
         padded.AsSpan(nef.Script.Length).Fill((byte)Neo.VM.OpCode.NOP);
         nef.Script = padded;
         nef.CheckSum = NefFile.ComputeChecksum(nef);

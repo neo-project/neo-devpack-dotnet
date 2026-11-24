@@ -38,12 +38,12 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             using var fee = engine.CreateFeeWatcher();
             Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
-            Assert.AreEqual(984060L, fee.Value);
+            Assert.AreEqual(100369L, fee.Value);
 
             using var gas = engine.CreateFeeWatcher();
             {
                 Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
-                Assert.AreEqual(984060L, gas);
+                Assert.AreEqual(100369L, gas);
             }
 
             // Ensure that the main address contains the totalSupply
@@ -66,7 +66,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             using var fee = engine.CreateFeeWatcher();
             Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
 
-            Assert.AreEqual(984060L, fee.Value);
+            Assert.AreEqual(100369L, fee.Value);
         }
 
         [TestMethod]

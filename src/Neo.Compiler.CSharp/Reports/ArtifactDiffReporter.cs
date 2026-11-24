@@ -126,7 +126,7 @@ namespace Neo.Compiler
             if (oldNef.CheckSum != newNef.CheckSum)
                 changes.Add(new ArtifactDiffChange(ArtifactDiffSeverity.Info, ArtifactDiffCategory.Nef, $"Checksum changed: {FormatChecksum(oldNef.CheckSum)} => {FormatChecksum(newNef.CheckSum)}"));
 
-            if (!oldNef.Script.Span.SequenceEqual(newNef.Script.Span))
+            if (!oldNef.Script.SequenceEqual(newNef.Script))
             {
                 string message = oldNef.Script.Length == newNef.Script.Length
                     ? "Script changed (same size, different content)"
