@@ -30,11 +30,16 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     private static readonly Lazy<HashSet<(UInt160 Hash, string Method, int ParameterCount)>> s_safeNativeMethods = new(() =>
-        NativeContract.Contracts
-            .SelectMany(contract => contract.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest.Abi.Methods
+    {
+        // The compiler has no chain state, so resolve the latest native ABI without a snapshot.
+        return NativeContract.Contracts
+            .SelectMany(contract => contract.GetContractState(
+                static (_, _, _, _) => true,
+                ProtocolSettings.Default, null!, uint.MaxValue).Manifest.Abi.Methods
                 .Where(method => method.Safe)
                 .Select(method => (contract.Hash, method.Name, method.Parameters.Length)))
-            .ToHashSet());
+            .ToHashSet();
+    });
 
     private void ConvertExtern()
     {

@@ -16,6 +16,7 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -105,7 +106,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_GasLeft()
         {
-            Assert.AreEqual(1999015490, Contract.GetGasLeft());
+            Assert.AreEqual(1999729382, Contract.GetGasLeft());
         }
 
         [TestMethod]
@@ -272,7 +273,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             var script = Contract.GetTransactionScript();
 
-            CollectionAssert.AreEqual(Engine.Transaction.Script.ToArray(), script);
+            CollectionAssert.AreEqual(((ReadOnlyMemory<byte>)Engine.Transaction.Script).ToArray(), script);
         }
     }
 }
