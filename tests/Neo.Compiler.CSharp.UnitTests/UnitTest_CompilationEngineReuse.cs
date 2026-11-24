@@ -1,3 +1,5 @@
+extern alias scfx;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
@@ -80,13 +82,15 @@ public class UnitTest_CompilationEngineReuse
         using var firstProject = TempContractProject.Create("FirstContract", 1);
         using var secondProject = TempContractProject.Create("SecondContract", 2);
         var engine = CreateEngine();
-        MetadataReference[] references = CreateDirectReferences();
+        var frameworkReference = MetadataReference.CreateFromFile(
+            typeof(scfx::Neo.SmartContract.Framework.SmartContract).Assembly.Location);
+        MetadataReference[] references = CreateDirectReferences(frameworkReference);
 
-        engine.Compile([firstProject.SourceFile], references).Single();
+        engine.Compile([firstProject.SourceFile], references, frameworkReference).Single();
         SyntaxTree firstTree = engine.Compilation!.SyntaxTrees.Single();
         CollectionAssert.Contains(CachedSyntaxTrees(engine), firstTree);
 
-        engine.Compile([secondProject.SourceFile], references).Single();
+        engine.Compile([secondProject.SourceFile], references, frameworkReference).Single();
         SyntaxTree[] currentTrees = engine.Compilation!.SyntaxTrees.ToArray();
         SyntaxTree[] cachedTrees = CachedSyntaxTrees(engine);
 
@@ -99,12 +103,15 @@ public class UnitTest_CompilationEngineReuse
         SkipRestoreIfAssetsPresent = true
     });
 
-    private static MetadataReference[] CreateDirectReferences()
+    private static MetadataReference[] CreateDirectReferences(MetadataReference frameworkReference)
     {
         string trustedAssemblies = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
         return trustedAssemblies.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Select(path => MetadataReference.CreateFromFile(path))
+            .Where(path => !string.Equals(Path.GetFileNameWithoutExtension(path),
+                CompilationEngine.FrameworkAssemblyName, StringComparison.OrdinalIgnoreCase))
+            .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))
+            .Append(frameworkReference)
             .ToArray();
     }
 

@@ -32,6 +32,7 @@ namespace Neo.Compiler
         #region Fields
 
         private readonly CompilationContext _context;
+        private readonly ISymbol? _typeOfContext;
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         // _initSlot is a boolean flag that determines whether an INITSLOT instruction
@@ -53,6 +54,7 @@ namespace Neo.Compiler
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
         private readonly HashSet<MethodConvert> _callees = new();
+        private readonly HashSet<ITypeSymbol> _typesBeingCreated = new(SymbolEqualityComparer.Default);
         private readonly JumpTarget _startTarget = new();
         private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
@@ -75,6 +77,7 @@ namespace Neo.Compiler
         #region Properties
 
         public IMethodSymbol Symbol { get; }
+        public ISymbol? TypeOfContext => _typeOfContext;
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
 
@@ -100,10 +103,11 @@ namespace Neo.Compiler
 
         #region Constructors
 
-        public MethodConvert(CompilationContext context, IMethodSymbol symbol)
+        public MethodConvert(CompilationContext context, IMethodSymbol symbol, ISymbol? typeOfContext = null)
         {
             this.Symbol = symbol;
             this._context = context;
+            this._typeOfContext = typeOfContext;
             this._checkedStack.Push(context.Options.Checked);
         }
         #endregion

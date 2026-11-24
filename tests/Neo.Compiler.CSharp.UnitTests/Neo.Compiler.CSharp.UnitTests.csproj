@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="GasBaselines\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+		<None Update="GasBaselines/**/*.json" CopyToOutputDirectory="PreserveNewest" TargetPath="%(Identity)" />
 		<AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
 			<_Parameter1>Neo.GasBaselines.Directory</_Parameter1>
 			<_Parameter2>$(MSBuildProjectDirectory)/GasBaselines/$(AssemblyName)</_Parameter2>
