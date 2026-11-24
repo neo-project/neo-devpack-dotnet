@@ -574,16 +574,17 @@ public static class OracleSelfTest
             failures++;
         }
 
-        // A mutation removed the loop increment: every input runs out of gas.
+        // Both builds running out of gas can expose a shared compiler defect, so it must
+        // remain suspicious rather than being treated as an expected boundary failure.
         var gasExhaustion = new List<(bool Ok, string? Error)>
         {
             (false, "TestException: Insufficient GAS."),
             (false, "TestException: Insufficient GAS."),
             (false, "TestException: Insufficient GAS."),
         };
-        if (FailureTriage.Inspect("gasExhaustion", gasExhaustion) is not null)
+        if (FailureTriage.Inspect("gasExhaustion", gasExhaustion) is null)
         {
-            Console.WriteLine("  [FAIL] failure triage reported gas exhaustion as a systematic failure.");
+            Console.WriteLine("  [FAIL] failure triage hid systematic gas exhaustion.");
             failures++;
         }
 
@@ -1292,7 +1293,7 @@ public static class OracleSelfTest
 
     /// <summary>
     /// Verifies that mutation cannot turn bounded loops into unbounded loops by changing
-    /// their conditions, initializers, or incrementors.
+    /// their conditions, initializers, incrementors, or body progress statements.
     /// </summary>
     private static int CheckLoopControlMutation()
     {
@@ -1323,6 +1324,13 @@ public static class OracleSelfTest
             if (syntaxEdited is not null && !SyntaxAwareMutator.PreservesLoopControl(source, syntaxEdited))
             {
                 Console.WriteLine("  [FAIL] syntax mutation rewrote a loop condition.");
+                return 1;
+            }
+
+            string? deletion = syntaxMutator.Apply(SyntaxAwareMutator.KindSyntaxDeleteStatement, source);
+            if (deletion is not null && !SyntaxAwareMutator.PreservesLoopControl(source, deletion))
+            {
+                Console.WriteLine("  [FAIL] syntax mutation deleted a loop progress statement.");
                 return 1;
             }
 
