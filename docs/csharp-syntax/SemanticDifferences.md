@@ -117,7 +117,7 @@ catch (Exception ex)
 
 ## `ToString()` on boxed value types
 
-A value type boxed into `object` is stored as the VM stack item, not as a .NET boxed value. Calling `ToString()` on the boxed expression therefore converts the raw stack item to bytes: `((object)5).ToString()` yields the single byte `0x05`, not `"5"`, and `((object)'中').ToString()` yields the UTF-8 encoding of the integer `20013`, not `"中"`. Call `ToString()` while the expression still has its declared type, or cast back to the value type first: `((int)obj).ToString()`.
+A value type boxed into `object` is stored as the VM stack item, not as a .NET boxed value. Calling `ToString()` on the boxed expression therefore converts the raw stack item to bytes: `((object)5).ToString()` yields the single byte `0x05`, and `((object)'中').ToString()` yields the little-endian bytes `0x2D 0x4E` of the integer `20013`. Call `ToString()` while the expression still has its declared type, or cast back to the value type first: `((int)obj).ToString()`.
 
 ## Class-library members
 
