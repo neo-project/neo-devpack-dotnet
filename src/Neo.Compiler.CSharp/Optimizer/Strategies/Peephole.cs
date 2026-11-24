@@ -170,14 +170,17 @@ namespace Neo.Optimizer
                     continue;
                 }
 
-                // PUSH0, PACK      -> NEWARRAY0, NOP
-                // PUSH0, NEWARRAY  -> NEWARRAY0, NOP
-                // PUSH0, NEWSTRUCT -> NEWSTRUCT0, NOP
+                // PUSH0|PUSHINT(0), PACK       -> NEWARRAY0, NOP
+                // PUSH0|PUSHINT(0), NEWARRAY   -> NEWARRAY0, NOP
+                // PUSH0|PUSHINT(0), PACKSTRUCT -> NEWSTRUCT0, NOP
+                // PUSH0|PUSHINT(0), NEWSTRUCT  -> NEWSTRUCT0, NOP
+                // PUSH0|PUSHINT(0), PACKMAP    -> NEWMAP, NOP
                 // The second instruction cannot be a jump target here: targets start a new basic block.
                 if (index + 1 < block.Count && rules.HasFlag(PeepholeRule.UseEmptyCollectionOpcodes)
-                    && current.OpCode == OpCode.PUSH0 && GetEmptyCollectionReplacement(opcodes[index + 1]) is OpCode replacement)
+                    && IsIntegerPush(current, 0) && GetEmptyCollectionReplacement(opcodes[index + 1]) is OpCode replacement)
                 {
                     SetOpcode(index, replacement);
+                    NopRemainder(output, addresses[index], current.Size - 1);
                     SetOpcode(index + 1, OpCode.NOP);
                     index++;
                     continue;
@@ -265,7 +268,9 @@ namespace Neo.Optimizer
         {
             OpCode.PACK => OpCode.NEWARRAY0,
             OpCode.NEWARRAY => OpCode.NEWARRAY0,
+            OpCode.PACKSTRUCT => OpCode.NEWSTRUCT0,
             OpCode.NEWSTRUCT => OpCode.NEWSTRUCT0,
+            OpCode.PACKMAP => OpCode.NEWMAP,
             _ => null
         };
 
