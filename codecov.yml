@@ -1,3 +1,11 @@
+codecov:
+  # Coverage is uploaded by the Test job after all test steps have finished.
+  # PublishPackage and Release are skipped for pull requests, so waiting for
+  # every GitHub check can leave Codecov's project check in progress.
+  require_ci_to_pass: false
+  notify:
+    wait_for_ci: false
+
 coverage:
   status:
     project:
