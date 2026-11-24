@@ -1509,16 +1509,10 @@ public sealed class FuzzRunner : IDisposable
     /// </summary>
     /// <remarks>
     /// A struct assignment shares storage instead of copying it, and a struct nested inside
-    /// another struct faults on the first field access. Both are reported in
-    /// <c>docs/testing/fuzz-findings/struct-value-semantics.md</c> and are still covered by
-    /// <c>--struct-probe</c>, which is the regression check for them. Value-producing void
-    /// lambda bodies are also known to leave extra items on the evaluation stack.
-    /// User-defined comparison operators are emitted as raw VM opcodes instead of calls to
-    /// the operator methods, and the user-defined implicit conversion faults on execution;
-    /// both are reported in <c>docs/testing/fuzz-findings/user-defined-operators.md</c> and
-    /// are covered by <c>--operator-probe</c>. Matches require both the generated method
-    /// name and the specific failure, so a different failure in the same family is still
-    /// reported.
+    /// another struct faults on the first field access. Both are tracked in #2203 and are
+    /// still covered by <c>--struct-probe</c>, which is the regression check for them.
+    /// Matches require both the generated method name and the specific failure, so a
+    /// different failure in the same family is still reported.
     /// </remarks>
     /// <param name="finding">The finding to inspect.</param>
     /// <returns><c>true</c> when the finding is a known defect.</returns>
@@ -1531,15 +1525,6 @@ public sealed class FuzzRunner : IDisposable
             return true;
         }
 
-        if (finding.Detail.Contains("Return value count mismatch", StringComparison.Ordinal) &&
-            (finding.Detail.Contains("structClosure", StringComparison.OrdinalIgnoreCase) ||
-             finding.Detail.Contains("voidCompound", StringComparison.OrdinalIgnoreCase) ||
-             finding.Detail.Contains("voidIncrement", StringComparison.OrdinalIgnoreCase) ||
-             finding.Detail.Contains("voidNestedAssignment", StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
-
         if ((finding.Detail.Contains("structCopyIsIndependent", StringComparison.OrdinalIgnoreCase) ||
              finding.Detail.Contains("conditionalStructCopy", StringComparison.OrdinalIgnoreCase)) &&
             finding.Detail.Contains("in C# but", StringComparison.Ordinal))
@@ -1547,25 +1532,7 @@ public sealed class FuzzRunner : IDisposable
             return true;
         }
 
-        // User-defined operators (see docs/testing/fuzz-findings/user-defined-operators.md):
-        // ==/!= compare structurally instead of calling op_Equality, < faults with a cast
-        // error, and the implicit conversion faults with the PrimitiveType range error.
-        if (finding.Detail.Contains("vecEqPartial", StringComparison.OrdinalIgnoreCase) &&
-            finding.Detail.Contains("in C# but", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if ((finding.Detail.Contains("vecRelational", StringComparison.OrdinalIgnoreCase) ||
-             finding.Detail.Contains("vecMixed", StringComparison.OrdinalIgnoreCase)) &&
-            finding.Detail.Contains("Specified cast is not valid", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        return finding.Detail.Contains("vecImplicit", StringComparison.OrdinalIgnoreCase) &&
-               (finding.Detail.Contains("PrimitiveType is out of range", StringComparison.Ordinal) ||
-                finding.Detail.Contains("in C# but", StringComparison.Ordinal));
+        return false;
     }
 
     /// <summary>The number of known defects that were suppressed.</summary>

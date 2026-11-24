@@ -67,6 +67,12 @@ public static class FailureTriage
     /// abort without inspecting the invocation stack, which the differential already covers
     /// by comparing both builds.
     /// </para>
+    /// <para>
+    /// Gas exhaustion is expected too: a mutation can remove the increment of a loop counter,
+    /// and the resulting infinite loop runs out of gas on every input without saying anything
+    /// about the harness. A gas difference between the optimized and the unoptimized build is
+    /// still reported by the differential.
+    /// </para>
     /// </remarks>
     private static readonly string[] ExpectedFailureIndicators =
     [
@@ -84,6 +90,7 @@ public static class FailureTriage
         "Invalid shift value",                 // BigInteger counts outside NeoVM's 0..255 domain
         "Unable to translate bytes",           // invalid UTF-8 from boundary character arguments
         "An unhandled exception",
+        "Insufficient GAS",                    // a mutation turned a loop into an infinite one
     ];
 
     /// <summary>

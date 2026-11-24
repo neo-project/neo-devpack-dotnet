@@ -574,6 +574,19 @@ public static class OracleSelfTest
             failures++;
         }
 
+        // A mutation removed the loop increment: every input runs out of gas.
+        var gasExhaustion = new List<(bool Ok, string? Error)>
+        {
+            (false, "TestException: Insufficient GAS."),
+            (false, "TestException: Insufficient GAS."),
+            (false, "TestException: Insufficient GAS."),
+        };
+        if (FailureTriage.Inspect("gasExhaustion", gasExhaustion) is not null)
+        {
+            Console.WriteLine("  [FAIL] failure triage reported gas exhaustion as a systematic failure.");
+            failures++;
+        }
+
         var mixedFailures = new List<(bool Ok, string? Error)>
         {
             (false, "TestException: The index of VMArray is out of range"),
