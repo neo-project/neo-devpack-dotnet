@@ -140,7 +140,7 @@ namespace Neo.SmartContract.Framework
                     throw new FormatException("UInt160 must be 20 bytes long.");
                 return FromChecked((ByteString)data.Reverse());
             }
-            catch (FormatException) { }
+            catch { }
 
             if (value.Length == 34) // The address is 34 characters base58check encoded (20 bytes + 1 version byte)
                 return FromChecked(ParseHelper.ParseAddress(value, Runtime.AddressVersion));

@@ -24,6 +24,7 @@ public class UnitTest_StoredDefaults
     private const string Source = """
         using Neo.SmartContract.Framework;
         using Neo.SmartContract.Framework.Attributes;
+        using System.Numerics;
 
         public class StoredDefaults : SmartContract
         {
@@ -35,6 +36,8 @@ public class UnitTest_StoredDefaults
             [Stored(0x04)] public static byte[] Data { get; set; }
             [Stored(0x05)] public static State Status { get; set; }
             [Stored(0x06)] public static State InitializedStatus { get; set; } = State.Active;
+            [Stored(0x07)] public static byte SmallNumber { get; set; }
+            [Stored(0x08)] public static BigInteger LargeNumber { get; set; }
 
             public static int NumberDefault() => Number;
             public static bool FlagDefault() => Flag;
@@ -42,6 +45,29 @@ public class UnitTest_StoredDefaults
             public static bool DataDefault() => Data == null;
             public static int StatusDefault() => (int)Status;
             public static int InitializedStatusDefault() => (int)InitializedStatus;
+
+            public static void WriteIntegers()
+            {
+                Number = 5;
+                SmallNumber = 200;
+                LargeNumber = 12345;
+            }
+
+            public static bool NumberIsInt() { object value = Number; return value is int; }
+            public static bool LargeNumberIsBigInteger() { object value = LargeNumber; return value is BigInteger; }
+            public static bool SmallNumberWorksAsMapKey()
+            {
+                var map = new Map<byte, int>();
+                map[SmallNumber] = 7;
+                return map.HasKey((byte)200);
+            }
+
+            public static bool NumberWorksAsMapKey()
+            {
+                var map = new Map<int, int>();
+                map[Number] = 7;
+                return map.HasKey(5);
+            }
 
             public static bool FlagRoundTrip() { Flag = true; return Flag; }
             public static int LetterRoundTrip() { Letter = 'A'; return Letter; }
@@ -71,6 +97,12 @@ public class UnitTest_StoredDefaults
             Assert.AreEqual(0, contract.StatusDefault());
             Assert.AreEqual(1, contract.InitializedStatusDefault());
 
+            contract.WriteIntegers();
+            Assert.IsTrue(contract.NumberIsInt());
+            Assert.IsTrue(contract.LargeNumberIsBigInteger());
+            Assert.IsTrue(contract.SmallNumberWorksAsMapKey());
+            Assert.IsTrue(contract.NumberWorksAsMapKey());
+
             Assert.IsTrue(contract.FlagRoundTrip());
             Assert.AreEqual('A', contract.LetterRoundTrip());
             Assert.IsTrue(contract.DataRoundTrip());
@@ -91,6 +123,11 @@ public class UnitTest_StoredDefaults
         [DisplayName("dataDefault")] public abstract bool DataDefault();
         [DisplayName("statusDefault")] public abstract int StatusDefault();
         [DisplayName("initializedStatusDefault")] public abstract int InitializedStatusDefault();
+        [DisplayName("writeIntegers")] public abstract void WriteIntegers();
+        [DisplayName("numberIsInt")] public abstract bool NumberIsInt();
+        [DisplayName("largeNumberIsBigInteger")] public abstract bool LargeNumberIsBigInteger();
+        [DisplayName("smallNumberWorksAsMapKey")] public abstract bool SmallNumberWorksAsMapKey();
+        [DisplayName("numberWorksAsMapKey")] public abstract bool NumberWorksAsMapKey();
         [DisplayName("flagRoundTrip")] public abstract bool FlagRoundTrip();
         [DisplayName("letterRoundTrip")] public abstract int LetterRoundTrip();
         [DisplayName("dataRoundTrip")] public abstract bool DataRoundTrip();

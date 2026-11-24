@@ -77,4 +77,18 @@ public class UnitTest_CatchDiagnostics
 
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
     }
+
+    [TestMethod]
+    public void UInt160ParseCompilesWithFrameworkCatch()
+    {
+        var context = TestHelper.CompileSingleContract("""
+            using Neo.SmartContract.Framework;
+            public class Contract : SmartContract
+            {
+                public static UInt160 Parse(string value) => UInt160.Parse(value);
+            }
+            """);
+
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+    }
 }
