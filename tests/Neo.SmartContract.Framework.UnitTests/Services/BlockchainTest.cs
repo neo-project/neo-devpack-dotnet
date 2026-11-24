@@ -207,7 +207,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Script
 
-            CollectionAssert.AreEqual(tx.Script.ToArray(), (found("Script") as StackItem)!.GetSpan().ToArray());
+            CollectionAssert.AreEqual(((ReadOnlyMemory<byte>)tx.Script).ToArray(), (found("Script") as StackItem)!.GetSpan().ToArray());
 
             // Sender
 

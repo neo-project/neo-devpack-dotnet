@@ -20,7 +20,7 @@ public abstract class Notary(SmartContractInitialize initialize) : SmartContract
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.Notary.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.Notary);
 
     #endregion
 

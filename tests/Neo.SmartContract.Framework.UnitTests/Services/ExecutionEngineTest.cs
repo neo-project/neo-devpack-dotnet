@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM.Types;
+using System;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -24,14 +25,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void CallingScriptHashTest()
         {
             var hash = Contract.CallingScriptHash();
-            Assert.AreEqual(Engine.Transaction.Script.Span.ToScriptHash().ToString(), new UInt160(hash!).ToString());
+            Assert.AreEqual(((ReadOnlyMemory<byte>)Engine.Transaction.Script).Span.ToScriptHash().ToString(), new UInt160(hash!).ToString());
         }
 
         [TestMethod]
         public void EntryScriptHashTest()
         {
             var hash = Contract.EntryScriptHash();
-            Assert.AreEqual(Engine.Transaction.Script.Span.ToScriptHash().ToString(), new UInt160(hash!).ToString());
+            Assert.AreEqual(((ReadOnlyMemory<byte>)Engine.Transaction.Script).Span.ToScriptHash().ToString(), new UInt160(hash!).ToString());
         }
 
         [TestMethod]

@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 : [(byte)OpCode.PUSH1, (byte)OpCode.PUSH2, (byte)OpCode.PUSH3];
             byte[] script = [.. prefix, (byte)OpCode.JMP, 0x03, (byte)first, (byte)second, (byte)OpCode.RET];
             NefFile rewritten = Peephole.Rewrite(CreateNefFile(script), CreateManifest(), PeepholeRule.StackOpFusion);
-            CollectionAssert.AreEqual(script, rewritten.Script.ToArray());
+            CollectionAssert.AreEqual(script, rewritten.Script.AsMemory().ToArray());
         }
 
         [TestMethod]
@@ -77,13 +77,13 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                 CreateNefFile(original), CreateManifest(), null, CompilationOptions.OptimizationType.All);
             CollectionAssert.AreEqual(
                 new[] { OpCode.PUSH1, OpCode.PUSH2, OpCode.NIP, OpCode.RET },
-                new Script(nef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+                new Script(nef.Script.AsMemory().ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
         }
 
         private static byte[] Apply(byte[] script)
         {
             var (nef, _, _) = Strategies.ApplyPeephole(CreateNefFile(script), CreateManifest(), null, PeepholeRule.StackOpFusion);
-            return nef.Script.ToArray();
+            return nef.Script.AsMemory().ToArray();
         }
 
         private static void AssertSameBehavior(byte[] original, byte[] optimized)
