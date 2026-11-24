@@ -51,7 +51,10 @@ internal partial class MethodConvert
                 DiagnosticId.BigIntegerCreation,
                 $"BigInteger constructor '{constructor}' is not supported. Only BigInteger(byte[]) is supported; use BigInteger.Zero for zero or an implicit conversion for integral values.");
         }
-        bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
+        // System.Object has no source constructor or declarative lowering, but new object()
+        // must still leave an instance on the evaluation stack.
+        bool needCreateObject = type.SpecialType == SpecialType.System_Object
+            || !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
         if (needCreateObject)
         {
             // an optimization to avoid PACK + billions of SETITEM
