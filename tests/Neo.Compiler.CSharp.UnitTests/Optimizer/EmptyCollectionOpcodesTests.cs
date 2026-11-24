@@ -22,6 +22,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using StackItem = Neo.VM.Types.StackItem;
 using VmArray = Neo.VM.Types.Array;
+using VmMap = Neo.VM.Types.Map;
 
 namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 {
@@ -60,8 +61,18 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         {
             if (item is VmArray array)
                 return $"{item.Type}[{string.Join(",", Enumerable.Range(0, array.Count).Select(i => Describe(array[i])))}]";
+            if (item is VmMap map)
+                return $"{item.Type}[{string.Join(",", map.Select(static pair => $"{Describe(pair.Key)}:{Describe(pair.Value)}"))}]";
             return $"{item.Type}:{(item.IsNull ? "" : Convert.ToHexString(item.GetSpan().ToArray()))}";
         }
+
+        private static string ExpectedCollectionResult(OpCode op) => op switch
+        {
+            OpCode.PACK or OpCode.NEWARRAY => "Array[]",
+            OpCode.PACKSTRUCT or OpCode.NEWSTRUCT => "Struct[]",
+            OpCode.PACKMAP => "Map[]",
+            _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
+        };
 
         private static byte[] Apply(byte[] script)
         {
@@ -86,7 +97,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         [DataRow(OpCode.PACK, OpCode.NEWARRAY0, "Array[]")]
         [DataRow(OpCode.NEWARRAY, OpCode.NEWARRAY0, "Array[]")]
+        [DataRow(OpCode.PACKSTRUCT, OpCode.NEWSTRUCT0, "Struct[]")]
         [DataRow(OpCode.NEWSTRUCT, OpCode.NEWSTRUCT0, "Struct[]")]
+        [DataRow(OpCode.PACKMAP, OpCode.NEWMAP, "Map[]")]
         public void Rewrites_Push0AndCollectionOp_ToDedicatedOpcode(OpCode op, OpCode expectedOp, string expectedResult)
         {
             byte[] original = Bytes(OpCode.PUSH0, op, OpCode.RET);
@@ -97,9 +110,43 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         }
 
         [TestMethod]
+        public void Rewrites_IntegerZeroPushEncodings_ToDedicatedCollectionOpcode()
+        {
+            (OpCode Push, byte[] Operand)[] integerZeroPushes =
+            [
+                (OpCode.PUSHINT8, [0x00]),
+                (OpCode.PUSHINT16, [0x00, 0x00]),
+                (OpCode.PUSHINT32, [0x00, 0x00, 0x00, 0x00]),
+                (OpCode.PUSHINT64, [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]),
+                (OpCode.PUSHINT128, [.. new byte[16]]),
+                (OpCode.PUSHINT256, [.. new byte[32]])
+            ];
+            (OpCode Collection, OpCode Expected)[] collections =
+            [
+                (OpCode.PACK, OpCode.NEWARRAY0),
+                (OpCode.NEWARRAY, OpCode.NEWARRAY0),
+                (OpCode.PACKSTRUCT, OpCode.NEWSTRUCT0),
+                (OpCode.NEWSTRUCT, OpCode.NEWSTRUCT0),
+                (OpCode.PACKMAP, OpCode.NEWMAP)
+            ];
+            foreach (var (push, operand) in integerZeroPushes)
+            {
+                foreach (var (collection, expected) in collections)
+                {
+                    byte[] original = [(byte)push, .. operand, (byte)collection, (byte)OpCode.RET];
+                    byte[] optimized = Apply(original);
+                    CollectionAssert.AreEqual(new[] { expected, OpCode.RET }, OpCodesOf(optimized));
+                    AssertSameBehavior(original, optimized, ExpectedCollectionResult(collection));
+                }
+            }
+        }
+
+        [TestMethod]
         [DataRow(OpCode.PACK)]
         [DataRow(OpCode.NEWARRAY)]
+        [DataRow(OpCode.PACKSTRUCT)]
         [DataRow(OpCode.NEWSTRUCT)]
+        [DataRow(OpCode.PACKMAP)]
         public void Rewrite_PreservesIdentitySemantics(OpCode op)
         {
             // DUP EQUAL compares a reference with itself; two fresh collections follow the VM equality rules of their type.
@@ -120,7 +167,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         [DataRow(OpCode.PACK, OpCode.NEWARRAY0, "Array[]")]
         [DataRow(OpCode.NEWARRAY, OpCode.NEWARRAY0, "Array[]")]
+        [DataRow(OpCode.PACKSTRUCT, OpCode.NEWSTRUCT0, "Struct[]")]
         [DataRow(OpCode.NEWSTRUCT, OpCode.NEWSTRUCT0, "Struct[]")]
+        [DataRow(OpCode.PACKMAP, OpCode.NEWMAP, "Map[]")]
         public void Rewrite_RetargetsJumpToPatternStart(OpCode op, OpCode expectedOp, string expectedResult)
         {
             byte[] original = JumpToPatternStartScript(op);
@@ -143,7 +192,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         [DataRow(OpCode.PACK, "Array[]")]
         [DataRow(OpCode.NEWARRAY, "Array[]")]
+        [DataRow(OpCode.PACKSTRUCT, "Struct[]")]
         [DataRow(OpCode.NEWSTRUCT, "Struct[]")]
+        [DataRow(OpCode.PACKMAP, "Map[]")]
         public void Rewrite_ShrinksJumpsThatCrossThePattern(OpCode op, string expectedResult)
         {
             // Forward: PUSH1 JMPIF(->RET) PUSH0 op DROP RET  -> the jump passes over the pattern and must shrink by one byte.
@@ -193,20 +244,24 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         [DataRow(OpCode.PACK)]
         [DataRow(OpCode.NEWARRAY)]
+        [DataRow(OpCode.PACKSTRUCT)]
         [DataRow(OpCode.NEWSTRUCT)]
+        [DataRow(OpCode.PACKMAP)]
         public void Rewrite_IsSkipped_WhenSecondInstructionIsJumpTarget(OpCode op)
         {
             byte[] original = JumpToPatternSecondScript(op);
             byte[] optimized = Apply(original);
 
             CollectionAssert.AreEqual(original, optimized);
-            AssertSameBehavior(original, optimized, op == OpCode.NEWSTRUCT ? "Struct[]" : "Array[]");
+            AssertSameBehavior(original, optimized, ExpectedCollectionResult(op));
         }
 
         [TestMethod]
         [DataRow(OpCode.PACK)]
         [DataRow(OpCode.NEWARRAY)]
+        [DataRow(OpCode.PACKSTRUCT)]
         [DataRow(OpCode.NEWSTRUCT)]
+        [DataRow(OpCode.PACKMAP)]
         public void Rewrite_IsSkipped_WhenInstructionsBelongToDifferentBasicBlocks(OpCode op)
         {
             byte[] script = JumpToPatternSecondScript(op);
@@ -228,7 +283,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             [
                 Bytes(OpCode.PUSH1, OpCode.PUSH1, OpCode.PACK, OpCode.RET),
                 Bytes(OpCode.PUSH1, OpCode.NEWARRAY, OpCode.RET),
+                Bytes(OpCode.PUSH1, OpCode.PUSH1, OpCode.PACKSTRUCT, OpCode.RET),
                 Bytes(OpCode.PUSH1, OpCode.NEWSTRUCT, OpCode.RET),
+                Bytes(OpCode.PUSH1, OpCode.PUSH1, OpCode.PUSH1, OpCode.PACKMAP, OpCode.RET),
                 [(byte)OpCode.PUSH0, (byte)OpCode.NEWARRAY_T, (byte)Neo.VM.Types.StackItemType.Integer, (byte)OpCode.RET]
             ];
 
@@ -246,7 +303,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         [DataRow(OpCode.PACK, OpCode.NEWARRAY0)]
         [DataRow(OpCode.NEWARRAY, OpCode.NEWARRAY0)]
+        [DataRow(OpCode.PACKSTRUCT, OpCode.NEWSTRUCT0)]
         [DataRow(OpCode.NEWSTRUCT, OpCode.NEWSTRUCT0)]
+        [DataRow(OpCode.PACKMAP, OpCode.NEWMAP)]
         public void FullPipeline_AppliesRewrite_AndKeepsManifestOffsetsValid(OpCode op, OpCode expectedOp)
         {
             byte[] original = JumpToPatternStartScript(op);
@@ -274,7 +333,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         [DataRow(OpCode.PACK)]
         [DataRow(OpCode.NEWARRAY)]
+        [DataRow(OpCode.PACKSTRUCT)]
         [DataRow(OpCode.NEWSTRUCT)]
+        [DataRow(OpCode.PACKMAP)]
         public void Rewrite_IsIdempotent(OpCode op)
         {
             foreach (byte[] script in new[] { Bytes(OpCode.PUSH0, op, OpCode.RET), JumpToPatternStartScript(op) })
@@ -288,7 +349,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         [DataRow(OpCode.PACK, OpCode.NEWARRAY0)]
         [DataRow(OpCode.NEWARRAY, OpCode.NEWARRAY0)]
+        [DataRow(OpCode.PACKSTRUCT, OpCode.NEWSTRUCT0)]
         [DataRow(OpCode.NEWSTRUCT, OpCode.NEWSTRUCT0)]
+        [DataRow(OpCode.PACKMAP, OpCode.NEWMAP)]
         public void Gas_IsReduced_ForEveryHardfork(OpCode op, OpCode expectedOp)
         {
             byte[] original = Bytes(OpCode.PUSH0, op, OpCode.RET);
@@ -322,15 +385,15 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         {
             Compiler = "test",
             Source = "test.cs",
-            Tokens = Array.Empty<MethodToken>(),
+            Tokens = [],
             Script = script
         };
 
         private static ContractManifest CreateManifest() => new()
         {
             Name = "TestContract",
-            Groups = Array.Empty<ContractGroup>(),
-            SupportedStandards = Array.Empty<string>(),
+            Groups = [],
+            SupportedStandards = [],
             Abi = new ContractAbi
             {
                 Methods =
@@ -339,14 +402,14 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
                     {
                         Name = "main",
                         Offset = 0,
-                        Parameters = Array.Empty<ContractParameterDefinition>(),
+                        Parameters =  [],
                         ReturnType = ContractParameterType.Any,
                         Safe = false
                     }
                 ],
-                Events = Array.Empty<ContractEventDescriptor>()
+                Events = [],
             },
-            Permissions = Array.Empty<ContractPermission>(),
+            Permissions = [],
             Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
             Extra = null
         };
