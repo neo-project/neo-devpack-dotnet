@@ -258,8 +258,11 @@ internal partial class MethodConvert
     /// <returns>True if system constructors are successfully processed; otherwise, false.</returns>
     private bool TryProcessSystemConstructors(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
     {
-        if (symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty &&
-            symbol.ContainingType.IsSubclassOf(nameof(Exception), includeThisClass: true))
+        if (symbol.ContainingType is not { } containingType)
+            return false;
+
+        if (containingType.DeclaringSyntaxReferences.IsEmpty &&
+            containingType.IsSubclassOf(nameof(Exception), includeThisClass: true))
         {
             switch (arguments.Count)
             {
@@ -278,7 +281,7 @@ internal partial class MethodConvert
         if (TryProcessStringConstructor(model, symbol, arguments))
             return true;
 
-        if (symbol.ContainingType.ToString() == "System.Text.StringBuilder")
+        if (containingType.ToString() == "System.Text.StringBuilder")
         {
             HandleStringBuilderConstructor(this, model, symbol, null, arguments);
             return true;
