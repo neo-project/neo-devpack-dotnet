@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int test()
         {
             int a = 1;
-        sum:
+sum:
             a++;
             if (a == 3) return a;
 
@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int testTry()
         {
             int a = 1;
-        sum:
+sum:
             try
             {
                 a++;
@@ -43,7 +43,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             Storage.Put("\xff\x00", "\x00");
             bool? goto_ = true;
-        START0:
+START0:
             Iterator f = Storage.Find("\xff");
             foreach (object i in f)
                 try
@@ -74,12 +74,12 @@ namespace Neo.Compiler.CSharp.TestContracts
                         case false:
                             goto DEFAULT;
                         default:
-                        DEFAULT:
+DEFAULT:
                             Storage.Put("\xff\x00", "\x01");
                             break;
                     }
                 }
-            END0:
+END0:
             ExecutionEngine.Assert(goto_ == false);
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x01");
             foreach (object i in Storage.Find("\xff"))
@@ -91,7 +91,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                 {
                     do { goto END1; }
                     while (true);
-                END1:
+END1:
                     try { goto END2; }  // break foreach; should execute finally
                     finally { Storage.Put("\xff\x00", "\x00"); }
                 }
@@ -114,7 +114,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                         Storage.Put("\xff\x00", "\x02");
                     }
                 }
-            END2:
+END2:
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x02");
             foreach (object i in Storage.Find("\xff"))
                 try
@@ -126,10 +126,10 @@ namespace Neo.Compiler.CSharp.TestContracts
                         case true:
                             throw new System.Exception();
                         default:
-                        DEFAULT:
+DEFAULT:
                             goto ENDSWITCH;
                     }
-                ENDSWITCH:;
+ENDSWITCH:;
                 }
                 catch
                 {
@@ -150,7 +150,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                     ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x02");
                     Storage.Put("\xff\x00", "\x03");
                 }
-            END3:
+END3:
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x03");
         }
     }

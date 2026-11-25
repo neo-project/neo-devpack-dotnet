@@ -28,3 +28,6 @@ dotnet_diagnostic.RS1038.severity = none
 
 # RS1041: Compiler extensions should be implemented in assemblies targeting netstandard2.0
 dotnet_diagnostic.RS1041.severity = none
+
+[tests/Neo.Compiler.CSharp.TestContracts/Contract_GoTo.cs]
+csharp_indent_labels = flush_left
