@@ -78,8 +78,10 @@ public sealed class SyntaxAwareMutator
     /// </summary>
     public static bool PreservesLoopControl(string originalSource, string mutatedSource)
     {
-        var original = LoopControlNodes(Parse(originalSource).GetRoot()).ToArray();
-        var mutated = LoopControlNodes(Parse(mutatedSource).GetRoot()).ToArray();
+        SyntaxNode originalRoot = Parse(originalSource).GetRoot();
+        SyntaxNode mutatedRoot = Parse(mutatedSource).GetRoot();
+        var original = LoopControlNodes(originalRoot).Concat(LoopProgressNodes(originalRoot)).ToArray();
+        var mutated = LoopControlNodes(mutatedRoot).Concat(LoopProgressNodes(mutatedRoot)).ToArray();
         if (original.Length != mutated.Length)
             return false;
 
@@ -155,6 +157,45 @@ public sealed class SyntaxAwareMutator
         }
     }
 
+    private static IEnumerable<SyntaxNode> LoopProgressNodes(SyntaxNode root) => root
+        .DescendantNodes()
+        .OfType<ExpressionStatementSyntax>()
+        .Where(WritesLoopConditionValue)
+        .Select(statement => statement.Expression);
+
+    private static bool WritesLoopConditionValue(ExpressionStatementSyntax statement)
+    {
+        var conditions = statement.Ancestors().Select(ancestor => ancestor switch
+        {
+            ForStatementSyntax loop => loop.Condition,
+            WhileStatementSyntax loop => loop.Condition,
+            DoStatementSyntax loop => loop.Condition,
+            _ => null,
+        }).Where(condition => condition is not null).Cast<ExpressionSyntax>().ToArray();
+
+        if (conditions.Length == 0)
+            return false;
+
+        IEnumerable<ExpressionSyntax> writtenValues = statement.Expression
+            .DescendantNodesAndSelf()
+            .Select(node => node switch
+            {
+                AssignmentExpressionSyntax assignment => assignment.Left,
+                PrefixUnaryExpressionSyntax prefix when prefix.IsKind(SyntaxKind.PreIncrementExpression) ||
+                                                        prefix.IsKind(SyntaxKind.PreDecrementExpression) => prefix.Operand,
+                PostfixUnaryExpressionSyntax postfix when postfix.IsKind(SyntaxKind.PostIncrementExpression) ||
+                                                          postfix.IsKind(SyntaxKind.PostDecrementExpression) => postfix.Operand,
+                _ => null,
+            })
+            .Where(value => value is not null)
+            .Cast<ExpressionSyntax>();
+
+        return writtenValues.Any(value => conditions.Any(condition => condition
+            .DescendantNodesAndSelf()
+            .OfType<ExpressionSyntax>()
+            .Any(candidate => SyntaxFactory.AreEquivalent(candidate, value))));
+    }
+
     private SyntaxNode? RewriteRandomLiteral(SyntaxNode root)
     {
         var literals = root.DescendantNodes()
@@ -212,6 +253,7 @@ public sealed class SyntaxAwareMutator
         var statements = root.DescendantNodes()
             .OfType<ExpressionStatementSyntax>()
             .Where(s => !s.ToString().Contains("return", StringComparison.Ordinal))
+            .Where(s => !WritesLoopConditionValue(s))
             .ToList();
         if (statements.Count == 0)
             return null;

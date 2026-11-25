@@ -1,5 +1,5 @@
 {
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_PostfixUnary.Test#1": 2639550,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_PostfixUnary.TestInvert#1": 1004010,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_PostfixUnary.TestUndefinedCase#1": 4371840
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PostfixUnary.Test#1": 277325,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PostfixUnary.TestInvert#1": 273751,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_PostfixUnary.TestUndefinedCase#1": 282596
 }

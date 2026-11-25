@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             using var fee = Engine.CreateFeeWatcher();
             var result = Contract.GetTreeByteLengthPrefix();
-            Assert.AreEqual(1784760, fee.Value);
+            Assert.AreEqual(271433, fee.Value);
 
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x03 }, result);
         }

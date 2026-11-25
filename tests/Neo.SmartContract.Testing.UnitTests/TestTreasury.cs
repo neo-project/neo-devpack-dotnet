@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         public void TestTreasuryManifestAndMethodSignatures()
         {
             var manifest = Neo.SmartContract.Native.NativeContract.Treasury
-                .GetContractState(_engine.ProtocolSettings, uint.MaxValue).Manifest;
+                .GetContractState(_engine.ProtocolSettings, _engine.Storage.Snapshot, uint.MaxValue).Manifest;
 
             Assert.IsNotNull(manifest);
             Assert.AreEqual("Treasury", manifest.Name);

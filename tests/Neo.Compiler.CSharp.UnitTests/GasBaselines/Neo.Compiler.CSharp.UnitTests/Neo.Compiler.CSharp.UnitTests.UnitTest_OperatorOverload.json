@@ -1,15 +1,15 @@
 {
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ArithmeticUsesOperatorBody#1": 3595800,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ChainedOperators#1": 3686610,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_CompoundAssignment#1": 3454950,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_CompoundAssignmentAppliesOutConversion#1": 2623680,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_CompoundAssignmentOnElement#1": 3684660,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_EqualityUsesOperatorBody#1": 2172060,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ExplicitConversionCallsOperator#1": 1644930,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ImplicitConversionCallsOperator#1": 1710960,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_IncrementDecrement#1": 3017160,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_InequalityUsesOperatorBody#1": 2172060,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_NullableCompoundAssignmentAppliesOutConversion#1": 2751390,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_NullableCompoundAssignmentAppliesOutConversion#2": 1048080,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_RelationalUsesOperatorBody#1": 2149680
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ArithmeticUsesOperatorBody#1": 284170,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ChainedOperators#1": 283596,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_CompoundAssignment#1": 280929,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_CompoundAssignmentAppliesOutConversion#1": 276634,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_CompoundAssignmentOnElement#1": 280499,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_EqualityUsesOperatorBody#1": 274957,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ExplicitConversionCallsOperator#1": 273774,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_ImplicitConversionCallsOperator#1": 274805,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_IncrementDecrement#1": 282700,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_InequalityUsesOperatorBody#1": 274957,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_NullableCompoundAssignmentAppliesOutConversion#1": 278158,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_NullableCompoundAssignmentAppliesOutConversion#2": 271397,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_OperatorOverload.Test_RelationalUsesOperatorBody#1": 273810
 }

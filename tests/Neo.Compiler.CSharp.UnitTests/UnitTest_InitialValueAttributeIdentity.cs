@@ -193,7 +193,7 @@ public class UnitTest_InitialValueAttributeIdentity
         var context = Compile("""[Neo.SmartContract.Framework.Attributes.Integer("43")] private static int Value;""", "Value", optimization);
         var contract = Deploy(context, engine);
         Assert.AreEqual(new BigInteger(43), contract.Get());
-        Assert.AreEqual(984_660L, engine.FeeConsumed.Value);
+        Assert.AreEqual(270_638L, engine.FeeConsumed.Value);
     }
 
     [TestMethod]
@@ -232,7 +232,7 @@ public class UnitTest_InitialValueAttributeIdentity
             """, "new Position { Deposit = 1 }.Value", optimization);
         var contract = Deploy(context, engine);
         Assert.AreEqual(new BigInteger(500), contract.Get());
-        Assert.AreEqual(1_293_390L, engine.FeeConsumed.Value);
+        Assert.AreEqual(271_099L, engine.FeeConsumed.Value);
     }
 
     [TestMethod]
