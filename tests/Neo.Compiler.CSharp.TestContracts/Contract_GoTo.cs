@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int test()
         {
             int a = 1;
-sum:
+        sum:
             a++;
             if (a == 3) return a;
 
@@ -29,7 +29,7 @@ sum:
         public static int testTry()
         {
             int a = 1;
-sum:
+        sum:
             try
             {
                 a++;
@@ -43,9 +43,10 @@ sum:
         {
             Storage.Put("\xff\x00", "\x00");
             bool? goto_ = true;
-START0:
+        START0:
             Iterator f = Storage.Find("\xff");
             foreach (object i in f)
+            {
                 try
                 {
                     switch (goto_)
@@ -74,15 +75,17 @@ START0:
                         case false:
                             goto DEFAULT;
                         default:
-DEFAULT:
+                        DEFAULT:
                             Storage.Put("\xff\x00", "\x01");
                             break;
                     }
                 }
-END0:
+            }
+        END0:
             ExecutionEngine.Assert(goto_ == false);
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x01");
             foreach (object i in Storage.Find("\xff"))
+            {
                 try
                 {
                     throw new System.Exception();
@@ -91,7 +94,7 @@ END0:
                 {
                     do { goto END1; }
                     while (true);
-END1:
+                END1:
                     try { goto END2; }  // break foreach; should execute finally
                     finally { Storage.Put("\xff\x00", "\x00"); }
                 }
@@ -114,9 +117,11 @@ END1:
                         Storage.Put("\xff\x00", "\x02");
                     }
                 }
-END2:
+            }
+        END2:
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x02");
             foreach (object i in Storage.Find("\xff"))
+            {
                 try
                 {
                     switch (exception)
@@ -126,10 +131,10 @@ END2:
                         case true:
                             throw new System.Exception();
                         default:
-DEFAULT:
+                        DEFAULT:
                             goto ENDSWITCH;
                     }
-ENDSWITCH:;
+                ENDSWITCH:;
                 }
                 catch
                 {
@@ -150,7 +155,8 @@ ENDSWITCH:;
                     ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x02");
                     Storage.Put("\xff\x00", "\x03");
                 }
-END3:
+            }
+        END3:
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x03");
         }
     }
