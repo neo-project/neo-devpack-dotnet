@@ -21,7 +21,7 @@ public abstract class ContractManagement(SmartContractInitialize initialize) : S
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.ContractManagement.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.ContractManagement);
 
     #endregion
 

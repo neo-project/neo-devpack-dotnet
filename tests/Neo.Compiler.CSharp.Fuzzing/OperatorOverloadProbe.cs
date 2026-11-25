@@ -17,12 +17,12 @@ namespace Neo.Compiler.Fuzzing;
 /// Checks how user-defined operators on structs are compiled.
 /// </summary>
 /// <remarks>
-/// The binary-expression converter emits a raw VM opcode for every operator token, so a
-/// user-defined <c>operator==</c> is compiled to structural EQUAL instead of a call to the
-/// operator method. When the operator's semantics differ from structural equality (or from
-/// what the raw opcode does to two struct values) the compiled contract silently disagrees
-/// with C#. Arithmetic operators are rejected instead, with an integer-range diagnostic that
-/// does not mention the actual cause.
+/// A user-defined operator must compile to a call to the operator method, not to the
+/// raw VM opcode for the operator token. When the compiler takes the raw-opcode shortcut the
+/// contract silently disagrees with C# as soon as the operator's semantics differ from the
+/// structural comparison (an <c>operator==</c> that compares one field, an implicit
+/// conversion, a user-defined increment). Each shape is compiled, executed on the VM, and
+/// compared with the same method running on the CLR.
 /// </remarks>
 public static class OperatorOverloadProbe
 {
