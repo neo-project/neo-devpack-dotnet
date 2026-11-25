@@ -43,7 +43,9 @@ public class UnitTest_FoldConstantArithmetic
         var manifest = new ContractManifest
         {
             Name = "TestContract",
-            Groups = [], SupportedStandards = [], Permissions = [],
+            Groups = [],
+            SupportedStandards = [],
+            Permissions = [],
             Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
             Abi = new ContractAbi
             {
