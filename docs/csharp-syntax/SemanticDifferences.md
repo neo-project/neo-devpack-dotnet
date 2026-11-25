@@ -6,11 +6,11 @@ This page records intentional or currently accepted behavior differences between
 
 NeoVM exceptions carry a thrown value without a .NET exception type. A contract
 can use a bare `catch` or `catch (Exception)` to handle any catchable exception.
-More specific catch types are rejected with `NC2014`, since they could otherwise
+More specific catch types are rejected with `NC2015`, since they could otherwise
 catch unrelated failures. A catch variable holds the thrown value (typically the
-message string), not an `Exception` object. Member access such as `e.Message` is
-rejected with `NC2015`. Existing contracts should handle the thrown value directly
-or avoid relying on exception type discrimination.
+message string), not a .NET `Exception` object. The compiler lowers `Message` and
+`ToString()` to that message string. Other .NET exception members are unsupported.
+Contracts should avoid relying on exception type discrimination.
 
 <a id="booltryparse"></a>
 

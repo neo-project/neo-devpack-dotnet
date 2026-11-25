@@ -7,7 +7,9 @@
 // for more details.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing;
 using System;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests;
@@ -37,9 +39,9 @@ public class UnitTest_CatchDiagnostics
     }
 
     [TestMethod]
-    [DataRow("e.Message")]
-    [DataRow("e?.Message")]
-    public void CatchVariableMemberIsRejected(string memberExpression)
+    [DataRow("e.Source")]
+    [DataRow("e?.Source")]
+    public void UnsupportedCatchVariableMemberIsRejected(string memberExpression)
     {
         var context = TestHelper.CompileSingleContract($$"""
             using System;
@@ -55,8 +57,30 @@ public class UnitTest_CatchDiagnostics
             """);
 
         Assert.IsFalse(context.Success);
-        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.CatchVariableMember),
+        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.ExternMethod),
             string.Join(Environment.NewLine, context.Diagnostics));
+    }
+
+    [TestMethod]
+    public void CatchVariableMessageAndToStringReturnThrownMessage()
+    {
+        var context = TestHelper.CompileSingleContract("""
+            using System;
+            using Neo.SmartContract.Framework;
+            public class Contract : SmartContract
+            {
+                public static string Test()
+                {
+                    try { throw new Exception("message"); }
+                    catch (Exception e) { return e.Message + ":" + e.ToString() + ":" + e?.Message + ":" + e?.ToString(); }
+                }
+            }
+            """);
+
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<CatchMessageContract>(context.CreateExecutable(), context.CreateManifest());
+        Assert.AreEqual("message:message:message:message", contract.Test());
     }
 
     [TestMethod]
@@ -90,5 +114,12 @@ public class UnitTest_CatchDiagnostics
             """);
 
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+    }
+
+    public abstract class CatchMessageContract(SmartContractInitialize initialize)
+        : Neo.SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("test")]
+        public abstract string? Test();
     }
 }

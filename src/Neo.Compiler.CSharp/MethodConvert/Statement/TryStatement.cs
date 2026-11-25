@@ -102,19 +102,6 @@ namespace Neo.Compiler
                         model.Compilation.GetTypeByMetadataName("System.Exception")))
                     throw new CompilationException(declaration.Type, DiagnosticId.TypedCatch,
                         "Typed catch clauses cannot discriminate exception types on NeoVM. Use catch (Exception) or a bare catch.");
-                ILocalSymbol? declaredException = catchClause.Declaration is null
-                    ? null : model.GetDeclaredSymbol(catchClause.Declaration);
-                if (declaredException is not null)
-                {
-                    foreach (IdentifierNameSyntax identifier in catchClause.Block.DescendantNodes().OfType<IdentifierNameSyntax>())
-                    {
-                        if ((identifier.Parent is MemberAccessExpressionSyntax member && member.Expression == identifier ||
-                             identifier.Parent is ConditionalAccessExpressionSyntax conditional && conditional.Expression == identifier) &&
-                            SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(identifier).Symbol, declaredException))
-                            throw new CompilationException(identifier.Parent, DiagnosticId.CatchVariableMember,
-                                "The catch variable contains the thrown NeoVM value, not a .NET Exception object; its members cannot be accessed.");
-                    }
-                }
                 _tryStack.Peek().State = ExceptionHandlingState.Catch;
                 sc.TryState = ExceptionHandlingState.Catch;
                 ILocalSymbol? exceptionSymbol = null;

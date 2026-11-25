@@ -23,7 +23,6 @@ This catalog is the stable landing page for analyzer and compiler diagnostics. E
 | <a id="nc2013"></a>[NC2013](#nc2013) | Interpolated string format clauses are not supported; remove the format component. |
 | <a id="nc2014"></a>[NC2014](#nc2014) | The contract requires more than 255 static slots, including compiler-generated slots; reduce the number of static fields or simplify features that use hidden slots. |
 | <a id="nc2015"></a>[NC2015](#nc2015) | A typed catch cannot discriminate exception types on NeoVM; use `catch (Exception)` or a bare `catch`. |
-| <a id="nc2016"></a>[NC2016](#nc2016) | The catch variable holds the thrown NeoVM value, not an `Exception` object; do not access its members. |
 | <a id="nc3001"></a>[NC3001](#nc3001) | The initial value type is not supported for static contract fields; see the diagnostic message. |
 | <a id="nc3002"></a>[NC3002](#nc3002) | The method display name is not valid; see the diagnostic message. |
 | <a id="nc3003"></a>[NC3003](#nc3003) | Two contract methods share the same name and parameter count; rename one of them. |
