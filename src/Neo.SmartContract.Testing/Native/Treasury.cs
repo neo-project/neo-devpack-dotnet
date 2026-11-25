@@ -20,7 +20,7 @@ public abstract class Treasury(SmartContractInitialize initialize) : SmartContra
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.Treasury.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.Treasury);
 
     #endregion
 

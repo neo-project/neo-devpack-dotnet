@@ -1,8 +1,8 @@
 {
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_ByteStringAdd#1": 1355100,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnA#1": 1109970,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnB#1": 1207020,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_OneReturn#1": 1047630,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_TryReturn#1": 7311310,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_VoidReturn#1": 1047630
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_ByteStringAdd#1": 271119,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnA#1": 272092,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnB#1": 273196,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_OneReturn#1": 271070,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_TryReturn#1": 4235383,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_VoidReturn#1": 271067
 }

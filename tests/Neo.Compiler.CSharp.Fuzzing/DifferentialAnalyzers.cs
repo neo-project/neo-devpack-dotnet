@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using System;
 using System.Numerics;
 
 namespace Neo.Compiler.Fuzzing;
@@ -78,8 +79,8 @@ public static class DifferentialAnalyzers
     /// </remarks>
     private static void CompareScripts(string labelA, ArtifactSet a, string labelB, ArtifactSet b, List<DifferentialDivergence> result)
     {
-        byte[] scriptA = a.Nef.Script.ToArray();
-        byte[] scriptB = b.Nef.Script.ToArray();
+        byte[] scriptA = ((ReadOnlyMemory<byte>)a.Nef.Script).ToArray();
+        byte[] scriptB = ((ReadOnlyMemory<byte>)b.Nef.Script).ToArray();
 
         if (!scriptA.AsSpan().SequenceEqual(scriptB))
         {
@@ -193,8 +194,8 @@ public static class DifferentialAnalyzers
     {
         var result = new List<DifferentialDivergence>();
 
-        byte[] scriptA = first.Nef.Script.ToArray();
-        byte[] scriptB = second.Nef.Script.ToArray();
+        byte[] scriptA = ((ReadOnlyMemory<byte>)first.Nef.Script).ToArray();
+        byte[] scriptB = ((ReadOnlyMemory<byte>)second.Nef.Script).ToArray();
 
         if (!scriptA.AsSpan().SequenceEqual(scriptB))
         {

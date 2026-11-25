@@ -19,7 +19,7 @@ public abstract class Oracle(SmartContractInitialize initialize) : SmartContract
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.Oracle.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.Oracle);
 
     #endregion
 

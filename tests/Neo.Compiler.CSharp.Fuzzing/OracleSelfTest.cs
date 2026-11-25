@@ -12,6 +12,7 @@
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM.Types;
+using System;
 using System.Reflection;
 
 namespace Neo.Compiler.Fuzzing;
@@ -574,6 +575,20 @@ public static class OracleSelfTest
             failures++;
         }
 
+        // Both builds running out of gas can expose a shared compiler defect, so it must
+        // remain suspicious rather than being treated as an expected boundary failure.
+        var gasExhaustion = new List<(bool Ok, string? Error)>
+        {
+            (false, "TestException: Insufficient GAS."),
+            (false, "TestException: Insufficient GAS."),
+            (false, "TestException: Insufficient GAS."),
+        };
+        if (FailureTriage.Inspect("gasExhaustion", gasExhaustion) is null)
+        {
+            Console.WriteLine("  [FAIL] failure triage hid systematic gas exhaustion.");
+            failures++;
+        }
+
         var mixedFailures = new List<(bool Ok, string? Error)>
         {
             (false, "TestException: The index of VMArray is out of range"),
@@ -760,7 +775,7 @@ public static class OracleSelfTest
         // budget. NOP is a complete instruction, so the padded script still passes the
         // deployment-time script check, and the methods keep their offsets.
         byte[] padded = new byte[24_000];
-        nef.Script.Span.CopyTo(padded);
+        ((ReadOnlyMemory<byte>)nef.Script).Span.CopyTo(padded);
         padded.AsSpan(nef.Script.Length).Fill((byte)Neo.VM.OpCode.NOP);
         nef.Script = padded;
         nef.CheckSum = NefFile.ComputeChecksum(nef);
@@ -1279,7 +1294,7 @@ public static class OracleSelfTest
 
     /// <summary>
     /// Verifies that mutation cannot turn bounded loops into unbounded loops by changing
-    /// their conditions, initializers, or incrementors.
+    /// their conditions, initializers, incrementors, or body progress statements.
     /// </summary>
     private static int CheckLoopControlMutation()
     {
@@ -1310,6 +1325,13 @@ public static class OracleSelfTest
             if (syntaxEdited is not null && !SyntaxAwareMutator.PreservesLoopControl(source, syntaxEdited))
             {
                 Console.WriteLine("  [FAIL] syntax mutation rewrote a loop condition.");
+                return 1;
+            }
+
+            string? deletion = syntaxMutator.Apply(SyntaxAwareMutator.KindSyntaxDeleteStatement, source);
+            if (deletion is not null && !SyntaxAwareMutator.PreservesLoopControl(source, deletion))
+            {
+                Console.WriteLine("  [FAIL] syntax mutation deleted a loop progress statement.");
                 return 1;
             }
 
