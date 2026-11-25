@@ -20,7 +20,7 @@ public class UnitTest_CrossActivationCapture
         var source = "using Neo.SmartContract.Framework; public class Contract : SmartContract { " + method + " }";
         var context = TestHelper.CompileSingleContract(source);
         Assert.IsFalse(context.Success);
-        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == "NC2014"),
+        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.CrossActivationCapture),
             string.Join("\n", context.Diagnostics.Select(d => d.ToString())));
     }
 

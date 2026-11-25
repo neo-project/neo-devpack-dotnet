@@ -21,7 +21,8 @@ This catalog is the stable landing page for analyzer and compiler diagnostics. E
 | <a id="nc2011"></a>[NC2011](#nc2011) | The type does not support `ToString` conversion in a contract; see the diagnostic message. |
 | <a id="nc2012"></a>[NC2012](#nc2012) | Interpolated string alignment clauses are not supported; remove the alignment component. |
 | <a id="nc2013"></a>[NC2013](#nc2013) | Interpolated string format clauses are not supported; remove the format component. |
-| <a id="nc2014"></a>[NC2014](#nc2014) | Captured lambdas cannot escape their creating method or occur in recursive methods. Pass values explicitly to a noncapturing delegate. |
+| <a id="nc2014"></a>[NC2014](#nc2014) | The contract requires more than 255 static slots, including compiler-generated slots; reduce the number of static fields or simplify features that use hidden slots. |
+| <a id="nc2015"></a>[NC2015](#nc2015) | Captured lambdas cannot escape their creating method or occur in recursive methods. Pass values explicitly to a noncapturing delegate. |
 | <a id="nc3001"></a>[NC3001](#nc3001) | The initial value type is not supported for static contract fields; see the diagnostic message. |
 | <a id="nc3002"></a>[NC3002](#nc3002) | The method display name is not valid; see the diagnostic message. |
 | <a id="nc3003"></a>[NC3003](#nc3003) | Two contract methods share the same name and parameter count; rename one of them. |
@@ -63,7 +64,6 @@ This catalog is the stable landing page for analyzer and compiler diagnostics. E
 | <a id="nc4029"></a>[NC4029](#nc4029) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4030"></a>[NC4030](#nc4030) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4031"></a>[NC4031](#nc4031) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
-| <a id="nc4032"></a>[NC4032](#nc4032) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4033"></a>[NC4033](#nc4033) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4034"></a>[NC4034](#nc4034) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4035"></a>[NC4035](#nc4035) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
@@ -91,6 +91,5 @@ This catalog is the stable landing page for analyzer and compiler diagnostics. E
 | <a id="nc4061"></a>[NC4061](#nc4061) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4062"></a>[NC4062](#nc4062) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4063"></a>[NC4063](#nc4063) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
-| <a id="nc4064"></a>[NC4064](#nc4064) | See the diagnostic message and the contract compatibility profile for the supported replacement. |
 | <a id="nc4065"></a>[NC4065](#nc4065) | String accumulation inside a loop (`+=`, `s = s + x`, interpolation, `string.Concat`/`Format`, or `StringBuilder` appends) extends the accumulated value on every iteration. Bound the accumulated length and iteration count, or move the accumulation outside the loop. |
 | <a id="nc5001"></a>[NC5001](#nc5001) | An unexpected compiler error occurred; see the diagnostic message for the failing operation and the underlying exception. |

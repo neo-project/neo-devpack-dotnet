@@ -113,7 +113,13 @@ public class RpcStore : IStore
             yield return (pair.Key[..], pair.Value[..]);
     }
 
-    public IEnumerable<(byte[] Key, byte[] Value)> Find(byte[]? key, SeekDirection direction)
+    public IEnumerable<(byte[] Key, byte[] Value)> Find(byte[]? key, SeekDirection direction, int skip = 0)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(skip);
+        return FindCore(key, direction).Skip(skip);
+    }
+
+    private IEnumerable<(byte[] Key, byte[] Value)> FindCore(byte[]? key, SeekDirection direction)
     {
         // This(IStore.Seek) is different from LevelDbStore, RocksDbStore and MemoryStore.
         ArgumentNullException.ThrowIfNull(key);
@@ -131,7 +137,7 @@ public class RpcStore : IStore
 
             // The seek key is an upper bound, not a storage prefix. Fetch the whole
             // contract so keys below that bound are included before filtering locally.
-            foreach (var (Key, Value) in Find(key[..sizeof(int)], SeekDirection.Forward))
+            foreach (var (Key, Value) in FindCore(key[..sizeof(int)], SeekDirection.Forward))
             {
                 data.TryAdd(Key, Value);
             }

@@ -94,4 +94,35 @@ The analyzer reports `NC4063` when a lambda references its enclosing `foreach` v
 
 ## Captured lambdas across method calls
 
-Captured locals use shared contract fields, so they cannot retain a separate value for each invocation of their declaring method. The compiler reports `NC2014` when a captured lambda escapes its method or appears in a recursive method. Pass the captured values as explicit delegate parameters instead. Captures used and invoked locally in a nonrecursive method remain supported.
+Captured locals use shared contract fields, so they cannot retain a separate value for each invocation of their declaring method. The compiler reports `NC2015` when a captured lambda escapes its method or appears in a recursive method. Pass the captured values as explicit delegate parameters instead. Captures used and invoked locally in a nonrecursive method remain supported.
+
+## Exceptions
+
+An exception carries no object inside a contract: it is represented by its message, a UTF-8 `ByteString`.
+
+- `throw new Exception("message")` throws the message. Only a constructor with zero or one argument is supported (`NC2005` otherwise), and instantiating an exception type declared inside the contract is rejected with `NC1002` (`throw new MyError()` compiles but throws the generic message `"exception"`).
+- The variable of a `catch` clause holds the message. `ex.Message` and `ex.ToString()` evaluate to it; every other instance member of an exception (`Source`, `StackTrace`, `InnerException`, `GetType()`, ...) is rejected with `NC1002`. See [#2358](https://github.com/neo-project/neo-devpack-dotnet/pull/2358).
+- The type written in a `catch` clause is not checked at runtime. `catch (InvalidOperationException e)` catches every catchable exception, exactly like `catch (Exception e)`, so code that relies on different `catch` clauses for different exception types must branch on the message instead; the Neo analyzer reports such a clause with `NC4027`. Only one `catch` clause is allowed (`NC2006`) and exception filters are not supported (`NC2007`).
+- Not every fault can be caught. A `throw`, a division by zero and an out-of-range index reach the `catch` block. `ExecutionEngine.Assert`, `ExecutionEngine.Abort`, `checked` overflow faults, failed `int.Parse`/`BigInteger.Parse` calls, invoking a `null` delegate and VM type faults such as reading `.Length` of `null` abort the execution without running any `catch` or `finally` block. Validate inputs before performing the operation instead of relying on `try`/`catch` for these cases.
+
+```csharp
+try
+{
+    Transfer(receiver, amount);
+}
+catch (Exception ex)
+{
+    // The declared type would not filter anything; branch on the message.
+    if (ex.Message.Contains("insufficient"))
+        OnInsufficientBalance(receiver);
+    return false;
+}
+```
+
+## `ToString()` on boxed value types
+
+A value type boxed into `object` is stored as the VM stack item, not as a .NET boxed value. Calling `ToString()` on the boxed expression therefore converts the raw stack item to bytes: `((object)5).ToString()` yields the single byte `0x05`, and `((object)'中').ToString()` yields the little-endian bytes `0x2D 0x4E` of the integer `20013`. Call `ToString()` while the expression still has its declared type, or cast back to the value type first: `((int)obj).ToString()`.
+
+## Class-library members
+
+Only members of class-library types that have a compiler lowering are supported. Any other member fails with `NC1002`: methods and properties report `Unknown method`, constructors of types that cannot be built inside a contract (`new Guid()`, `new DateTime()`, `new string(char[])`) report `Unknown constructor`, and static fields of such types (`Guid.Empty`, `TimeSpan.Zero`) report `Unknown field`. See [#2357](https://github.com/neo-project/neo-devpack-dotnet/pull/2357).

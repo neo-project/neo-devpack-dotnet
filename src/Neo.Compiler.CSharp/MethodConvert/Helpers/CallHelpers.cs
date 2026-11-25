@@ -268,7 +268,8 @@ internal partial class MethodConvert
     /// <param name="model">The semantic model of the code.</param>
     /// <param name="symbol">The method symbol representing the method to call.</param>
     /// <param name="callingConvention">The calling convention to use for the method call.</param>
-    private void CallMethodWithConvention(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
+    /// <param name="instanceExpression">The receiver used to resolve virtual dispatch.</param>
+    private void CallMethodWithConvention(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl, ExpressionSyntax? instanceExpression = null)
     {
         using var anonymousVariableScope = PreserveAnonymousVariables();
         PushOutStaticFieldSyncScope();
@@ -280,7 +281,7 @@ internal partial class MethodConvert
                 return;
             }
 
-            var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
+            var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol, instanceExpression);
 
             int pc = symbol.Parameters.Length + (!NeedInstanceConstructor(symbol) ? 0 : 1);
             if (pc > 1 && methodCallingConvention != callingConvention)
