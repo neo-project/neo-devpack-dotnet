@@ -661,7 +661,9 @@ namespace Neo.Compiler
                                 break;
                             }
                             string contract = (string)attribute.ConstructorArguments[0].Value!;
-                            string[] methods = attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
+                            string[] methods = attribute.ConstructorArguments.Length == 1
+                                ? [Method.Any]
+                                : attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
                             ValidateContractPermission(symbol, contract, methods);
                             _permissions.Add(contract, methods);
                             break;
