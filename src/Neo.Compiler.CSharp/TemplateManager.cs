@@ -592,7 +592,6 @@ namespace {{Namespace}}
                 Storage.Put(Storage.CurrentContext, ""Deployed"", Runtime.Time);
             }
         }
-
     }
 }";
         }
