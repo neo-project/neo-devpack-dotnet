@@ -151,6 +151,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(csContent.Contains($"public class {projectName} : SmartContract, IOracle"));
             Assert.IsTrue(csContent.Contains("OnOracleResponse"));
             Assert.IsTrue(csContent.Contains("Oracle.Request"));
+            Assert.IsTrue(csContent.Contains("// Add your oracle-specific logic here."));
+            Assert.IsFalse(csContent.Contains("public static void Update("));
+            Assert.IsFalse(csContent.Contains("public static void Destroy("));
         }
 
         [TestMethod]
