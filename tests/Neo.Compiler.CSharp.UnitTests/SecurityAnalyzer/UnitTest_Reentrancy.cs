@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest);
-            Assert.AreEqual(3, v.vulnerabilityPairs.Count);
+            Assert.AreEqual(4, v.vulnerabilityPairs.Count);
             foreach (BasicBlock b in v.vulnerabilityPairs.Keys)
                 Assert.IsTrue(b.startAddr < NefFile.Size * 0.66);
             v.GetWarningInfo(print: false);
@@ -42,7 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest, null);
-            Assert.AreEqual(3, v.vulnerabilityPairs.Count);
+            Assert.AreEqual(4, v.vulnerabilityPairs.Count);
 
             string warningInfo = v.GetWarningInfo(print: false);
 
@@ -212,6 +212,69 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             ];
 
             var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Detects_ExternalCallInHelper_BeforeCallerWrite()
+        {
+            // main: call helper, then write; helper: call another contract.
+            byte[] script =
+            [
+                (byte)OpCode.CALL, 0x08,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest());
+            Assert.AreEqual(1, result.vulnerabilityPairs.Count);
+            Assert.AreEqual(8, result.vulnerabilityPairs.Single().Key.startAddr);
+            Assert.AreEqual(2, result.vulnerabilityPairs.Single().Value.Single().startAddr);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Detects_CALLTInHelper_BeforeCallerWrite()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALL, 0x08,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET,
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+            MethodToken[] tokens =
+            [
+                new MethodToken
+                {
+                    Hash = NativeContract.GAS.Hash,
+                    Method = "transfer",
+                    ParametersCount = 4,
+                    HasReturnValue = true,
+                    CallFlags = CallFlags.All
+                }
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script, tokens), CreateManifest());
+            Assert.AreEqual(1, result.vulnerabilityPairs.Count);
+            Assert.AreEqual(8, result.vulnerabilityPairs.Single().Key.startAddr);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Ignores_HelperCallAfterCallerWrite()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.CALL, 0x03,
+                (byte)OpCode.RET,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest());
             Assert.AreEqual(0, result.vulnerabilityPairs.Count);
         }
 
