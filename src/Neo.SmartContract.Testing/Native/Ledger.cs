@@ -22,7 +22,7 @@ public abstract class Ledger(SmartContractInitialize initialize) : SmartContract
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.Ledger.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.Ledger);
 
     #endregion
 

@@ -1,15 +1,15 @@
 {
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_ArrowMethod#1": 986760,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_ArrowMethodNoReturn#1": 1004220,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_Inline#1": 1048650,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_Inline#2": 1050090,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_Inline#3": 1052070,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineCallerParameterScope#1": 1047840,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineCallerParameterScope#2": 1047720,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineExtensionMethodReceiver#1": 1001045560,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineExtensionMethodReceiver#2": 1047930,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NestedInline#1": 1071930,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NoInline#1": 1067970,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NoInline#2": 1071270,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NoInline#3": 1073190
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_ArrowMethod#1": 271061,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_ArrowMethodNoReturn#1": 271342,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_Inline#1": 270911,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_Inline#2": 271164,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_Inline#3": 271805,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineCallerParameterScope#1": 271164,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineCallerParameterScope#2": 271078,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineExtensionMethodReceiver#1": 1000100610,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_InlineExtensionMethodReceiver#2": 271260,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NestedInline#1": 272027,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NoInline#1": 271522,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NoInline#2": 271779,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Inline.Test_NoInline#3": 272374
 }
