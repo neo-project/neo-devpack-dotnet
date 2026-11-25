@@ -559,6 +559,7 @@ namespace {{Namespace}}
                 return;
             }
 
+            // Add your oracle-specific logic here.
             // Store the response
             StorageContext context = Storage.CurrentContext;
             byte[] key = Helper.Concat(new byte[] { Prefix_Response }, StdLib.Serialize(userData));
@@ -592,15 +593,6 @@ namespace {{Namespace}}
             }
         }
 
-        public static void Update(ByteString nefFile, string manifest, object data)
-        {
-            ContractManagement.Update(nefFile, manifest, data);
-        }
-
-        public static void Destroy()
-        {
-            ContractManagement.Destroy();
-        }
     }
 }";
         }
