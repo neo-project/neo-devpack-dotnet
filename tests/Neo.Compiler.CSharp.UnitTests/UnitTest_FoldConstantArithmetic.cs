@@ -26,6 +26,43 @@ namespace Neo.Compiler.CSharp.UnitTests;
 [TestClass]
 public class UnitTest_FoldConstantArithmetic
 {
+    [TestMethod]
+    [DataRow(50, true)]
+    [DataRow(58, false)]
+    public void FoldConstants_KeepsShortTryTargetsInRangeWhenFoldExpands(int fillerPairs, bool canExpand)
+    {
+        byte[] script =
+        [
+            (byte)OpCode.TRY, 0, (byte)(10 + 2 * fillerPairs),
+            (byte)OpCode.PUSH1, (byte)OpCode.PUSHINT8, 100, (byte)OpCode.SHL, (byte)OpCode.DROP,
+            .. Enumerable.Range(0, fillerPairs).SelectMany(_ => new byte[] { (byte)OpCode.PUSH0, (byte)OpCode.DROP }),
+            (byte)OpCode.ENDTRY, 3,
+            (byte)OpCode.ENDFINALLY, (byte)OpCode.RET
+        ];
+        var nef = new NefFile { Compiler = "test", Source = "", Tokens = [], Script = script };
+        var manifest = new ContractManifest
+        {
+            Name = "TestContract",
+            Groups = [], SupportedStandards = [], Permissions = [],
+            Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
+            Abi = new ContractAbi
+            {
+                Methods = [new ContractMethodDescriptor { Name = "main", Offset = 0, Parameters = [], ReturnType = ContractParameterType.Void }],
+                Events = []
+            }
+        };
+
+        var (folded, _, _) = ConstantFold.FoldConstants(nef, manifest);
+        var foldedScript = new Script(folded.Script);
+        Assert.AreEqual(!canExpand, foldedScript.EnumerateInstructions().Any(item => item.instruction.OpCode == OpCode.SHL));
+        var tryInstruction = foldedScript.GetInstruction(0);
+        Assert.AreEqual(OpCode.TRY, tryInstruction.OpCode);
+        Assert.AreEqual(OpCode.ENDFINALLY, foldedScript.GetInstruction((sbyte)tryInstruction.Operand.Span[1]).OpCode);
+        using var engine = new ExecutionEngine();
+        engine.LoadScript(folded.Script);
+        Assert.AreEqual(VMState.HALT, engine.Execute());
+    }
+
     private const string Source = """
         using Neo.SmartContract.Framework;
         using System;
