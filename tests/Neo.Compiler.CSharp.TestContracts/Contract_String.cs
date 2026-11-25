@@ -477,5 +477,19 @@ namespace Neo.Compiler.CSharp.TestContracts
             builder.Append(third);
             return builder.ToString();
         }
+
+        public static string TestStringBuilderRange(string value, int startIndex, int length)
+        {
+            var builder = new StringBuilder(value, startIndex, length, 16);
+            builder.Append("!");
+            return builder.ToString();
+        }
+
+        public static string TestStringBuilderNamedArguments()
+        {
+            var shortBuilder = new StringBuilder(capacity: 16, value: "hi");
+            var rangeBuilder = new StringBuilder(length: 3, capacity: 16, value: "hello", startIndex: 1);
+            return shortBuilder.ToString() + rangeBuilder.ToString();
+        }
     }
 }
