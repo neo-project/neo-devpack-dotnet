@@ -20,7 +20,7 @@ public abstract class GAS(SmartContractInitialize initialize) : SmartContract(in
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.GAS.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.GAS);
 
     #endregion
 

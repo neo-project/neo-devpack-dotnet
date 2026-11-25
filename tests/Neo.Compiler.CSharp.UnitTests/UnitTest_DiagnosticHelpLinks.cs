@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms, with or without
 // modifications, are permitted.
 
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using System;
@@ -70,6 +71,54 @@ public class UnitTest_DiagnosticHelpLinks
             Assert.IsTrue(anchors.Contains(id!.ToLowerInvariant()),
                 $"diagnostic catalog has no entry for compiler diagnostic {id} ({field.Name})");
         }
+    }
+
+    [TestMethod]
+    public void CatalogAnchorsMatchDeclaredDiagnosticIds()
+    {
+        var catalog = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "docs", "diagnostics", "catalog.md"));
+        var anchors = CollectCatalogAnchors(catalog);
+
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var field in typeof(DiagnosticId).GetFields(BindingFlags.Public | BindingFlags.Static))
+        {
+            declared.Add(((string)field.GetValue(null)!).ToLowerInvariant());
+        }
+
+        // NC4008 is intentionally both a compiler error and an analyzer rule.
+        foreach (var analyzer in LoadAnalyzerTypes())
+        {
+            var instance = (DiagnosticAnalyzer)Activator.CreateInstance(analyzer)!;
+            foreach (var descriptor in instance.SupportedDiagnostics)
+            {
+                declared.Add(descriptor.Id.ToLowerInvariant());
+            }
+        }
+
+        var stale = anchors
+            .Where(anchor => !declared.Contains(anchor))
+            .OrderBy(anchor => anchor, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.AreEqual(0, stale.Length,
+            "diagnostic catalog has entries without a declared diagnostic: " + string.Join(", ", stale));
+    }
+
+    private static IEnumerable<Type> LoadAnalyzerTypes()
+    {
+        Type[] types;
+        try
+        {
+            types = typeof(Neo.SmartContract.Analyzer.FloatUsageAnalyzer).Assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            // The analyzer assembly also hosts code fix providers, which depend on
+            // Microsoft.CodeAnalysis.Workspaces and are not part of this test project.
+            types = ex.Types.Where(type => type is not null).ToArray()!;
+        }
+
+        return types.Where(type => !type.IsAbstract && typeof(DiagnosticAnalyzer).IsAssignableFrom(type));
     }
 
     private static HashSet<string> CollectCatalogAnchors(string catalog)

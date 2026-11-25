@@ -19,7 +19,7 @@ public abstract class CryptoLib(SmartContractInitialize initialize) : SmartContr
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.CryptoLib.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.CryptoLib);
 
     #endregion
 
