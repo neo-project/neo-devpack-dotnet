@@ -19,6 +19,26 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_ContractAttributeDiagnostics
 {
     [TestMethod]
+    public void ContractPermissionWithoutMethodsUsesWildcard()
+    {
+        var context = TestHelper.CompileSingleContract("""
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+
+[ContractPermission("0x01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")]
+public class Contract : SmartContract
+{
+    public static int Test() => 0;
+}
+""");
+
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics));
+        var permissions = context.CreateManifest().Permissions;
+        Assert.AreEqual(1, permissions.Length);
+        Assert.IsTrue(permissions[0].Methods.IsWildcard);
+    }
+
+    [TestMethod]
     public void EmptyContractPermissionMethodReportsDiagnostic()
     {
         var context = TestHelper.CompileSingleContract("""
