@@ -92,6 +92,10 @@ Neo currently stores captured local variables in shared contract fields. A lambd
 
 The analyzer reports `NC4063` when a lambda references its enclosing `foreach` variable. Avoid retaining that lambda across iterations; compute the value eagerly or pass it explicitly instead.
 
+## Captured lambdas across method calls
+
+Captured locals use shared contract fields, so they cannot retain a separate value for each invocation of their declaring method. The compiler reports `NC2015` when a captured lambda escapes its method or appears in a recursive method. Pass the captured values as explicit delegate parameters instead. Captures used and invoked locally in a nonrecursive method remain supported.
+
 ## Exceptions
 
 An exception carries no object inside a contract: it is represented by its message, a UTF-8 `ByteString`.
