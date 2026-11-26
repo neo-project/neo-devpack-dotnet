@@ -55,12 +55,16 @@ internal partial class MethodConvert
         {
             ArgumentSyntax? valueArgument = null;
             if (arguments is not null)
+            {
                 foreach (var parameter in symbol.Parameters)
+                {
                     if (parameter.Type.SpecialType == SpecialType.System_String && parameter.Ordinal < arguments.Count)
                     {
                         valueArgument = arguments[parameter.Ordinal];
                         break;
                     }
+                }
+            }
 
             if (valueArgument is null)
                 methodConvert.Push("");
