@@ -3,7 +3,7 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmpty#1": 271306,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyChained#1": 272265,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyEvaluatesReceiverOnce#1": 1000100610,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyEvaluatesReceiverOnce#2": 497219,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyEvaluatesReceiverOnce#2": 497544,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyEvaluatesReceiverOnce#3": 272381,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyKeepsContent#1": 273576,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_StringBuilder.TestAppendEmptyKeepsInstance#1": 272346,

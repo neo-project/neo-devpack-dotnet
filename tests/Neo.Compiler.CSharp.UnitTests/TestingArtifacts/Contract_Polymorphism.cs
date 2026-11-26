@@ -13,12 +13,12 @@ public abstract class Contract_Polymorphism(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Polymorphism"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":475,""safe"":false},{""name"":""test"",""parameters"":[],""returntype"":""String"",""offset"":483,""safe"":false},{""name"":""test2"",""parameters"":[],""returntype"":""String"",""offset"":491,""safe"":false},{""name"":""abstractTest"",""parameters"":[],""returntype"":""String"",""offset"":499,""safe"":false},{""name"":""mul"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":507,""safe"":false},{""name"":""sumToBeOverriden"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":515,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":416,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.11.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Polymorphism"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":510,""safe"":false},{""name"":""test"",""parameters"":[],""returntype"":""String"",""offset"":518,""safe"":false},{""name"":""test2"",""parameters"":[],""returntype"":""String"",""offset"":526,""safe"":false},{""name"":""abstractTest"",""parameters"":[],""returntype"":""String"",""offset"":534,""safe"":false},{""name"":""mul"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":542,""safe"":false},{""name"":""sumToBeOverriden"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":550,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":451,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.11.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0MAlcAA3l6nkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAEMCXRlc3RGaW5hbEBXAAF4NBN4NBqL2ygMBS50ZXN0i9soQFcAAQwEdGVzdEBXAAF4NA4MBi50ZXN0MovbKEBXAAEMBWJhc2UyQFcAAXg0GQwRb3ZlcnJpZGVuQWJzdHJhY3SL2yhAVwABDAxhYnN0cmFjdFRlc3RAVwADeXqgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAA3l6n0rKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAN6eXg1mgAAAHl6oErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ96SsoRMg8B/wCRSgB/MgYBAAGfeUrKETIPAf8AkUoAfzIGAQABn3g1YP///55KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwADenl4NWb+//9AVgMLCsf+//8KKQAAABPAYArF/v//CoL+//8Kbv7//xPAYQsKp/7//woJAAAAE8BiQFcAAQwEYmFzZUBYEcAjIv7//1kRwCNC/v//WRHAI0n+//9ZEcAjf/7//1oRwCOm/v//WRHAI+7+//9AR8tgkg==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0vAlcAA3l6nkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAEMCXRlc3RGaW5hbEBXAAF4NChK2CYFRQwAeDQoStgmBUUMAIvbKErYJgVFDAAMBS50ZXN0i9soQFcAAQwEdGVzdEBXAAF4NBVK2CYFRQwADAYudGVzdDKL2yhAVwABDAViYXNlMkBXAAF4NCBK2CYFRQwADBFvdmVycmlkZW5BYnN0cmFjdIvbKEBXAAEMDGFic3RyYWN0VGVzdEBXAAN5eqBKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwADeXqfSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAA3p5eDWaAAAAeXqgSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3pKyhEyDwH/AJFKAH8yBgEAAZ95SsoRMg8B/wCRSgB/MgYBAAGfeDVg////nkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAN6eXg1Q/7//0BWAwsKwP7//wopAAAAE8BgCr7+//8KX/7//wpL/v//E8BhCwqg/v//CgkAAAATwGJAVwABDARiYXNlQFgRwCP//f//WRHAIx/+//9ZEcAjJv7//1kRwCN4/v//WhHAI6b+//9ZEcAj7v7//0Bof5Ot").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,10 +28,15 @@ public abstract class Contract_Polymorphism(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeDQZDBFvdmVycmlkZW5BYnN0cmFjdIvbKEA=
+    /// Script: VwABeDQgStgmBUUMAAwRb3ZlcnJpZGVuQWJzdHJhY3SL2yhA
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL 19 [512 datoshi]
+    /// CALL 20 [512 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// PUSHDATA1 6F766572726964656E4162737472616374 'overridenAbstract' [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
@@ -185,14 +190,29 @@ public abstract class Contract_Polymorphism(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeDQTeDQai9soDAUudGVzdIvbKEA=
+    /// Script: VwABeDQoStgmBUUMAHg0KErYJgVFDACL2yhK2CYFRQwADAUudGVzdIvbKEA=
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL 13 [512 datoshi]
+    /// CALL 28 [512 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// LDARG0 [2 datoshi]
-    /// CALL 1A [512 datoshi]
+    /// CALL 28 [512 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// DUP [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 05 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSHDATA1 [8 datoshi]
     /// PUSHDATA1 2E74657374 '.test' [8 datoshi]
     /// CAT [2048 datoshi]
     /// CONVERT 28 'ByteString' [8192 datoshi]

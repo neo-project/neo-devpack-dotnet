@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using static Neo.Compiler.ControlFlow.OpCodeTypes;
 using VmInstruction = Neo.VM.Instruction;
 
 namespace Neo.Optimizer
@@ -67,6 +68,10 @@ namespace Neo.Optimizer
         private const int MaxFoldedShiftCount = 256;
 
         public static (NefFile, ContractManifest, JObject?) FoldConstants(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+            => FoldConstants(nef, manifest, debugInfo, allowExpandingFolds: true);
+
+        private static (NefFile, ContractManifest, JObject?) FoldConstants(
+            NefFile nef, ContractManifest manifest, JObject? debugInfo, bool allowExpandingFolds)
         {
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
             InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
@@ -107,6 +112,10 @@ namespace Neo.Optimizer
                         }
                     }
 
+                    if (folded is not null && !allowExpandingFolds &&
+                        folded.Size > basicBlock.Skip(index).Take(consumed).Sum(instruction => instruction.Size))
+                        folded = null;
+
                     if (folded is not null)
                     {
                         simplifiedInstructionsToAddress.Add(folded, currentAddress);
@@ -128,10 +137,44 @@ namespace Neo.Optimizer
                     oldAddr += current.Size;
                 }
             }
+            // A wider folded constant can move an existing short branch or TRY handler
+            // outside its signed-byte range. Retry without size-increasing folds so
+            // the original short control-flow instructions remain encodable.
+            if (allowExpandingFolds && HasShortOffsetOverflow(
+                simplifiedInstructionsToAddress, jumpSourceToTargets, trySourceToTargets))
+                return FoldConstants(nef, manifest, debugInfo, allowExpandingFolds: false);
+
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        private static bool HasShortOffsetOverflow(
+            System.Collections.Specialized.OrderedDictionary addresses,
+            Dictionary<VmInstruction, VmInstruction> jumpTargets,
+            Dictionary<VmInstruction, (VmInstruction, VmInstruction)> tryTargets)
+        {
+            foreach ((VmInstruction source, VmInstruction target) in jumpTargets)
+            {
+                if (source.OpCode is not (OpCode.JMP or OpCode.CALL or OpCode.ENDTRY)
+                    && !conditionalJump.Contains(source.OpCode))
+                    continue;
+                if (OutOfRange(source, target)) return true;
+            }
+            foreach ((VmInstruction source, (VmInstruction catchTarget, VmInstruction finallyTarget)) in tryTargets)
+            {
+                if (source.OpCode != OpCode.TRY) continue;
+                if (OutOfRange(source, catchTarget) || OutOfRange(source, finallyTarget)) return true;
+            }
+            return false;
+
+            bool OutOfRange(VmInstruction source, VmInstruction target)
+            {
+                if (!addresses.Contains(source) || !addresses.Contains(target)) return false;
+                int delta = (int)addresses[target]! - (int)addresses[source]!;
+                return delta < sbyte.MinValue || delta > sbyte.MaxValue;
+            }
         }
 
         private static bool IsSafeToRemove(
