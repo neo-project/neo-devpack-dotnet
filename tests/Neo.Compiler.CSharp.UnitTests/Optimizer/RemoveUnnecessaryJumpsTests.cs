@@ -10,12 +10,15 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using ControlFlowJumpTarget = Neo.Compiler.ControlFlow.JumpTarget;
 
 namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 {
@@ -82,6 +85,66 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             // Jump operands are byte offsets relative to the start of the instruction.
             Assert.AreEqual(pushAddress - jmpAddress, instructions[jmpIdx].TokenI8,
                 "outer jump must be retargeted to PUSH1 after the inner JMP is removed");
+        }
+
+        [TestMethod]
+        public void RemovingCatchEntryJump_RetargetsHandlerAndUpdatesMetadata()
+        {
+            var nef = CreateNefFile(
+            [
+                (byte)OpCode.TRY, 5, 0,      // Catch at 5
+                (byte)OpCode.PUSH1,
+                (byte)OpCode.THROW,
+                (byte)OpCode.JMP, 2,        // Redundant catch entry
+                (byte)OpCode.DROP,
+                (byte)OpCode.PUSH2,
+                (byte)OpCode.ENDTRY, 2,     // Resume at 11
+                (byte)OpCode.RET,
+                (byte)OpCode.PUSH3,        // Second ABI method at 12
+                (byte)OpCode.RET
+            ]);
+            var manifest = CreateManifest();
+            manifest.Abi.Methods =
+            [
+                new ContractMethodDescriptor { Name = "handle", Offset = 0, Parameters = [], ReturnType = ContractParameterType.Integer },
+                new ContractMethodDescriptor { Name = "getValue", Offset = 12, Parameters = [], ReturnType = ContractParameterType.Integer }
+            ];
+            var debug = (JObject)JToken.Parse("""
+                {
+                    "methods": [
+                        {
+                            "range": "0-11",
+                            "sequence-points": ["5[0]10:1-10:9", "7[0]11:1-11:9"]
+                        },
+                        {
+                            "range": "12-13",
+                            "abi": {"offset": 12},
+                            "sequence-points": ["12[0]15:1-15:9"]
+                        }
+                    ]
+                }
+                """)!;
+
+            var (optimized, optimizedManifest, optimizedDebug) = Strategies.RemoveUnnecessaryJumps(nef, manifest, debug);
+
+            var script = new Script(optimized.Script);
+            var (catchOffset, _) = ControlFlowJumpTarget.ComputeTryTarget(0, script.GetInstruction(0));
+            Assert.AreEqual(OpCode.DROP, script.GetInstruction(catchOffset).OpCode);
+            Assert.AreEqual(10, optimizedManifest.Abi.Methods[1].Offset);
+            Assert.AreEqual(OpCode.PUSH3, script.GetInstruction(optimizedManifest.Abi.Methods[1].Offset).OpCode);
+
+            var methods = (JArray)optimizedDebug!["methods"]!;
+            Assert.AreEqual("0-9", methods[0]!["range"]!.AsString());
+            Assert.AreEqual("5[0]10:1-10:9", methods[0]!["sequence-points"]![0]!.AsString());
+            Assert.AreEqual("5[0]11:1-11:9", methods[0]!["sequence-points"]![1]!.AsString());
+            Assert.AreEqual("10-11", methods[1]!["range"]!.AsString());
+            Assert.AreEqual(10, (int)methods[1]!["abi"]!["offset"]!.AsNumber());
+            Assert.AreEqual("10[0]15:1-15:9", methods[1]!["sequence-points"]![0]!.AsString());
+
+            using ExecutionEngine engine = new();
+            engine.LoadScript(script);
+            Assert.AreEqual(VMState.HALT, engine.Execute());
+            Assert.AreEqual(new BigInteger(2), engine.ResultStack.Peek().GetInteger());
         }
 
         [TestMethod]
