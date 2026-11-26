@@ -73,6 +73,9 @@ namespace Neo.Optimizer
                     (int delta1, int delta2) = ((int)simplifiedInstructionsToAddress[dst1]! - a, (int)simplifiedInstructionsToAddress[dst2]! - a);
                     if (i.OpCode == OpCode.TRY)
                     {
+                        if (delta1 < sbyte.MinValue || delta1 > sbyte.MaxValue ||
+                            delta2 < sbyte.MinValue || delta2 > sbyte.MaxValue)
+                            throw new BadScriptException($"Unable to encode TRY with catch delta={delta1} and finally delta={delta2}");
                         simplifiedScript.Add(BitConverter.GetBytes(delta1)[0]);
                         simplifiedScript.Add(BitConverter.GetBytes(delta2)[0]);
                     }

@@ -46,7 +46,9 @@ internal partial class MethodConvert
             //Handles cases of string concatenation operator (+), concatenating two strings into one.
             case "string.operator +(string, string)":
                 ConvertExpression(model, arguments[0]);
+                CoalesceNullStringToEmpty(model, arguments[0]);
                 ConvertExpression(model, arguments[1]);
+                CoalesceNullStringToEmpty(model, arguments[1]);
                 Cat();
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
@@ -54,7 +56,9 @@ internal partial class MethodConvert
             //Unsupported interpolation: object
             case "string.operator +(string, object)":
                 ConvertExpression(model, arguments[0]);
+                CoalesceNullStringToEmpty(model, arguments[0]);
                 ConvertObjectToString(model, arguments[1]);
+                CoalesceNullStringToEmpty(model, arguments[1]);
                 Cat();
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
@@ -62,12 +66,32 @@ internal partial class MethodConvert
             //Unsupported interpolation: object
             case "string.operator +(object, string)":
                 ConvertObjectToString(model, arguments[0]);
+                CoalesceNullStringToEmpty(model, arguments[0]);
                 ConvertExpression(model, arguments[1]);
+                CoalesceNullStringToEmpty(model, arguments[1]);
                 Cat();
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
             default:
                 return false;
         }
+    }
+
+    /// <summary>
+    /// C# treats a null string operand of concatenation as an empty string.
+    /// Replace a possible null on top of the stack before CAT, which faults on Null.
+    /// </summary>
+    private void CoalesceNullStringToEmpty(SemanticModel model, ExpressionSyntax? operand)
+    {
+        if (operand is not null && model.GetConstantValue(operand) is { HasValue: true, Value: not null })
+            return;
+
+        JumpTarget nonNullTarget = new();
+        AddInstruction(OpCode.DUP);
+        AddInstruction(OpCode.ISNULL);
+        Jump(OpCode.JMPIFNOT_L, nonNullTarget);
+        AddInstruction(OpCode.DROP);
+        Push(string.Empty);
+        nonNullTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 }

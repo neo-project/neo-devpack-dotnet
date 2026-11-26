@@ -95,7 +95,7 @@ public class Contract : SmartContract
         using (var watcher = engine.CreateFeeWatcher())
         {
             Assert.AreEqual("abc", contract.PadLeft("abc", 3));
-            Assert.AreEqual(1048050, watcher.Value);
+            Assert.AreEqual(271279, watcher.Value);
         }
     }
 

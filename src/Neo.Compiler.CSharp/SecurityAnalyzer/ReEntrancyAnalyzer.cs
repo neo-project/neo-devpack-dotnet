@@ -232,6 +232,25 @@ namespace Neo.Compiler.SecurityAnalyzer
                     visited.Add(current);
                     if (callOtherContractInstructions[current].Count > 0)
                         vulnerabilityPairs[current].Add(block);
+                    // A local CALL returns to the continuation before the write. Its callee
+                    // is not a predecessor of that continuation in the basic-block graph.
+                    if (OpCodeTypes.callWithJump.Contains(current.instructions.Last().OpCode))
+                    {
+                        HashSet<BasicBlock> calleeBlocks = new();
+                        Queue<BasicBlock> callees = new(current.jumpTargetBlocks);
+                        while (callees.Count > 0)
+                        {
+                            BasicBlock callee = callees.Dequeue();
+                            if (!calleeBlocks.Add(callee))
+                                continue;
+                            if (callOtherContractInstructions[callee].Count > 0)
+                                vulnerabilityPairs[callee].Add(block);
+                            if (callee.nextBlock != null)
+                                callees.Enqueue(callee.nextBlock);
+                            foreach (BasicBlock target in callee.jumpTargetBlocks)
+                                callees.Enqueue(target);
+                        }
+                    }
                     foreach (BasicBlock referringBlock in current.jumpSourceBlocks)
                         if (!visited.Contains(referringBlock))
                             q.Enqueue(referringBlock);

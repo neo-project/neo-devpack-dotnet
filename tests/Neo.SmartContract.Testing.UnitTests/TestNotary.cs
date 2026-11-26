@@ -81,7 +81,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         public void TestNotaryManifest()
         {
             var manifest = Neo.SmartContract.Native.NativeContract.Notary
-                .GetContractState(_engine.ProtocolSettings, uint.MaxValue).Manifest;
+                .GetContractState(_engine.ProtocolSettings, _engine.Storage.Snapshot, uint.MaxValue).Manifest;
 
             // Verify basic manifest properties
             Assert.IsNotNull(manifest, "Manifest should not be null");
@@ -123,7 +123,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         public void TestNotaryMethodSignatures()
         {
             var manifest = Neo.SmartContract.Native.NativeContract.Notary
-                .GetContractState(_engine.ProtocolSettings, uint.MaxValue).Manifest;
+                .GetContractState(_engine.ProtocolSettings, _engine.Storage.Snapshot, uint.MaxValue).Manifest;
             var methods = manifest.Abi.Methods;
 
             // Test balanceOf method signature (account balance query)

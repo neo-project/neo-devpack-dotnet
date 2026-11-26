@@ -1,8 +1,8 @@
 {
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_Assign#1": 2311320,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_ReadTupleElements#1": 1120080,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_ReadTupleRest#1": 1115010,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_TupleAssignmentEvaluationOrder#1": 1886400,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_TuplePropertyAndStaticAssignment#1": 1845780,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_WriteTupleElement#1": 1357260
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_Assign#1": 274232,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_ReadTupleElements#1": 273833,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_ReadTupleRest#1": 272910,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_TupleAssignmentEvaluationOrder#1": 281074,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_TuplePropertyAndStaticAssignment#1": 283470,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Tuple.Test_WriteTupleElement#1": 271890
 }

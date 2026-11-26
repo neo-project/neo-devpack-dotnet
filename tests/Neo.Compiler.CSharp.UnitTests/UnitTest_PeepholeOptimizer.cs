@@ -33,7 +33,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var (optimizedNef, _, _) = Strategies.ApplyPeephole(CreateNefFile(sb.ToArray()), CreateManifest(), null, PeepholeRule.UseIncDec);
             CollectionAssert.AreEqual(new[] { OpCode.INC, OpCode.RET },
-                new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+                new Script(optimizedNef.Script.AsMemory().ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var (optimizedNef, _, _) = Strategies.ApplyPeephole(CreateNefFile(sb.ToArray()), CreateManifest(), null, PeepholeRule.UseNz);
             CollectionAssert.AreEqual(new[] { OpCode.NZ, OpCode.NOT, OpCode.RET },
-                new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+                new Script(optimizedNef.Script.AsMemory().ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var (optimizedNef, _, _) = Strategies.ApplyPeephole(CreateNefFile(sb.ToArray()), CreateManifest(), null, PeepholeRule.RemoveDupDrop);
             CollectionAssert.AreEqual(new[] { OpCode.PUSH1, OpCode.STLOC0, OpCode.RET },
-                new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
+                new Script(optimizedNef.Script.AsMemory().ToArray()).EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray());
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             byte[] script = [(byte)OpCode.PUSH9, (byte)OpCode.JMP, 0x03 /* to DROP */, (byte)OpCode.PUSH1, (byte)OpCode.DROP, (byte)OpCode.RET];
             NefFile rewritten = Peephole.Rewrite(CreateNefFile(script), CreateManifest(), PeepholeRule.RemovePushDrop);
-            CollectionAssert.AreEqual(script, rewritten.Script.ToArray());
+            CollectionAssert.AreEqual(script, rewritten.Script.AsMemory().ToArray());
         }
 
         /// <summary>
@@ -335,7 +335,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
                 var (optimizedNef, _, _) = Strategies.ApplyPeephole(
                     CreateNefFile(sb.ToArray()), CreateManifest(), null, PeepholeRule.UseIncDec);
-                Assert.AreSequenceEqual(original, new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static i => i.instruction.OpCode).ToArray());
+                Assert.AreSequenceEqual(original, new Script(optimizedNef.Script.AsMemory().ToArray()).EnumerateInstructions().Select(static i => i.instruction.OpCode).ToArray());
             }
         }
 
@@ -351,7 +351,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var (optimizedNef, _, _) = Strategies.ApplyPeephole(CreateNefFile(sb.ToArray()), CreateManifest(), null, PeepholeRule.UseIncDec);
             Assert.AreSequenceEqual([OpCode.DEC, OpCode.INC, OpCode.RET],
-                new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().Select(static i => i.instruction.OpCode).ToArray());
+                new Script(optimizedNef.Script.AsMemory().ToArray()).EnumerateInstructions().Select(static i => i.instruction.OpCode).ToArray());
         }
 
         [TestMethod]
@@ -387,7 +387,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                         byte[] original = sb.ToArray();
 
                         var (optimizedNef, _, _) = NeoOptimizer.Optimize(CreateNefFile(original), CreateManifest(), null, CompilationOptions.OptimizationType.Experimental);
-                        byte[] optimized = optimizedNef.Script.ToArray();
+                        byte[] optimized = optimizedNef.Script.AsMemory().ToArray();
 
                         var ops = new Script(optimized).EnumerateInstructions().Select(static i => i.instruction.OpCode).ToArray();
                         for (int i = 0; i + 1 < ops.Length; i++)
@@ -424,7 +424,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             };
         }
 
-        private static OpCode[] GetOpCodes(NefFile nef) => new Script(nef.Script.ToArray())
+        private static OpCode[] GetOpCodes(NefFile nef) => new Script(nef.Script.AsMemory().ToArray())
             .EnumerateInstructions().Select(static item => item.instruction.OpCode).ToArray();
 
         private static ContractManifest CreateManifest(params int[] methodOffsets)

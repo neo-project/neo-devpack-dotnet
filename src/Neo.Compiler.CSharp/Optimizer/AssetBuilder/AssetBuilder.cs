@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
@@ -60,7 +61,7 @@ namespace Neo.Optimizer
                 debugInfo, simplifiedInstructionsToAddress, oldAddressToInstruction,
                 oldSequencePointAddressToNew: oldSequencePointAddressToNew);
             if (debugInfo is not null)
-                debugInfo["hash"] = nef.Script.Span.ToScriptHash().ToString();
+                debugInfo["hash"] = nef.Script.AsMemory().Span.ToScriptHash().ToString();
             return (nef, manifest, debugInfo);
         }
 

@@ -96,16 +96,16 @@ public class UnitTest_LinqTake
                 {
                     Assert.IsTrue(optimizedGas < originalGas, $"Take({count}) must improve GAS with {optimization} optimization.");
                     long[] originalExpected = optimization == CompilationOptions.OptimizationType.All
-                        ? [1148430, 1397580, 1646730] : [1148610, 1397850, 1647090];
+                        ? [272926, 274024, 275121] : [273106, 274294, 275481];
                     long[] optimizedExpected = optimization == CompilationOptions.OptimizationType.All
-                        ? [1145580, 1394670, 1643430] : [1145700, 1394880, 1643730];
+                        ? [272174, 273329, 274231] : [272294, 273539, 274531];
                     Assert.AreEqual(originalExpected[(int)count], originalGas);
                     Assert.AreEqual(optimizedExpected[(int)count], optimizedGas);
                 }
                 else if (source.Length == 0 && count > 0)
                 {
                     // The early count guard adds a bounded cost when the loop would be empty.
-                    long expectedOverhead = optimization == CompilationOptions.OptimizationType.All ? 390 : 420;
+                    long expectedOverhead = optimization == CompilationOptions.OptimizationType.All ? 185 : 215;
                     Assert.AreEqual(expectedOverhead, optimizedGas - originalGas);
                 }
                 else

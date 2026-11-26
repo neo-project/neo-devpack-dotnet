@@ -662,7 +662,9 @@ namespace Neo.Compiler
                                 break;
                             }
                             string contract = (string)attribute.ConstructorArguments[0].Value!;
-                            string[] methods = attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
+                            string[] methods = attribute.ConstructorArguments.Length == 1
+                                ? [Method.Any]
+                                : attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
                             ValidateContractPermission(symbol, contract, methods);
                             _permissions.Add(contract, methods);
                             break;
@@ -974,6 +976,11 @@ namespace Neo.Compiler
 
         internal byte AddStaticField(IFieldSymbol symbol)
         {
+            // A static field declared by a type that comes from metadata (e.g. Guid.Empty,
+            // TimeSpan.Zero) has no storage inside a contract: reading it would yield an
+            // uninitialized slot and writing it would be lost.
+            if (symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
+                throw new CompilationException(symbol, DiagnosticId.ExternMethod, $"Unknown field: {symbol}");
             if (!_staticFields.TryGetValue(symbol, out byte index))
             {
                 index = GetNextStaticSlot(symbol);

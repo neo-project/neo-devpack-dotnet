@@ -21,7 +21,7 @@ public abstract class Policy(SmartContractInitialize initialize) : SmartContract
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.Policy.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.Policy);
 
     #endregion
 
