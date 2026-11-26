@@ -75,6 +75,58 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
+    public void TokenCallbacks_WithNonGatingCallerComparison_AreFlagged()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System.Numerics;
+
+public class Contract : SmartContract
+{
+    public static void onNEP17Payment(UInt160 from, BigInteger amount, object data)
+    {
+        if (Runtime.CallingScriptHash == GAS.Hash) Runtime.Log(""gas paid"");
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, amount);
+    }
+}";
+
+        var context = TestHelper.CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var result = TokenCallbackAuthorizationAnalyzer.AnalyzeTokenCallbacks(
+            context.CreateExecutable(), context.CreateManifest(), null);
+
+        CollectionAssert.AreEquivalent(new[] { "onNEP17Payment" }, result.vulnerableMethodNames.ToArray());
+    }
+
+    [TestMethod]
+    public void TokenCallbacks_WithWriteInsideCallerBranch_AreNotFlagged()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System.Numerics;
+
+public class Contract : SmartContract
+{
+    public static void onNEP17Payment(UInt160 from, BigInteger amount, object data)
+    {
+        if (Runtime.CallingScriptHash == GAS.Hash)
+            Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, amount);
+    }
+}";
+
+        var context = TestHelper.CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var result = TokenCallbackAuthorizationAnalyzer.AnalyzeTokenCallbacks(
+            context.CreateExecutable(), context.CreateManifest(), null);
+
+        Assert.AreEqual(0, result.vulnerableMethodNames.Count);
+    }
+
+    [TestMethod]
     public void TokenCallbacks_FetchedAndDroppedCallingScriptHash_AreStillFlagged()
     {
         const string source = @"using Neo.SmartContract.Framework;
