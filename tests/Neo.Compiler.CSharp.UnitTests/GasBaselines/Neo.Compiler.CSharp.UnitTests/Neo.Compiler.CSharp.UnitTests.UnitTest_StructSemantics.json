@@ -1,0 +1,19 @@
+{
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_ArgumentIsCopied#1": 273542,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyInDeconstructionForeach#1": 275867,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyInForeach#1": 274298,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyIntoArrayElement#1": 275143,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyIntoObjectArray#1": 274477,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyIsDeep#1": 275550,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyOnAssignment#1": 273776,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyOnBoxing#1": 274170,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyOnLocalDeclaration#1": 273433,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyOnTupleAssignment#1": 273925,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyOnWithExpression#1": 275978,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyThroughClassField#1": 273895,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_CopyThroughObjectInitializer#1": 274062,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_DefaultNestedStructFields#1": 274808,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_DefaultStructFields#1": 271897,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_DefaultTupleFields#1": 271897,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_StructSemantics.Test_WriteNestedStructFields#1": 275443
+}

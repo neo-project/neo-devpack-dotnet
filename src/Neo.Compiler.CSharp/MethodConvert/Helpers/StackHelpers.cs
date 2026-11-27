@@ -238,6 +238,10 @@ internal partial class MethodConvert
 
     private Instruction PushDefault(ITypeSymbol type)
     {
+        // A struct is lowered to an array of its fields. Pushing null for it makes every field read
+        // fault on the VM, so the default value has to be a zero-initialized struct of the same shape.
+        if (type.IsStructArray())
+            return CreateDefaultStruct(type);
         if (type.TypeKind == TypeKind.Enum)
             return AddInstruction(OpCode.PUSH0);
 

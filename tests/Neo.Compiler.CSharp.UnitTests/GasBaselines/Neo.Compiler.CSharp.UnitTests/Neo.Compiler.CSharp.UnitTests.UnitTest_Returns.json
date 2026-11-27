@@ -1,7 +1,7 @@
 {
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_ByteStringAdd#1": 271119,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnA#1": 272092,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnB#1": 273196,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnA#1": 272830,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_DoubleReturnB#1": 273934,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_OneReturn#1": 271070,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_TryReturn#1": 4235383,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Returns.Test_VoidReturn#1": 271067
