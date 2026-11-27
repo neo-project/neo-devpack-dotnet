@@ -253,5 +253,12 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return new byte[,] { { 1, 2 }, { 3, 4 } };
         }
+
+        public static BigInteger MultiDimensionalStructFields()
+        {
+            var matrix = new State[1, 2];
+            matrix[0, 1].amount = 7;
+            return matrix[0, 0].amount + matrix[0, 1].amount;
+        }
     }
 }

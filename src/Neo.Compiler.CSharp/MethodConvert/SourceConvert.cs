@@ -173,6 +173,7 @@ internal partial class MethodConvert
                 else if (syntax.ExpressionBody is not null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody.Expression);
+                    CopyStructReturn(model, syntax.ExpressionBody.Expression);
                     if (Symbol.ReturnsVoid &&
                         IsExpressionReturningValue(model, syntax.ExpressionBody.Expression))
                     {
@@ -186,11 +187,13 @@ internal partial class MethodConvert
                 break;
             case ArrowExpressionClauseSyntax syntax:
                 ConvertExpression(model, syntax.Expression);
+                CopyStructReturn(model, syntax.Expression);
                 break;
             case BaseMethodDeclarationSyntax syntax:
                 if (syntax.Body is null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody!.Expression);
+                    CopyStructReturn(model, syntax.ExpressionBody!.Expression);
                     // If the method has no return value,
                     // but the expression body has a return value, example: a+=1;
                     // drop the return value
@@ -214,6 +217,7 @@ internal partial class MethodConvert
                 if (syntax.Block is null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody!);
+                    CopyStructReturn(model, syntax.ExpressionBody!);
                     if (Symbol.ReturnsVoid && IsExpressionReturningValue(model, syntax.ExpressionBody!))
                         AddInstruction(OpCode.DROP);
                 }
@@ -226,6 +230,7 @@ internal partial class MethodConvert
                 if (syntax.Block is null)
                 {
                     ConvertExpression(model, syntax.ExpressionBody!);
+                    CopyStructReturn(model, syntax.ExpressionBody!);
                     if (Symbol.ReturnsVoid && IsExpressionReturningValue(model, syntax.ExpressionBody!))
                         AddInstruction(OpCode.DROP);
                 }

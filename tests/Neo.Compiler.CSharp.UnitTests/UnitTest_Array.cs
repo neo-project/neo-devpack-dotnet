@@ -293,5 +293,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             var value = Contract.MultiDimensionalNewOnly();
             Assert.AreEqual(new BigInteger(42), value);
         }
+
+        [TestMethod]
+        public void Test_MultiDimensionalStructFields()
+        {
+            var value = Contract.MultiDimensionalStructFields();
+            Assert.AreEqual(new BigInteger(7), value);
+        }
     }
 }
