@@ -1,9 +1,9 @@
 {
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_ByteArrayOwner#1": 271433,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_ByteArrayOwnerCall#1": 271800,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_Collectionexpressions#1": 275815,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_Collectionexpressions#1": 277098,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_DefaultArray#1": 271921,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_DefaultState#1": 271828,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_DefaultState#1": 272830,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_DynamicArrayInit#1": 274437,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_DynamicArrayInit#2": 272083,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_DynamicArrayInit#3": 271705,
@@ -27,7 +27,8 @@
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_MultiDimensionalImplicitInitializer#1": 272129,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_MultiDimensionalInitializer#1": 272129,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_MultiDimensionalNewOnly#1": 273529,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_MultiDimensionalStructFields#1": 276450,
   "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_StringArray#1": 271433,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_StructArray#1": 272440,
-  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_StructArrayInit#1": 272307
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_StructArray#1": 277203,
+  "Neo.Compiler.CSharp.UnitTests.UnitTest_Array.Test_StructArrayInit#1": 275312
 }
