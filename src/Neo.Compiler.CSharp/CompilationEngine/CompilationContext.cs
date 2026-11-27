@@ -65,6 +65,7 @@ namespace Neo.Compiler
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
+        private readonly Dictionary<ISymbol, byte> _byRefInstanceBindings = new(SymbolEqualityComparer.Default);
         private readonly ConcurrentDictionary<IMethodSymbol, bool> _needInstanceConstructorCache = new(SymbolEqualityComparer.Default);
         internal readonly struct OutSyncTarget
         {
@@ -1011,6 +1012,17 @@ namespace Neo.Compiler
         internal bool TryGetCapturedStaticField(ISymbol local, out byte staticFieldIndex)
         {
             return _capturedStaticFields.TryGetValue(CanonicalizeCapturedSymbol(local), out staticFieldIndex);
+        }
+
+        internal byte GetOrAddByRefInstanceBinding(IParameterSymbol parameter)
+        {
+            ISymbol key = CanonicalizeCapturedSymbol(parameter);
+            if (!_byRefInstanceBindings.TryGetValue(key, out byte index))
+            {
+                index = AddAnonymousStaticField();
+                _byRefInstanceBindings.Add(key, index);
+            }
+            return index;
         }
 
         private static ISymbol CanonicalizeCapturedSymbol(ISymbol symbol)

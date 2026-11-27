@@ -2,10 +2,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
+using Neo.SmartContract.Testing;
 using System;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -13,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_OutAlias
 {
     [TestMethod]
-    public void SequentialOutByteArrayDeclarations_UseDistinctCapturedSlots()
+    public void SequentialOutByteArrayDeclarationsRemainDistinct()
     {
         const string source = @"using Neo.SmartContract.Framework;
 using System.Numerics;
@@ -39,28 +40,13 @@ public class Contract : SmartContract
         var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-        var methodBlock = ExtractMethodBlock(context.CreateAssembly(), "Contract.Main(System.Numerics.BigInteger, System.Numerics.BigInteger)");
-        var ldsfldMatches = Regex.Matches(methodBlock, @"\bLDSFLD\s+(\d+)\b");
-        var distinctCapturedSlots = ldsfldMatches
-            .Cast<Match>()
-            .Select(m => int.Parse(m.Groups[1].Value))
-            .Distinct()
-            .ToArray();
-
-        Assert.IsTrue(distinctCapturedSlots.Length >= 2,
-            $"Expected at least two distinct captured slots for sequential out byte[] values, but found [{string.Join(", ", distinctCapturedSlots)}].{Environment.NewLine}{methodBlock}");
+        var contract = new TestEngine(true).Deploy<OutAliasContract>(context.CreateExecutable(), context.CreateManifest());
+        Assert.AreEqual(new BigInteger(1287), contract.Main(5, 7));
     }
 
-    private static string ExtractMethodBlock(string assembly, string methodSignature)
+    public abstract class OutAliasContract(SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize)
     {
-        var normalized = assembly.Replace("\r\n", "\n", StringComparison.Ordinal);
-        var marker = $"// {methodSignature}";
-        var start = normalized.IndexOf(marker, StringComparison.Ordinal);
-        Assert.IsTrue(start >= 0, $"Method section '{methodSignature}' was not found in generated assembly.\n{assembly}");
-
-        var next = normalized.IndexOf("\n// ", start + marker.Length, StringComparison.Ordinal);
-        if (next < 0) next = normalized.Length;
-
-        return normalized[start..next];
+        [DisplayName("main")]
+        public abstract BigInteger? Main(BigInteger amountWithdraw, BigInteger fee);
     }
 }
