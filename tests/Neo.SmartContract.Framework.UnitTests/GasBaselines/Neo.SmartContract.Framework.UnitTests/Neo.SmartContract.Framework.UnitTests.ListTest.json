@@ -1,7 +1,7 @@
 {
-  "Neo.SmartContract.Framework.UnitTests.ListTest.TestAdd#1": 3140610,
-  "Neo.SmartContract.Framework.UnitTests.ListTest.TestArrayConvert#1": 2034660,
-  "Neo.SmartContract.Framework.UnitTests.ListTest.TestClear#1": 3141150,
-  "Neo.SmartContract.Framework.UnitTests.ListTest.TestCount#1": 2034780,
-  "Neo.SmartContract.Framework.UnitTests.ListTest.TestRemoveAt#1": 3388350
+  "Neo.SmartContract.Framework.UnitTests.ListTest.TestAdd#1": 497064,
+  "Neo.SmartContract.Framework.UnitTests.ListTest.TestArrayConvert#1": 274035,
+  "Neo.SmartContract.Framework.UnitTests.ListTest.TestClear#1": 497156,
+  "Neo.SmartContract.Framework.UnitTests.ListTest.TestCount#1": 274116,
+  "Neo.SmartContract.Framework.UnitTests.ListTest.TestRemoveAt#1": 498184
 }

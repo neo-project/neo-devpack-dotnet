@@ -51,16 +51,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test mint
             Assert.AreEqual(0, Contract.TotalSupply);
-            AssertGasConsumedCore(1968060);
+            AssertGasConsumedCore(474995);
 
             // Alice is the owner
             Engine.SetTransactionSigners(Alice);
 
             Contract.Mint(Alice.Account, 10);
-            AssertGasConsumedCore(11587590);
+            AssertGasConsumedCore(5947784);
 
             Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(2584470);
+            AssertGasConsumedCore(475477);
 
             Assert.AreEqual(10, Contract.TotalSupply);
             AssertTransferEvent(null, Alice.Account, 10);
@@ -72,9 +72,9 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
             Engine.SetTransactionSigners(Alice);
 
             Contract.Burn(Alice.Account, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(7958670);
+            AssertGasConsumedCore(2956069);
             Contract.Burn(Bob.Account, Contract.BalanceOf(Bob.Account));
-            AssertGasConsumedCore(2356350);
+            AssertGasConsumedCore(507051);
 
             Assert.AreEqual(0, Contract.TotalSupply);
         }
@@ -87,33 +87,33 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test mint -1
             Assert.ThrowsExactly<TestException>(() => Contract.Mint(Alice.Account, -1));
-            AssertGasConsumedCore(2371710);
+            AssertGasConsumedCore(506982);
 
             // Test mint 0
             Contract.Mint(Alice.Account, 0);
-            AssertGasConsumedCore(2356350);
+            AssertGasConsumedCore(507051);
 
             Assert.AreEqual(0, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(2338800);
+            AssertGasConsumedCore(475537);
             Assert.AreEqual(0, Contract.TotalSupply);
             AssertNoTransferEvent();
 
             // test mint
             Contract.Mint(Alice.Account, 10);
-            AssertGasConsumedCore(11587590);
+            AssertGasConsumedCore(5947784);
 
             Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
-            AssertGasConsumedCore(2584470);
+            AssertGasConsumedCore(475477);
             Assert.AreEqual(10, Contract.TotalSupply);
             AssertTransferEvent(null, Alice.Account, 10);
 
             // Test burn -1
             Assert.ThrowsExactly<TestException>(() => Contract.Burn(Alice.Account, -1));
-            AssertGasConsumedCore(2371710);
+            AssertGasConsumedCore(506982);
 
             // Test burn 0
             Contract.Burn(Alice.Account, 0);
-            AssertGasConsumedCore(2356350);
+            AssertGasConsumedCore(507051);
 
             Assert.AreEqual(10, Contract.BalanceOf(Alice.Account));
             Assert.AreEqual(10, Contract.TotalSupply);
@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep17
 
             // Test burn
             Contract.Burn(Alice.Account, 10);
-            AssertGasConsumedCore(7958670);
+            AssertGasConsumedCore(2956069);
 
             Assert.AreEqual(0, Contract.BalanceOf(Alice.Account));
             Assert.AreEqual(0, Contract.TotalSupply);

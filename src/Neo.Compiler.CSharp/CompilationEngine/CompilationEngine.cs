@@ -42,7 +42,7 @@ namespace Neo.Compiler
         private static readonly MetadataReference[] CommonReferences;
         private static readonly ImmutableArray<DiagnosticAnalyzer> NeoAnalyzers = NeoAnalyzerSuite.Create();
         private static readonly Guid FrameworkModuleVersionId = typeof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute).Assembly.ManifestModule.ModuleVersionId;
-        private const string FrameworkAssemblyName = "Neo.SmartContract.Framework";
+        internal const string FrameworkAssemblyName = "Neo.SmartContract.Framework";
         private static readonly StringComparison ProjectPathComparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         private readonly Dictionary<string, MetadataReference> MetaReferences = new();
         private string? PreparedProjectPath;
@@ -176,7 +176,14 @@ namespace Neo.Compiler
             return Compile(sourceFiles, references, frameworkReference: null);
         }
 
-        internal List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, MetadataReference? frameworkReference)
+        /// <summary>
+        /// Compiles the source files with the supplied references and an optionally designated Neo framework reference.
+        /// </summary>
+        /// <param name="sourceFiles">The paths to the C# source files.</param>
+        /// <param name="references">The metadata references for the compilation.</param>
+        /// <param name="frameworkReference">The trusted Neo framework reference, which must be included in <paramref name="references"/>,
+        /// or <see langword="null"/> to use automatic detection. Only pass a reference obtained from a trusted source.</param>
+        public List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references, MetadataReference? frameworkReference)
         {
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
@@ -202,7 +209,7 @@ namespace Neo.Compiler
             }
             else
             {
-                references.Packages = [new("Neo.SmartContract.Framework", "3.10.1")];
+                references.Packages = [new("Neo.SmartContract.Framework", "3.10.2")];
             }
 
             return CompileSources(references, sourceFiles);

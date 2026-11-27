@@ -96,6 +96,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(-1), contract.TryParseIgnoreCase(" b ", false));
             Assert.AreEqual(new BigInteger(-1), contract.TryParseGeneric("2147483648"));
             Assert.AreEqual(new BigInteger(-1), contract.TryParseGeneric("A,unknown"));
+
+            // atoi can produce a 42-byte integer for this input, which faults the VM
+            // before the enum's backing-type range check unless it is rejected first.
+            var oversized = new string((char)57, 100);
+            Assert.AreEqual(new BigInteger(-1), contract.TryParse(oversized));
+            Assert.AreEqual(new BigInteger(-1), contract.TryParseIgnoreCase(oversized, true));
+            Assert.AreEqual(new BigInteger(-1), contract.TryParseGeneric(oversized));
+            Assert.AreEqual(new BigInteger(-1), contract.TryParseGenericIgnoreCase(oversized, true));
+            Assert.AreEqual(new BigInteger(-1), contract.TryParseGeneric(new string('9', 21)));
+            Assert.AreEqual(new BigInteger(1), contract.TryParseGeneric(new string('0', 100) + "1"));
+            Assert.AreEqual(new BigInteger(int.MaxValue), contract.TryParseGeneric(int.MaxValue.ToString()));
+            Assert.AreEqual(new BigInteger(-1), contract.TryParseGeneric("-2147483649"));
         }
     }
 }

@@ -85,7 +85,7 @@ namespace Neo.Optimizer
 
         public static ScriptGraph Parse(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
-            List<Instruction> parsedInstructions = new Script(nef.Script.ToArray()).EnumerateInstructions()
+            List<Instruction> parsedInstructions = nef.Script.EnumerateInstructions()
                 .Select(static item => item.instruction)
                 .ToList();
             Dictionary<int, Instruction> addressToInstruction = new();
@@ -843,7 +843,7 @@ namespace Neo.Optimizer
             JObject? optimizedDebugInfo = DebugInfoBuilder.ModifyDebugInfo(DebugInfo, instructionsToAddress,
                 originalAddressToInstruction, originalSequencePoints);
             if (optimizedDebugInfo is not null)
-                optimizedDebugInfo["hash"] = Nef.Script.Span.ToScriptHash().ToString();
+                optimizedDebugInfo["hash"] = Nef.Script.AsMemory().Span.ToScriptHash().ToString();
             return (Nef, Manifest, optimizedDebugInfo);
         }
 
@@ -1139,7 +1139,7 @@ namespace Neo.Optimizer
     }
 
     [Flags]
-    internal enum PeepholeRule
+    internal enum PeepholeRule : ulong
     {
         None = 0,
         FoldNotInEqual = 1 << 0,
@@ -1149,6 +1149,8 @@ namespace Neo.Optimizer
         UseNz = 1 << 4,
         FoldNotInJmp = 1 << 5,
         UseEmptyCollectionOpcodes = 1 << 6,
-        All = FoldNotInEqual | RemoveDupDrop | UseIncDec | UseIsNull | UseNz | FoldNotInJmp | UseEmptyCollectionOpcodes,
+        RemovePushDrop = 1 << 7,
+        StackOpFusion = 1 << 8,
+        All = FoldNotInEqual | RemoveDupDrop | UseIncDec | UseIsNull | UseNz | FoldNotInJmp | UseEmptyCollectionOpcodes | RemovePushDrop | StackOpFusion,
     }
 }

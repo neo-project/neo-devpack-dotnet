@@ -157,6 +157,8 @@ jobs:
       if: steps.scope.outputs.full == 'true'
       env:
         NEO_GAS_REPORT_DIR: ${{ github.workspace }}/gas-report
+        NEO_GAS_BASELINE_MODE: Verify
+        NEO_GAS_BASELINE_OUTPUT_DIR: ${{ runner.temp }}/gas-generated
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -172,6 +174,8 @@ jobs:
       if: steps.scope.outputs.full == 'true'
       env:
         NEO_GAS_REPORT_DIR: ${{ github.workspace }}/gas-report
+        NEO_GAS_BASELINE_MODE: Verify
+        NEO_GAS_BASELINE_OUTPUT_DIR: ${{ runner.temp }}/gas-generated
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
@@ -188,6 +192,18 @@ jobs:
           if (Test-Path $file) { Get-Content $file | Add-Content $env:GITHUB_STEP_SUMMARY }
           else { "No $file was generated." | Add-Content $env:GITHUB_STEP_SUMMARY }
         }
+    - name: GAS differences against the target branch
+      if: steps.scope.outputs.full == 'true' && github.event_name == 'pull_request'
+      run: |
+        mkdir -p gas-diff
+        python3 scripts/gas/compare_baselines.py "${{ github.event.pull_request.base.sha }}" gas-diff/gas-baseline-diff.json >> "$GITHUB_STEP_SUMMARY"
+    - name: Upload GAS differences
+      if: steps.scope.outputs.full == 'true' && github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v7.0.2
+      with:
+        name: gas-baseline-diff
+        path: gas-diff/gas-baseline-diff.json
+        if-no-files-found: ignore
     - name: Test Neo.SmartContract.Testing.UnitTests
       if: steps.scope.outputs.full == 'true'
       run: |
@@ -220,6 +236,10 @@ jobs:
       run: dotnet test tests/Neo.SmartContract.Analyzer.UnitTests --configuration Debug
     - name: Test executable syntax documentation
       if: steps.scope.outputs.syntax == 'true'
+      env:
+        # A filtered run only executes part of the test set, so the GAS baselines
+        # (verified as a whole by the full run above) can't be verified here.
+        NEO_GAS_BASELINE_MODE: off
       run: dotnet test tests/Neo.Compiler.CSharp.UnitTests --configuration Debug --filter 'FullyQualifiedName~Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests'
 
   PublishPackage:

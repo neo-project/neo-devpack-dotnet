@@ -168,18 +168,61 @@ namespace Neo.Compiler.SecurityAnalyzer
                 if (instruction.OpCode == VM.OpCode.SYSCALL && IsStorageWrite(instruction))
                     return false;
 
-                if (instruction.OpCode is VM.OpCode.EQUAL
-                    or VM.OpCode.NOTEQUAL
-                    or VM.OpCode.JMPEQ
-                    or VM.OpCode.JMPEQ_L
-                    or VM.OpCode.JMPNE
-                    or VM.OpCode.JMPNE_L
-                    or VM.OpCode.JMPIF
-                    or VM.OpCode.JMPIF_L
-                    or VM.OpCode.JMPIFNOT
-                    or VM.OpCode.JMPIFNOT_L
-                    or VM.OpCode.ASSERT)
+                if (instruction.OpCode == VM.OpCode.ASSERT)
                     return true;
+
+                if (instruction.OpCode is VM.OpCode.EQUAL or VM.OpCode.NOTEQUAL)
+                    continue;
+
+                if (IsConditionalJump(instruction.OpCode))
+                {
+                    int target = Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(instructions[i].addr, instruction);
+                    int fallthrough = instructions[i].addr + instruction.Size;
+                    bool targetWrites = CanReachStorageWrite(instructions, target, methodEnd);
+                    bool fallthroughWrites = CanReachStorageWrite(instructions, fallthrough, methodEnd);
+
+                    // A check whose two outcomes both reach the write does not guard it.
+                    return targetWrites != fallthroughWrites;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsConditionalJump(VM.OpCode opCode) => opCode is
+            VM.OpCode.JMPEQ or VM.OpCode.JMPEQ_L or VM.OpCode.JMPNE or VM.OpCode.JMPNE_L
+            or VM.OpCode.JMPIF or VM.OpCode.JMPIF_L or VM.OpCode.JMPIFNOT or VM.OpCode.JMPIFNOT_L;
+
+        private static bool CanReachStorageWrite(
+            (int addr, VM.Instruction instruction)[] instructions, int startAddr, int methodEnd)
+        {
+            Dictionary<int, VM.Instruction> byAddress = instructions
+                .Where(item => item.addr < methodEnd)
+                .ToDictionary(item => item.addr, item => item.instruction);
+            Stack<int> pending = new();
+            HashSet<int> visited = new();
+            pending.Push(startAddr);
+
+            while (pending.Count > 0)
+            {
+                int addr = pending.Pop();
+                if (!visited.Add(addr) || !byAddress.TryGetValue(addr, out VM.Instruction? instruction))
+                    continue;
+
+                if (instruction.OpCode == VM.OpCode.SYSCALL && IsStorageWrite(instruction))
+                    return true;
+
+                if (instruction.OpCode is VM.OpCode.RET or VM.OpCode.THROW)
+                    continue;
+
+                if (instruction.OpCode is VM.OpCode.JMP or VM.OpCode.JMP_L || IsConditionalJump(instruction.OpCode))
+                {
+                    pending.Push(Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(addr, instruction));
+                    if (!IsConditionalJump(instruction.OpCode))
+                        continue;
+                }
+
+                pending.Push(addr + instruction.Size);
             }
 
             return false;

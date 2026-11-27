@@ -132,7 +132,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles Math.DivRem for sbyte by delegating to BigInteger implementation.
+    /// Handles Math.DivRem for sbyte with .NET's narrow quotient behavior.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="model">The semantic model</param>
@@ -140,15 +140,15 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Delegates to BigInteger DivRem for consistent implementation across integer types
+    /// Algorithm: Maps sbyte.MinValue / -1 to (sbyte.MinValue, 0) before the shared DivRem implementation
     /// </remarks>
     private static void HandleMathSByteDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
+        HandleMathSignedDivRem(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue, wrapsOnOverflow: true);
     }
 
     /// <summary>
-    /// Handles Math.DivRem for short by delegating to BigInteger implementation.
+    /// Handles Math.DivRem for short with .NET's narrow quotient behavior.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
     /// <param name="model">The semantic model</param>
@@ -156,11 +156,11 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Delegates to BigInteger DivRem for consistent implementation across integer types
+    /// Algorithm: Maps short.MinValue / -1 to (short.MinValue, 0) before the shared DivRem implementation
     /// </remarks>
     private static void HandleMathShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
+        HandleMathSignedDivRem(methodConvert, model, symbol, instanceExpression, arguments, short.MinValue, wrapsOnOverflow: true);
     }
 
     /// <summary>
@@ -245,7 +245,7 @@ internal partial class MethodConvert
 
     private static void HandleMathSignedDivRem(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments,
-        BigInteger minValue)
+        BigInteger minValue, bool wrapsOnOverflow = false)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
@@ -256,7 +256,12 @@ internal partial class MethodConvert
             EmitZeroDivRemGuard(methodConvert);
 
         if (RequiresSignedDivRemOverflowGuard(model, symbol, arguments, minValue))
-            EmitSignedDivRemOverflowGuard(methodConvert, minValue);
+        {
+            if (wrapsOnOverflow)
+                EmitNarrowSignedDivRemWrap(methodConvert, minValue);
+            else
+                EmitSignedDivRemOverflowGuard(methodConvert, minValue);
+        }
 
         EmitDivRem(methodConvert);
     }
@@ -322,6 +327,27 @@ internal partial class MethodConvert
         return !argumentExpressions.TryGetValue(symbol.Parameters[0], out var dividend) ||
                !TryGetIntegerConstant(model, dividend, out var dividendValue) ||
                dividendValue == minValue;
+    }
+
+    /// <summary>
+    /// Replaces the divisor with 1 for narrow MinValue / -1, producing (MinValue, 0).
+    /// The stack order is divisor followed by dividend, with the dividend on top.
+    /// </summary>
+    private static void EmitNarrowSignedDivRemWrap(MethodConvert methodConvert, BigInteger minValue)
+    {
+        var endTarget = new JumpTarget();
+        methodConvert.Dup();
+        methodConvert.Push(minValue);
+        methodConvert.JumpIfNotEqual(endTarget);
+
+        methodConvert.Over();
+        methodConvert.Push(-1);
+        methodConvert.JumpIfNotEqual(endTarget);
+
+        methodConvert.Nip();
+        methodConvert.Push(1);
+        methodConvert.Swap();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     /// <summary>

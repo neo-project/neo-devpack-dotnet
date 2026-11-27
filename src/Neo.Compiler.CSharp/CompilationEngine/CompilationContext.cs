@@ -29,6 +29,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ContractParameterType = Neo.SmartContract.ContractParameterType;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 using ECPoint = Neo.Cryptography.ECC.ECPoint;
 
@@ -39,6 +40,9 @@ namespace Neo.Compiler
         private readonly CompilationEngine _engine;
         private readonly INamedTypeSymbol _targetContract;
         private readonly INamedTypeSymbol? _frameworkSafeAttribute;
+        private readonly INamedTypeSymbol? _frameworkInitialValueAttribute;
+        private readonly Dictionary<INamedTypeSymbol, ContractParameterType> _frameworkInitialValueTypes = new(SymbolEqualityComparer.Default);
+        private readonly INamedTypeSymbol? _frameworkContractPermissionAttribute;
         private readonly System.Collections.Generic.List<INamedTypeSymbol>? _nonDependencies;
         internal CompilationOptions Options => _engine.Options;
         private string? _displayName, _className;
@@ -53,6 +57,7 @@ namespace Neo.Compiler
         private readonly MethodConvertCollection _methodsConverted = new();
         private readonly MethodConvertCollection _methodsForward = new();
         private readonly System.Collections.Generic.List<MethodConvert> _methodsByRefAliases = new();
+        private readonly System.Collections.Generic.List<MethodConvert> _contextualLambdas = new();
         private readonly Dictionary<(MethodConvert Method, int Signature), MethodConvert> _byRefAliasMethods = new();
         private readonly System.Collections.Generic.List<IReadOnlyDictionary<byte, byte>> _byRefAliasSignatures = new();
         private readonly System.Collections.Generic.List<MethodToken> _methodTokens = new();
@@ -105,18 +110,76 @@ namespace Neo.Compiler
         {
             _engine = engine;
             _targetContract = targetContract;
-            _frameworkSafeAttribute = ResolveFrameworkSafeAttribute(engine);
+            _frameworkSafeAttribute = ResolveFrameworkType(engine, typeof(SafeAttribute).FullName!);
+            _frameworkContractPermissionAttribute = ResolveFrameworkType(engine, typeof(ContractPermissionAttribute).FullName!);
+            _frameworkInitialValueAttribute = ResolveFrameworkType(engine, typeof(InitialValueAttribute).FullName!);
+            RegisterInitialValueType(typeof(IntegerAttribute), ContractParameterType.Integer);
+            RegisterInitialValueType(typeof(Hash160Attribute), ContractParameterType.Hash160);
+            RegisterInitialValueType(typeof(PublicKeyAttribute), ContractParameterType.PublicKey);
+            RegisterInitialValueType(typeof(ByteArrayAttribute), ContractParameterType.ByteArray);
+            RegisterInitialValueType(typeof(StringAttribute), ContractParameterType.String);
             _nonDependencies = nonDependencies;
             _allowBaseName = allowBaseName;
+
+            void RegisterInitialValueType(Type attribute, ContractParameterType parameterType)
+            {
+                if (ResolveFrameworkType(engine, attribute.FullName!) is { } symbol)
+                    _frameworkInitialValueTypes.Add(symbol, parameterType);
+            }
         }
 
-        private static INamedTypeSymbol? ResolveFrameworkSafeAttribute(CompilationEngine engine)
+        internal AttributeData? GetInitialValueAttribute(IFieldSymbol field, out ContractParameterType? parameterType)
+        {
+            AttributeData? initialValue = null;
+            parameterType = null;
+            foreach (var attribute in field.GetAttributes())
+            {
+                var type = attribute.AttributeClass;
+                if (type is null) continue;
+                if (!type.IsFrameworkInitialValueAttribute(_frameworkInitialValueAttribute))
+                {
+                    if (_frameworkInitialValueAttribute is null && IsUnresolvedFrameworkInitialValueAttribute(type))
+                        throw new CompilationException(field, DiagnosticId.InvalidInitialValueType,
+                            "Cannot resolve InitialValueAttribute from a trusted framework reference. Pass the trusted Neo framework reference explicitly to CompilationEngine.Compile or use CompileProject with the Neo framework dependency.");
+                    continue;
+                }
+
+                ContractParameterType? attributeParameterType = null;
+                if (!SymbolEqualityComparer.Default.Equals(type, _frameworkInitialValueAttribute))
+                {
+                    if (!_frameworkInitialValueTypes.TryGetValue(type, out var derivedParameterType))
+                        throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {type.Name}");
+                    attributeParameterType = derivedParameterType;
+                }
+
+                if (initialValue is not null) continue;
+                initialValue = attribute;
+                parameterType = attributeParameterType;
+            }
+            return initialValue;
+        }
+
+        private bool IsUnresolvedFrameworkInitialValueAttribute(INamedTypeSymbol type)
+        {
+            for (INamedTypeSymbol? candidate = type; candidate is not null; candidate = candidate.BaseType)
+            {
+                var assembly = candidate.ContainingAssembly;
+                if (string.Equals(assembly.Name, CompilationEngine.FrameworkAssemblyName, StringComparison.OrdinalIgnoreCase)
+                    && !SymbolEqualityComparer.Default.Equals(assembly, _engine.Compilation?.Assembly)
+                    && SymbolEqualityComparer.Default.Equals(candidate, assembly.GetTypeByMetadataName(typeof(InitialValueAttribute).FullName!)))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static INamedTypeSymbol? ResolveFrameworkType(CompilationEngine engine, string metadataName)
         {
             if (engine.Compilation is null || engine.FrameworkReference is null)
                 return null;
 
             return (engine.Compilation.GetAssemblyOrModuleSymbol(engine.FrameworkReference) as IAssemblySymbol)?
-                .GetTypeByMetadataName(typeof(SafeAttribute).FullName!);
+                .GetTypeByMetadataName(metadataName);
         }
 
         private void RemoveEmptyInitialize()
@@ -134,6 +197,7 @@ namespace Neo.Compiler
         private IEnumerable<Instruction> GetInstructions()
         {
             return _methodsConverted.SelectMany(p => p.Instructions)
+                .Concat(_contextualLambdas.SelectMany(p => p.Instructions))
                 .Concat(_methodsByRefAliases.SelectMany(p => p.Instructions))
                 .Concat(_methodsForward.SelectMany(p => p.Instructions));
         }
@@ -327,6 +391,13 @@ namespace Neo.Compiler
                 builder.AppendLine();
                 WriteMethod(builder, method);
             }
+            foreach (MethodConvert method in _contextualLambdas)
+            {
+                builder.Append("// ");
+                builder.AppendLine($"{method.Symbol} in {method.TypeOfContext}");
+                builder.AppendLine();
+                WriteMethod(builder, method);
+            }
             foreach (MethodConvert method in _methodsForward)
             {
                 builder.Append("// ");
@@ -391,7 +462,7 @@ namespace Neo.Compiler
         {
             System.Collections.Generic.List<string> documents = [];
             System.Collections.Generic.List<JObject> methods = [];
-            foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
+            foreach (var m in _methodsConverted.Concat(_contextualLambdas).Where(p => p.SyntaxNode is not null))
             {
                 System.Collections.Generic.List<JString> sequencePoints = [];
                 JObject sequencePointsV2 = new();
@@ -432,7 +503,7 @@ namespace Neo.Compiler
 
                 var jsonMethod = new JObject
                 {
-                    ["id"] = m.Symbol.ToString(),
+                    ["id"] = m.TypeOfContext is null ? m.Symbol.ToString() : $"{m.Symbol} in {m.TypeOfContext}",
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
                     ["params"] = (m.Symbol.IsStatic ? Array.Empty<string>() : ["this,Any"])
@@ -488,6 +559,23 @@ namespace Neo.Compiler
 
         private void ProcessCompilationUnit(HashSet<INamedTypeSymbol> processed, SemanticModel model, CompilationUnitSyntax syntax)
         {
+            // Only the target contract's static constructor is emitted. Reject other
+            // explicit constructors instead of silently compiling their fields with
+            // default values and dropping their assignments.
+            foreach (ConstructorDeclarationSyntax constructor in syntax.DescendantNodes().OfType<ConstructorDeclarationSyntax>())
+            {
+                if (!constructor.Modifiers.Any(SyntaxKind.StaticKeyword)) continue;
+                IMethodSymbol? method = model.GetDeclaredSymbol(constructor);
+                if (method is null || SymbolEqualityComparer.Default.Equals(method.ContainingType, _targetContract)) continue;
+                // A project can contain several contracts. An independent contract's
+                // static constructor is compiled in its own context, not this one.
+                if (method.ContainingType is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } otherContract &&
+                    CompilationEngine.IsDerivedFromSmartContract(otherContract) &&
+                    !Helper.InheritsFrom(_targetContract, otherContract)) continue;
+                throw new CompilationException(method, DiagnosticId.SyntaxNotSupported,
+                    $"Static constructor on '{method.ContainingType}' is not supported outside the target contract.");
+            }
+
             foreach (MemberDeclarationSyntax member in syntax.Members)
                 ProcessMemberDeclaration(processed, model, member);
         }
@@ -558,8 +646,24 @@ namespace Neo.Compiler
                             _manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
                         case nameof(ContractPermissionAttribute):
+                            if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, _frameworkContractPermissionAttribute))
+                            {
+                                var assembly = attribute.AttributeClass.ContainingAssembly;
+                                if (_frameworkContractPermissionAttribute is null &&
+                                    !SymbolEqualityComparer.Default.Equals(assembly, model.Compilation.Assembly) &&
+                                    string.Equals(assembly.Name, CompilationEngine.FrameworkAssemblyName, StringComparison.OrdinalIgnoreCase) &&
+                                    SymbolEqualityComparer.Default.Equals(attribute.AttributeClass,
+                                        assembly.GetTypeByMetadataName(typeof(ContractPermissionAttribute).FullName!)))
+                                {
+                                    throw new CompilationException(symbol, DiagnosticId.InvalidArgument,
+                                        "Cannot resolve ContractPermissionAttribute from a trusted framework reference. Pass the trusted Neo framework reference explicitly to CompilationEngine.Compile or use CompileProject with the Neo framework dependency.");
+                                }
+                                break;
+                            }
                             string contract = (string)attribute.ConstructorArguments[0].Value!;
-                            string[] methods = attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
+                            string[] methods = attribute.ConstructorArguments.Length == 1
+                                ? [Method.Any]
+                                : attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
                             ValidateContractPermission(symbol, contract, methods);
                             _permissions.Add(contract, methods);
                             break;
@@ -782,6 +886,16 @@ namespace Neo.Compiler
             return method;
         }
 
+        internal MethodConvert ConvertContextualLambda(SemanticModel model, IMethodSymbol symbol, IMethodSymbol caller)
+        {
+            // An anonymous function symbol belongs to the generic definition. Each constructed
+            // caller needs its own body so typeof(T) can use that caller's type arguments.
+            MethodConvert method = new(this, symbol, caller);
+            _contextualLambdas.Add(method);
+            method.Convert(model);
+            return method;
+        }
+
         internal MethodConvert AddByRefAliasMethod(MethodConvert method, IReadOnlyDictionary<byte, byte> aliases)
         {
             int signature = GetOrAddByRefAliasSignature(aliases);
@@ -861,6 +975,11 @@ namespace Neo.Compiler
 
         internal byte AddStaticField(IFieldSymbol symbol)
         {
+            // A static field declared by a type that comes from metadata (e.g. Guid.Empty,
+            // TimeSpan.Zero) has no storage inside a contract: reading it would yield an
+            // uninitialized slot and writing it would be lost.
+            if (symbol.ContainingType.DeclaringSyntaxReferences.IsEmpty)
+                throw new CompilationException(symbol, DiagnosticId.ExternMethod, $"Unknown field: {symbol}");
             if (!_staticFields.TryGetValue(symbol, out byte index))
             {
                 index = GetNextStaticSlot(symbol);
@@ -918,10 +1037,10 @@ namespace Neo.Compiler
         {
             if (StaticFieldCount >= byte.MaxValue)
             {
-                string message = $"Contracts with more than {byte.MaxValue} static slots are not supported.";
+                const string message = "A contract cannot use more than 255 static slots (including compiler-generated slots).";
                 throw symbol is null
-                    ? new CompilationException(DiagnosticId.SyntaxNotSupported, message)
-                    : new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, message);
+                    ? new CompilationException(DiagnosticId.StaticSlotLimit, message)
+                    : new CompilationException(symbol, DiagnosticId.StaticSlotLimit, message);
             }
             return (byte)StaticFieldCount;
         }

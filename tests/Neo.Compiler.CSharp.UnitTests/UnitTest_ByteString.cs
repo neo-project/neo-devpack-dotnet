@@ -118,8 +118,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             value = Encoding.UTF8.GetBytes("🦆");
             Assert.AreEqual(Contract.TextElementCount(value), 1);
 
+            // Since HF_Huyao System.StdLib.StrLen counts code points instead of grapheme clusters,
+            // so this ZWJ sequence counts its 8 code points.
             value = Encoding.UTF8.GetBytes("👩🏻‍❤️‍👨🏻");
-            Assert.AreEqual(Contract.TextElementCount(value), 1);
+            Assert.AreEqual(Contract.TextElementCount(value), 8);
         }
 
         [TestMethod]

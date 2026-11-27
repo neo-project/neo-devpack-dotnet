@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Linq;
 
 namespace Neo.Compiler
 {
@@ -56,9 +57,33 @@ namespace Neo.Compiler
             JumpTarget endTarget = new();
             StatementContext sc = new(syntax, catchTarget: catchTarget, finallyTarget: finallyTarget, endFinallyTarget: endTarget, tryState: ExceptionHandlingState.Try);
             _generalStatementStack.Push(sc);
+            // A catch must restore the depth at this TRY, not the method entry. A
+            // surrounding finally may already have a pending return on the stack.
+            byte? tryEntryDepthIndex = null;
+            if (syntax.Catches.Count > 0 && _tryStack.Any(p => p.State == ExceptionHandlingState.Finally))
+            {
+                tryEntryDepthIndex = AddPermanentAnonymousVariable();
+                Depth();
+                StLoc(tryEntryDepthIndex.Value);
+            }
             AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget });
             _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
-            ConvertStatement(model, syntax.Block);
+            if (tryEntryDepthIndex.HasValue)
+            {
+                _inlineStackDepthScopes.Push(new StackDepthScope(_instructions.Count, _inlineStackDepthScopes.Count)
+                {
+                    SlotIndex = tryEntryDepthIndex
+                });
+            }
+            try
+            {
+                ConvertStatement(model, syntax.Block);
+            }
+            finally
+            {
+                if (tryEntryDepthIndex.HasValue)
+                    _inlineStackDepthScopes.Pop();
+            }
             Jump(OpCode.ENDTRY_L, endTarget);
             if (syntax.Catches.Count == 0 && sc.AdditionalEndTryTargetToInstruction != null)
                 // handles `break`, `continue` and `goto` in multi-layered nested try with finally
@@ -94,10 +119,9 @@ namespace Neo.Compiler
                 // An in-flight exception abandons the try block at an arbitrary point, so
                 // the values the aborted expressions had already pushed stay on the
                 // evaluation stack under the exception object the VM just pushed. The
-                // exception is stored above, so restoring the statement-level depth now
-                // drops exactly those leftovers; on any normal entry the depth already
-                // matches and the restore loop does nothing.
-                RestoreMethodStackDepth();
+                // exception is stored above, so restoring the entry depth now drops
+                // exactly those leftovers while preserving a surrounding pending return.
+                RestoreMethodStackDepth(tryEntryDepthIndex);
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);

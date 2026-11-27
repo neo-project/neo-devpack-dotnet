@@ -17,6 +17,14 @@ namespace Neo.SmartContract.Framework.Attributes
     public class ContractPermissionAttribute : Attribute
     {
         /// <summary>
+        /// Allow calls to all methods of the specified contract, equivalent to <see cref="Method.Any"/>.
+        /// </summary>
+        /// <param name="contract">Address of contract allowed to call from this contract</param>
+        public ContractPermissionAttribute(string contract)
+        {
+        }
+
+        /// <summary>
         /// Specify which contract and methods are allowed to call from this contract.
         /// </summary>
         /// <param name="contract">Address of contract allowed to call from this contract</param>

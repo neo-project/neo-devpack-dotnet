@@ -266,7 +266,7 @@ partial class MethodConvert
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    private static void EmitIntegerStringValidation(MethodConvert methodConvert, byte strSlot, JumpTarget failTarget)
+    private static byte EmitIntegerStringValidation(MethodConvert methodConvert, byte strSlot, JumpTarget failTarget)
     {
         byte lengthSlot = methodConvert.AddAnonymousVariable();
         byte indexSlot = methodConvert.AddAnonymousVariable();
@@ -283,7 +283,7 @@ partial class MethodConvert
         methodConvert.Size();
         methodConvert.Dup();
         methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
-        methodConvert.JumpIfFalse(failTarget); // Jump to fail target if length is 0
+        methodConvert.JumpIfFalseLong(failTarget); // Jump to fail target if length is 0
 
         methodConvert.Push0();
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
@@ -320,6 +320,7 @@ partial class MethodConvert
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
         methodConvert.Jump(OpCode.JMPLT_L, loopTarget);            // Loop while a character is left
+        return indexSlot;
     }
 
     /// <summary>

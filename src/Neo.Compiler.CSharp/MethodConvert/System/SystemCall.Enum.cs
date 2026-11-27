@@ -720,7 +720,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.STLOC, tokenSlot);
         JumpTarget skipFastUpper = new();
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-        methodConvert.JumpIfFalse(skipFastUpper);
+        methodConvert.JumpIfFalseLong(skipFastUpper);
         methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
         ConvertToUpper(methodConvert);
         methodConvert.AccessSlot(OpCode.STLOC, tokenSlot);
@@ -760,7 +760,7 @@ internal partial class MethodConvert
 
         JumpTarget skipUpper = new();
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
-        methodConvert.JumpIfFalse(skipUpper);
+        methodConvert.JumpIfFalseLong(skipUpper);
         methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
         ConvertToUpper(methodConvert);
         methodConvert.AccessSlot(OpCode.STLOC, tokenSlot);
@@ -784,7 +784,8 @@ internal partial class MethodConvert
         methodConvert.Size();
         methodConvert.Push1();
         methodConvert.Jump(OpCode.JMPNE_L, failure);
-        EmitIntegerStringValidation(methodConvert, tokenSlot, failure);
+        byte digitIndexSlot = EmitIntegerStringValidation(methodConvert, tokenSlot, failure);
+        EmitEnumNumericLengthValidation(methodConvert, tokenSlot, digitIndexSlot, failure);
         methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
         methodConvert.Dup();
@@ -820,6 +821,55 @@ internal partial class MethodConvert
         failure.Instruction = methodConvert.Push0();
         methodConvert.Push(false);
         end.Instruction = methodConvert.Nop();
+    }
+
+    /// <summary>Keep atoi's result within the VM's 32-byte integer limit before checking the enum backing type.</summary>
+    private static void EmitEnumNumericLengthValidation(MethodConvert methodConvert, byte tokenSlot, byte indexSlot, JumpTarget failure)
+    {
+        JumpTarget sign = new();
+        JumpTarget scan = new();
+        JumpTarget nonZero = new();
+        JumpTarget done = new();
+
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        methodConvert.Push0();
+        methodConvert.PickItem();
+        methodConvert.Push((ushort)'-');
+        methodConvert.Equal();
+        methodConvert.JumpIfTrueLong(sign);
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        methodConvert.Push0();
+        methodConvert.PickItem();
+        methodConvert.Push((ushort)'+');
+        methodConvert.Equal();
+        methodConvert.JumpIfTrueLong(sign);
+        methodConvert.JumpAlwaysLong(scan);
+
+        sign.Instruction = methodConvert.Push1();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+        scan.Instruction = methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        methodConvert.Size();
+        methodConvert.Jump(OpCode.JMPGE_L, done);
+        methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.PickItem();
+        methodConvert.Push((ushort)'0');
+        methodConvert.Jump(OpCode.JMPNE_L, nonZero);
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.Inc();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+        methodConvert.JumpAlwaysLong(scan);
+
+        nonZero.Instruction = methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.Sub();
+        methodConvert.Push(20); // ulong.MaxValue is the widest possible enum value (20 decimal digits).
+        methodConvert.Jump(OpCode.JMPGT_L, failure);
+        done.Instruction = methodConvert.Nop();
     }
 
     private static void EmitEnumNameMatch(MethodConvert methodConvert, byte tokenSlot, byte ignoreSlot, IFieldSymbol member)

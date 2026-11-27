@@ -261,5 +261,57 @@ namespace Neo.SmartContract.Framework.Services
         public static extern Iterator Find(byte[] prefix, FindOptions options = FindOptions.None);
 
         #endregion
+
+        #region FindWithStart
+
+        /// <summary>
+        /// Returns a byte[] to byte[] iterator for a byte[] prefix on a given Storage context, starting at
+        /// prefix + start (inclusive). If that key does not exist, the next key in the requested direction is returned.
+        /// <para>
+        /// Available since HF_Huyao.
+        /// The execution will fail if:
+        ///  1. The context is null.
+        ///  2. The options are invalid. (see <see cref="FindOptions"/>).
+        /// </para>
+        /// </summary>
+        [Syscall("System.Storage.FindWithStart")]
+        public static extern Iterator FindWithStart(StorageContext context, ByteString prefix, ByteString start, FindOptions options = FindOptions.None);
+
+        /// <summary>
+        /// Returns a byte[] to byte[] iterator for a byte[] prefix on a given Storage context, starting at
+        /// prefix + start (inclusive). If that key does not exist, the next key in the requested direction is returned.
+        /// <para>
+        /// Available since HF_Huyao.
+        /// The execution will fail if:
+        ///  1. The context is null.
+        ///  2. The options are invalid. (see <see cref="FindOptions"/>).
+        /// </para>
+        /// </summary>
+        [Syscall("System.Storage.FindWithStart")]
+        public static extern Iterator FindWithStart(StorageContext context, byte[] prefix, byte[] start, FindOptions options = FindOptions.None);
+
+        /// <summary>
+        /// Returns a byte[] to byte[] iterator for a byte[] prefix on the current contract, starting at
+        /// prefix + start (inclusive). If that key does not exist, the next key in the requested direction is returned.
+        /// <para>
+        /// Available since HF_Huyao.
+        /// The execution will fail if the options are invalid. (see <see cref="FindOptions"/>).
+        /// </para>
+        /// </summary>
+        [Syscall("System.Storage.Local.FindWithStart")]
+        public static extern Iterator FindWithStart(ByteString prefix, ByteString start, FindOptions options = FindOptions.None);
+
+        /// <summary>
+        /// Returns a byte[] to byte[] iterator for a byte[] prefix on the current contract, starting at
+        /// prefix + start (inclusive). If that key does not exist, the next key in the requested direction is returned.
+        /// <para>
+        /// Available since HF_Huyao.
+        /// The execution will fail if the options are invalid. (see <see cref="FindOptions"/>).
+        /// </para>
+        /// </summary>
+        [Syscall("System.Storage.Local.FindWithStart")]
+        public static extern Iterator FindWithStart(byte[] prefix, byte[] start, FindOptions options = FindOptions.None);
+
+        #endregion
     }
 }

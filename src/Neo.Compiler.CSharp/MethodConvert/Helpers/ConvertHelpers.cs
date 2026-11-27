@@ -88,7 +88,9 @@ internal partial class MethodConvert
         JumpTarget inlineReturnTarget = new();
         if (parameterSlots is not null)
             _inlineParameterScopes.Push(parameterSlots);
+        _inlineMethodSymbols.Push(inlineSymbol);
         _inlineReturnTargets.Push(inlineReturnTarget);
+        _inlineStatementDepths.Push(_generalStatementStack.Count);
 
         try
         {
@@ -121,6 +123,8 @@ internal partial class MethodConvert
         {
             _inlineStackDepthScopes.Pop();
             _inlineReturnTargets.Pop();
+            _inlineStatementDepths.Pop();
+            _inlineMethodSymbols.Pop();
             if (parameterSlots is not null)
                 _inlineParameterScopes.Pop();
 
@@ -237,13 +241,17 @@ internal partial class MethodConvert
         _instructions.InsertRange(insertionIndex, [new Instruction { OpCode = OpCode.DEPTH }, store]);
     }
 
-    private void RestoreMethodStackDepth()
+    private void RestoreMethodStackDepth(byte? entryDepthIndex = null)
     {
         // NeoVM THROW preserves existing evaluation-stack items. Dropping only the two division operands
         // would leave receiver, index, and outer-expression temporaries behind, so restore the nearest
-        // inline or method boundary before pushing the exception value.
+        // try-entry, inline, or method boundary before pushing the exception value.
         byte stackDepthIndex;
-        if (_inlineStackDepthScopes.TryPeek(out StackDepthScope? scope))
+        if (entryDepthIndex.HasValue)
+        {
+            stackDepthIndex = entryDepthIndex.Value;
+        }
+        else if (_inlineStackDepthScopes.TryPeek(out StackDepthScope? scope))
         {
             if (!scope.SlotIndex.HasValue)
             {
@@ -357,27 +365,37 @@ internal partial class MethodConvert
 
     private void CreateObject(SemanticModel model, ITypeSymbol type)
     {
-        var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
-        var fields = members.OfType<IFieldSymbol>().ToArray();
-
-        int needVirtualMethodTable = 0;
-        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        if (!type.IsRecord && virtualMethods.Length > 0)
+        if (!_typesBeingCreated.Add(type))
+            throw new CompilationException(type, DiagnosticId.SyntaxNotSupported,
+                $"Recursive instance field initializers for '{type}' are not supported.");
+        try
         {
-            needVirtualMethodTable += 1;
-            byte vTableIndex = _context.AddVTable(type);
-            AccessSlot(OpCode.LDSFLD, vTableIndex);
-        }
+            var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+            var fields = members.OfType<IFieldSymbol>().ToArray();
 
-        if (fields.Length == 0 && needVirtualMethodTable == 0)
+            int needVirtualMethodTable = 0;
+            var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+            if (!type.IsRecord && virtualMethods.Length > 0)
+            {
+                needVirtualMethodTable += 1;
+                byte vTableIndex = _context.AddVTable(type);
+                AccessSlot(OpCode.LDSFLD, vTableIndex);
+            }
+
+            if (fields.Length == 0 && needVirtualMethodTable == 0)
+            {
+                AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+                return;
+            }
+
+            foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
+                ProcessFieldInitializer(model, field, null, null);
+            Push(fields.Length + needVirtualMethodTable);
+            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+        }
+        finally
         {
-            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
-            return;
+            _typesBeingCreated.Remove(type);
         }
-
-        foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
-            ProcessFieldInitializer(model, field, null, null);
-        Push(fields.Length + needVirtualMethodTable);
-        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
     }
 }
