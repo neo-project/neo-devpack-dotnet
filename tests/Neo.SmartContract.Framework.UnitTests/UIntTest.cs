@@ -111,9 +111,12 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             Assert.AreEqual(expected, Contract.ParseUInt256(hex));
             Assert.AreEqual(expected, Contract.ParseUInt256(hex.Substring(2)));
+            Assert.AreEqual(expected, Contract.ParseUInt256("0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1F"));
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256("abcd"));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256("0XZZ"));
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256("0xzz" + new string('0', 62)));
             Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256(null));
+            Assert.ThrowsExactly<TestException>(() => Contract.ParseUInt256(hex.Substring(2, 63)));
         }
 
         [TestMethod]
