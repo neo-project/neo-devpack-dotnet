@@ -309,6 +309,28 @@ internal partial class MethodConvert
 
         if (initializer.IsKind(SyntaxKind.CollectionInitializerExpression))
         {
+            ITypeSymbol collectionType = model.GetTypeInfo(initializer.Parent!).Type!;
+            if (!collectionType.IsFrameworkType("List", 1))
+            {
+                foreach (ExpressionSyntax element in initializer.Expressions)
+                {
+                    if (model.GetCollectionInitializerSymbolInfo(element).Symbol is not IMethodSymbol addMethod ||
+                        addMethod.IsStatic)
+                        throw CompilationException.UnsupportedSyntax(element, "Collection initializer requires a supported instance Add method.");
+
+                    // Keep the constructed value on the stack while invoking Add on a copy.
+                    AddInstruction(OpCode.DUP);
+                    IEnumerable<ExpressionSyntax> arguments = element is InitializerExpressionSyntax complex
+                        ? complex.Expressions : [element];
+                    foreach (ExpressionSyntax argument in arguments)
+                        ConvertExpression(model, argument);
+                    CallMethodWithConvention(model, addMethod, CallingConvention.StdCall);
+                    if (!addMethod.ReturnsVoid)
+                        AddInstruction(OpCode.DROP);
+                }
+                return;
+            }
+
             ITypeSymbol type;
             if (initializer.Expressions.Count > 0)
             {
