@@ -13,12 +13,12 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_IndexOrRange"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""testFromEndRangeEvaluationOrder"",""parameters"":[],""returntype"":""Integer"",""offset"":2780,""safe"":false},{""name"":""testStringRangeEvaluationOrder"",""parameters"":[],""returntype"":""String"",""offset"":2959,""safe"":false},{""name"":""testNullLeftFromEndRangeEvaluationOrder"",""parameters"":[],""returntype"":""Void"",""offset"":3146,""safe"":false},{""name"":""testNullRightFromEndRangeEvaluationOrder"",""parameters"":[],""returntype"":""Void"",""offset"":3332,""safe"":false},{""name"":""testConditionalNullRangeSkipsEndpoints"",""parameters"":[],""returntype"":""Boolean"",""offset"":3518,""safe"":false},{""name"":""testNegativeStartSkipsEndEvaluation"",""parameters"":[],""returntype"":""Void"",""offset"":3711,""safe"":false},{""name"":""testNegativeFromEndStopsAfterEndEvaluation"",""parameters"":[],""returntype"":""Void"",""offset"":3897,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.10.2"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_IndexOrRange"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""testFromEndRangeEvaluationOrder"",""parameters"":[],""returntype"":""Integer"",""offset"":2771,""safe"":false},{""name"":""testStringRangeEvaluationOrder"",""parameters"":[],""returntype"":""String"",""offset"":2949,""safe"":false},{""name"":""testNullLeftFromEndRangeEvaluationOrder"",""parameters"":[],""returntype"":""Void"",""offset"":3135,""safe"":false},{""name"":""testNullRightFromEndRangeEvaluationOrder"",""parameters"":[],""returntype"":""Void"",""offset"":3320,""safe"":false},{""name"":""testConditionalNullRangeSkipsEndpoints"",""parameters"":[],""returntype"":""Boolean"",""offset"":3505,""safe"":false},{""name"":""testNegativeStartSkipsEndEvaluation"",""parameters"":[],""returntype"":""Void"",""offset"":3697,""safe"":false},{""name"":""testNegativeFromEndStopsAfterEndEvaluation"",""parameters"":[],""returntype"":""Void"",""offset"":3882,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.11.2"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"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").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMAQ3ILcGhK2CWzAAAANcb8//9KEC4DOjXK/P//ShAuAzpKEC4HEk3KnpxQShAuBxJNyp6cUEsQLilDajIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLSzIpQ2oyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46ShNNyjIpQ2oyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S5+McWnYQA==
+    /// Script: VwMAQ3ILcGhK2CWyAAAANcr8//9KEC4DOjXO/P//ShAuAzpKEC4HEk3KnpxQShAuBxJNyp6cThAuKUNqMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOktLMilDajIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpKE03KMilDajIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLn4xxadhA
     /// INITSLOT 0300 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC2 [2 datoshi]
@@ -37,17 +37,17 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// LDLOC0 [2 datoshi]
     /// DUP [2 datoshi]
     /// ISNULL [2 datoshi]
-    /// JMPIF_L B3000000 [2 datoshi]
-    /// CALL_L C6FCFFFF [512 datoshi]
-    /// DUP [2 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// JMPGE 03 [2 datoshi]
-    /// THROW [512 datoshi]
+    /// JMPIF_L B2000000 [2 datoshi]
     /// CALL_L CAFCFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
     /// THROW [512 datoshi]
+    /// CALL_L CEFCFFFF [512 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// JMPGE 03 [2 datoshi]
+    /// THROW [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 07 [2 datoshi]
@@ -65,8 +65,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -113,7 +112,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAQ3A0mTSwShAuAzqcmzS1ShAuAzpKEC4HEk3KnpxQShAuBxJNyp6cUEsQLilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLSzIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46ShNNyjIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S5+MykA=
+    /// Script: VwEAQ3A0mTSwShAuAzqcmzS1ShAuAzpKEC4HEk3KnpxQShAuBxJNyp6cThAuKUNoMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOktLMilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpKE03KMilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLn4zKQA==
     /// INITSLOT 0100 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -147,8 +146,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -193,17 +191,17 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: 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
+    /// Script: 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
     /// INITSLOT 1700 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC1 [2 datoshi]
-    /// CALL_L 750A0000 [512 datoshi]
-    /// CALL_L 890A0000 [512 datoshi]
+    /// CALL_L 6C0A0000 [512 datoshi]
+    /// CALL_L 800A0000 [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
     /// THROW [512 datoshi]
-    /// CALL_L 8D0A0000 [512 datoshi]
+    /// CALL_L 840A0000 [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
@@ -225,8 +223,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -350,8 +347,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -415,8 +411,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -551,8 +546,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -620,8 +614,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -781,8 +774,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -847,8 +839,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -986,8 +977,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -1056,8 +1046,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -1190,17 +1179,17 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAQ3A1PPv//zVQ+///ShAuAzo1fvv//0oQLgM6nJtKEC4HEk3KnpxQShAuBxJNyp6cUEsQLilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLSzIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46ShNNyjIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S5+MRUA=
+    /// Script: VwEAQ3A1Qvv//zVW+///ShAuAzo1hPv//0oQLgM6nJtKEC4HEk3KnpxQShAuBxJNyp6cThAuKUNoMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOktLMilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpKE03KMilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLn4xFQA==
     /// INITSLOT 0100 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC0 [2 datoshi]
-    /// CALL_L 3CFBFFFF [512 datoshi]
-    /// CALL_L 50FBFFFF [512 datoshi]
+    /// CALL_L 42FBFFFF [512 datoshi]
+    /// CALL_L 56FBFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
     /// THROW [512 datoshi]
-    /// CALL_L 7EFBFFFF [512 datoshi]
+    /// CALL_L 84FBFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
@@ -1224,8 +1213,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -1270,17 +1258,17 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAQ3A19vv//zVC/P//ShAuAzo1Dvz//0oQLgM6ShAuBxJNyp6cUEoQLgcSTcqenFBLEC4pQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S0syKUNoMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkoTTcoyKUNoMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkufjEVA
+    /// Script: VwEAQ3A1+/v//zVH/P//ShAuAzo1E/z//0oQLgM6ShAuBxJNyp6cUEoQLgcSTcqenE4QLilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLSzIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46ShNNyjIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S5+MRUA=
     /// INITSLOT 0100 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC0 [2 datoshi]
-    /// CALL_L F6FBFFFF [512 datoshi]
-    /// CALL_L 42FCFFFF [512 datoshi]
+    /// CALL_L FBFBFFFF [512 datoshi]
+    /// CALL_L 47FCFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
     /// THROW [512 datoshi]
-    /// CALL_L 0EFCFFFF [512 datoshi]
+    /// CALL_L 13FCFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
@@ -1302,8 +1290,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -1348,21 +1335,21 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAQ3ELcGg1Qf7//0oQLgM6nJs1Q/7//0oQLgM6ShAuBxJNyp6cUEoQLgcSTcqenFBLEC4pQ2kyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S0syKUNpMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkoTTcoyKUNpMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkufjEVA
+    /// Script: VwIAQ3ELcGg1Q/7//0oQLgM6nJs1Rf7//0oQLgM6ShAuBxJNyp6cUEoQLgcSTcqenE4QLilDaTIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLSzIpQ2kyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46ShNNyjIpQ2kyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S5+MRUA=
     /// INITSLOT 0200 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC1 [2 datoshi]
     /// PUSHNULL [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// CALL_L 41FEFFFF [512 datoshi]
+    /// CALL_L 43FEFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
     /// THROW [512 datoshi]
     /// INC [4 datoshi]
     /// NEGATE [4 datoshi]
-    /// CALL_L 43FEFFFF [512 datoshi]
+    /// CALL_L 45FEFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
@@ -1384,8 +1371,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -1430,19 +1416,19 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAQ3ELcGg1h/3//0oQLgM6NYv9//9KEC4DOpybShAuBxJNyp6cUEoQLgcSTcqenFBLEC4pQ2kyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S0syKUNpMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkoTTcoyKUNpMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkufjEVA
+    /// Script: VwIAQ3ELcGg1iv3//0oQLgM6NY79//9KEC4DOpybShAuBxJNyp6cUEoQLgcSTcqenE4QLilDaTIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLSzIpQ2kyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46ShNNyjIpQ2kyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S5+MRUA=
     /// INITSLOT 0200 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC1 [2 datoshi]
     /// PUSHNULL [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// CALL_L 87FDFFFF [512 datoshi]
+    /// CALL_L 8AFDFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
     /// THROW [512 datoshi]
-    /// CALL_L 8BFDFFFF [512 datoshi]
+    /// CALL_L 8EFDFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
@@ -1466,8 +1452,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]
@@ -1512,17 +1497,17 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAQ3A1Gf///zX6/v//ShAuAzo1/v7//0oQLgM6ShAuBxJNyp6cUEoQLgcSTcqenFBLEC4pQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S0syKUNoMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkoTTcoyKUNoMgVFIvsMHVJhbmdlIGluZGV4IGlzIG91dCBvZiBib3VuZHMuOkufjNsoQA==
+    /// Script: VwEAQ3A1Gv///zX7/v//ShAuAzo1//7//0oQLgM6ShAuBxJNyp6cUEoQLgcSTcqenE4QLilDaDIFRSL7DB1SYW5nZSBpbmRleCBpcyBvdXQgb2YgYm91bmRzLjpLSzIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46ShNNyjIpQ2gyBUUi+wwdUmFuZ2UgaW5kZXggaXMgb3V0IG9mIGJvdW5kcy46S5+M2yhA
     /// INITSLOT 0100 [64 datoshi]
     /// DEPTH [2 datoshi]
     /// STLOC0 [2 datoshi]
-    /// CALL_L 19FFFFFF [512 datoshi]
-    /// CALL_L FAFEFFFF [512 datoshi]
+    /// CALL_L 1AFFFFFF [512 datoshi]
+    /// CALL_L FBFEFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
     /// THROW [512 datoshi]
-    /// CALL_L FEFEFFFF [512 datoshi]
+    /// CALL_L FFFEFFFF [512 datoshi]
     /// DUP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 03 [2 datoshi]
@@ -1544,8 +1529,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SIZE [4 datoshi]
     /// ADD [8 datoshi]
     /// INC [4 datoshi]
-    /// SWAP [2 datoshi]
-    /// OVER [2 datoshi]
+    /// TUCK [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// JMPGE 29 [2 datoshi]
     /// DEPTH [2 datoshi]

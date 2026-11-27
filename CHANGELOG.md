@@ -7,8 +7,13 @@ and versions use [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Added `System.Storage.FindWithStart` and `System.Storage.Local.FindWithStart` to the framework storage API.
+
 ### Changed
 
+- Updated the Neo dependency to `v3.11.2`.
 - Changes merged after `v3.10.1` are tracked here until the next release is published.
 
 ## [3.10.1] - 2026-07-23

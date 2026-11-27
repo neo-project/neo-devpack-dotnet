@@ -41,6 +41,8 @@ internal partial class MethodConvert
         }
         IMethodSymbol constructor = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
         IReadOnlyList<ArgumentSyntax> arguments = expression.ArgumentList?.Arguments ?? (IReadOnlyList<ArgumentSyntax>)Array.Empty<ArgumentSyntax>();
+        if (type.TypeKind == TypeKind.TypeParameter)
+            throw CompilationException.UnsupportedSyntax(expression, "Construction of a generic type parameter is not supported.");
         if (TryProcessSystemConstructors(model, constructor, arguments))
             return;
         var bigIntegerType = model.Compilation.GetTypeByMetadataName("System.Numerics.BigInteger");
@@ -51,7 +53,10 @@ internal partial class MethodConvert
                 DiagnosticId.BigIntegerCreation,
                 $"BigInteger constructor '{constructor}' is not supported. Only BigInteger(byte[]) is supported; use BigInteger.Zero for zero or an implicit conversion for integral values.");
         }
-        bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
+        // System.Object has no source constructor or declarative lowering, but new object()
+        // must still leave an instance on the evaluation stack.
+        bool needCreateObject = type.SpecialType == SpecialType.System_Object
+            || !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
         if (needCreateObject)
         {
             // an optimization to avoid PACK + billions of SETITEM
@@ -65,8 +70,16 @@ internal partial class MethodConvert
         // when the framework comes from a compiled assembly rather than a project reference.
         // IsExtern is not enough to decide this: it reflects the source modifier, and a
         // constructor read from metadata does not report it.
-        if (HasDeclarativeLowering(constructor) || !constructor.DeclaringSyntaxReferences.IsEmpty)
+        // Source types also need their synthesized constructor to invoke the base chain.
+        if (HasDeclarativeLowering(constructor) || !constructor.DeclaringSyntaxReferences.IsEmpty ||
+            (constructor.IsImplicitlyDeclared && !constructor.ContainingType.DeclaringSyntaxReferences.IsEmpty))
             CallInstanceMethod(model, constructor, needCreateObject, arguments);
+        else if (!needCreateObject)
+            // Neither an instance nor a constructor call was emitted: a type that comes from
+            // metadata without a lowered constructor (e.g. new Guid(), new string(char[]))
+            // would otherwise vanish silently and shift the evaluation stack of the
+            // enclosing expression.
+            throw new CompilationException(expression, DiagnosticId.ExternMethod, $"Unknown constructor: {constructor}");
         if (expression.Initializer is not null)
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
     }
@@ -240,11 +253,9 @@ internal partial class MethodConvert
         return true;
     }
 
-    private static bool RequiresDeclaredInstanceInitializer(IFieldSymbol field, bool isOverwritten)
+    private bool RequiresDeclaredInstanceInitializer(IFieldSymbol field, bool isOverwritten)
     {
-        if (field.GetAttributes().Any(attribute =>
-            attribute.AttributeClass?.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)
-            || attribute.AttributeClass?.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.Attributes.InitialValueAttribute)) == true))
+        if (_context.GetInitialValueAttribute(field, out _) is not null)
             return !isOverwritten;
 
         EqualsValueClauseSyntax? initializer;
@@ -298,6 +309,28 @@ internal partial class MethodConvert
 
         if (initializer.IsKind(SyntaxKind.CollectionInitializerExpression))
         {
+            ITypeSymbol collectionType = model.GetTypeInfo(initializer.Parent!).Type!;
+            if (!collectionType.IsFrameworkType("List", 1))
+            {
+                foreach (ExpressionSyntax element in initializer.Expressions)
+                {
+                    if (model.GetCollectionInitializerSymbolInfo(element).Symbol is not IMethodSymbol addMethod ||
+                        addMethod.IsStatic)
+                        throw CompilationException.UnsupportedSyntax(element, "Collection initializer requires a supported instance Add method.");
+
+                    // Keep the constructed value on the stack while invoking Add on a copy.
+                    AddInstruction(OpCode.DUP);
+                    IEnumerable<ExpressionSyntax> arguments = element is InitializerExpressionSyntax complex
+                        ? complex.Expressions : [element];
+                    foreach (ExpressionSyntax argument in arguments)
+                        ConvertExpression(model, argument);
+                    CallMethodWithConvention(model, addMethod, CallingConvention.StdCall);
+                    if (!addMethod.ReturnsVoid)
+                        AddInstruction(OpCode.DROP);
+                }
+                return;
+            }
+
             ITypeSymbol type;
             if (initializer.Expressions.Count > 0)
             {

@@ -22,7 +22,7 @@ public abstract class NEO(SmartContractInitialize initialize) : SmartContract(in
     #region Compiled data
 
     public static Manifest.ContractManifest Manifest { get; } =
-        NativeContract.NEO.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
+        NativeManifest.Get(NativeContract.NEO);
 
     #endregion
 

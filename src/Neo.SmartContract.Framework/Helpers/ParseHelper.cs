@@ -17,19 +17,17 @@ namespace Neo.SmartContract.Framework.Helpers
 {
     internal static class ParseHelper
     {
-        private static int GetHexPrefixLength(ByteString value)
-        {
-            if (value.Length < 2) return 0;
-            if (value[0] != (byte)'0') return 0;
-
-            byte second = value[1];
-            return (second == (byte)'x' || second == (byte)'X') ? 2 : 0;
-        }
-
         internal static byte[] ParseHex(ByteString value)
         {
-            var offset = GetHexPrefixLength(value);
-            var rawLength = (BigInteger)value.Length - offset;
+            var offset = BigInteger.Zero;
+            BigInteger valueLength = value.Length;
+            if (valueLength > 2 && value[0] == (byte)'0')
+            {
+                byte x = value[1];
+                offset = (x == (byte)'x' || x == (byte)'X') ? 2 : 0;
+            }
+
+            var rawLength = valueLength - offset;
             if (rawLength % 2 != 0)
                 throw new FormatException("Invalid hex string length.");
 
@@ -60,9 +58,9 @@ namespace Neo.SmartContract.Framework.Helpers
 
         private static BigInteger FromHexByte(BigInteger value)
         {
-            if (value.Within('0', '9' + 1)) return value - '0';
-            if (value.Within('a', 'f' + 1)) return value - 'a' + 10;
-            if (value.Within('A', 'F' + 1)) return value - 'A' + 10;
+            if (value.Within('0', ':')) return value - '0'; // ':' is the next char of '9'
+            if (value.Within('a', 'g')) return value - 87; // 'g' is the next char of 'f'
+            if (value.Within('A', 'G')) return value - 55;
             throw new FormatException("Invalid hex character.");
         }
     }

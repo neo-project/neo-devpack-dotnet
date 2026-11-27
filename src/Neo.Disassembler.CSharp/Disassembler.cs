@@ -135,7 +135,10 @@ public static class Disassembler
                 case OpCode.SYSCALL:
                     {
                         var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
-                        price += descriptor.FixedPrice;
+                        // Interop prices are stored in femtoGAS (1e-11) while opcode prices are in
+                        // datoshi (1e-8). A script has no block context, so use the base price and
+                        // scale it back to datoshi.
+                        price += descriptor.GetPrice(static _ => false) / ApplicationEngine.OpcodePriceMultiplier;
                         ret = $"{opcode} {operandString} '{descriptor.Name}'";
                         break;
                     }

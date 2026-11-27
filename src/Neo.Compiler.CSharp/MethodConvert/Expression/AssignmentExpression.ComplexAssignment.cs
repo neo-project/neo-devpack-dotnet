@@ -125,11 +125,11 @@ internal partial class MethodConvert
                 EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
                 ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
                 AddInstruction(OpCode.DUP);
-                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall, left.Expression);
                 EmitComplexAssignmentOperator(model, type, operatorToken, right);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE3);
-                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl, left.Expression);
             }
             else
             {
@@ -137,11 +137,11 @@ internal partial class MethodConvert
                 ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
                 AddInstruction(OpCode.OVER);
                 AddInstruction(OpCode.OVER);
-                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
+                CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall, left.Expression);
                 EmitComplexAssignmentOperator(model, type, operatorToken, right);
                 AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.REVERSE4);
-                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl, left.Expression);
             }
         }
         else
@@ -309,19 +309,19 @@ internal partial class MethodConvert
         if (!NeedInstanceConstructor(property.GetMethod!))
         {
             EmitIgnoredReceiverIfNeeded(model, property, left.Expression);
-            CallMethodWithConvention(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.Cdecl, left.Expression);
             EmitComplexAssignmentOperator(model, type, operatorToken, right);
             AddInstruction(OpCode.DUP);
-            CallMethodWithConvention(model, property.SetMethod!);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl, left.Expression);
         }
         else
         {
             ConvertExpression(model, left.Expression);
             AddInstruction(OpCode.DUP);
-            CallMethodWithConvention(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.Cdecl, left.Expression);
             EmitComplexAssignmentOperator(model, type, operatorToken, right);
             AddInstruction(OpCode.TUCK);
-            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall, left.Expression);
         }
     }
 
@@ -368,7 +368,9 @@ internal partial class MethodConvert
         var itemType = type.GetStackItemType();
         if (itemType == VM.Types.StackItemType.ByteString)
         {
+            CoalesceNullStringToEmpty(model, null);
             ConvertObjectToString(model, right);
+            CoalesceNullStringToEmpty(model, right);
             Cat();
             ChangeType(VM.Types.StackItemType.ByteString);
             return;
