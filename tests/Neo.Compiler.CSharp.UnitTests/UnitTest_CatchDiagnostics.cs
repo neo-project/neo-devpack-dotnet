@@ -103,7 +103,7 @@ public class UnitTest_CatchDiagnostics
     }
 
     [TestMethod]
-    public void UInt160ParseCompilesWithFrameworkCatch()
+    public void UInt160ParseCompilesWithFramework()
     {
         var context = TestHelper.CompileSingleContract("""
             using Neo.SmartContract.Framework;

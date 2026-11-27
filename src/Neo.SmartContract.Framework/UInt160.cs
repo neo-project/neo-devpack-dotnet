@@ -118,7 +118,7 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Parses a string into a <see cref="UInt160"/>. Accepts either a 20-byte hex string
-        /// (optionally prefixed with <c>0x</c>) or a Base58Check address matching the current
+        /// (optionally prefixed with <c>0x</c> or <c>0X</c>) or a Base58Check address matching the current
         /// <see cref="Runtime.AddressVersion"/>.
         /// </summary>
         /// <param name="value">Hex string or Base58Check address.</param>
@@ -133,17 +133,16 @@ namespace Neo.SmartContract.Framework
         {
             if (value is null) throw new FormatException("Value cannot be null.");
 
-            try
+            var length = value.Length;
+            if (length == 40 || length == 42) // 40: hex-encode 20-bytes, 42: 0x + hex.
             {
                 byte[] data = ParseHelper.ParseHex(value);
-                if (data.Length != UInt160.Size)
-                    throw new FormatException("UInt160 must be 20 bytes long.");
-                return FromChecked((ByteString)data.Reverse());
+                if (data.Length == UInt160.Size) return FromChecked((ByteString)data.Reverse());
             }
-            catch { }
-
-            if (value.Length == 34) // The address is 34 characters base58check encoded (20 bytes + 1 version byte)
+            else if (length == 34) // The address is 34 characters base58check encoded (20 bytes + 1 version byte)
+            {
                 return FromChecked(ParseHelper.ParseAddress(value, Runtime.AddressVersion));
+            }
             throw new FormatException("Invalid UInt160 string format.");
         }
 

@@ -199,4 +199,27 @@ public class UnitTest_OptimizedScriptBuilder
         StringAssert.Contains(ex.Message, "JMP");
         StringAssert.Contains(ex.Message, "delta=130");
     }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void BuildScriptWithJumpTargets_ThrowsForShortTryOffsetOverflow(bool overflowCatch)
+    {
+        Neo.VM.Instruction tryInstruction = new Script(new byte[] { (byte)OpCode.TRY, 0, 0 }).GetInstruction(0);
+        Neo.VM.Instruction nearTarget = new Script(new byte[] { (byte)OpCode.NOP }).GetInstruction(0);
+        Neo.VM.Instruction farTarget = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
+        OrderedDictionary instructions = new() { { tryInstruction, 0 }, { nearTarget, tryInstruction.Size } };
+        for (int index = 0; index < 127; index++)
+            instructions.Add(new Script(new byte[] { (byte)OpCode.NOP }).GetInstruction(0), tryInstruction.Size + 1 + index);
+        instructions.Add(farTarget, 131);
+
+        var targets = overflowCatch ? (farTarget, nearTarget) : (nearTarget, farTarget);
+        var ex = Assert.ThrowsExactly<BadScriptException>(() => OptimizedScriptBuilder.BuildScriptWithJumpTargets(
+            instructions,
+            new Dictionary<Neo.VM.Instruction, Neo.VM.Instruction>(),
+            new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)> { [tryInstruction] = targets }));
+
+        StringAssert.Contains(ex.Message, "TRY");
+        StringAssert.Contains(ex.Message, "131");
+    }
 }
