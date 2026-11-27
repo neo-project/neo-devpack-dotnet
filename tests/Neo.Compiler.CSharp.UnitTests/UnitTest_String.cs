@@ -852,10 +852,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("world!", Contract.TestStringBuilderRange("hello world", 6, 5));
             Assert.AreEqual("!", Contract.TestStringBuilderRange("hello", 2, 0));
             Assert.AreEqual("hello!", Contract.TestStringBuilderRange("hello", 0, 5));
-            Assert.ThrowsException<TestException>(() => Contract.TestStringBuilderRange("hello", 100, 5));
-            Assert.ThrowsException<TestException>(() => Contract.TestStringBuilderRange("hello", 3, 100));
-            Assert.ThrowsException<TestException>(() => Contract.TestStringBuilderRange("hello", -1, 2));
-            Assert.ThrowsException<TestException>(() => Contract.TestStringBuilderRange("hello", 1, -1));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", 100, 5));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", 3, 100));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", -1, 2));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", 1, -1));
         }
 
         [TestMethod]
