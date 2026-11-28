@@ -132,6 +132,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("", Encoding.UTF8.GetString(Contract.ByteStringSub(value, 0, 0)!));
             Assert.AreEqual("Hello, World!", Encoding.UTF8.GetString(Contract.ByteStringSub(value, 0, value.Length)!));
             Assert.ThrowsExactly<TestException>(() => Encoding.UTF8.GetString(Contract.ByteStringSub(value, 0, value.Length + 1)!));
+
+            Assert.AreEqual("ello, World!", Encoding.UTF8.GetString(Contract.ByteStringSubStart(value, 1)!));
+            Assert.AreEqual("", Encoding.UTF8.GetString(Contract.ByteStringSubStart(value, value.Length)!));
+            Assert.ThrowsExactly<TestException>(() => Encoding.UTF8.GetString(Contract.ByteStringSubStart(value, value.Length + 1)!));
         }
 
         [TestMethod]

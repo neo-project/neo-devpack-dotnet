@@ -54,6 +54,8 @@ namespace Neo.Compiler.CSharp.TestContracts
             return value.Split(separator, removeEmptyEntries);
         }
 
+        public static ByteString ByteStringSubStart(ByteString value, int start) => value.Substring(start);
+
         public static ByteString ByteStringSub(ByteString value, int start, int count) => value.Substring(start, count);
 
         public static ByteString ByteStringTake(ByteString value, int count) => value.Take(count);
