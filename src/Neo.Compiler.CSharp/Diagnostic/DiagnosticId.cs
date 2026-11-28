@@ -32,6 +32,7 @@ namespace Neo.Compiler
         public const string FormatClause = "NC2013";
         public const string StaticSlotLimit = "NC2014";
         public const string CrossActivationCapture = "NC2015";
+        public const string TypedCatch = "NC2016";
         public const string InvalidInitialValueType = "NC3001";
         public const string InvalidMethodName = "NC3002";
         public const string MethodNameConflict = "NC3003";

@@ -162,7 +162,7 @@ public class UnitTest_ExceptionMembers
                 public static string CaughtSubclassMessage()
                 {
                     try { throw new ArgumentException("arg"); }
-                    catch (ArgumentException e) { return e.Message; }
+                    catch (Exception e) { return e.Message; }
                 }
 
                 [DisplayName("storedExceptionMessage")]

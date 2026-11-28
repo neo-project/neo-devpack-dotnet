@@ -97,6 +97,11 @@ namespace Neo.Compiler
                 CatchClauseSyntax catchClause = syntax.Catches[0];
                 if (catchClause.Filter is not null)
                     throw new CompilationException(catchClause.Filter, DiagnosticId.CatchFilter, $"Unsupported syntax: {catchClause.Filter}");
+                if (catchClause.Declaration is { } declaration &&
+                    !SymbolEqualityComparer.Default.Equals(model.GetTypeInfo(declaration.Type).Type,
+                        model.Compilation.GetTypeByMetadataName("System.Exception")))
+                    throw new CompilationException(declaration.Type, DiagnosticId.TypedCatch,
+                        "Typed catch clauses cannot discriminate exception types on NeoVM. Use catch (Exception) or a bare catch.");
                 _tryStack.Peek().State = ExceptionHandlingState.Catch;
                 sc.TryState = ExceptionHandlingState.Catch;
                 ILocalSymbol? exceptionSymbol = null;
