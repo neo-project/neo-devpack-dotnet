@@ -837,14 +837,12 @@ internal partial class MethodConvert
         methodConvert.Push0();
         methodConvert.PickItem();
         methodConvert.Push((ushort)'-');
-        methodConvert.Equal();
-        methodConvert.JumpIfTrueLong(sign);
+        methodConvert.JumpIfEqual(sign);
         methodConvert.AccessSlot(OpCode.LDLOC, tokenSlot);
         methodConvert.Push0();
         methodConvert.PickItem();
         methodConvert.Push((ushort)'+');
-        methodConvert.Equal();
-        methodConvert.JumpIfTrueLong(sign);
+        methodConvert.JumpIfEqual(sign);
         methodConvert.JumpAlwaysLong(scan);
 
         sign.Instruction = methodConvert.Push1();
@@ -857,7 +855,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.PickItem();
         methodConvert.Push((ushort)'0');
-        methodConvert.Jump(OpCode.JMPNE_L, nonZero);
+        methodConvert.JumpIfNotEqual(nonZero);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.Inc();
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
