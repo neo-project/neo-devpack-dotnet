@@ -232,7 +232,7 @@ public class TestContract : SmartContract
 
             // Create the project file with version information
             XElement propertyGroup = new XElement("PropertyGroup",
-                new XElement("TargetFramework", "net10.0"),
+                new XElement("TargetFramework", "net11.0"),
                 new XElement("ImplicitUsings", "enable"),
                 new XElement("Nullable", "enable")
             );
@@ -252,7 +252,7 @@ public class TestContract : SmartContract
             }
 
             XElement propertyGroupFallback = new XElement("PropertyGroup",
-                new XElement("TargetFramework", "net10.0")
+                new XElement("TargetFramework", "net11.0")
             );
             if (frameworkProject is null)
             {

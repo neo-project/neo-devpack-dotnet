@@ -30,6 +30,8 @@ namespace Neo.Compiler
         /// jump instruction to exit the try block. Otherwise, it generates a `JMP_L` instruction to jump
         /// to the standard break target. This ensures that break statements behave correctly in both
         /// normal loops/switches and those within try-catch blocks.
+        /// C# 15 labeled break statements (`break outer;`) are resolved to the loop or switch statement
+        /// the label is attached to, unwinding every try block crossed on the way out.
         /// </remarks>
         /// <example>
         /// An example of a break statement syntax in a loop:
@@ -50,17 +52,24 @@ namespace Neo.Compiler
             {
                 JumpTarget? breakTarget = null;
                 List<StatementContext> visitedTry = [];  // from shallow to deep
-                foreach (StatementContext sc in _generalStatementStack)
-                {// start from the deepest context
-                    // find the final break target
-                    if (sc.BreakTarget != null)
-                    {
-                        breakTarget = sc.BreakTarget;
-                        break;
+                if (syntax.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault() is { } label)
+                {// C# 15 labeled break: exit the loop (or switch) the label is attached to
+                    breakTarget = FindLabeledJumpTarget(label, isContinue: false, visitedTry);
+                }
+                else
+                {
+                    foreach (StatementContext sc in _generalStatementStack)
+                    {// start from the deepest context
+                        // find the final break target
+                        if (sc.BreakTarget != null)
+                        {
+                            breakTarget = sc.BreakTarget;
+                            break;
+                        }
+                        // stage the try stacks on the way
+                        if (sc.StatementSyntax is TryStatementSyntax)
+                            visitedTry.Add(sc);
                     }
-                    // stage the try stacks on the way
-                    if (sc.StatementSyntax is TryStatementSyntax)
-                        visitedTry.Add(sc);
                 }
                 if (breakTarget == null)
                     // break is not handled

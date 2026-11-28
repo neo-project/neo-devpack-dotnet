@@ -3,6 +3,8 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|---------------------------------
 NC4065  | Usage    | Info     | StringConcatenationInLoopAnalyzer
+NC4066  | Syntax   | Error    | CollectionWithElementUsageAnalyzer
+NC4067  | Syntax   | Error    | UnionDeclarationUsageAnalyzer
 
 ### Changed Rules
 

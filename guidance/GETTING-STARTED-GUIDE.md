@@ -54,7 +54,7 @@ Before starting, ensure you have:
 
 ### Software Requirements
 1. **Git**: For version control ([Download](https://git-scm.com/))
-2. **.NET SDK 10.0+**: Required for compilation ([Download](https://dotnet.microsoft.com/download))
+2. **.NET SDK 11.0+**: Required for compilation ([Download](https://dotnet.microsoft.com/download))
 3. **Text Editor or IDE**: 
    - Visual Studio 2022+ (Windows/Mac)
    - Visual Studio Code (All platforms)
@@ -65,7 +65,7 @@ Before starting, ensure you have:
 
 ### Step 1: Install .NET SDK
 
-Download and install .NET SDK 10.0 or later from [dotnet.microsoft.com](https://dotnet.microsoft.com/download).
+Download and install .NET SDK 11.0 or later from [dotnet.microsoft.com](https://dotnet.microsoft.com/download).
 
 Verify installation:
 ```bash
@@ -116,7 +116,7 @@ Edit `HelloWorldContract.csproj`:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
   </PropertyGroup>
   
   <ItemGroup>
@@ -366,7 +366,7 @@ Edit `HelloWorldContract.Tests.csproj`:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
