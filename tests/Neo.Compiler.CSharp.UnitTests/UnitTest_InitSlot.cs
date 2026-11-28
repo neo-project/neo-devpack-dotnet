@@ -94,7 +94,8 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var operand = initSlot.Operand.Span;
             Assert.IsTrue(operand.Length >= 2, "INITSLOT must contain local and argument counts.");
-            Assert.IsTrue(operand[0] <= 12, $"System-call temporary locals should be reusable; actual local count was {operand[0]}.");
+            // Enum parsing now keeps additional slots live for comma-separated and numeric values.
+            Assert.IsTrue(operand[0] <= 14, $"System-call temporary locals should be reusable; actual local count was {operand[0]}.");
 
             var unoptimizedContext = CompileSource(source, CompilationOptions.OptimizationType.None);
             var unoptimizedInitSlot = GetInitSlotInstruction(unoptimizedContext, static id =>
