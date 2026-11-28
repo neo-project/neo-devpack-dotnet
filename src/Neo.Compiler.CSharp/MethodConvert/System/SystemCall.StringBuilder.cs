@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 using Neo.VM.Types;
 
@@ -49,31 +50,139 @@ internal partial class MethodConvert
 
     private static void HandleStringBuilderConstructor(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<ArgumentSyntax>? arguments)
     {
-        ArgumentSyntax? valueExpression = null;
-        if (symbol.Parameters.Length > 0 && arguments is not null)
+        // Keep the common positional overloads as compact as before.
+        if (symbol.Parameters.Length < 4 && (arguments is null || AllPositionalStringBuilderArguments(arguments)))
         {
-            foreach (var parameter in symbol.Parameters)
+            ArgumentSyntax? valueArgument = null;
+            if (arguments is not null)
             {
-                if (parameter.Type.SpecialType == SpecialType.System_String && parameter.Ordinal < arguments.Count)
+                foreach (var parameter in symbol.Parameters)
                 {
-                    valueExpression = arguments[parameter.Ordinal];
-                    break;
+                    if (parameter.Type.SpecialType == SpecialType.System_String && parameter.Ordinal < arguments.Count)
+                    {
+                        valueArgument = arguments[parameter.Ordinal];
+                        break;
+                    }
                 }
+            }
+
+            if (valueArgument is null)
+                methodConvert.Push("");
+            else
+            {
+                methodConvert.ConvertExpression(model, valueArgument.Expression);
+                EnsureStringValue(methodConvert);
+            }
+
+            methodConvert.Push(1);
+            methodConvert.AddInstruction(OpCode.PACK);
+            return;
+        }
+
+        byte?[] slots = new byte?[symbol.Parameters.Length];
+        if (arguments is not null)
+        {
+            // Evaluate each argument once, in source order, before using its bound parameter.
+            foreach (var argument in arguments)
+            {
+                if (model.GetOperation(argument) is not IArgumentOperation { Parameter: { } parameter }
+                    || parameter.Ordinal >= slots.Length)
+                    throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Unable to bind StringBuilder constructor argument.");
+
+                methodConvert.ConvertExpression(model, argument.Expression);
+                byte slot = methodConvert.AddAnonymousVariable();
+                methodConvert.AccessSlot(OpCode.STLOC, slot);
+                slots[parameter.Ordinal] = slot;
             }
         }
 
-        if (valueExpression is not null)
+        byte? valueSlot = null;
+        byte? startSlot = null;
+        byte? lengthSlot = null;
+        byte? capacitySlot = null;
+        foreach (var parameter in symbol.Parameters)
         {
-            methodConvert.ConvertExpression(model, ExtractExpression(valueExpression));
-            EnsureStringValue(methodConvert);
+            byte? slot = slots[parameter.Ordinal];
+            if (parameter.Type.SpecialType == SpecialType.System_String) valueSlot = slot;
+            if (parameter.Name == "startIndex") startSlot = slot;
+            if (parameter.Name == "length") lengthSlot = slot;
+            if (parameter.Name == "capacity") capacitySlot = slot;
         }
-        else
+
+        if (capacitySlot.HasValue)
         {
+            methodConvert.AccessSlot(OpCode.LDLOC, capacitySlot.Value);
+            ValidateStringBuilderNonNegative(methodConvert);
+        }
+
+        if (valueSlot.HasValue)
+            methodConvert.AccessSlot(OpCode.LDLOC, valueSlot.Value);
+        else
             methodConvert.Push("");
+        EnsureStringValue(methodConvert);
+
+        if (startSlot.HasValue && lengthSlot.HasValue)
+        {
+            byte stringSlot = methodConvert.AddAnonymousVariable();
+            methodConvert.AccessSlot(OpCode.STLOC, stringSlot);
+
+            methodConvert.AccessSlot(OpCode.LDLOC, startSlot.Value);
+            ValidateStringBuilderNonNegative(methodConvert);
+            methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot.Value);
+            ValidateStringBuilderNonNegative(methodConvert);
+
+            // Check startIndex <= value.Length and length <= value.Length - startIndex.
+            methodConvert.AccessSlot(OpCode.LDLOC, startSlot.Value);
+            methodConvert.AccessSlot(OpCode.LDLOC, stringSlot);
+            methodConvert.Size();
+            methodConvert.Le();
+            ThrowIfInvalidStringBuilderRange(methodConvert);
+
+            methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot.Value);
+            methodConvert.AccessSlot(OpCode.LDLOC, stringSlot);
+            methodConvert.Size();
+            methodConvert.AccessSlot(OpCode.LDLOC, startSlot.Value);
+            methodConvert.Sub();
+            methodConvert.Le();
+            ThrowIfInvalidStringBuilderRange(methodConvert);
+
+            methodConvert.AccessSlot(OpCode.LDLOC, stringSlot);
+            methodConvert.AccessSlot(OpCode.LDLOC, startSlot.Value);
+            methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot.Value);
+            methodConvert.SubStr();
+            methodConvert.RemoveAnonymousVariable(stringSlot);
         }
 
         methodConvert.Push(1);
         methodConvert.AddInstruction(OpCode.PACK);
+
+        foreach (byte? slot in slots)
+            if (slot.HasValue)
+                methodConvert.RemoveAnonymousVariable(slot.Value);
+    }
+
+    private static bool AllPositionalStringBuilderArguments(IReadOnlyList<ArgumentSyntax> arguments)
+    {
+        foreach (var argument in arguments)
+            if (argument.NameColon is not null)
+                return false;
+        return true;
+    }
+
+    private static void ValidateStringBuilderNonNegative(MethodConvert methodConvert)
+    {
+        methodConvert.Push(0);
+        methodConvert.Ge();
+        ThrowIfInvalidStringBuilderRange(methodConvert);
+    }
+
+    private static void ThrowIfInvalidStringBuilderRange(MethodConvert methodConvert)
+    {
+        JumpTarget valid = new();
+        methodConvert.JumpIfTrue(valid);
+        methodConvert.Push("ArgumentOutOfRangeException");
+        methodConvert.Throw();
+        valid.Instruction = methodConvert.Nop();
     }
 
     private static void HandleStringBuilderAppendString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)

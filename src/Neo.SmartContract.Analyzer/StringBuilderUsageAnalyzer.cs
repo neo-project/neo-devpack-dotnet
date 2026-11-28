@@ -151,7 +151,13 @@ public sealed class StringBuilderUsageAnalyzer : DiagnosticAnalyzer
     private static bool IsSupportedConstructor(IMethodSymbol constructor)
     {
         return constructor.Parameters.Length == 0 ||
-               (constructor.Parameters.Length == 1 && IsString(constructor.Parameters[0].Type));
+               (constructor.Parameters.Length == 1 && IsString(constructor.Parameters[0].Type)) ||
+               (constructor.Parameters.Length == 2 && IsString(constructor.Parameters[0].Type) &&
+                constructor.Parameters[1].Type.SpecialType == SpecialType.System_Int32) ||
+               (constructor.Parameters.Length == 4 && IsString(constructor.Parameters[0].Type) &&
+                constructor.Parameters[1].Type.SpecialType == SpecialType.System_Int32 &&
+                constructor.Parameters[2].Type.SpecialType == SpecialType.System_Int32 &&
+                constructor.Parameters[3].Type.SpecialType == SpecialType.System_Int32);
     }
 
     private static bool IsSupportedAppendParameter(ITypeSymbol parameterType)

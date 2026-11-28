@@ -31,6 +31,9 @@ public class StringBuilderUsageAnalyzerUnitTests
                        {
                            var sb = new StringBuilder();
                            var initialized = new StringBuilder("neo");
+                           var valueAndCapacity = new StringBuilder("neo", 16);
+                           var slice = new StringBuilder("abcd", 1, 2, 16);
+                           var named = new StringBuilder(length: 2, capacity: 16, value: "abcd", startIndex: 1);
                            var other = new StringBuilder();
                            var result = sb.Append("neo")
                                            .Append(' ')
@@ -67,10 +70,8 @@ public class StringBuilderUsageAnalyzerUnitTests
                        void Test()
                        {
                            var capacityOnly = {|#0:new StringBuilder(16)|};
-                           var valueAndCapacity = {|#1:new StringBuilder("neo", 16)|};
-                           var bounded = {|#2:new StringBuilder(16, 32)|};
-                           var slice = {|#3:new StringBuilder("abcd", 1, 2, 16)|};
-                           StringBuilder targetTyped = {|#4:new(16)|};
+                           var bounded = {|#1:new StringBuilder(16, 32)|};
+                           StringBuilder targetTyped = {|#2:new(16)|};
                        }
                    }
                    """;
@@ -82,15 +83,9 @@ public class StringBuilderUsageAnalyzerUnitTests
                 .WithArguments("StringBuilder.StringBuilder(int)"),
             VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
                 .WithLocation(1)
-                .WithArguments("StringBuilder.StringBuilder(string?, int)"),
-            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
-                .WithLocation(2)
                 .WithArguments("StringBuilder.StringBuilder(int, int)"),
             VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
-                .WithLocation(3)
-                .WithArguments("StringBuilder.StringBuilder(string?, int, int, int)"),
-            VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
-                .WithLocation(4)
+                .WithLocation(2)
                 .WithArguments("StringBuilder.StringBuilder(int)")
         };
 

@@ -845,6 +845,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual("neo compiler\npreview", Contract.TestStringBuilderAppendBuilder());
         }
+        [TestMethod]
+        public void Test_StringBuilderRangeConstructor()
+        {
+            Assert.AreEqual("ell!", Contract.TestStringBuilderRange("hello", 1, 3));
+            Assert.AreEqual("world!", Contract.TestStringBuilderRange("hello world", 6, 5));
+            Assert.AreEqual("!", Contract.TestStringBuilderRange("hello", 2, 0));
+            Assert.AreEqual("hello!", Contract.TestStringBuilderRange("hello", 0, 5));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", 100, 5));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", 3, 100));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", -1, 2));
+            Assert.ThrowsExactly<TestException>(() => Contract.TestStringBuilderRange("hello", 1, -1));
+        }
+
+        [TestMethod]
+        public void Test_StringBuilderNamedConstructorArguments()
+        {
+            Assert.AreEqual("hiell", Contract.TestStringBuilderNamedArguments());
+        }
+
         private static string[] ConvertToStrings(IList<object>? items)
         {
             if (items is null)
