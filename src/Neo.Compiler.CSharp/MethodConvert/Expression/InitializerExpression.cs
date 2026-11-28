@@ -88,7 +88,11 @@ internal partial class MethodConvert
         {
             EmitPackedItemsLeftToRight(
                 expressions.ToArray(),
-                expression => ConvertExpression(model, expression),
+                expression =>
+                {
+                    ConvertExpression(model, expression);
+                    CopyStructValueBeforeStore(model, elementType, expression);
+                },
                 OpCode.PACK,
                 expression => CanDeferExpressionEmission(model, expression));
         }
