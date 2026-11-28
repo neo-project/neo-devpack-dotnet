@@ -186,6 +186,17 @@ public static class ByteStringExtension
     public extern static ByteString Concat(this ByteString first, ByteString second);
 
     /// <summary>
+    /// Returns ByteString from start to end, Faults if start or start + count out of range.
+    /// </summary>
+    [OpCode(OpCode.OVER)]
+    [OpCode(OpCode.SIZE)]
+    [OpCode(OpCode.SWAP)]
+    [OpCode(OpCode.SUB)]
+    [OpCode(OpCode.RIGHT)]
+    [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+    public extern static ByteString Substring(this ByteString source, BigInteger start);
+
+    /// <summary>
     /// Returns ByteString from start to start + count. Faults if start or start + count out of range.
     /// </summary>
     [OpCode(OpCode.SUBSTR)]
